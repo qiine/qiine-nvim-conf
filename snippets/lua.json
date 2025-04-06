@@ -1,0 +1,16 @@
+{
+
+    "dashline": {
+        "prefix": "----",
+        "body": [
+            "----------"  
+        ]
+    },
+    "test": {
+        "prefix": "test",
+        "body": [
+            "'testing'"  
+        ]
+    }
+
+}

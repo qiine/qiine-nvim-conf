@@ -1,0 +1,24 @@
+{
+	"comment separator": {
+		"prefix": "///",
+		"body": [
+			"////////////////////////////////////////////////////////////////////////////////"
+		],
+	},
+
+	"console.log()": {
+		"prefix": "console.log",
+		"body": [
+			"console.log();"
+		],
+	},
+    
+    "console.log('hello')": {
+		"prefix": "console.log(hello)",
+		"body": [
+			"console.log(\"hello\");"
+		],
+	}
+
+
+}

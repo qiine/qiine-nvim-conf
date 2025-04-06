@@ -1,0 +1,23 @@
+{
+
+    "dashline": {
+        "prefix": "####",
+        "body": [
+            "##########"  
+        ]
+    },
+    "task install": {
+        "prefix": "task install",
+        "body": [
+            "
+                - name: install pkg
+                become: yes
+                ansible.builtin.apt:
+                name:
+                - linux-headers-amd64
+                state: latest
+            "  
+        ]
+    }
+
+}

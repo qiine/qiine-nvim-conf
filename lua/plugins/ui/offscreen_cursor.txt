@@ -1,0 +1,37 @@
+<F2>
+atempt at offscreen cursor
+local cursor_hidden = false
+
+local function hide_cursor()
+    if not cursor_hidden then
+        vim.cmd("hi Cursor blend=100")  -- Make cursor fully transparent
+        vim.cmd("hi lCursor blend=100")  -- Hide cursor in insert mode
+        cursor_hidden = true
+    end
+end
+
+local function show_cursor()
+    if cursor_hidden then
+        vim.cmd("hi Cursor blend=0")  -- Restore cursor visibility
+        vim.cmd("hi lCursor blend=0")
+        cursor_hidden = false
+    end
+end
+
+local function track_scroll()
+    local cursor_row = vim.fn.line(".")
+    local top_line = vim.fn.line("w0")
+    local bottom_line = vim.fn.line("w$")
+
+    if cursor_row < top_line or cursor_row > bottom_line then
+        hide_cursor()
+    else
+        show_cursor()
+    end
+end
+
+-- Attach to scrolling and cursor movement
+vim.api.nvim_create_autocmd({ "CursorMoved", "WinScrolled" }, {
+    callback = track_scroll,
+})
+

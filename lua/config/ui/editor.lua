@@ -362,4 +362,4 @@ vim.opt.wildoptions = "pum"
 --Term
 
 --Keymapping
-v.opt.timeoutlen = 200
+v.opt.timeoutlen = 300

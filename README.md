@@ -1,3 +1,5 @@
-My conf
+# My fancy config:
+
 surely overcomplicated
+
 Extremely heretical ;p 

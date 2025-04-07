@@ -88,7 +88,11 @@ end, { nargs = 1 })
 
 --Handy goto vline
 vim.api.nvim_create_user_command("ToVLine", function()
-    vapi.nvim_feedkeys( vapi.nvim_replace_termcodes("<S-V>", true, true, true), "n", true)
+    vapi.nvim_feedkeys(
+        vapi.nvim_replace_termcodes("<S-V>", true, true, true),
+        "n",
+        true
+    )
 end, {})
 
 --[Editing]
@@ -117,12 +121,11 @@ vim.api.nvim_create_user_command("FormatBuffer", function()
 end, {})
 
 vim.api.nvim_create_user_command("FormatSelected", function()
-    require("conform").format( )
-end, {range = true})
+    require("conform").format()
+end, { range = true })
 
 --wrap line into paragraph
 vim.api.nvim_create_user_command("WrapSelection", function()
     vim.cmd("normal! gww")
 end, { range = true })
-
 

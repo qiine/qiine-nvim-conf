@@ -14,16 +14,16 @@ return
             skip_confirm_for_simple_edits = true,
 
             buf_options = { 
-                buflisted = false, 
-                bufhidden = "hide" --"hide", "wipe"
+                buflisted = true, 
+                bufhidden = "wipe" --"hide", "wipe"
             },
             cleanup_delay_ms = 1000000000, --auto delete oil hidden buffers, false to turn this off
 
             columns = {
                 "icon",
                 --"permissions",
-                "size",
-                "mtime",
+                --"size",
+                --"mtime",
             },
 
             view_options = {
@@ -41,13 +41,10 @@ return
             },
             preview_win = {
                 update_on_cursor_moved = true,
-                -- How to open the preview window "load"|"scratch"|"fast_scratch"
-                preview_method = "fast_scratch",
-                -- A function that returns true to disable preview on a file e.g. to avoid lag
+                preview_method = "fast_scratch",    --load"|"scratch"|"fast_scratch"
                 disable_preview = function(filename)
                     return false
                 end,
-                -- Window-local options to use for preview window buffers
                 win_options = {},
             },
             float = {
@@ -66,7 +63,7 @@ return
 
                 ["<CR>"] = { function() vim.cmd("Neotree close") require("oil").select() end, mode="n" },
                 ["<2-LeftMouse>"] = {"actions.select", mode = "n"},
-                ["<MiddleMouse>"] = {"actions.select_tab"},
+                ["<S-CR>"] = { "actions.select", opts = { tab = true } },
                 
                 ["q"] = { function() vim.cmd("Neotree close") require("oil").close() end, mode="n" },
                 ["<F5>"] = "actions.refresh",
@@ -82,13 +79,14 @@ return
             },
         })
 
-        --Quick open to new tab
+        --Quick open 
         vim.keymap.set({ "i", "n", "v" }, "*-", function()
             vim.cmd("stopinsert")
 
-            --local fp = vim.fn.expand("%:p")
-            --local fd = fp:match("^(.*)/")
-            --vim.cmd('cd ' .. fd) --ensure proper path
+            local fp = vim.fn.expand("%:p")
+            local fd = fp:match("^(.*)/")
+            if not fd then fd = vim.fn.expand("~") end --fallback
+            vim.cmd('cd ' .. fd) --ensure proper path
             
             local oil = require("oil")
             local util = require("oil.util")
@@ -97,6 +95,10 @@ return
                 vim.cmd("stopinsert")
                 --oil.open_preview() 
             end)
+        
+            --if vim.bo.filetype ~= "" then 
+            vim.cmd("bp")
+            vim.cmd("bd")
 
             --vim.cmd("Neotree") 
             --vim.cmd("wincmd p")

@@ -36,7 +36,7 @@ return
 
                 filetype = {
                     -- Use `nvim-web-devicons` colors if set to true
-                    enabled = false,
+                    enabled = true,
                     custom_colors = false,
                 },
                 button = '', --close button

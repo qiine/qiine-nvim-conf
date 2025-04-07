@@ -38,8 +38,6 @@ local nvmap = vim.api.nvim_set_keymap
 
 --Keys
 ----------------
---to combine ctrl and shift for ex ctrl+shfit+p use C-P
-
 --<C-o> allows to execute one normal mode command while staying in insert mode.
 
 --<esc> = \27
@@ -56,34 +54,11 @@ local entr = "<CR>"
 local tab = "<Tab>"
 local space = "<Space>"
 
---local ctrl = "C"
-
 --modes helpers
 local modes = { "i", "n", "v", "o", "t", "c" }
 
 local function currmod() return vim.api.nvim_get_mode().mode end
 
-
---keymap helpers
-local function nvexec(args, chmode)
-    vim.api.nvim_exec(args, chmode) --chmode false to keep currmode
-end
-
-local function map_all_mode(key, action, opts)
-    opts = opts or { noremap = true, silent = true }
-
-    for _, mode in ipairs(modes) do
-        vmap(mode, "<"..key..">", action, opts)
-    end
-end
-
-local function map_all_mode_nvim(key, action, opts)
-    opts = opts or { noremap = true, silent = true }
-
-    for _, mode in ipairs(modes) do
-        nvmap(mode, "<"..key..">", action, opts)
-    end
-end
 
 ----------------------------------------------------------------------
 -- Internal --
@@ -148,7 +123,7 @@ vmap("i", "<C-v>", '<esc>"+Pa', { noremap = true})
 vmap("n", "<C-v>", '"+Pa', { noremap = true})
 vmap("v", "<C-v>", '"_d"+Pa', { noremap = true})
 vmap("c", "<C-v>", '<C-R>+', { noremap = true})
-vmap("t", "<C-v>", '<C-R>+', { noremap = true})
+vmap("t", "<C-v>", '<C-o>"+Pa', { noremap = true})
 
 --dup
 vmap({"i","n"}, "<C-d>", '<cmd>normal! yyp<cr>', {noremap=true, silent=true})
@@ -215,7 +190,7 @@ vmap("n", "<S-BS>", "0d$", {noremap = true, silent = true})
 vmap("v", "<S-BS>", "<S-v>:s/.*//<cr>", {noremap=true, silent=true})
 
 --Del
-vmap("n", "<Del>", "vd<esc>", {noremap = true})
+vmap("n", "<Del>", 'v"_d<esc>', {noremap = true})
 vmap("v", "<Del>", '"_di', {noremap = true})
 
 --ctrl+Del rem word

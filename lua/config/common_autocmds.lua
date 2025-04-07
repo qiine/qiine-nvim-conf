@@ -182,10 +182,14 @@ vim.api.nvim_create_autocmd("BufEnter", {
     pattern = "*",
     callback = function()
         if not vim.g.buffenter_startinsert then return end
-        
+
         local buftype = vim.bo.buftype
         local ft = vim.bo.filetype
-        if buftype == "" and ft ~= "oil" then --Regular buffers have an empty 'buftype'
+
+        if ft == "oil" then return end
+        if ft == "dashboard" then return end
+        if ft == "neo-tree" then return end
+        if buftype == "" then --Regular buffers have an empty 'buftype'
             vim.cmd("startinsert")
         end
     end,

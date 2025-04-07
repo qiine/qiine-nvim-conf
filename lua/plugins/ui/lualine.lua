@@ -21,7 +21,7 @@ return
             sections =
             {
                 lualine_a = { 
-                    {
+                    {   
                         'mode',
                         on_click = function()
                             local m = vim.fn.mode()
@@ -31,8 +31,16 @@ return
                         right_padding=1,
                     }
                 },
-                
-                lualine_b = { {"branch", left_padding = 0, right_padding=0}, 
+
+                lualine_b = 
+                { 
+                    {
+                        function() return "📂" end,
+                        on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
+                        right_padding=0,
+                    },
+                    
+                    {"branch", left_padding = 0, right_padding=0}, 
                     {--lazgit
                         function() return ' ' end,
                         on_click = function() vim.cmd(":term lazygit") end,
@@ -45,7 +53,7 @@ return
                         "diagnostics",
                         sections = { 'error', 'warn', "hint"},
                         always_visible = true,
-                        on_click = function() vim.cmd("echo 'hello'") end,
+                        on_click = function() vim.cmd("Trouble diagnostics toggle focus=true filter.buf=0") end,
                         right_padding=0,
                     },
                     {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
@@ -91,25 +99,23 @@ return
                         end,
                         padding=1,
                     },
+                    { "filesize",  padding=0}, {function()return"B"end,padding=0},
                 },
 
                 lualine_y = {
-                    {"filesize", separator={left=''}, left_padding=0},
+                    {--curr buftype
+                        function()   
+                            local buft = vim.bo.buftype
+                            if buft == "" then buft = "regular" end
+                            return ""..buft--.."|"
+                        end,
+                        padding=0,
+                        separator={left=''},
+                    },
                 },
 
                 lualine_z =
                 {  
-                    {--curr buftype
-                        function()   
-                            local buft = vim.bo.buftype
-                            local ft = vim.bo.filetype
-                            return "B:'"..buft.."'"
-                        end,
-                        on_click = function() 
-                            local ft = vim.bo.filetype
-                            vim.cmd("echo'"..ft.."'")
-                        end,
-                    },
                     {--Get curr LSP
                         function() 
                             local clients = vim.lsp.get_active_clients({ bufnr = 0 })
@@ -133,6 +139,7 @@ return
                             local root_dir = client.config.root_dir
                             print("LSP root dir: " .. root_dir)
                         end,
+                        padding = 0,
                         separator={left=''},
                     },--Get curr LSP
                     --{
@@ -150,6 +157,14 @@ return
                     --    ignore_lsp = {},
                     --    separator={left=''},
                     --},
+                    {
+                        function()
+                            local ft = vim.bo.filetype 
+                            if ft == "" then ft = "nofile" end 
+                            return "."..ft
+                        end,
+                        left_padding=0,
+                    },
                     {"filetype", icon_only = true, padding = 0},
                 },
             },

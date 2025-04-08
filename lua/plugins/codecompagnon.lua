@@ -13,7 +13,7 @@ return
                 mistral = function()
                   return require("codecompanion.adapters").extend("mistral", {
                     env = {
-                      api_key = "tDApacqz95dEhQeMaBFWwUDNmgAGdItA"
+                      api_key = ""
                     },
                   })
                 end,

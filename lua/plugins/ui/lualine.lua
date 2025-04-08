@@ -99,7 +99,25 @@ return
                         end,
                         padding=1,
                     },
-                    { "filesize",  padding=0}, {function()return"B"end,padding=0},
+                    { 
+                        function() --fsize
+                            local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
+
+                            local function human_readable_size(bytes)
+                                local units = { "B", "KB", "MB", "GB", "TB" }
+                                local i = 1
+                                while bytes >= 1024 and i < #units do
+                                    bytes = bytes / 1024
+                                    i = i + 1
+                                end
+                                return string.format("%.2f%s", bytes, units[i])
+                            end
+
+                            local file_size_human = human_readable_size(file_size_bytes)                            
+                            return file_size_human
+                        end,
+                        padding=0,
+                    },
                 },
 
                 lualine_y = {

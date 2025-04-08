@@ -394,6 +394,18 @@ end, {noremap=true, desc = "Toggle Gutter" })
 -- {noremap = true, silent = true}
 -- )
 
+vmap("n", "gl",
+    function ()
+        vim.diagnostic.config({ 
+            virtual_lines = {
+                enabled = true,
+                current_line = false,
+                severity = { min = "WARN" },
+            },
+        })
+    end,
+{noremap=true})
+
 --[Tabs]
 --create new tab
 vmap(

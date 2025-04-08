@@ -394,17 +394,8 @@ end, {noremap=true, desc = "Toggle Gutter" })
 -- {noremap = true, silent = true}
 -- )
 
-vmap("n", "gl",
-    function ()
-        vim.diagnostic.config({ 
-            virtual_lines = {
-                enabled = true,
-                current_line = false,
-                severity = { min = "WARN" },
-            },
-        })
-    end,
-{noremap=true})
+--virt lines
+vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 --[Tabs]
 --create new tab
@@ -415,7 +406,8 @@ vmap(
 )
 --tabs close
 vmap(
-    {"i","n","v"},"<C-w>",
+    modes,
+    "<C-w>",
     function() vim.cmd("bd!") end,
     {noremap = true, silent = true}
 )

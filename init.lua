@@ -47,6 +47,7 @@ safe_require("config.lazy")
 safe_require("config.settings")
 
 safe_require("config.ui.editor")
+safe_require("config.ui.view")
 safe_require("config.ui.menus")
 safe_require("config.ui.theme")
 

@@ -13,7 +13,7 @@ vim.api.nvim_create_user_command("WorkDirToCurrent", function()
     vim.cmd("cd %:p:h") -- ":h" rem file name
 end, {})
 
---Quick ressource
+--Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
     vim.cmd("source " .. currf)
@@ -86,7 +86,7 @@ end, { nargs = 1 })
 -- vim.cmd("help "..opts.args)
 -- end, { nargs = "*" })
 
---Handy goto vline
+--Handy activate vline
 vim.api.nvim_create_user_command("ToVLine", function()
     vapi.nvim_feedkeys(
         vapi.nvim_replace_termcodes("<S-V>", true, true, true),
@@ -128,4 +128,26 @@ end, { range = true })
 vim.api.nvim_create_user_command("WrapSelection", function()
     vim.cmd("normal! gww")
 end, { range = true })
+
+
+--wrap line into paragraph
+vim.api.nvim_create_user_command("ToggleVirtualLines", function()
+    local diagconf = vim.diagnostic.config()
+    --local virttext = diagconf.virtual_text.enabled
+    local virt = diagconf.virtual_lines
+vim.diagnostic.Opts.
+    vim.diagnostic.config({
+            virtual_lines = {
+                enabled = not virtenabled,
+                current_line = false,
+                severity = { min = "WARN" },
+            },
+            --virtual_text = {
+            --    enabled = if virtenabled then false else true end,
+            --}
+        })
+
+end, {})
+
+
 

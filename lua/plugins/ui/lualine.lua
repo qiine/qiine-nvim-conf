@@ -1,3 +1,4 @@
+
 return
 {
     'nvim-lualine/lualine.nvim',
@@ -74,7 +75,10 @@ return
                     },
                     { --cmd return
                         function() return '⌨' end, --🖵
-                        on_click = function() vim.api.nvim_input('<esc>:') end,
+                        on_click = function()
+                        if vim.bo.filetype == "vim" then
+                            vim.api.nvim_input('<esc>:quit<cr>') else vim.api.nvim_input('<esc>q:') end
+                        end,
                         padding = 0,
                         color = { fg = '#545454'},
                     },

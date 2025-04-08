@@ -114,21 +114,12 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
     end
 end, {})
 
+
 --[Formating]
---Format whole buff using conform.nvim
-vim.api.nvim_create_user_command("FormatBuffer", function()
-    require("conform").format()
-end, {})
-
-vim.api.nvim_create_user_command("FormatSelected", function()
-    require("conform").format()
-end, { range = true })
-
 --wrap line into paragraph
 vim.api.nvim_create_user_command("WrapSelection", function()
     vim.cmd("normal! gww")
 end, { range = true })
-
 
 --wrap line into paragraph
 vim.api.nvim_create_user_command("ToggleVirtualLines", function()

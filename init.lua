@@ -51,6 +51,7 @@ safe_require("config.ui.view")
 safe_require("config.ui.menus")
 safe_require("config.ui.theme")
 
+
 vim.api.nvim_create_autocmd("Vimenter", {
      pattern = "*",
      callback = function()

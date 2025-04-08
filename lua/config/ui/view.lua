@@ -216,3 +216,50 @@ vim.diagnostic.config({
 --    end,
 --})
 
+
+--[Conceal]
+vim.opt.conceallevel=0
+--0		Text is shown normally
+--	1		Each block of concealed text is replaced with one
+--			character.  If the syntax item does not have a custom
+--			replacement character defined (see |:syn-cchar|) the
+--			character defined in 'listchars' is used.
+--			It is highlighted with the "Conceal" highlight group.
+--	2		Concealed text is completely hidden unless it has a
+--			custom replacement character defined (see
+--			|:syn-cchar|).
+--	3		Concealed text is completely hidden.
+
+vim.opt.concealcursor=n
+
+--vim.api.nvim_create_autocmd("FileType", {
+--    pattern = {"lua"},
+--    callback = function()
+--        vim.cmd [[
+--            syntax match ConcealFunction /\_<function\>/ conceal cchar=𝒇𝒏
+--        ]]
+--    end,
+--})
+----§class  
+--function ()
+--    
+--end
+
+--vim.opt.cmdheight=0
+--vim.api.nvim_create_autocmd("CmdlineEnter", {
+--    callback = function()
+--        vim.opt.cmdheight = 1
+--    end,
+--})
+--
+--vim.api.nvim_create_autocmd("CmdlineLeave", {
+--    callback = function()
+--        vim.opt.cmdheight = 0
+--    end,
+--})
+
+--vim.api.nvim_create_autocmd("MsgEnter", {
+--    callback = function()
+--        vim.wo.cmdheight = 1  -- Show the command line for messages
+--    end,
+--})

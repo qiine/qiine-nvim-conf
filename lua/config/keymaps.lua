@@ -427,9 +427,13 @@ vmap("n", "<M-w>", "<C-w>", {noremap = true,})
 -- cmd --
 --------------------------------------------------------------------------------
 --Open command line
-vmap({"i", "n"}, "œ", "<esc>:", {noremap=true})
+vmap("i", "œ", "<esc>:", {noremap=true})
+vmap("n", "œ", ":", {noremap=true})
 vmap("v", "œ", ":", {noremap=true})
 vmap("t", "œ", "<Esc> <C-\\><C-n>", {noremap=true})
+
+--Cmd close
+vmap("c", "œ", "<Del>", {noremap=true})
 
 --Cmd menu nav
 vmap("c", "<Up>", "<C-p>", {noremap=true})

@@ -216,10 +216,12 @@ end
 
 --[Keys]
 function M.send_keystroke(key, mode, immediate)
-     if immediate == nil then immediate = true end --def val
-     local termkey = vapi.nvim_replace_termcodes(key, true, true, true)
-     local keystroke = vapi.nvim_feedkeys(termkey, mode, immediate)
-     return keystroke
+    if immediate == nil then immediate = true end   --default val
+    
+    local termkey = vapi.nvim_replace_termcodes(key, true, true, true)
+    local keystroke = vapi.nvim_feedkeys(termkey, mode, immediate)
+
+    return keystroke
 end
 
 

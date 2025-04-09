@@ -49,4 +49,4 @@ vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { fg = "#999999", bg = "NONE"})
 --        vim.opt_local.winhighlight = "Normal:BufTermBackground"
 --    end
 --})
---
+

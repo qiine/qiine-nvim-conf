@@ -31,19 +31,31 @@ vim.opt.mousemoveevent = true
 
 --v.opt.mousemodel = "normal" --used for selection extension in normal mode it will simply recreate a seelction
 
+vim.opt.virtualedit = "onemore" --allow to Snap cursor to closest char at eol
 --"block" → Allows cursor to move where there is no actual text in visual block mode.
 --"insert" → Allows inserting in positions where there is no actual text.
 --"all" → Enables virtual editing in all modes.
 --"onemore" → Allows the cursor to move one character past the end of a line.
 --"none" → Default, disables virtual editing.
-vim.opt.virtualedit = "onemore" --allow to Snap cursor to closest char at eol
+
+--Smart virt edit
+vim.api.nvim_create_autocmd("ModeChanged", {
+    group = "UserAutoCmds",
+    pattern = "*:*",
+    callback = function()
+        local mode = vim.fn.mode()
+        if mode == "n"                then vim.opt.virtualedit = "all"     end
+        if mode == "i"                then vim.opt.virtualedit = "block"   end
+        if mode == "v" or mode == "V" then vim.opt.virtualedit = "onemore" end
+    end,
+})
 
 
 -------------------------------------------------------
 -- Editing --
 -------------------------------------------------------
---Keymapping
-v.opt.timeoutlen = 300
+--[Keymapping]
+v.opt.timeoutlen = 300 --delay between key press to register shortcuts
 
 --Define what a word is
 vim.opt.iskeyword = "@,48-57,192-255,-,_" --@: alphabet, 48-57: 0-9, 192-255: extended Latin chars
@@ -53,7 +65,7 @@ v.opt.backspace = { "indent", "eol", "start" }
 --"eol" → Allows Backspace to delete past line breaks.
 --"start" → Allows Backspace at the start of insert mode.
 
-vim.opt.spell = true
+vim.opt.spell = false
 -- Disable spell check for markdown and plaintext
 --vim.api.nvim_create_autocmd({ "FileType" }, {
 --    pattern = { "markdown", "plaintext" },
@@ -70,7 +82,7 @@ vim.opt.spell = true
 --    end,
 --})
 
-vim.opt.spelllang = "en_gb" --Set the spell check language
+vim.opt.spelllang = {"en_gb", "en_fr"}
 
 
 --[Formating]

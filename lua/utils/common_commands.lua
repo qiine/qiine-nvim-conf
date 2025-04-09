@@ -86,15 +86,6 @@ end, { nargs = 1 })
 -- vim.cmd("help "..opts.args)
 -- end, { nargs = "*" })
 
---Handy activate vline
-vim.api.nvim_create_user_command("ToVLine", function()
-    vapi.nvim_feedkeys(
-        vapi.nvim_replace_termcodes("<S-V>", true, true, true),
-        "n",
-        true
-    )
-end, {})
-
 --[Editing]
 --Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimWhitespacesSelection", function(opts)
@@ -107,10 +98,8 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
 
     if listchars.eol == "¶" then
         vim.opt.listchars:remove("eol")
-        vim.g.show_eol = false
     else
         vim.opt.listchars:append({ eol = "¶" })
-        vim.g.show_eol = true
     end
 end, {})
 

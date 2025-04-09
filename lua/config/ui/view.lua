@@ -53,6 +53,9 @@ v.opt.scrolloff = 3
 v.opt.sidescrolloff = 4
 --v.opt.sidescroll=1
 
+--vim.opt.colorcolumn="80" 
+
+
 --[Gutter]
 ------------------------------
 --vim.opt.statuscolumn = "%s%l %c"
@@ -68,7 +71,7 @@ v.opt.signcolumn = "yes" --whow letters for error/warning/hint
 v.opt.number = true
 v.opt.relativenumber = false
 
---Folding
+--[Folding]
 v.opt.foldenable = true
 
 --"0" Hides fold numbers and uses "fillchars" for fold lines
@@ -80,54 +83,76 @@ v.opt.foldlevel = 99 --hack to Keep folds open by default
 v.opt.foldlevelstart = 99
 vim.opt.foldnestmax = 7
 
-vim.opt.fillchars = {
+vim.opt.fillchars:append({
     fold = ".", --in place of the folded text
     foldopen = "", -- 
-    foldclose = "", -- >
+    foldclose = ">", -- 
     foldsep = " ", --│  --separate folds (for open folds)
-    eob = "~",
-    diff = "╱",
-    --horiz     = '━',
-    --horizup   = '┻',
-    --horizdown = '┳',
-    --vert      = '┃',
-    --vertleft  = '┫',
-    --vertright = '┣',
-    --verthoriz = '╋',
-}
+
+    eob="~",
+})
 
 --[Whitespace symbols]
-vim.opt.showbreak = "↳" --line wrap symbol
-
 v.opt.list = true
-local default_lchars = {
-    space=" ",
+vim.opt.listchars:append({
     tab="  ",
-    trail=" ",
     eol=" ",
     nbsp="␣",
     precedes="⇐",
     extends="⇒",
     conceal="."
-}
-vim.g.show_eol = false --show: "¶"
+})
 
-v.opt.listchars = default_lchars
+vim.g.show_eol = false  --will show: "¶"
 
---Show whitespace symbols when selecting
+if vim.g.show_eol == true then
+    vim.opt.listchars:append({eol="¶"})
+else
+    vim.opt.listchars:remove({"eol"})
+end
+
+--line wrap symbol
+vim.opt.showbreak = "↳" 
+
+--Show/hide whitespace symbols when selecting
 vim.api.nvim_create_autocmd("ModeChanged", {
-    pattern = "*:[vV]*",
+    group = "UserAutoCmds",
+    pattern = "*:*",
     callback = function()
-        vim.opt.listchars:append({space=".", tab= "» ", trail="⬝"})
+        local mode = vim.fn.mode()
+        if mode == "v" or mode == "V" then
+            vim.opt.listchars:append({space=".", tab= "» ", trail="⬝"})
+        else
+            vim.opt.listchars:remove({"space", "tab", "trail"})
+            vim.opt.listchars:append({tab="  "}) --buggy without this
+        end
     end,
 })
---Hide them back
-vim.api.nvim_create_autocmd("ModeChanged", {
-    pattern = "*:[nio]*",
-    callback = function()
-        vim.opt.listchars = default_lchars
-    end,
-})
+
+--Show/hide whitespace symbols when selecting
+--vim.api.nvim_create_autocmd("CursorMoved", {
+--    group = "UserAutoCmds",
+--    pattern = "*",
+--    callback = function()
+--        --local cchar = vim.fn.screenchar(vim.fn.line('.'), vim.fn.col('.'))
+--        local cchar = vim.fn.screenstring(vim.fn.line('.'), vim.fn.col('.'))
+--        vim.cmd("echo'"..cchar.."'")
+--    end,
+--})
+
+--local function update_eol_display()
+--  -- Check if the cursor is at the end of the line
+--  local line = vim.fn.line('.')
+--  local col = vim.fn.col('.')
+--  local line_len = vim.fn.col('$') - 1
+--
+--  -- Only show EOL if cursor is at the end of the line
+--  if col == line_len then
+--    vim.opt.listchars = { eol = "¶" }
+--  else
+--    vim.opt.listchars = { eol = "" }
+--  end
+--end
 
 --[Diagnostic]
 vim.diagnostic.config({
@@ -245,7 +270,12 @@ vim.opt.concealcursor=n
 --    
 --end
 
---vim.opt.cmdheight=0
+
+------------------------------------------
+-- Command line --
+------------------------------------------
+vim.opt.cmdheight=1
+
 --vim.api.nvim_create_autocmd("CmdlineEnter", {
 --    callback = function()
 --        vim.opt.cmdheight = 1
@@ -263,3 +293,14 @@ vim.opt.concealcursor=n
 --        vim.wo.cmdheight = 1  -- Show the command line for messages
 --    end,
 --})
+
+--AutoClear the command line
+vim.api.nvim_create_autocmd("CmdlineLeave", {
+    group = "UserAutoCmds",
+    callback = function()
+        vim.defer_fn(function()
+            vim.cmd('echo""')
+        end, 100000)
+    end,
+})
+

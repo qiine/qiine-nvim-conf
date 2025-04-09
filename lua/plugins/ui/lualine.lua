@@ -36,9 +36,10 @@ return
                 lualine_b = 
                 { 
                     {
-                        function() return "📂" end,
+                        function() return " 📂" end,
                         on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
-                        right_padding=0,
+                        --right_padding=0,
+                        padding=0,
                     },
                     
                     {"branch", left_padding = 0, right_padding=0}, 
@@ -95,7 +96,8 @@ return
                         end,
                         padding=0,
                     },
-                    {"selectioncount", left_padding=1},
+                    {"selectioncount", left_padding=1, right_padding=0},
+                    {'location', padding=0},
                     {
                         function() --line count
                             local lines = vim.api.nvim_buf_line_count(0)
@@ -114,7 +116,7 @@ return
                                     bytes = bytes / 1024
                                     i = i + 1
                                 end
-                                return string.format("%.2f%s", bytes, units[i])
+                                return string.format("%.1f%s", bytes, units[i])
                             end
 
                             local file_size_human = human_readable_size(file_size_bytes)                            
@@ -183,9 +185,9 @@ return
                         function()
                             local ft = vim.bo.filetype 
                             if ft == "" then ft = "nofile" end 
-                            return "."..ft
+                            return " ."..ft
                         end,
-                        left_padding=0,
+                        padding=0,
                     },
                     {"filetype", icon_only = true, padding = 0},
                 },

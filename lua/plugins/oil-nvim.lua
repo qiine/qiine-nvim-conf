@@ -28,15 +28,16 @@ return
 
             view_options = {
                 show_hidden = true,
+                spell = true,
             },
             win_options = {
-                wrap = false,
-                signcolumn = "yes:2",
-                cursorcolumn = true,
-                foldcolumn = "0",
-                spell = true,
-                list = false,
-                conceallevel = 3,
+                wrap          = false,
+                signcolumn    = "yes:2",
+                cursorcolumn  = true,
+                foldcolumn    = "0",
+                spell         = true,
+                list          = false,
+                conceallevel  = 3,
                 concealcursor = "nvic",
             },
             preview_win = {
@@ -76,6 +77,20 @@ return
                 ["gs"] = { "actions.change_sort", mode = "n" },
                 ["gp"] = "actions.preview",
                 ["gh"] = { "actions.toggle_hidden", mode = "n" },
+
+                ["n"] = {
+                    function()
+                        vim.cmd("normal! o")
+                        vim.api.nvim_put({ "new_file.txt" }, "c", true, true)
+                    end
+                },
+                ["N"] = {
+                    function()
+                        vim.cmd("normal! o")
+                        vim.api.nvim_put({ "new_folder/" }, "c", true, true)
+                    end
+                },
+                ["<Del>"] = { function() vim.cmd("normal! dd") end, mode = "n" },
             },
         })
 

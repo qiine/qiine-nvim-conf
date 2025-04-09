@@ -28,6 +28,7 @@ require("lazy").setup({
         --sadly no recursive search in "plugins" 
        { import = "plugins" },
        { import = "plugins.parsers" },
+       { import = "plugins.editing" },
        { import = "plugins.ui" },
        { import = "plugins.ui.editor" },
        { import = "plugins.ui.themes" },

@@ -25,9 +25,9 @@ vim.api.nvim_create_user_command("Restart", function()
     local nvim_command = "nvim " .. curfile
 
     -- Stop all LSP clients
-    for _, client in ipairs(vim.lsp.get_active_clients()) do
-        client.stop()
-    end
+    --for _, client in ipairs(vim.lsp.get_active_clients()) do
+    --    client.stop()
+    --end
 
     vim.loop.spawn("wezterm", { args = { "-e", "nvim", curfile } })
     vim.cmd("qa!")

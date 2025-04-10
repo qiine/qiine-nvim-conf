@@ -4,9 +4,10 @@
 
 local utils = require("utils.utils")
 
+local v    = vim
 local vcmd = vim.cmd
-local vap = vim.api
-local vfn = vim.fn
+local vap  = vim.api
+local vfn  = vim.fn
 -----------------------------------
 
 --Why use augroup?
@@ -185,13 +186,14 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
         local buftype = vim.bo.buftype
         local ft = vim.bo.filetype
+        ft = string.lower(ft)
 
         if
             ft == "oil" or
-            ft == "dashboard" or
-            ft == "neo-tree" then
-        return end
-
+            utils.string_contains(ft, "dashboard") or
+            utils.string_contains(ft, "neo")
+        then return end
+        print("lol")
         if buftype == "" then --Regular buffers have an empty 'buftype'
             vim.cmd("startinsert")
         end

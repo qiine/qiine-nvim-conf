@@ -134,7 +134,7 @@ end, {noremap=true, desc = "Toggle Gutter" })
 --virt lines
 vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
---[Tabs]
+--[Tabs]--------------------------------------------------
 --create new tab
 vmap(
     modes,"<C-t>",
@@ -450,7 +450,7 @@ vmap("n", "<M-r>", "q", {remap = true})
 --------------------------------------------------------------------------------
 -- code runner --
 -------------------------------------------------------------------------------- 
-vmap({"i","n"}, "<F13>", --equivalent to <S-F8>
+vmap({"i","n"}, "<F20>", --equivalent to <S-F8>
     function()
         vim.cmd("stopinsert")
         local row = vim.api.nvim_win_get_cursor(0)[1]
@@ -459,6 +459,16 @@ vmap({"i","n"}, "<F13>", --equivalent to <S-F8>
         vim.fn.append(row, "-> " .. vim.inspect(result))
     end
 )
+
+vmap({"i","n"}, "<F56>", --equivalent to <M-F8>
+    function()
+        vim.cmd("stopinsert")
+        local row = vim.api.nvim_win_get_cursor(0)[1]  -- Get the current line number
+        local line = vim.fn.getline(row)  -- Get the content of the current line
+        vim.cmd(line)
+    end
+)
+
 
 --------------------------------------------------------------------------------
 -- cmd --

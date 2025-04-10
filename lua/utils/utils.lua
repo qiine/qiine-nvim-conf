@@ -42,6 +42,11 @@ function M.get_char_at_pos(cpos)
     return char
 end
 
+---@return boolean
+function M.string_contains(str, substr)
+    return string.find(str, substr) ~= nil
+end
+
 M.alphabet_lowercase = {
     "b", "b", "c", "d", "e", "f", "g",
     "h", "i", "j", "k", "l", "m", "n",

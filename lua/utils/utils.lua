@@ -2,13 +2,45 @@
 -- utils --
 -------------------------
 
-local v = vim
+local v    = vim
 local vapi = vim.api
 local vcmd = vim.cmd
 local vmap = vim.keymap.set
 -----------------------------
 
-local M = {} 
+local M = {}
+
+function M.is_tty()
+    return vim.fn.has("unix") == 1 and vim.fn.getenv("DISPLAY") == nil and vim.fn.getenv("WAYLAND_DISPLAY") == nil
+end
+--if is_tty() then
+--    print("Running in TTY")
+--else
+--    print("Not in TTY")
+--end
+
+--Search selected in v mode
+function M.SearchSelected()
+    -- Get the selected text
+    local selected_text = vim.fn.getreg('"')
+    print("hello")
+    -- Search for the selected text
+    if selected_text ~= "" then
+        vim.cmd("normal! /" .. selected_text)
+    else
+        print("No text selected")
+    end
+end
+
+
+--[Characters]--------------------------------------------------
+---@return string 
+---@param cpos number[] 
+function M.get_char_at_pos(cpos)
+    local line = vim.fn.getline(cpos[1])
+    local char = line:sub(cpos[2], cpos[2])
+    return char
+end
 
 M.alphabet_lowercase = {
     "b", "b", "c", "d", "e", "f", "g",
@@ -33,30 +65,13 @@ M.punctuation = {
     "%", "^", "&", "*", "+", "=", "~", "`"
 }
 
-function M.is_tty()
-    return vim.fn.has("unix") == 1 and vim.fn.getenv("DISPLAY") == nil and vim.fn.getenv("WAYLAND_DISPLAY") == nil
+--[strings]--------------------------------------------------
+function M.trim_whitespaces(s)
+    return string.gsub(s, "%s+", "")
 end
 
---if is_tty() then
---    print("Running in TTY")
---else
---    print("Not in TTY")
---end
 
---Search selected in v mode
-function M.SearchSelected()
-    -- Get the selected text
-    local selected_text = vim.fn.getreg('"')
-    print("hello")
-    -- Search for the selected text
-    if selected_text ~= "" then
-        vim.cmd("normal! /" .. selected_text)
-    else
-        print("No text selected")
-    end
-end
-
---[Tables]
+--[Tables]--------------------------------------------------
 function M.tables_append(ta, tb)
     local res = {}
     for _, t in ipairs(ta) do table.insert(res, t) end
@@ -78,17 +93,24 @@ function M.table_flatten(t)
 end
 
 
---[Editing]
+--[Editing]--------------------------------------------------
 function M.bool_toggle(bword)
     local toggle_map = {
         ["true"] = "false", ["false"] = "true",
         ["yes"] = "no", ["no"] = "yes",
-        ["on"] = "off", ["off"] = "on"
+        ["on"] = "off", ["off"] = "on",
+        ["activate"] = "deactivate", ["deactivate"] = "activate",
     }
 
-    local toggle = toggle_map[string.lower(bword)]
-    if toggle then
-        vim.cmd("normal! ciw" .. toggle) vim.cmd("normal! b")
+    local wtoggle = toggle_map[string.lower(bword)]
+    if wtoggle then
+        vim.cmd("normal! ciw" .. wtoggle) vim.cmd("normal! b")
+    end
+end
+
+function M.lessergreater_toggle(lessgreat)
+    if lessgreat == ">" then vim.cmd("normal! r<")
+    elseif lessgreat == "<" then vim.cmd("normal! r>")
     end
 end
 
@@ -106,11 +128,13 @@ function M.smartincrement()
 
     if #word == 1 and word:match("%a") then
         local next_char = string.char(word:byte() + 1)
-        vim.cmd("normal! r"..next_char) 
+        vim.cmd("normal! r"..next_char)
         return
     end
 
     M.bool_toggle(word)
+
+    M.lessergreater_toggle(word)
 end
 
 function M.smartdecrement()
@@ -134,10 +158,6 @@ function M.smartdecrement()
     M.bool_toggle(word)
 end
 
-function M.trim_whitespaces(s)
-    return string.gsub(s, "%s+", "")
-end
-
 -- Trim leading/trailing whitespace when yanking
 function M.TrimWhitespaceOnYank()
     local start_line, start_col = unpack(vim.api.nvim_buf_get_mark(0, '"'))
@@ -146,9 +166,8 @@ function M.TrimWhitespaceOnYank()
     -- Get the yanked text range
     local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
     
-    -- Trim whitespace from each line
     for i, line in ipairs(lines) do
-        lines[i] = line:match("^%s*(.-)%s*$")  -- Trim leading and trailing spaces
+        lines[i] = line:match("^%s*(.-)%s*$")
     end
 
     --Put the trimmed lines into the unnamed register
@@ -156,8 +175,9 @@ function M.TrimWhitespaceOnYank()
 end
 
 
---[cursor]
+--[cursor]--------------------------------------------------
 function M.get_cursor_pos()
+    --return {row, col}, but column is zero-based and row is 1-based!
     return vim.api.nvim_win_get_cursor(0)
 end
 
@@ -214,7 +234,7 @@ end
 --    return char:match("%w") ~= nil
 --end
 
---[Keys]
+--[Keys]--------------------------------------------------
 function M.send_keystroke(key, mode, immediate)
     if immediate == nil then immediate = true end   --default val
     

@@ -40,10 +40,11 @@ safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
 safe_require("config.common_autocmds")
 
+safe_require("config.lazy")
+
 safe_require("config.keymaps")
 safe_require("config.mousemaps")
 
-safe_require("config.lazy")
 safe_require("config.settings")
 
 safe_require("config.ui.editor")

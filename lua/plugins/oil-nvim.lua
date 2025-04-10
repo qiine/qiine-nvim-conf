@@ -91,6 +91,7 @@ return
                     end
                 },
                 ["<Del>"] = { function() vim.cmd("normal! dd") end, mode = "n" },
+                ["<F2>"] = { function() vim.cmd("normal! cc") vim.cmd("startinsert") end, mode = "n" },
             },
         })
 

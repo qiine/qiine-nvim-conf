@@ -9,14 +9,14 @@
 
 local utils = require("utils.utils")    
 
-local v = vim
-local vapi = vim.api
-local vcmd = vim.cmd
-local vmap = vim.keymap.set
+local v     = vim
+local vapi  = vim.api
+local vcmd  = vim.cmd
+local vmap  = vim.keymap.set
 local nvmap = vim.api.nvim_set_keymap
 ----------------------------------------
 
---[Doc]
+--[Doc]--------------------------------------------------
 --vim.api.nvim_set_keymap(mode, lhs, rhs, opts)
 --mode:  mode in which the mapping will work
 --lhs: key combination you want to bind.
@@ -97,59 +97,125 @@ end
 vmap(modes, "<C-n>", create_newfile, {noremap = true})
 
 
-----------------------------------------------------------------------
--- Editing --
-----------------------------------------------------------------------
-vmap("i", "<Ins>", "<Esc>", {noremap = true})
-vmap("n", "<Ins>", "i", {noremap = true})
-vmap("v", "<Ins>", "<Esc>i", {noremap = true})
-
---ctrl-c copy
--- ' "+ ' is the os register
-vmap("i", "<C-c>",
+--------------------------------------------------------------------------------
+-- View --
+--------------------------------------------------------------------------------
+--alt-z toggle line wrap
+vmap(
+    {"i", "n", "v"}, "<A-z>",
     function()
-        vim.cmd('normal! ^"+y$')
-        --local copied_text = vim.fn.getreg("+")
-        --local message = string.format('echo "Copied: %s"', copied_text)
-        vim.cmd("echo 'copied !'")
+        v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
     end,
-{noremap=true})
-vmap("n", "<C-c>", '"+yl', {noremap = true})
-vmap("v", "<C-c>", '"+y', {noremap = true}) 
+    {noremap = true}
+)
 
---ctrl+x cut
-vmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
-vmap("n", "<C-x>", '"+x', { noremap = true, silent = true })
-vmap("v", "<C-x>", '"+d<Esc>', { noremap = true, silent = true }) --d both delette and copy so..
-
---Map Ctrl-v  paste
-vmap("i", "<C-v>", '<esc>"+Pi')
-vmap("n", "<C-v>", '"+p')
-vmap("v", "<C-v>", '"_d"+P')
-vmap("c", "<C-v>", '<C-R>+')
-vmap("t", "<C-v>", '<C-o>"+P')
-
---dup
-vmap("i", "<C-d>", '<Esc>yyp', {noremap=true, silent=true})
-vmap("n", "<C-d>", 'yyp', {noremap=true, silent=true})
+--Gutter on/off
+vmap("n", "<M-g>", function()
+    local toggle = "yes"
+    vim.opt.number = false
+    vim.opt.relativenumber = false
+    vim.opt.signcolumn = "no"
+    vim.opt.foldenable = false
+end, {noremap=true, desc = "Toggle Gutter" })
 
 
---crtl+z to undo
-vmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
-vmap({"n","v"}, "<C-z>", "u", {noremap = true})
+--Folding
+-- vmap({"i","n","v}", "<M-f>",
+--     function()
+--         if v.fn.foldclosed(".") == -1 then
+--             v.cmd("foldclose")
+--         else
+--             v.cmd("foldopen")
+--         end
+--     end,
+-- {noremap = true, silent = true}
+-- )
 
---redo
-vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>", {noremap = true})
-vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
+--virt lines
+vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
+
+--[Tabs]
+--create new tab
+vmap(
+    modes,"<C-t>",
+    function() vim.cmd("tabnew") end,
+    {noremap = true, silent = true}
+)
+--tabs close
+vmap(
+    modes,
+    "<C-w>",
+    function() vim.cmd("bd!") end,
+    {noremap = true, silent = true}
+)
+
+--tabs nav
+vmap(modes, "<C-Tab>", "<cmd>bnext<cr>", {noremap = true, silent = true})
 
 
---[Selection]
+--------------------------------------------------------------------------------
+-- Windows --
+--------------------------------------------------------------------------------
+vmap("i", "<M-w>", "<esc><C-w>", {noremap = true,})
+vmap("n", "<M-w>", "<C-w>", {noremap = true,})
+
+
+----------------------------------------------------------------------
+-- Navigation --
+----------------------------------------------------------------------
+--[Fast cursor move]
+--Jump next word with Ctrl+Right in all modes
+vmap('i', '<C-Right>', '<C-o>w', { noremap = true, silent = true })
+vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
+
+--Move to the previous word with Ctrl+Left in all modes
+vmap('i', '<C-Left>', '<C-o>b', { noremap = true, silent = true })
+vmap('v', '<C-Left>', 'b', {noremap = true, silent = true })
+
+
+--Fast move normal mode
+vmap('n', '<C-Right>', '5l', { noremap = true, silent = true })
+vmap('n', '<C-Left>', '5h', { noremap = true, silent = true })
+
+--ctrl+up/down to cursor move fast
+vmap("i", "<C-Up>", function() vim.cmd("normal! 3k") end, {noremap = true, silent = true })
+vmap("n", "<C-Up>", "3k", {noremap = true, silent = true })
+
+vmap("i", "<C-Down>", function() vim.cmd("normal! 3j") end, {noremap = true, silent = true })
+vmap("n", "<C-Down>", "3j", {noremap = true, silent = true })
+
+--alt+left/right move to start/end of line
+vmap("i", "<M-Left>", function() vim.cmd("normal! 0") end, {noremap=true})
+vmap("n", "<M-Left>", "0", {remap=true})
+vmap("v", "<M-Left>", "0", {noremap=true})
+
+vmap("i", "<M-Right>", "<Esc>$a", {noremap=true})
+vmap("n", "<M-Right>", "$", {remap=true})
+vmap("v", "<M-Right>", "$", {noremap=true})
+
+--Quick home/end
+vmap("i", "<Home>", "<Esc>gg0i", {noremap=true})
+vmap({"n","v"}, "<Home>", "gg0", {noremap=true})
+
+vmap("i", "<End>", "<Esc>G0i", {noremap=true})
+vmap({"n","v"}, "<End>", "G0", {noremap=true})
+
+--no word move using shift+arrows
+vmap("v", "<S-Left>", "<Left>",  {noremap = true})
+vmap("v", "<S-Right>", "<Right>",  {noremap = true})
+--vmap({"n","v"}, "<S-Up>", "<Up>",  {noremap = true})
+--vmap({"n","v"}, "<S-Down>", "<Down>",  {noremap = true})
+
+---------------------------------------------------------------------- 
+-- Selection --
+----------------------------------------------------------------------
+vmap("i", "®", "<esc>viw")
+vmap("n", "®", "viw")
+vmap("v", "®", "iw")
+
 --Visual block
 vmap("i", "<M-v>", "<esc><C-S-v>", {noremap=true})
 vmap({"n","v"}, "<M-v>", "<C-S-v>", {noremap=true})
-
---Visual insert mode
-vmap("v", "<M-i>", "I", {noremap=true})
 
 --ctrl+a select all
 vmap(modes, "<C-a>", "<Esc>ggVG", {noremap = true, silent = true })
@@ -185,11 +251,60 @@ vmap("v", "<C-f>", "<Esc>*<cr>", {noremap=true})
 vmap("v", "<S-PageUp>", "h", {remap=true})
 
 
+----------------------------------------------------------------------
+-- Editing --
+----------------------------------------------------------------------
+vmap("i", "<Ins>", "<Esc>", {noremap = true})
+vmap("n", "<Ins>", "i", {noremap = true})
+vmap("v", "<Ins>", "<Esc>i", {noremap = true})
+
+--Visual insert mode
+vmap("v", "<M-i>", "I", {noremap=true})
+
+--ctrl-c copy
+-- ' "+ ' is the os register
+vmap("i", "<C-c>",
+    function()
+        vim.cmd('normal! ^"+y$')
+        --local copied_text = vim.fn.getreg("+")
+        --local message = string.format('echo "Copied: %s"', copied_text)
+        vim.cmd("echo 'copied !'")
+    end,
+{noremap=true})
+vmap("n", "<C-c>", '"+yl', {noremap = true})
+vmap("v", "<C-c>", '"+y', {noremap = true}) 
+
+--ctrl+x cut
+vmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
+vmap("n", "<C-x>", '"+x', { noremap = true, silent = true })
+vmap("v", "<C-x>", '"+d<Esc>', { noremap = true, silent = true }) --d both delette and copy so..
+
+--Map Ctrl-v  paste
+vmap("i", "<C-v>", '<esc>"+Pli')
+vmap("n", "<C-v>", '"+p')
+vmap("v", "<C-v>", '"_d"+P')
+vmap("c", "<C-v>", '<C-R>+')
+vmap("t", "<C-v>", '<C-o>"+P')
+
+--dup
+vmap("i", "<C-d>", '<Esc>yyp', {noremap=true, silent=true})
+vmap("n", "<C-d>", 'yyp', {noremap=true, silent=true})
+
+
+--crtl+z to undo
+vmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
+vmap({"n","v"}, "<C-z>", "u", {noremap = true})
+
+--redo
+vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>", {noremap = true})
+vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
+
+
 --[Deletion]
 --backspace delete char
 --vmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
-vmap("n", "<BS>", "<Esc>x<Esc>h")
-vmap("v", "<M-BS>", '"_d')
+vmap("n", "<BS>", '<Esc>"_X<Esc>')
+vmap("v", "<BS>", '"_x')
 
 --Ctrl+BS remove word
 vmap("i", "<C-H>", "<C-w>")
@@ -199,7 +314,7 @@ vmap("v", "<C-H>", '"_dB"')
 --Shift+backspace clear line
 vmap("i", "<S-BS>", '<Esc>0"_d$i', {silent = true})
 vmap("n", "<S-BS>", '0"_d$', {silent = true})
-vmap("v", "<S-BS>", "<S-v>:/s.*//<cr>", {silent=true})--TODO fix weird vis glitch
+vmap("v", "<S-BS>", '<Esc>"_cc', {silent=true})
 
 --Del
 vmap("n", "<Del>", 'v"_d<esc>')
@@ -264,12 +379,15 @@ vim.keymap.set("i", "<Tab>",
         local col = vim.fn.col('.')
         local line = vim.fn.getline('.') --get all char in curr line
 
-        local pchar = line:sub(col-1, col-1)
-        local nchar = line:sub(col, col) print(nchar)
+        local cursorpos = utils.get_cursor_pos()
+            local cchar = utils.get_char_at_pos(cursorpos) 
+                                             print(cchar)
+        --local pchar = line:sub(col-1, col-1) print(pchar)
+        --local nchar = line:sub(col, col) print(nchar)
 
-        if pchar == " " then vim.cmd("normal! v>") return end
-        if nchar == " " then  vim.cmd("normal! i\t") return end --TODO won't respect softtabstop
-        if pchar ~= " " and nchar ~= " " then vim.cmd("normal! v>") return end
+        --if pchar == " " then vim.cmd("normal! v>") return end
+        --if nchar == " " then  vim.cmd("normal! i\t") return end --TODO won't respect softtabstop
+        --if pchar ~= " " and nchar ~= " " then vim.cmd("normal! v>") return end
     end
 )
 vmap("n", "<Tab>", "v>")
@@ -329,115 +447,18 @@ vmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
 vmap("n", "<M-r>", "q", {remap = true})
 
 
-----------------------------------------------------------------------
--- Navigation --
-----------------------------------------------------------------------
---[Fast cursor move]
---Jump next word with Ctrl+Right in all modes
-vmap('i', '<C-Right>', '<C-o>w', { noremap = true, silent = true })
-vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
-
---Move to the previous word with Ctrl+Left in all modes
-vmap('i', '<C-Left>', '<C-o>b', { noremap = true, silent = true })
-vmap('v', '<C-Left>', 'b', {noremap = true, silent = true })
-
-
---Fast move normal mode
-vmap('n', '<C-Right>', '5l', { noremap = true, silent = true })
-vmap('n', '<C-Left>', '5h', { noremap = true, silent = true })
-
---ctrl+up/down to cursor move fast
-vmap("i", "<C-Up>", function() vim.cmd("normal! 3k") end, {noremap = true, silent = true })
-vmap("n", "<C-Up>", "3k", {noremap = true, silent = true })
-
-vmap("i", "<C-Down>", function() vim.cmd("normal! 3j") end, {noremap = true, silent = true })
-vmap("n", "<C-Down>", "3j", {noremap = true, silent = true })
-
---alt+left/right move to start/end of line
-vmap("i", "<M-Left>", function() vim.cmd("normal! 0") end, {noremap=true})
-vmap("n", "<M-Left>", "0", {remap=true})
-vmap("v", "<M-Left>", "0", {noremap=true})
-
-vmap("i", "<M-Right>", "<Esc>$a", {noremap=true})
-vmap("n", "<M-Right>", "$", {remap=true})
-vmap("v", "<M-Right>", "$", {noremap=true})
-
---Quick home/end
-vmap("i", "<Home>", "<Esc>gg0i", {noremap=true})
-vmap({"n","v"}, "<Home>", "gg0", {noremap=true})
-
-vmap("i", "<End>", "<Esc>G0i", {noremap=true})
-vmap({"n","v"}, "<End>", "G0", {noremap=true})
-
---no word move using shift+arrows
-vmap("v", "<S-Left>", "<Left>",  {noremap = true})
-vmap("v", "<S-Right>", "<Right>",  {noremap = true})
---vmap({"n","v"}, "<S-Up>", "<Up>",  {noremap = true})
---vmap({"n","v"}, "<S-Down>", "<Down>",  {noremap = true})
-
-
 --------------------------------------------------------------------------------
--- View --
---------------------------------------------------------------------------------
---alt-z toggle line wrap
-vmap(
-    {"i", "n", "v"}, "<A-z>",
+-- code runner --
+-------------------------------------------------------------------------------- 
+vmap({"i","n"}, "<F13>", --equivalent to <S-F8>
     function()
-        v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
-    end,
-    {noremap = true}
+        vim.cmd("stopinsert")
+        local row = vim.api.nvim_win_get_cursor(0)[1]
+        local line = vim.fn.getline(row)
+        local result = load("return " .. line)()
+        vim.fn.append(row, "-> " .. vim.inspect(result))
+    end
 )
-
---Gutter on/off
-vmap("n", "<M-g>", function()
-    local toggle = "yes"
-    vim.opt.number = false
-    vim.opt.relativenumber = false
-    vim.opt.signcolumn = "no"
-    vim.opt.foldenable = false
-end, {noremap=true, desc = "Toggle Gutter" })
-
-
---Folding
--- vmap({"i","n","v}", "<M-f>",
---     function()
---         if v.fn.foldclosed(".") == -1 then
---             v.cmd("foldclose")
---         else
---             v.cmd("foldopen")
---         end
---     end,
--- {noremap = true, silent = true}
--- )
-
---virt lines
-vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
-
---[Tabs]
---create new tab
-vmap(
-    modes,"<C-t>",
-    function() vim.cmd("tabnew") end,
-    {noremap = true, silent = true}
-)
---tabs close
-vmap(
-    modes,
-    "<C-w>",
-    function() vim.cmd("bd!") end,
-    {noremap = true, silent = true}
-)
-
---tabs nav
-vmap(modes, "<C-Tab>", "<cmd>bnext<cr>", {noremap = true, silent = true})
-
-
---------------------------------------------------------------------------------
--- Windows --
---------------------------------------------------------------------------------
-vmap("i", "<M-w>", "<esc><C-w>", {noremap = true,})
-vmap("n", "<M-w>", "<C-w>", {noremap = true,})
-
 
 --------------------------------------------------------------------------------
 -- cmd --

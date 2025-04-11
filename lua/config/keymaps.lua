@@ -163,7 +163,7 @@ vmap("n", "<M-w>", "<C-w>", {noremap = true,})
 ----------------------------------------------------------------------
 -- Navigation --
 ----------------------------------------------------------------------
---[Fast cursor move]
+--[Fast cursor move]--------------------------------------------------
 --Jump next word with Ctrl+Right in all modes
 vmap('i', '<C-Right>', '<C-o>w', { noremap = true, silent = true })
 vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
@@ -172,17 +172,16 @@ vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
 vmap('i', '<C-Left>', '<C-o>b', { noremap = true, silent = true })
 vmap('v', '<C-Left>', 'b', {noremap = true, silent = true })
 
-
 --Fast move normal mode
 vmap('n', '<C-Right>', '5l', { noremap = true, silent = true })
 vmap('n', '<C-Left>', '5h', { noremap = true, silent = true })
 
 --ctrl+up/down to cursor move fast
 vmap("i", "<C-Up>", function() vim.cmd("normal! 3k") end, {noremap = true, silent = true })
-vmap("n", "<C-Up>", "3k", {noremap = true, silent = true })
+vmap("n", "<C-Up>", "4k", {noremap = true, silent = true })
 
 vmap("i", "<C-Down>", function() vim.cmd("normal! 3j") end, {noremap = true, silent = true })
-vmap("n", "<C-Down>", "3j", {noremap = true, silent = true })
+vmap("n", "<C-Down>", "4j", {noremap = true, silent = true })
 
 --alt+left/right move to start/end of line
 vmap("i", "<M-Left>", function() vim.cmd("normal! 0") end, {noremap=true})

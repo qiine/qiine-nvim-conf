@@ -70,7 +70,7 @@ vim.api.nvim_create_autocmd('InsertEnter', {
 --vim.api.nvim_create_autocmd('TabLeave', {
 
 
---TODO prevent closing tab if unsaved buffs 
+--TODO prevent closing tab if unsaved buffs
 local function check_unsaved_buffers()
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
         local bufnr = vim.api.nvim_win_get_buf(win)
@@ -177,9 +177,10 @@ vim.api.nvim_create_autocmd("BufEnter", {
     end
 })
 
---[Buffers]
+--[Buffers]--------------------------------------------------
 --Smart Auto start in Insert mode when appropriate
 vim.api.nvim_create_autocmd("BufEnter", {
+    group = "UserAutoCmds",
     pattern = "*",
     callback = function()
         if not vim.g.buffenter_startinsert then return end
@@ -193,11 +194,21 @@ vim.api.nvim_create_autocmd("BufEnter", {
             utils.string_contains(ft, "dashboard") or
             utils.string_contains(ft, "neo")
         then return end
-        print("lol")
+        --print("lol")
         if buftype == "" then --Regular buffers have an empty 'buftype'
             vim.cmd("startinsert")
         end
     end,
 })
 
+--Auto Trim Whitespaces in CurrBuffer
+vim.api.nvim_create_autocmd("BufWritePre", {
+    group = "UserAutoCmds",
+    pattern = "*",
+    callback = function()
+        if vim.bo.modifiable and not vim.bo.readonly then
+            vim.cmd("TrimCurrBufferWhitespaces")
+        end
+    end
+})
 

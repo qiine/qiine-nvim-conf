@@ -75,7 +75,6 @@ function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
 
-
 --[Tables]--------------------------------------------------
 function M.tables_append(ta, tb)
     local res = {}

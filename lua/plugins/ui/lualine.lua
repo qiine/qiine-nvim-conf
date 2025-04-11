@@ -2,7 +2,7 @@
 return
 {
     'nvim-lualine/lualine.nvim',
-    enabled = true, 
+    enabled = true,
     event = {"VimEnter", "BufReadPost", "BufNewFile"},
     dependencies = { 'nvim-tree/nvim-web-devicons' },
 
@@ -21,28 +21,33 @@ return
 
             sections =
             {
-                lualine_a = { 
-                    {   
-                        'mode',
+                lualine_a = {
+                    {
+                        function ()
+                            local m = vim.api.nvim_get_mode().mode
+                            return m
+                        end,
+                        --'mode',
+                        map ={  ['n']  = 'NOR',},
                         on_click = function()
                             local m = vim.fn.mode()
                             if m ~= 'n' then vim.api.nvim_input('<ESC>') end
                         end,
-                        separator={right=''}, 
+                        separator={right=''},
                         right_padding=1,
                     }
                 },
 
-                lualine_b = 
-                { 
+                lualine_b =
+                {
                     {
                         function() return " 📂" end,
                         on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
                         --right_padding=0,
                         padding=0,
                     },
-                    
-                    {"branch", left_padding = 0, right_padding=0}, 
+
+                    {"branch", left_padding = 0, right_padding=0},
                     {--lazgit
                         function() return ' ' end,
                         on_click = function() vim.cmd(":term lazygit") end,
@@ -105,7 +110,7 @@ return
                         end,
                         padding=1,
                     },
-                    { 
+                    {
                         function() --fsize
                             local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
 
@@ -119,7 +124,7 @@ return
                                 return string.format("%.1f%s", bytes, units[i])
                             end
 
-                            local file_size_human = human_readable_size(file_size_bytes)                            
+                            local file_size_human = human_readable_size(file_size_bytes)
                             return file_size_human
                         end,
                         padding=0,
@@ -128,7 +133,7 @@ return
 
                 lualine_y = {
                     {--curr buftype
-                        function()   
+                        function()
                             local buft = vim.bo.buftype
                             if buft == "" then buft = "regular" end
                             return ""..buft--.."|"
@@ -139,9 +144,9 @@ return
                 },
 
                 lualine_z =
-                {  
+                {
                     {--Get curr LSP
-                        function() 
+                        function()
                             local clients = vim.lsp.get_active_clients({ bufnr = 0 })
                             if #clients == 0 then
                                 return "ⓘ NoLSP"
@@ -183,8 +188,8 @@ return
                     --},
                     {
                         function()
-                            local ft = vim.bo.filetype 
-                            if ft == "" then ft = "nofile" end 
+                            local ft = vim.bo.filetype
+                            if ft == "" then ft = "nofile" end
                             return " ."..ft
                         end,
                         padding=0,

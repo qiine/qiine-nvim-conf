@@ -12,7 +12,7 @@ vim.g.buffenter_startinsert = true
 
 --[Mouse]
 v.opt.mouse = "a"
---"" Mouse support disabled.
+--""    Mouse support disabled.
 --"n"   Enabled in Normal mode.
 --"v"	Enabled in Visual mode.
 --"i"	Enabled in Insert mode.
@@ -24,10 +24,10 @@ v.opt.mouse = "a"
 
 --mouse selectmode
 
+vim.opt.mousemoveevent = true
 --Neovim does not track mouse movement unless you click or scroll.
 --This means that just moving the cursor around inside the terminal window will not trigger any events.
 --Some UI plugins (like floating windows, statuslines, and overlays) use this to provide hover tooltips, previews, or dynamic highlighting.
-vim.opt.mousemoveevent = true
 
 --v.opt.mousemodel = "normal" --used for selection extension in normal mode it will simply recreate a seelction
 
@@ -65,25 +65,15 @@ v.opt.backspace = { "indent", "eol", "start" }
 --"eol" → Allows Backspace to delete past line breaks.
 --"start" → Allows Backspace at the start of insert mode.
 
-vim.opt.spell = false
--- Disable spell check for markdown and plaintext
+vim.opt.spell = true
 --vim.api.nvim_create_autocmd({ "FileType" }, {
 --    pattern = { "markdown", "plaintext" },
 --    callback = function()
 --        vim.opt.spell = true
 --    end,
 --})
----- Enable spell check for all other file types
----- (optional, if you want it enabled for others)
---vim.api.nvim_create_autocmd({ "FileType" }, {
---    pattern = "*",
---    callback = function()
---        vim.opt.spell = true
---    end,
---})
 
 vim.opt.spelllang = {"en_gb", "en_fr"}
-
 
 --[Formating]
 local formatopts = {} --will hold all users formats opts
@@ -102,21 +92,11 @@ v.opt.shiftwidth = 4 -- Number of spaces to use for indentation
 v.opt.tabstop = 4
 v.opt.softtabstop = 4 -- Number of spaces to use for pressing TAB in insert mode
 
---[Commenting]
---------------------------------
---"c" Auto-wrap comments using textwidth.
---"r" Continue comments when pressing <Enter> in insert mode.
---"o" Continue comments when opening a new line with o or O.
---"q" Allow gq to format comments.
---"j" Remove comment leaders when joining lines with J.
-table.insert(formatopts, "c")
-table.insert(formatopts, "j")
-table.insert(formatopts, "q")
-
 --Text Wrapping
 ------------------------------
 --"t" Auto-wrap text using textwidth (for non-comments).
 --"w" Auto-wrap lines in insert mode, even without spaces.
+--"v" Don't auto-wrap lines in visual mode.
 vim.opt.textwidth = 80
 vim.opt.wrap = false --word wrap off by default
 vim.opt.breakindent = true --wrapped lines conserve whole block identation
@@ -124,15 +104,22 @@ vim.opt.breakindent = true --wrapped lines conserve whole block identation
 --Paragraph & Line Formatting
 -----------------------------
 --a	Auto-format paragraphs as you type (very aggressive).
+--"l" on joins, Don’t break long lines in insert mode.
 --n	Recognize numbered lists (1., 2., etc.) and format them properly.
 --2	Use a two-space indent for paragraph continuation.
 table.insert(formatopts, "n")
 
---Line Joins strategy
---l	Don’t break long lines in insert mode.
---v	Don't auto-wrap lines in visual mode.
---b	No automatic formatting in block comments.
---table.insert(formatopts, "")
+--[Commenting]
+--------------------------------
+--"c" Auto-wrap comments using textwidth.
+--"r" Continue comments when pressing <Enter> in insert mode.
+--"o" Continue comments when opening a new line with o or O.
+--"q" Allow gq to format comments.
+--"j" Remove comment leaders when joining lines with J.
+--"b" No automatic formatting in block comments.
+table.insert(formatopts, "c")
+table.insert(formatopts, "j")
+table.insert(formatopts, "q")
 
 --Force selected format options because it can be overwrited by other things
 vim.api.nvim_create_autocmd("BufEnter", {

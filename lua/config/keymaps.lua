@@ -1,13 +1,13 @@
--- _                                        
---| |                                       
---| | _____ _   _ _ __ ___   __ _ _ __  ___ 
+-- _
+--| |
+--| | _____ _   _ _ __ ___   __ _ _ __  ___
 --| |/ / _ \ | | | '_ ` _ \ / _` | '_ \/ __|
 --|   <  __/ |_| | | | | | | (_| | |_) \__ \
 --|_|\_\___|\__, |_| |_| |_|\__,_| .__/|___/
---           __/ |               | |        
---          |___/                |_|        
+--           __/ |               | |
+--          |___/                |_|
 
-local utils = require("utils.utils")    
+local utils = require("utils.utils")
 
 local v     = vim
 local vapi  = vim.api
@@ -63,7 +63,6 @@ local function currmod() return vim.api.nvim_get_mode().mode end
 ----------------------------------------------------------------------
 -- Internal --
 ----------------------------------------------------------------------
---leader is space
 --vim.g.mapleader = " "
 
 --Ctrl+q to quit
@@ -76,7 +75,8 @@ vmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
 vmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
 
 
---[LSP]
+---[LSP]
+--Goto deffinition
 vmap("n", "<F12>", "<Ctrl-]>", {noremap=true})
 
 
@@ -134,6 +134,7 @@ end, {noremap=true, desc = "Toggle Gutter" })
 --virt lines
 vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
+
 --[Tabs]--------------------------------------------------
 --create new tab
 vmap(
@@ -153,22 +154,18 @@ vmap(
 vmap(modes, "<C-Tab>", "<cmd>bnext<cr>", {noremap = true, silent = true})
 
 
---------------------------------------------------------------------------------
--- Windows --
---------------------------------------------------------------------------------
+--[Windows]----------------------------------------
 vmap("i", "<M-w>", "<esc><C-w>", {noremap = true,})
 vmap("n", "<M-w>", "<C-w>", {noremap = true,})
 
 
-----------------------------------------------------------------------
--- Navigation --
-----------------------------------------------------------------------
---[Fast cursor move]--------------------------------------------------
---Jump next word with Ctrl+Right in all modes
+--[Navigation]----------------------------------------
+---[Fast cursor move]
+--Jump next word
 vmap('i', '<C-Right>', '<C-o>w', { noremap = true, silent = true })
 vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
 
---Move to the previous word with Ctrl+Left in all modes
+--Jump previous
 vmap('i', '<C-Left>', '<C-o>b', { noremap = true, silent = true })
 vmap('v', '<C-Left>', 'b', {noremap = true, silent = true })
 
@@ -205,12 +202,11 @@ vmap("v", "<S-Right>", "<Right>",  {noremap = true})
 --vmap({"n","v"}, "<S-Up>", "<Up>",  {noremap = true})
 --vmap({"n","v"}, "<S-Down>", "<Down>",  {noremap = true})
 
----------------------------------------------------------------------- 
--- Selection --
-----------------------------------------------------------------------
-vmap("i", "®", "<esc>viw")
-vmap("n", "®", "viw")
-vmap("v", "®", "iw")
+
+--[Selection]----------------------------------------
+vmap("i", "«", "<esc>viw")
+vmap("n", "«", "viw")
+vmap("v", "«", "iw")
 
 --Visual block
 vmap("i", "<M-v>", "<esc><C-S-v>", {noremap=true})
@@ -241,18 +237,16 @@ vmap("v", "<M-Up>", "k", {noremap=true})
 vmap({"i","n"}, "<M-Down>", "<Esc><C-v>j", {noremap=true})
 vmap("v", "<M-Down>", "j", {noremap=true})
 
+--TODO Grow select
+vmap("v", "<S-PageUp>", "h", {remap=true})
+
 --ctrl+f search
 vmap("i", "<C-f>", "<Esc>/", {noremap=true})
 vmap("n","<C-f>", "/", {noremap=true})
 vmap("v", "<C-f>", "<Esc>*<cr>", {noremap=true})
 
---TODO Grow select
-vmap("v", "<S-PageUp>", "h", {remap=true})
 
-
-----------------------------------------------------------------------
--- Editing --
-----------------------------------------------------------------------
+--[Editing]----------------------------------------
 vmap("i", "<Ins>", "<Esc>", {noremap = true})
 vmap("n", "<Ins>", "i", {noremap = true})
 vmap("v", "<Ins>", "<Esc>i", {noremap = true})
@@ -271,7 +265,7 @@ vmap("i", "<C-c>",
     end,
 {noremap=true})
 vmap("n", "<C-c>", '"+yl', {noremap = true})
-vmap("v", "<C-c>", '"+y', {noremap = true}) 
+vmap("v", "<C-c>", '"+y', {noremap = true})
 
 --ctrl+x cut
 vmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
@@ -285,12 +279,14 @@ vmap("v", "<C-v>", '"_d"+P')
 vmap("c", "<C-v>", '<C-R>+')
 vmap("t", "<C-v>", '<C-o>"+P')
 
---dup
-vmap("i", "<C-d>", '<Esc>yyp', {noremap=true, silent=true})
-vmap("n", "<C-d>", 'yyp', {noremap=true, silent=true})
+---[Dup]
+vmap("i", "<C-d>", '<Esc>yypi')
+vmap("n", "<C-d>", 'yyp')
+vmap("v", "<C-d>", '"+yp')
 
 
---crtl+z to undo
+---[Undo/redo]
+--ctrl+z to undo
 vmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
 vmap({"n","v"}, "<C-z>", "u", {noremap = true})
 
@@ -299,7 +295,7 @@ vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>", {noremap = true})
 vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
 
 
---[Deletion]
+---[Deletion]
 --backspace delete char
 --vmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 vmap("n", "<BS>", '<Esc>"_X<Esc>')
@@ -369,17 +365,17 @@ vmap({"n"}, "-", function() utils.smartdecrement() end)
 
 
 --[Formating]
---[Ident]
+---[Ident]
 vmap("n", "<space>", "i<space><esc>")
 
 --Smart insert tabing
-vim.keymap.set("i", "<Tab>", 
+vim.keymap.set("i", "<Tab>",
     function()
         local col = vim.fn.col('.')
         local line = vim.fn.getline('.') --get all char in curr line
 
         local cursorpos = utils.get_cursor_pos()
-            local cchar = utils.get_char_at_pos(cursorpos) 
+            local cchar = utils.get_char_at_pos(cursorpos)
                                              print(cchar)
         --local pchar = line:sub(col-1, col-1) print(pchar)
         --local nchar = line:sub(col, col) print(nchar)
@@ -397,7 +393,7 @@ vmap("n", "<S-Tab>", "v<")
 vmap("v", "<S-Tab>", "<gv")
 
 
---[Line break]
+---[Line break]
 vmap("n", "<cr>", "i<cr><esc>", {noremap=true})
 
 vmap("i", "<S-cr>", "<Esc>O", {noremap=true}) --above
@@ -425,7 +421,7 @@ vmap("n", "<C-S-Left>", "x2hp", {noremap=true, silent=true})
 
 --Move selection
 vmap("v", "<C-S-Right>", "dplgv", {noremap=true, silent=true})
---#- a1at-    
+--#- a1at-
 
 --Move whole line
 vmap("i", "<C-S-Up>", "<Esc>:m .-2<CR>==i", {noremap=true})
@@ -438,17 +434,17 @@ vmap('v', '<c-s-down>', ":m '>+1<cr>gv=gv", {noremap = true, silent = true })
 
 
 --[Commenting]
-vmap("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed 
-vmap("n", "<M-a>", "gcc", {remap = true}) --remap needed 
-vmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed 
+vmap("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
+vmap("n", "<M-a>", "gcc", {remap = true}) --remap needed
+vmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
 
 --record
 vmap("n", "<M-r>", "q", {remap = true})
 
 
+
 --------------------------------------------------------------------------------
 -- code runner --
--------------------------------------------------------------------------------- 
 vmap({"i","n"}, "<F20>", --equivalent to <S-F8>
     function()
         vim.cmd("stopinsert")

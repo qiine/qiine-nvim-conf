@@ -1,6 +1,6 @@
-----------------------------------
+----------------------------------------------------------------------
 -- User autocmds --
------------------------------------
+----------------------------------------------------------------------
 
 local utils = require("utils.utils")
 
@@ -167,19 +167,22 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 --
 
 -- Auto go into normal mode when Neotree gains focus
-vim.api.nvim_create_autocmd("BufEnter", {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        if vim.bo.filetype == "neo-tree" then
-            vap.nvim_feedkeys(vap.nvim_replace_termcodes("<Esc>", true, true, true), "n", true)
-        end
-    end
-})
+--vim.api.nvim_create_autocmd("BufEnter", {
+--    group = "UserAutoCmds",
+--    pattern = "*",
+--    callback = function()
+--        if vim.bo.filetype == "neo-tree" then
+--            vap.nvim_feedkeys(vap.nvim_replace_termcodes("<Esc>", true, true, true), "n", true)
+--        end
+--    end
+--})
 
---[Buffers]--------------------------------------------------
+
+----------------------------------------------------------------------
+-- Buffers --
+----------------------------------------------------------------------
 --Smart Auto start in Insert mode when appropriate
-vim.api.nvim_create_autocmd("BufEnter", {
+vim.api.nvim_create_autocmd({"BufEnter", "WinEnter"}, {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
@@ -193,20 +196,22 @@ vim.api.nvim_create_autocmd("BufEnter", {
             ft == "oil" or
             utils.string_contains(ft, "dashboard") or
             utils.string_contains(ft, "neo")
-        then return end
-        --print("lol")
-        if buftype == "" then --Regular buffers have an empty 'buftype'
-            vim.cmd("startinsert")
-        end
+        then vim.cmd("stopinsert") return end
+
+        if buftype == "" then vim.cmd("startinsert") end
     end,
 })
 
---Auto Trim Whitespaces in CurrBuffer
+--Auto Trim Whitespaces in Curr Buffer
 vim.api.nvim_create_autocmd("BufWritePre", {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
-        if vim.bo.modifiable and not vim.bo.readonly then
+        if
+            vim.bo.buftype == "" and
+            vim.bo.modifiable and
+            not vim.bo.readonly
+        then
             vim.cmd("TrimCurrBufferWhitespaces")
         end
     end

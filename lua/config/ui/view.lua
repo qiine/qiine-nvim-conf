@@ -53,11 +53,10 @@ v.opt.scrolloff = 3
 v.opt.sidescrolloff = 4
 --v.opt.sidescroll=1
 
---vim.opt.colorcolumn="80" 
+--vim.opt.colorcolumn="80"
 
 
---[Gutter]
-------------------------------
+--[Gutter]--------------------------------------------------
 --vim.opt.statuscolumn = "%s%l %c"
 
 v.opt.signcolumn = "yes" --whow letters for error/warning/hint
@@ -86,11 +85,12 @@ vim.opt.foldnestmax = 7
 vim.opt.fillchars:append({
     fold = ".", --in place of the folded text
     foldopen = "", -- 
-    foldclose = ">", -- 
+    foldclose = ">", --
     foldsep = " ", --│  --separate folds (for open folds)
 
     eob="~",
 })
+
 
 --[Whitespace symbols]
 v.opt.list = true
@@ -112,7 +112,7 @@ else
 end
 
 --line wrap symbol
-vim.opt.showbreak = "↳" 
+vim.opt.showbreak = "↳"
 
 --Show/hide whitespace symbols when selecting
 vim.api.nvim_create_autocmd("ModeChanged", {
@@ -265,9 +265,9 @@ vim.opt.concealcursor=n
 --        ]]
 --    end,
 --})
-----§class  
+----§class
 --function ()
---    
+--
 --end
 
 

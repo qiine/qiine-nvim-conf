@@ -22,14 +22,12 @@ end, {})
 --Restart
 vim.api.nvim_create_user_command("Restart", function()
     local curfile = vim.fn.expand("%:p") -- Get the current file location
-    local nvim_command = "nvim " .. curfile
+    local curdir = vim.fn.fnamemodify(curfile, ':p:h')
 
-    -- Stop all LSP clients
-    --for _, client in ipairs(vim.lsp.get_active_clients()) do
-    --    client.stop()
-    --end
-
-    vim.loop.spawn("wezterm", { args = { "-e", "nvim", curfile } })
+    vim.loop.spawn("wezterm", {
+        args = { "-e", "nvim", "--cmd", "cd " .. curdir, curfile },
+        cwd = curdir
+    })
     vim.cmd("qa!")
 end, {})
 
@@ -94,7 +92,9 @@ vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)
 end, { range = true })
 
 vim.api.nvim_create_user_command("TrimCurrBufferWhitespaces", function()
+    local curpos = vim.api.nvim_win_get_cursor(0)
     vim.cmd([[keeppatterns %s/\s\+$//e]])
+    vim.api.nvim_win_set_cursor(0, curpos)
 end, {})
 
 vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()

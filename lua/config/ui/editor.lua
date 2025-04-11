@@ -73,7 +73,10 @@ vim.opt.spell = true
 --    end,
 --})
 
-vim.opt.spelllang = {"en_gb", "en_fr"}
+vim.opt.spelllang = {
+    "en_gb",
+    --"en_fr"
+}
 
 --[Formating]
 local formatopts = {} --will hold all users formats opts

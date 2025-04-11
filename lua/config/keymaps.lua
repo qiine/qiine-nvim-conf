@@ -80,9 +80,8 @@ vmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloade
 vmap("n", "<F12>", "<Ctrl-]>", {noremap=true})
 
 
-----------------------------------------------------------------------
--- File --
-----------------------------------------------------------------------
+
+--[File]----------------------------------------
 --ctrl+s save
 vmap(modes, "<C-s>", "<cmd>write<cr>", {noremap = true})
 vmap(modes, "<C-S-s>", "<cmd>wa<cr>", {noremap = true})
@@ -97,9 +96,8 @@ end
 vmap(modes, "<C-n>", create_newfile, {noremap = true})
 
 
---------------------------------------------------------------------------------
--- View --
---------------------------------------------------------------------------------
+
+--[View]----------------------------------------
 --alt-z toggle line wrap
 vmap(
     {"i", "n", "v"}, "<A-z>",
@@ -119,7 +117,7 @@ vmap("n", "<M-g>", function()
 end, {noremap=true, desc = "Toggle Gutter" })
 
 
---Folding
+--[Folding]
 -- vmap({"i","n","v}", "<M-f>",
 --     function()
 --         if v.fn.foldclosed(".") == -1 then
@@ -254,6 +252,7 @@ vmap("v", "<Ins>", "<Esc>i", {noremap = true})
 --Visual insert mode
 vmap("v", "<M-i>", "I", {noremap=true})
 
+---[Copy]
 --ctrl-c copy
 -- ' "+ ' is the os register
 vmap("i", "<C-c>",
@@ -279,13 +278,13 @@ vmap("v", "<C-v>", '"_d"+P')
 vmap("c", "<C-v>", '<C-R>+')
 vmap("t", "<C-v>", '<C-o>"+P')
 
----[Dup]
+--*[Dup]
 vmap("i", "<C-d>", '<Esc>yypi')
 vmap("n", "<C-d>", 'yyp')
-vmap("v", "<C-d>", '"+yp')
+vmap("v", "<C-d>", '"+yP')--TODO does not place text proper
 
 
----[Undo/redo]
+--*[Undo/redo]
 --ctrl+z to undo
 vmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
 vmap({"n","v"}, "<C-z>", "u", {noremap = true})
@@ -295,7 +294,7 @@ vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>", {noremap = true})
 vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
 
 
----[Deletion]
+--*[Deletion]
 --backspace delete char
 --vmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 vmap("n", "<BS>", '<Esc>"_X<Esc>')
@@ -311,7 +310,7 @@ vmap("i", "<S-BS>", '<Esc>0"_d$i', {silent = true})
 vmap("n", "<S-BS>", '0"_d$', {silent = true})
 vmap("v", "<S-BS>", '<Esc>"_cc', {silent=true})
 
---Del
+--*[Del]
 vmap("n", "<Del>", 'v"_d<esc>')
 vmap("v", "<Del>", '"_d<esc>i')
 
@@ -325,7 +324,7 @@ vmap("n", "<S-Del>", '"_dd', {noremap = true})
 vmap("v", "<S-Del>", '<S-v>"_d', {noremap=true}) --expand sel before del
 
 
---[Replace]
+--*[Replace]
 --Typing in visual mode insert chars
 local chars = utils.table_flatten(
     {
@@ -345,7 +344,7 @@ vmap("v", "<cr>", "<del>i<cr>", {noremap=true})
 vmap("v", "<F2>", "\"zy:%s/<C-r>z//g<Left><Left>", {noremap = true, silent = false })
 
 
---[Incrementing]
+--*[Incrementing]
 --vmap("n", "+", "<C-a>")
 vmap("v", "+", "<C-a>gv")
 
@@ -364,25 +363,15 @@ vmap({"n"}, "+", function() utils.smartincrement() end)
 vmap({"n"}, "-", function() utils.smartdecrement() end)
 
 
---[Formating]
----[Ident]
+--*[Formating]
+----[Ident]
 vmap("n", "<space>", "i<space><esc>")
 
---Smart insert tabing
+--smart tab insert
 vim.keymap.set("i", "<Tab>",
     function()
-        local col = vim.fn.col('.')
-        local line = vim.fn.getline('.') --get all char in curr line
-
-        local cursorpos = utils.get_cursor_pos()
-            local cchar = utils.get_char_at_pos(cursorpos)
-                                             print(cchar)
-        --local pchar = line:sub(col-1, col-1) print(pchar)
-        --local nchar = line:sub(col, col) print(nchar)
-
-        --if pchar == " " then vim.cmd("normal! v>") return end
-        --if nchar == " " then  vim.cmd("normal! i\t") return end --TODO won't respect softtabstop
-        --if pchar ~= " " and nchar ~= " " then vim.cmd("normal! v>") return end
+        local inword = utils.is_cursor_inside_word()
+        if inword then vcmd("normal! v>") else vim.cmd("normal! i\t") end
     end
 )
 vmap("n", "<Tab>", "v>")
@@ -393,7 +382,7 @@ vmap("n", "<S-Tab>", "v<")
 vmap("v", "<S-Tab>", "<gv")
 
 
----[Line break]
+--*[Line break]
 vmap("n", "<cr>", "i<cr><esc>", {noremap=true})
 
 vmap("i", "<S-cr>", "<Esc>O", {noremap=true}) --above
@@ -413,6 +402,7 @@ vmap("n", "<S-M-cr>", "o<esc>kO<esc>j", {noremap=true})
 vmap("v", "<C-j>", "<S-j>", {noremap=true})
 
 
+--*[move lines]
 --Move char
 vmap("n", "<C-S-Right>", "xp", {noremap=true, silent=true})
 vmap("n", "<C-S-Left>", "x2hp", {noremap=true, silent=true})
@@ -433,7 +423,7 @@ vmap("n", "<C-S-Down>", ":m .+1<cr>==", {noremap = true, silent = true})
 vmap('v', '<c-s-down>', ":m '>+1<cr>gv=gv", {noremap = true, silent = true })
 
 
---[Commenting]
+--*[Commenting]
 vmap("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
 vmap("n", "<M-a>", "gcc", {remap = true}) --remap needed
 vmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
@@ -443,8 +433,7 @@ vmap("n", "<M-r>", "q", {remap = true})
 
 
 
---------------------------------------------------------------------------------
--- code runner --
+--[code runner]----------------------------------------
 vmap({"i","n"}, "<F20>", --equivalent to <S-F8>
     function()
         vim.cmd("stopinsert")
@@ -465,9 +454,8 @@ vmap({"i","n"}, "<F56>", --equivalent to <M-F8>
 )
 
 
---------------------------------------------------------------------------------
--- cmd --
---------------------------------------------------------------------------------
+
+--[cmd]----------------------------------------
 --Open command line
 vmap("i", "œ", "<esc>:", {noremap=true})
 vmap("n", "œ", ":", {noremap=true})
@@ -487,11 +475,11 @@ vmap("c", "<S-Tab>", "<C-n>", {noremap=true})
 vmap('c', '<tab>', '<CR>', {remap=true})
 
 
---------------------------------------------------------------------------------
--- Terminal --
---------------------------------------------------------------------------------
+
+--[Terminal]----------------------------------------
 --Open term
 vmap({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
 
 vmap("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+
 

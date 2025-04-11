@@ -33,12 +33,19 @@ function M.SearchSelected()
 end
 
 
+
 --[Characters]--------------------------------------------------
----@return string 
----@param cpos number[] 
-function M.get_char_at_pos(cpos)
-    local line = vim.fn.getline(cpos[1])
-    local char = line:sub(cpos[2], cpos[2])
+---@return string
+---@param pos number[]
+function M.get_char_at_pos(pos)
+    local line = vim.fn.getline(pos[1])
+    local char = line:sub(pos[2], pos[2])
+    return char
+end
+
+function M.get_char_at_cursorpos()
+    local cpos = M.get_cursor_pos()
+    local char = M.get_char_at_pos({cpos[1], cpos[2]+1})
     return char
 end
 
@@ -70,10 +77,14 @@ M.punctuation = {
     "%", "^", "&", "*", "+", "=", "~", "`"
 }
 
+
+
 --[strings]--------------------------------------------------
 function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
+
+
 
 --[Tables]--------------------------------------------------
 function M.tables_append(ta, tb)
@@ -155,7 +166,7 @@ function M.smartdecrement()
 
     if #word == 1 and word:match("%a") then
         local next_char = string.char(word:byte() - 1)
-        vim.cmd("normal! r"..next_char) 
+        vim.cmd("normal! r"..next_char)
         return
     end
 
@@ -166,10 +177,10 @@ end
 function M.TrimWhitespaceOnYank()
     local start_line, start_col = unpack(vim.api.nvim_buf_get_mark(0, '"'))
     local end_line, end_col = unpack(vim.api.nvim_buf_get_mark(0, "'"))
-    
+
     -- Get the yanked text range
     local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-    
+
     for i, line in ipairs(lines) do
         lines[i] = line:match("^%s*(.-)%s*$")
     end
@@ -186,8 +197,10 @@ function M.get_cursor_pos()
 end
 
 function M.is_cursor_inside_word()
-    local word_under_cursor = vim.fn.expand('<cword>')
-    return word_under_cursor ~= ''
+    local char = M.get_char_at_cursorpos()
+    local inword = char:match("[%w_%.%-@#&=*+_<>|$^~]") ~= nil
+
+    return inword
 end
 
 function M.is_cursor_at_wordend()
@@ -241,7 +254,7 @@ end
 --[Keys]--------------------------------------------------
 function M.send_keystroke(key, mode, immediate)
     if immediate == nil then immediate = true end   --default val
-    
+
     local termkey = vapi.nvim_replace_termcodes(key, true, true, true)
     local keystroke = vapi.nvim_feedkeys(termkey, mode, immediate)
 

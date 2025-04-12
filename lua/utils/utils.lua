@@ -132,6 +132,7 @@ function M.table_flatten(t)
 end
 
 
+
 --[Editing]--------------------------------------------------
 function M.bool_toggle(bword)
     local toggle_map = {
@@ -234,6 +235,7 @@ function M.send_keystroke(key, mode, immediate)
 
     return keystroke
 end
+
 
 
 --------

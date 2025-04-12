@@ -207,12 +207,14 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
+        if vim.bo.filetype == "markdown" then return end
+
         if
             vim.bo.buftype == "" and
             vim.bo.modifiable and
             not vim.bo.readonly
         then
-            vim.cmd("TrimCurrBufferWhitespaces")
+            vim.cmd("TrimCurrBufferTrailSpaces")
         end
     end
 })

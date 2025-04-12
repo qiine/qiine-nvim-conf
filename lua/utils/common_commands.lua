@@ -91,7 +91,7 @@ vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)
     vim.cmd("normal! <esc>")
 end, { range = true })
 
-vim.api.nvim_create_user_command("TrimCurrBufferWhitespaces", function()
+vim.api.nvim_create_user_command("TrimCurrBufferTrailSpaces", function()
     local curpos = vim.api.nvim_win_get_cursor(0)
     vim.cmd([[keeppatterns %s/\s\+$//e]])
     vim.api.nvim_win_set_cursor(0, curpos)

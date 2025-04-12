@@ -10,14 +10,14 @@
 
 --vim.opt.shell = "bash"
 
---vim.opt.termguicolors controls whether 24-bit RGB color (true color) is used in the terminal. 
+--vim.opt.termguicolors controls whether 24-bit RGB color (true color) is used in the terminal.
 --If curr term support termguicolors, COLORTERM environment variable will return truecolor regardless.
 --Warning some themes auto set termguicolors to true !
 --To check termguicolors status:
 --lua print(vim.opt.termguicolors:get())
 --for COLORTERM
 --lua print(vim.fn.getenv("COLORTERM"))
-if vim.fn.getenv("COLORTERM") == "truecolor" then   --smart set termguicolors 
+if vim.fn.getenv("COLORTERM") == "truecolor" then   --smart set termguicolors
     vim.opt.termguicolors = true
 else
     vim.opt.termguicolors = false --for tty

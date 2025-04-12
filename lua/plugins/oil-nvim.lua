@@ -13,8 +13,8 @@ return
             prompt_save_on_select_new_entry = true,
             skip_confirm_for_simple_edits = true,
 
-            buf_options = { 
-                buflisted = true, 
+            buf_options = {
+                buflisted = true,
                 bufhidden = "wipe" --"hide", "wipe"
             },
             cleanup_delay_ms = 1000000000, --auto delete oil hidden buffers, false to turn this off
@@ -65,7 +65,7 @@ return
                 ["<CR>"] = { function() vim.cmd("Neotree close") require("oil").select() end, mode="n" },
                 ["<2-LeftMouse>"] = {"actions.select", mode = "n"},
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } },
-                
+
                 ["q"] = { function() vim.cmd("Neotree close") require("oil").close() end, mode="n" },
                 ["<F5>"] = "actions.refresh",
                 ["gx"] = "actions.open_external",
@@ -80,14 +80,16 @@ return
 
                 ["n"] = {
                     function()
-                        vim.cmd("normal! o")
+                        vim.cmd("normal! 0o")
                         vim.api.nvim_put({ "new_file.txt" }, "c", true, true)
+                        vim.cmd("startinsert")
                     end
                 },
                 ["N"] = {
                     function()
-                        vim.cmd("normal! o")
+                        vim.cmd("normal! 0o")
                         vim.api.nvim_put({ "new_folder/" }, "c", true, true)
+                        vim.cmd("startinsert")
                     end
                 },
                 ["<Del>"] = { function() vim.cmd("normal! dd") end, mode = "n" },
@@ -95,7 +97,7 @@ return
             },
         })
 
-        --Quick open 
+        --Quick open
         vim.keymap.set({ "i", "n", "v" }, "*-", function()
             vim.cmd("stopinsert")
 
@@ -103,27 +105,27 @@ return
             local fd = fp:match("^(.*)/")
             if not fd then fd = vim.fn.expand("~") end --fallback
             vim.cmd('cd ' .. fd) --ensure proper path
-            
+
             local oil = require("oil")
             local util = require("oil.util")
             oil.open()
             util.run_after_load(0, function()
                 vim.cmd("stopinsert")
-                --oil.open_preview() 
+                --oil.open_preview()
             end)
-        
-            --if vim.bo.filetype ~= "" then 
+
+            --if vim.bo.filetype ~= "" then
             vim.cmd("bp")
             vim.cmd("bd")
 
-            --vim.cmd("Neotree") 
+            --vim.cmd("Neotree")
             --vim.cmd("wincmd p")
         end)
         vim.keymap.set({"i","n","v"}, "<C-o>", "<esc><cmd>Oil --float<CR>")
 
         --Close Neotree in this context
         vim.api.nvim_create_autocmd('BufDelete', {
-            pattern = '*oil*',  
+            pattern = '*oil*',
             callback = function()
                 vim.cmd("Neotree close")
             end,

@@ -80,10 +80,34 @@ M.punctuation = {
 
 
 --[strings]--------------------------------------------------
+function M.isword(string)
+    return string:match("%S") ~= nil
+end
+
 function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
 
+--TODO fancy make table from string func
+--local function format_to_table(str, delimiter, row, col)
+--    local entries = vim.split(str, delimiter)
+--    local out = {}
+--    local line = ""
+--
+--    for i, v in ipairs(entries) do
+--        line = line .. v .. " "  -- You can add a custom separator here
+--        if i % per_row == 0 then
+--            table.insert(out, line)
+--            line = ""
+--        end
+--    end
+--
+--    -- If there's any remaining items in the last line, add them
+--    if line ~= "" then table.insert(out, line) end
+--
+--    return table.concat(out, "\n")
+--end
+--,a = 2, b = 3, c = 10,
 
 
 --[Tables]--------------------------------------------------
@@ -198,9 +222,7 @@ end
 
 function M.is_cursor_inside_word()
     local char = M.get_char_at_cursorpos()
-    local inword = char:match("[%w_%.%-@#&=*+_<>|$^~]") ~= nil
-
-    return inword
+    return M.isword(char)
 end
 
 function M.is_cursor_at_wordend()

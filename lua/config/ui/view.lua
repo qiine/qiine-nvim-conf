@@ -262,13 +262,11 @@ vim.opt.concealcursor=n
 --    callback = function()
 --        vim.cmd [[
 --            syntax match ConcealFunction /\_<function\>/ conceal cchar=𝒇𝒏
+--            syntax match ConcealFunction /\_::/ conceal cchar=⋮ --⁝⁞
 --        ]]
 --    end,
 --})
 ----§class
---function ()
---
---end
 
 
 ------------------------------------------

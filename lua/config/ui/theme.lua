@@ -30,7 +30,7 @@ end
 --vim.api.nvim_set_hl(0, "BufferInactiveMod", { bold = false })
 
 --no bold winbar
-vim.api.nvim_set_hl(0, "WinBar", { fg = "#ffffff", bg = "#222222", bold = false })
+vim.api.nvim_set_hl(0, "WinBar", { fg = "#ffffff", bg = "#e0e0e0", bold = false })
 --inactive
 vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#aaaaaa", bg = "#111111", bold = false })
 vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#ff8800", bg = "NONE" })
@@ -42,7 +42,7 @@ vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { fg = "#999999", bg = "NONE"})
 
 ----Set term buf background col
 --vim.api.nvim_set_hl(0, "BufTermBackground", {fg = "#e0e0e0", bg = fg})
---vim.api.nvim_create_autocmd("TermOpen", 
+--vim.api.nvim_create_autocmd("TermOpen",
 --{
 --    group = vim.api.nvim_create_augroup("_terminal", { clear = true }),
 --    callback = function()

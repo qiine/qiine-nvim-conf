@@ -1,4 +1,3 @@
-
 return
 {
     'nvim-lualine/lualine.nvim',
@@ -23,18 +22,30 @@ return
             {
                 lualine_a = {
                     {
-                        function ()
+                        function () --mode
                             local m = vim.api.nvim_get_mode().mode
-                            return m
+                            local mode_alias={
+                                ['no']='O-PENDING',['nov']='O-PENDING',['noV']='O-PENDING',['no\22']='O-PENDING',
+                                ['n']='N',['niI']='N',['niR']='N',['niV']='N',['nt']='N',['ntT']='N',
+                                ['v']='V',['vs']='V',['V']='V-LINE',['Vs']='V-LINE',['\22']='V-BLOCK',['\22s']='V-BLOCK',
+                                ['s']='SELECT',['S']='S-LINE',['\19']='S-BLOCK',['i']='I',
+                                ['ic']='I',['ix']='I',
+                                ['r']='R',['R']='R',['Rc']='R',['Rx']='R',['Rv']='V-R',['Rvc']='V-R',['Rvx']='V-R',
+                                ['c']='CMD',['cv']='EX',['ce']='EX',
+                                ['rm']='MORE',['r?']='CONFIRM',
+                                ['!']='SHELL',['t']='TERMINAL'
+                            }
+                            local ma = mode_alias[m]
+                            if ma then m=ma end
+                            return "⋅"..m.."⋅" --▕ |｜ ⊣⊢ ⋅ ⦁ ⫞⊦
                         end,
                         --'mode',
-                        map ={  ['n']  = 'NOR',},
                         on_click = function()
                             local m = vim.fn.mode()
                             if m ~= 'n' then vim.api.nvim_input('<ESC>') end
                         end,
-                        separator={right=''},
-                        right_padding=1,
+                        separator={right=''},   --
+                        padding=1,
                     }
                 },
 
@@ -43,7 +54,6 @@ return
                     {
                         function() return " 📂" end,
                         on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
-                        --right_padding=0,
                         padding=0,
                     },
 
@@ -52,6 +62,7 @@ return
                         function() return ' ' end,
                         on_click = function() vim.cmd(":term lazygit") end,
                         padding = 0,
+                        separator={right='|'},
                     },
                 },
 
@@ -65,7 +76,7 @@ return
                     },
                     {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
                     {--term
-                        function() return '🖳' end, --[]💻
+                        function() return ' ' end, --[] 💻   🖳
                         on_click = function()
                             vim.cmd('below split')
                             --local cwd = vim.fn.getcwd()
@@ -203,14 +214,24 @@ return
                 lualine_a =
                 {
                     {
-                        function()
+                        function() --path
                             local dir = vim.fn.fnamemodify(vim.fn.expand('%:h'), ':~:.')
-                            return dir.."/"
+                            local bft = vim.bo.buftype
+                            local ft = vim.bo.filetype
+
+                            --if bft == "" then return dir.."/." end
+                            return dir.."/."
                         end,
-                        icon = '',
-                        separator={right=''},
-                        bg ="#000000",
+                        --separator={right=''},
+                        color = { fg = "#5c5c5c", bg = 'NONE'},
                     },
+                },
+                lualine_z = {
+                    {
+                        function()
+                          return "≡"
+                        end,
+                    }
                 },
 
             },

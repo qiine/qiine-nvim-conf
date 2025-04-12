@@ -25,7 +25,7 @@ return
                         function () --mode
                             local m = vim.api.nvim_get_mode().mode
                             local mode_alias={
-                                ['no']='O-PENDING',['nov']='O-PENDING',['noV']='O-PENDING',['no\22']='O-PENDING',
+                                ['no']='O',['nov']='O',['noV']='O',['no\22']='O',
                                 ['n']='N',['niI']='N',['niR']='N',['niV']='N',['nt']='N',['ntT']='N',
                                 ['v']='V',['vs']='V',['V']='V-LINE',['Vs']='V-LINE',['\22']='V-BLOCK',['\22s']='V-BLOCK',
                                 ['s']='SELECT',['S']='S-LINE',['\19']='S-BLOCK',['i']='I',

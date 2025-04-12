@@ -197,21 +197,6 @@ function M.smartdecrement()
     M.bool_toggle(word)
 end
 
--- Trim leading/trailing whitespace when yanking
-function M.TrimWhitespaceOnYank()
-    local start_line, start_col = unpack(vim.api.nvim_buf_get_mark(0, '"'))
-    local end_line, end_col = unpack(vim.api.nvim_buf_get_mark(0, "'"))
-
-    -- Get the yanked text range
-    local lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-
-    for i, line in ipairs(lines) do
-        lines[i] = line:match("^%s*(.-)%s*$")
-    end
-
-    --Put the trimmed lines into the unnamed register
-    vim.fn.setreg('"', lines)
-end
 
 
 --[cursor]--------------------------------------------------
@@ -225,53 +210,20 @@ function M.is_cursor_inside_word()
     return M.isword(char)
 end
 
-function M.is_cursor_at_wordend()
-    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-    local line = vim.api.nvim_get_current_line()
-
-    col = col + 1   -- Advance col by 1 since Neovim's col is 0-based in Lua
-
-    -- Check if current char is a word character and next is not
-    if line:sub(col, col):match("%w") and not line:sub(col + 1, col + 1):match("%w") then
-        return true
-    end
-end
-
-function M.is_cursor_at_wordstart()
-    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-    local line = vim.api.nvim_get_current_line()
-
-    -- Lua strings are 1-based
-    local cursor_col = col + 1
-
-    -- Current char
-    local curr = line:sub(cursor_col, cursor_col)
-    -- Previous char (empty string if at start of line)
-    local prev = cursor_col > 1 and line:sub(cursor_col - 1, cursor_col - 1) or ""
-
-    -- Check if cursor is on a word character and the previous is not
-    if curr:match("%w") and (prev == "" or not prev:match("%w")) then
-        return true
-    end
-
-    -- Special check for <Tab> or spaces between words
-    if prev:match("%s") or prev == "" then
-        -- Handle edge cases like space or tab before the word
-        return true
-    end
-
-    return false
-end
-
---function M.is_cursor_inside_word()
---    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
---    local line = vim.api.nvim_get_current_line()
---    if col == 0 or col > #line then
---        return false
+--local function M.selection_anchor_side()
+--    local anchor = vim.fn.getpos("v")
+--    local cur = vim.fn.getcurpos()
+--
+--    if anchor[2] < cur[2] then
+--        return true  -- anchor is on an earlier line
+--    elseif anchor[2] == cur[2] and anchor[3] < cur[3] then
+--        return true  -- same line, anchor is to the left
+--    else
+--        return false -- anchor is after or same as cursor
 --    end
---    local char = line:sub(col, col)
---    return char:match("%w") ~= nil
 --end
+
+
 
 --[Keys]--------------------------------------------------
 function M.send_keystroke(key, mode, immediate)

@@ -202,7 +202,8 @@ vmap("v", "<S-Right>", "<Right>",  {noremap = true})
 
 
 --[Selection]----------------------------------------
-vmap("i", "«", "<esc>viw")
+--Select word under cursor
+vmap("i", "«", "<esc>viw") --<altgr-w>
 vmap("n", "«", "viw")
 vmap("v", "«", "iw")
 
@@ -229,16 +230,45 @@ vmap("n", "<S-Down>", "vj", {noremap=true, silent=true})
 vmap("v", "<S-Down>", "j", {noremap=true, silent=true}) --avoid fast scrolling around
 
 --Alt-arrow block selection
-vmap({"i","n"}, "<M-Up>", "<Esc><C-v>k", {noremap=true})
-vmap("v", "<M-Up>", "k", {noremap=true})
+vmap({"i","n"}, "<M-Up>", "<Esc><C-v>k")
+vmap("v", "<M-Up>", "k")
 
-vmap({"i","n"}, "<M-Down>", "<Esc><C-v>j", {noremap=true})
-vmap("v", "<M-Down>", "j", {noremap=true})
+vmap({"i","n"}, "<M-Down>", "<Esc><C-v>j")
+vmap("v", "<M-Down>", "j")
 
---TODO Grow select
-vmap("v", "<S-PageUp>", "h", {remap=true})
 
---ctrl+f search
+--*[Grow select]
+--grow horizontally TODO proper anchor logic
+vmap("i", "<S-PageUp>", "<Esc>vl")
+vmap("n", "<S-PageUp>", "vl")
+vmap("v", "<S-PageUp>", "l")
+
+vmap("i", "<S-PageDown>", "<Esc>vh")
+vmap("n", "<S-PageDown>", "vh")
+vmap("v", "<S-PageDown>", "oho")
+
+--grow do end/start of line
+vmap("n", "<M-PageUp>", "<S-v>k")
+vmap("v", "<M-PageUp>",
+    function ()
+        local m = vim.api.nvim_get_mode().mode
+        if m == "V" then vim.cmd("normal! k")
+        else             vim.cmd("normal! <S-v>k")
+        end
+    end
+)
+
+vmap("n", "<M-PageDown>", "<S-v>j")
+vmap("v", "<M-PageDown>",
+    function ()
+        local m = vim.api.nvim_get_mode().mode
+        if m == "V" then vim.cmd("normal! j")
+        else             vim.cmd("normal! <S-v>j")
+        end
+    end
+)
+
+--*[search]
 vmap("i", "<C-f>", "<Esc>/", {noremap=true})
 vmap("n","<C-f>", "/", {noremap=true})
 vmap("v", "<C-f>", "<Esc>*<cr>", {noremap=true})
@@ -371,7 +401,8 @@ vmap("n", "<space>", "i<space><esc>")
 vim.keymap.set("i", "<Tab>",
     function()
         local inword = utils.is_cursor_inside_word()
-        if inword then vcmd("normal! v>") else vim.cmd("normal! i\t") end
+        if inword then vcmd("normal! v>")
+        else vim.cmd("normal! i\t") end --don't care about softab here
     end
 )
 vmap("n", "<Tab>", "v>")
@@ -398,8 +429,9 @@ vmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji", {noremap=true})
 vmap("n", "<S-M-cr>", "o<esc>kO<esc>j", {noremap=true})
 
 
---Join selected
-vmap("v", "<C-j>", "<S-j>", {noremap=true})
+--*[Join]
+vmap("n", "<C-j>", "vj<S-j>") --Join one below
+vmap("v", "<C-j>", "<S-j>")
 
 
 --*[move lines]

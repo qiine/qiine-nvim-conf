@@ -80,16 +80,18 @@ return
 
                 ["n"] = {
                     function()
-                        vim.cmd("normal! 0o")
-                        vim.api.nvim_put({ "new_file.txt" }, "c", true, true)
+                        vim.cmd("normal! o")
                         vim.cmd("startinsert")
+                        vim.api.nvim_put({ "new_file.txt" }, "", false, true)
+                        vim.cmd("normal! 0")
                     end
                 },
                 ["N"] = {
                     function()
-                        vim.cmd("normal! 0o")
-                        vim.api.nvim_put({ "new_folder/" }, "c", true, true)
+                        vim.cmd("normal! o")
                         vim.cmd("startinsert")
+                        vim.api.nvim_put({ "new_folder/" }, "", false, true)
+                        vim.cmd("normal! 0")
                     end
                 },
                 ["<Del>"] = { function() vim.cmd("normal! dd") end, mode = "n" },

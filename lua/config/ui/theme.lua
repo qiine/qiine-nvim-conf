@@ -31,8 +31,8 @@ end
 
 --no bold winbar
 vim.api.nvim_set_hl(0, "WinBar", { fg = "#ffffff", bg = "#e0e0e0", bold = false })
---inactive
-vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#aaaaaa", bg = "#111111", bold = false })
+vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#ffffff", bg = "#e0e0e0", bold = false })
+
 vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#ff8800", bg = "NONE" })
 
 vim.api.nvim_set_hl(0, "IncSearch", { fg = "NONE", bg = "#bfbfbf", bold = false })

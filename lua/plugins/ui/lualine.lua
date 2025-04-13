@@ -15,7 +15,11 @@ return
                 component_separators = {left = "", right = ""},
                 section_separators = {left = "", right = ""},
 
-                disabled_filetypes = {"Outline"}
+                disabled_filetypes = {
+                    statusline = {},
+                    winbar = {},
+                },
+                ignore_focus = {"neo-tree", "trouble"},
             },
 
             sections =
@@ -211,20 +215,33 @@ return
 
             winbar =
             {
-                lualine_a =
-                {
+                lualine_a ={
+                    {
+                        function() --toggle neotree
+                            return "[/]"
+                        end,
+                        right_padding = 1,
+                        color = { fg = "#5c5c5c", bg = 'NONE'},
+                        on_click=function() vim.cmd("Neotree toggle") end,
+                    },
+                },
+                lualine_b = {
                     {
                         function() --path
                             local dir = vim.fn.fnamemodify(vim.fn.expand('%:h'), ':~:.')
+                            local cwd = vim.fn.getcwd()
+
+                            if ft == "oil" then return cwd end
+
                             local bft = vim.bo.buftype
                             local ft = vim.bo.filetype
-
-                            --if bft == "" then return dir.."/." end
-                            return dir.."/."
+                            if bft == "" and ft ~= "neo-tree" then return dir.."/."
+                            else return "" end
                         end,
                         --separator={right=''},
                         color = { fg = "#5c5c5c", bg = 'NONE'},
                     },
+
                 },
                 lualine_z = {
                     {

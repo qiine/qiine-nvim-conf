@@ -30,20 +30,19 @@ return
                             local m = vim.api.nvim_get_mode().mode
                             local mode_alias={
                                 ['no']='O',['nov']='O',['noV']='O',['no\22']='O',
-                                ['n']='N',['niI']='N',['niR']='N',['niV']='N',['nt']='N',['ntT']='N',
-                                ['v']='V',['vs']='V',['V']='V-LINE',['Vs']='V-LINE',['\22']='V-BLOCK',['\22s']='V-BLOCK',
-                                ['s']='SELECT',['S']='S-LINE',['\19']='S-BLOCK',['i']='I',
-                                ['ic']='I',['ix']='I',
-                                ['r']='R',['R']='R',['Rc']='R',['Rx']='R',['Rv']='V-R',['Rvc']='V-R',['Rvx']='V-R',
+                                ['n']='N',['niI']='Ni',['niR']='N',['niV']='N',['nt']='N',['ntT']='N',
+                                ['v']='V',['vs']='Vs',['V']='V-LINE',['Vs']='V-LINE',['\22']='V-BLOCK',['\22s']='V-BLOCK',
+                                ['s']='S',['S']='S-LINE',['\19']='S-BLOCK',
+                                ['i']='I',['ic']='Ic',['ix']='Ix',
+                                ['r']='r',['R']='R',['Rc']='Rc',['Rx']='Rx',['Rv']='V-R',['Rvc']='V-R',['Rvx']='V-R',
                                 ['c']='CMD',['cv']='EX',['ce']='EX',
                                 ['rm']='MORE',['r?']='CONFIRM',
                                 ['!']='SHELL',['t']='TERMINAL'
                             }
                             local ma = mode_alias[m]
                             if ma then m=ma end
-                            return "⋅"..m.."⋅" --▕ |｜ ⊣⊢ ⋅ ⦁ ⫞⊦
+                            return ""..m.."" --▕ |｜ ⊣⊢ ⋅ ⦁ ⫞⊦
                         end,
-                        --'mode',
                         on_click = function()
                             local m = vim.fn.mode()
                             if m ~= 'n' then vim.api.nvim_input('<ESC>') end
@@ -61,12 +60,10 @@ return
                         padding=0,
                     },
 
-                    {"branch", left_padding = 0, right_padding=0},
-                    {--lazgit
-                        function() return ' ' end,
+                    {
+                        "branch", -- ""
                         on_click = function() vim.cmd(":term lazygit") end,
-                        padding = 0,
-                        separator={right='|'},
+                        left_padding = 0, right_padding=0
                     },
                 },
 
@@ -218,7 +215,7 @@ return
                 lualine_a ={
                     {
                         function() --toggle neotree
-                            return "[/]"
+                            return " ⇥ "
                         end,
                         right_padding = 1,
                         color = { fg = "#5c5c5c", bg = 'NONE'},
@@ -235,8 +232,9 @@ return
 
                             local bft = vim.bo.buftype
                             local ft = vim.bo.filetype
-                            if bft == "" and ft ~= "neo-tree" then return dir.."/."
-                            else return "" end
+                            --if bft == "" and ft ~= "neo-tree" then return dir.."/."
+                            --else return "" end
+                            return dir
                         end,
                         --separator={right=''},
                         color = { fg = "#5c5c5c", bg = 'NONE'},
@@ -248,6 +246,7 @@ return
                         function()
                           return "≡"
                         end,
+                        color = { fg = "#5c5c5c", bg = 'NONE'},
                     }
                 },
 

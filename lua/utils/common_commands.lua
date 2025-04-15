@@ -84,6 +84,8 @@ end, { nargs = 1 })
 -- vim.cmd("help "..opts.args)
 -- end, { nargs = "*" })
 
+
+
 --[Editing]--------------------------------------------------
 --Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)
@@ -108,12 +110,12 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
 end, {})
 
 
+
 --[Formating]
 --wrap line into paragraph
 vim.api.nvim_create_user_command("WrapSelection", function()
     vim.cmd("normal! gww")
 end, { range = true })
-
 
 vim.api.nvim_create_user_command("ToggleVirtualLines", function()
     local diagconf = vim.diagnostic.config()
@@ -134,4 +136,12 @@ vim.diagnostic.Opts.
 end, {})
 
 
+
+vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
+    local cmd_output = vim.fn.execute('messages')
+
+    vim.cmd("enew")
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+end, {})
 

@@ -64,7 +64,7 @@ return
 
                 ["<CR>"] = { function() vim.cmd("Neotree close") require("oil").select() end, mode="n" },
                 ["<2-LeftMouse>"] = {"actions.select", mode = "n"},
-                ["<S-CR>"] = { "actions.select", opts = { tab = true } },
+                ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
 
                 ["q"] = { function() vim.cmd("Neotree close") require("oil").close() end, mode="n" },
                 ["<F5>"] = "actions.refresh",

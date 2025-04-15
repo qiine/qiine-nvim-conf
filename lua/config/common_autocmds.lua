@@ -154,18 +154,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 
----TODO highlight pastae text
---vim.api.nvim_create_augroup("highlight_yank_paste", { clear = true })
---vim.api.nvim_create_autocmd("TextChanged", {
---    group = "highlight_yank_paste",
---    pattern = "*",
---    callback = function()
---        vim.highlight.on_yank({higroup='IncSearch', timeout = 200 })
---        print("woow yanking")
---    end,
---})
---
-
 -- Auto go into normal mode when Neotree gains focus
 --vim.api.nvim_create_autocmd("BufEnter", {
 --    group = "UserAutoCmds",
@@ -178,11 +166,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 --})
 
 
-----------------------------------------------------------------------
--- Buffers --
-----------------------------------------------------------------------
---Smart Auto start in Insert mode when appropriate
-vim.api.nvim_create_autocmd({"BufEnter", "WinEnter"}, {
+--[Buffers]--------------------------------------------------
+--Smart enter Auto Insert when appropriate
+vim.api.nvim_create_autocmd({"BufEnter", "BufRead", "BufNewFile"}, {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
@@ -195,14 +181,16 @@ vim.api.nvim_create_autocmd({"BufEnter", "WinEnter"}, {
         if
             ft == "oil" or
             utils.string_contains(ft, "dashboard") or
-            utils.string_contains(ft, "neo")
+            utils.string_contains(ft, "alpha") or
+            utils.string_contains(ft, "neo") or
+            utils.string_contains(ft, "trouble")
         then vim.cmd("stopinsert") return end
 
         if buftype == "" then vim.cmd("startinsert") end
     end,
 })
 
---Auto Trim Whitespaces in Curr Buffer
+--Auto Trim trail spaces in Curr Buffer
 vim.api.nvim_create_autocmd("BufWritePre", {
     group = "UserAutoCmds",
     pattern = "*",

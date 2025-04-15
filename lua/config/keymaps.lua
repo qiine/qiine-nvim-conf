@@ -152,40 +152,53 @@ vmap(
 vmap(modes, "<C-Tab>", "<cmd>bnext<cr>", {noremap = true, silent = true})
 
 
+
 --[Windows]----------------------------------------
-vmap("i", "<M-w>", "<esc><C-w>", {noremap = true,})
-vmap("n", "<M-w>", "<C-w>", {noremap = true,})
+vmap("i", "<M-w>", "<esc><C-w>")
+vmap("n", "<M-w>", "<C-w>")
+vmap("v", "<M-w>", "<Esc><C-w>")
+
 
 
 --[Navigation]----------------------------------------
----[Fast cursor move]
 --Jump next word
 vmap('i', '<C-Right>', '<C-o>w', { noremap = true, silent = true })
 vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
 
---Jump previous
+--Jump previous word
 vmap('i', '<C-Left>', '<C-o>b', { noremap = true, silent = true })
 vmap('v', '<C-Left>', 'b', {noremap = true, silent = true })
 
+--to next/prev cursor loc
+vmap({"i","v"}, "<C-PageDown>", "<Esc><C-o>")
+vmap("n", "<C-PageDown>", "<C-o>")
+
+vmap({"i","v"}, "<C-PageUp>", "<Esc><C-i>")
+vmap("n", "<C-PageUp>", "<C-i>")
+
+
+--#[Fast cursor move]
 --Fast move normal mode
 vmap('n', '<C-Right>', '5l', { noremap = true, silent = true })
 vmap('n', '<C-Left>', '5h', { noremap = true, silent = true })
 
---ctrl+up/down to cursor move fast
+--ctrl+up/down to move fast
 vmap("i", "<C-Up>", function() vim.cmd("normal! 3k") end, {noremap = true, silent = true })
 vmap("n", "<C-Up>", "4k", {noremap = true, silent = true })
+vmap("v", "<C-Up>", "3k", {noremap = true, silent = true })
 
 vmap("i", "<C-Down>", function() vim.cmd("normal! 3j") end, {noremap = true, silent = true })
 vmap("n", "<C-Down>", "4j", {noremap = true, silent = true })
+vmap("v", "<C-Down>", "3j", {noremap = true, silent = true })
 
 --alt+left/right move to start/end of line
 vmap("i", "<M-Left>", function() vim.cmd("normal! 0") end, {noremap=true})
-vmap("n", "<M-Left>", "0", {remap=true})
-vmap("v", "<M-Left>", "0", {noremap=true})
+vmap("n", "<M-Left>", "0")
+vmap("v", "<M-Left>", "0")
 
-vmap("i", "<M-Right>", "<Esc>$a", {noremap=true})
-vmap("n", "<M-Right>", "$", {remap=true})
-vmap("v", "<M-Right>", "$", {noremap=true})
+vmap("i", "<M-Right>", "<Esc>$a")
+vmap("n", "<M-Right>", "$")
+vmap("v", "<M-Right>", "$")
 
 --Quick home/end
 vmap("i", "<Home>", "<Esc>gg0i", {noremap=true})
@@ -194,15 +207,15 @@ vmap({"n","v"}, "<Home>", "gg0", {noremap=true})
 vmap("i", "<End>", "<Esc>G0i", {noremap=true})
 vmap({"n","v"}, "<End>", "G0", {noremap=true})
 
---no word move using shift+arrows
-vmap("v", "<S-Left>", "<Left>",  {noremap = true})
-vmap("v", "<S-Right>", "<Right>",  {noremap = true})
---vmap({"n","v"}, "<S-Up>", "<Up>",  {noremap = true})
---vmap({"n","v"}, "<S-Down>", "<Down>",  {noremap = true})
 
 
 --[Selection]----------------------------------------
 --Select word under cursor
+vmap("i", "<S-w>", "<Esc>viw")
+vmap("n", "<S-w>", "viw")
+
+vmap("n", "ww", "viw")
+
 vmap("i", "«", "<esc>viw") --<altgr-w>
 vmap("n", "«", "viw")
 vmap("v", "«", "iw")
@@ -217,9 +230,11 @@ vmap(modes, "<C-a>", "<Esc>ggVG", {noremap = true, silent = true })
 --shift+arrows vis select
 vmap("i", "<S-Left>", "<Esc>hv", {noremap = true, silent = true})
 vmap("n", "<S-Left>", "vh", {noremap = true, silent = true})
+vmap("v", "<S-Left>", "<Left>")
 
 vmap("i", "<S-Right>", "<Esc>v", {noremap = true, silent = true})
 vmap("n", "<S-Right>", "vl", {noremap = true, silent = true})
+vmap("v", "<S-Right>", "<Right>")
 
 vmap("i", "<S-Up>", "<Esc>vk", {noremap=true, silent=true})
 vmap("n", "<S-Up>", "vk", {noremap=true, silent=true})
@@ -239,17 +254,18 @@ vmap("v", "<M-Down>", "j")
 
 --*[Grow select]
 --grow horizontally TODO proper anchor logic
-vmap("i", "<S-PageUp>", "<Esc>vl")
-vmap("n", "<S-PageUp>", "vl")
-vmap("v", "<S-PageUp>", "l")
+vmap("i", "<M-PageUp>", "<Esc>vl")
+vmap("n", "<M-PageUp>", "vl")
+vmap("v", "<M-PageUp>", "l")
 
-vmap("i", "<S-PageDown>", "<Esc>vh")
-vmap("n", "<S-PageDown>", "vh")
-vmap("v", "<S-PageDown>", "oho")
+vmap("i", "<M-PageDown>", "<Esc>vh")
+vmap("n", "<M-PageDown>", "vh")
+vmap("v", "<M-PageDown>", "oho")
 
 --grow do end/start of line
-vmap("n", "<M-PageUp>", "<S-v>k")
-vmap("v", "<M-PageUp>",
+vmap("i", "<S-PageUp>", "<Esc><S-v>k")
+vmap("n", "<S-PageUp>", "<S-v>k")
+vmap("v", "<S-PageUp>",
     function ()
         local m = vim.api.nvim_get_mode().mode
         if m == "V" then vim.cmd("normal! k")
@@ -258,8 +274,9 @@ vmap("v", "<M-PageUp>",
     end
 )
 
-vmap("n", "<M-PageDown>", "<S-v>j")
-vmap("v", "<M-PageDown>",
+vmap("i", "<S-PageDown>", "<Esc><S-v>j")
+vmap("n", "<S-PageDown>", "<S-v>j")
+vmap("v", "<S-PageDown>",
     function ()
         local m = vim.api.nvim_get_mode().mode
         if m == "V" then vim.cmd("normal! j")
@@ -268,13 +285,14 @@ vmap("v", "<M-PageDown>",
     end
 )
 
---*[search]
-vmap("i", "<C-f>", "<Esc>/", {noremap=true})
-vmap("n","<C-f>", "/", {noremap=true})
-vmap("v", "<C-f>", "<Esc>*<cr>", {noremap=true})
+--#[search]
+vmap("i", "<C-f>", "<Esc>/")
+vmap("n","<C-f>", "/")
+vmap("v", "<C-f>", "<Esc>*<cr>")
 
 
---[Editing]----------------------------------------
+
+--[Editing]--------------------------------------------------
 vmap("i", "<Ins>", "<Esc>", {noremap = true})
 vmap("n", "<Ins>", "i", {noremap = true})
 vmap("v", "<Ins>", "<Esc>i", {noremap = true})
@@ -282,8 +300,8 @@ vmap("v", "<Ins>", "<Esc>i", {noremap = true})
 --Visual insert mode
 vmap("v", "<M-i>", "I", {noremap=true})
 
----[Copy]
---ctrl-c copy
+--#[Copy / Cut / Past]
+--Copy
 -- ' "+ ' is the os register
 vmap("i", "<C-c>",
     function()
@@ -295,6 +313,9 @@ vmap("i", "<C-c>",
 {noremap=true})
 vmap("n", "<C-c>", '"+yl', {noremap = true})
 vmap("v", "<C-c>", '"+y', {noremap = true})
+
+--Fast copy word
+vmap("n", "<C-c><C-c>", 'viw"+y')
 
 --ctrl+x cut
 vmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
@@ -308,13 +329,13 @@ vmap("v", "<C-v>", '"_d"+P')
 vmap("c", "<C-v>", '<C-R>+')
 vmap("t", "<C-v>", '<C-o>"+P')
 
---*[Dup]
+--#[Dup]
 vmap("i", "<C-d>", '<Esc>yypi')
 vmap("n", "<C-d>", 'yyp')
 vmap("v", "<C-d>", '"+yP')--TODO does not place text proper
 
 
---*[Undo/redo]
+--#[Undo/redo]
 --ctrl+z to undo
 vmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
 vmap({"n","v"}, "<C-z>", "u", {noremap = true})
@@ -324,7 +345,7 @@ vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>", {noremap = true})
 vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
 
 
---*[Deletion]
+--#[Deletion]
 --backspace delete char
 --vmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 vmap("n", "<BS>", '<Esc>"_X<Esc>')
@@ -401,8 +422,9 @@ vmap("n", "<space>", "i<space><esc>")
 vim.keymap.set("i", "<Tab>",
     function()
         local inword = utils.is_cursor_inside_word()
-        if inword then vcmd("normal! v>")
-        else vim.cmd("normal! i\t") end --don't care about softab here
+        if inword then vcmd("normal! v>") vim.cmd("normal! 4l")
+        else vim.cmd("normal! i\t") --don't care about softab here
+        end
     end
 )
 vmap("n", "<Tab>", "v>")
@@ -429,12 +451,14 @@ vmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji", {noremap=true})
 vmap("n", "<S-M-cr>", "o<esc>kO<esc>j", {noremap=true})
 
 
---*[Join]
-vmap("n", "<C-j>", "vj<S-j>") --Join one below
+--#[Join]
 vmap("v", "<C-j>", "<S-j>")
 
+vmap("i", "<C-j>", "<Esc>vj<S-j><Esc>i") --Join one below
+vmap("n", "<C-j>", "vj<S-j>")      --|
 
---*[move lines]
+
+--#[move lines]
 --Move char
 vmap("n", "<C-S-Right>", "xp", {noremap=true, silent=true})
 vmap("n", "<C-S-Left>", "x2hp", {noremap=true, silent=true})

@@ -67,5 +67,6 @@ return
             })
             vim.cmd("normal! gv")
         end, { range = true })
+
     end,
 }

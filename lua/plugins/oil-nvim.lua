@@ -84,6 +84,7 @@ return
                         vim.cmd("startinsert")
                         vim.api.nvim_put({ "new_file.txt" }, "", false, true)
                         vim.cmd("normal! 0")
+                        vim.cmd("normal! v$")
                     end
                 },
                 ["N"] = {
@@ -92,6 +93,7 @@ return
                         vim.cmd("startinsert")
                         vim.api.nvim_put({ "new_folder/" }, "", false, true)
                         vim.cmd("normal! 0")
+                        vim.cmd("normal! v$")
                     end
                 },
                 ["<Del>"] = { function() vim.cmd("normal! dd") end, mode = "n" },

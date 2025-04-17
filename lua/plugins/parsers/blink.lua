@@ -8,8 +8,6 @@ return
         --"moyiz/blink-emoji.nvim",
     },
 
-    ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
     opts = {
         completion={
             ghost_text = {enabled = false,},
@@ -23,17 +21,17 @@ return
         signature = {
             enabled = true,
             trigger = {
-                enabled = true, --auto show
+                enabled = false, --auto show
                 --Show the signature help window after typing any of alphanumerics, `-` or `_`
                 show_on_keyword = false,
-                blocked_trigger_characters = {},
-                blocked_retrigger_characters = {},
                 --Show the signature help window after typing a trigger character
-                show_on_trigger_character = true,
+                show_on_trigger_character = false,
                 --Show the signature help window when entering insert mode
                 show_on_insert = false,
                 --Show the signature help window when the cursor comes after a trigger character when entering insert mode
                 show_on_insert_on_trigger_character = false,
+                blocked_trigger_characters = {},
+                blocked_retrigger_characters = {},
             },
             window = {
                 min_width = 1,
@@ -79,7 +77,6 @@ return
                 ghost_text = { enabled = true }
             },
 
-            keymap= { preset = 'inherit', }
         },
         appearance = {
             -- Sets the fallback highlight groups to nvim-cmp's highlight groups
@@ -107,7 +104,7 @@ return
             },
         },
 
-        keymap = 
+        keymap =
         {
             preset = 'none',
 

@@ -23,7 +23,7 @@ v.opt.showmode = false --show curr mode in cmd
 --{modes}:{shape}-{blinking options}
 local cursor_styles = {
     "n-v-c:block", -- Normal, Visual, Command: Block cursor
-    "i-ci-ve:ver85", -- Insert, Command Insert, Visual-Exclude: Block cursor
+    "i-ci-ve-c-t:ver85", -- Insert, Command Insert, Visual-Exclude: Block cursor
     "r-cr:hor40", -- Replace, Command Replace: 20% height horizontal bar
     "o:hor50", -- Operator-pending: 50% height horizontal bar
     "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor", -- Global blinking settings

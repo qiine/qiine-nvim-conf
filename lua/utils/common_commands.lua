@@ -109,6 +109,28 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
     end
 end, {})
 
+--Append underline unicode character to each selected chars
+vim.api.nvim_create_user_command("UnderlineSelected", function(opts)
+    local start_line = opts.line1 - 1
+    local end_line = opts.line2
+
+    local lines = vim.api.nvim_buf_get_lines(0, start_line, end_line, false)
+
+    local combining = '\u{0332}' --underline unicode
+    local function underline(str)
+        return str:gsub(".", function(c)
+            -- avoid underlining newline or multibyte control chars
+            return c:match("[%z\1-\127]") and c .. combining or c
+        end)
+    end
+
+    for i, line in ipairs(lines) do
+        lines[i] = underline(line)
+    end
+
+    vim.api.nvim_buf_set_lines(0, start_line, end_line, false, lines)
+end, { range = true })
+
 
 
 --[Formating]

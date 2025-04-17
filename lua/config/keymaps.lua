@@ -16,6 +16,7 @@ local vmap  = vim.keymap.set
 local nvmap = vim.api.nvim_set_keymap
 ----------------------------------------
 
+
 --[Doc]--------------------------------------------------
 --vim.api.nvim_set_keymap(mode, lhs, rhs, opts)
 --mode:  mode in which the mapping will work
@@ -47,7 +48,9 @@ local nvmap = vim.api.nvim_set_keymap
 
 --<cmd>
 --doesn't change modes which helps perf
---":" triggers CmdlineEnter, where `<cmd>` does not.
+--`<cmd>` does need <CR>. while ":" triggers "CmdlineEnter" implicitly
+
+--":"supports Ex ranges like '<,'>.
 
 local esc = "<Esc>"
 local entr = "<CR>"
@@ -60,18 +63,27 @@ local modes = { "i", "n", "v", "o", "t", "c" }
 local function currmod() return vim.api.nvim_get_mode().mode end
 
 
-----------------------------------------------------------------------
--- Internal --
-----------------------------------------------------------------------
+--[Internal]--------------------------------------------------
 --vim.g.mapleader = " "
 
 --Ctrl+q to quit
 vmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
 
+--Ressource curr file
+vmap(modes, "ç", --altgr-r
+    function()
+        local cf = vim.fn.expand("%:p")
+        vim.cmd("source "..cf)
+
+        local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
+        vim.cmd(string.format("echo '%s ressourced'", fname))
+    end
+)
+
 --Quick restart nvim
 vmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
---F5 reload
+--F5 refresh buffer
 vmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
 
 
@@ -435,20 +447,22 @@ vmap("n", "<S-Tab>", "v<")
 vmap("v", "<S-Tab>", "<gv")
 
 
---*[Line break]
-vmap("n", "<cr>", "i<cr><esc>", {noremap=true})
+--#[Line break]
+vmap("n", "<cr>", "i<cr><esc>")
 
-vmap("i", "<S-cr>", "<Esc>O", {noremap=true}) --above
-vmap("n", "<S-cr>", "O", {noremap=true}) --|
-vmap("v", "<S-cr>", "<esc>O<esc>vgv", {noremap=true}) --|
+--1 above
+vmap("i", "<S-cr>", "<Esc>O")
+vmap("n", "<S-cr>", "O<esc>")
+vmap("v", "<S-cr>", "<esc>O<esc>vgv")
 
-vmap("i", "<M-cr>", "<Esc>o", {noremap=true}) --below
-vmap({"n","v"}, "<M-cr>", 'o', {noremap=true}) --|
-vmap("v", "<M-cr>", "<esc>o<esc>vgv", {noremap=true}) --|
+--1 below
+vmap("i", "<M-cr>", "<Esc>o")
+vmap("n", "<M-cr>", 'o<Esc>')
+vmap("v", "<M-cr>", "<Esc>o<Esc>vgv")
 
 --New line above and below
-vmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji", {noremap=true})
-vmap("n", "<S-M-cr>", "o<esc>kO<esc>j", {noremap=true})
+vmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji")
+vmap("n", "<S-M-cr>", "o<esc>kO<esc>j")
 
 
 --#[Join]

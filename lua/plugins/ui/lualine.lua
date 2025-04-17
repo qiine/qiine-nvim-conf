@@ -48,7 +48,7 @@ return
                             if m ~= 'n' then vim.api.nvim_input('<ESC>') end
                         end,
                         separator={right=''},   --
-                        padding=1,
+                        padding={left=1, right=1},
                     }
                 },
 
@@ -89,7 +89,7 @@ return
                             vim.cmd('resize ' .. new_height)
                         end,
                         left_padding = 1,
-                        color = { fg = '#0c0c0c'},
+                        --color = { fg = '#0c0c0c'},
                     },
                     { --cmd return
                         function() return '⌨' end, --🖵
@@ -225,19 +225,16 @@ return
                 lualine_b = {
                     {
                         function() --path
-                            local dir = vim.fn.fnamemodify(vim.fn.expand('%:h'), ':~:.')
-                            local cwd = vim.fn.getcwd()
+                            local cf = vim.fn.expand("%:p")
+                            local dir = vim.fn.fnamemodify(cf, ":h")
+                            local home = vim.fn.expand("~")
+                            local short = vim.fn.substitute(dir, "^" .. vim.fn.escape(home, "\\") .. "/", "~/", "")
+                            local fancy = short:gsub("/", "🮥 ") --› > 〉  › ›
 
-                            if ft == "oil" then return cwd end
-
-                            local bft = vim.bo.buftype
-                            local ft = vim.bo.filetype
-                            --if bft == "" and ft ~= "neo-tree" then return dir.."/."
-                            --else return "" end
-                            return dir
+                            return "📁│"..fancy..""  --/.
                         end,
                         --separator={right=''},
-                        color = { fg = "#5c5c5c", bg = 'NONE'},
+                        color = { fg = "#737373", bg = 'NONE'},
                     },
 
                 },

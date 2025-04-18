@@ -552,6 +552,9 @@ vmap("t", "œ", "<Esc> <C-\\><C-n>", {noremap=true})
 --Cmd close
 vmap("c", "œ", "<Esc><cmd>echon' '<CR>") --echon' ' clear command-line
 
+--cmd completion menu
+--vmap("c", "<C-d>", "<C-d>")
+
 --Cmd menu nav
 vmap("c", "<Up>", "<C-p>")
 vmap("c", "<Down>", "<C-n>")
@@ -559,7 +562,7 @@ vmap("c", "<S-Tab>", "<C-n>")
 
 --Accept
 --vmap('c', '<cr>', '<CR>')
-vmap('c', '<tab>', '<CR>')
+--vmap('c', '<tab>', '<CR>')
 
 
 

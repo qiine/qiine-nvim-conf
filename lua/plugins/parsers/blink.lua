@@ -10,14 +10,23 @@ return
 
     opts =
     {
+        --the main options
         completion={
-            ghost_text = {enabled = false,},
-            documentation = {
-                auto_show = false,
-            },
+            list = { selection = { preselect = true, auto_insert = true } },
+            keyword = { range = "prefix" },
+            ghost_text = {enabled = false},
             trigger = {
                 show_on_insert_on_trigger_character = false,
             },
+            menu = {
+                draw = {
+                    columns = {
+                        { "label", "label_description", gap = 1 },
+                        {"kind_icon", "kind" }
+                    }
+                },
+            },
+            documentation = { auto_show = false, },
         },
 
         signature = {
@@ -79,7 +88,6 @@ return
                 -- Displays a preview of the selected item on the current line
                 ghost_text = { enabled = true }
             },
-
         },
 
         appearance = {
@@ -98,6 +106,16 @@ return
             min_keyword_length = 2,
             default = { 'lsp', 'path', 'snippets', 'buffer', },
             providers = {
+                buffer = {
+                    opts = {
+                        --use other buffers as source
+                        get_bufnrs = function()
+                            return vim.tbl_filter(function(bufnr)
+                                return vim.bo[bufnr].buftype == ''
+                            end, vim.api.nvim_list_bufs())
+                        end
+                    }
+                },
                 cmdline = {
                     min_keyword_length = function(ctx)
                         -- when typing a command, only show when the keyword is 2 characters or longer
@@ -107,8 +125,6 @@ return
                 }
             },
         },
-
-        fuzzy = { implementation = "prefer_rust_with_warning" },
 
         keymap =
         {
@@ -123,6 +139,7 @@ return
             --             'snippet_forward',
             --             'fallback'
             --},
+            ["<Esc>"] = {"cancel", 'fallback'},
 
             ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
             ['<C-e>'] = { 'hide' },
@@ -144,5 +161,4 @@ return
 
     },--opts
 
-    opts_extend = { "sources.default" }
 }--return

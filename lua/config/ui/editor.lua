@@ -5,9 +5,8 @@ local vap = vim.api
 local vopt = vim.opt
 ---------------------
 
--------------------------------------------------------
--- Navigation --
--------------------------------------------------------
+
+--[Navigation]--------------------------------------------------
 vim.g.buffenter_startinsert = true
 
 --[Mouse]
@@ -86,7 +85,7 @@ local formatopts = {} --will hold all users formats opts
 --View the current formatoptions with:
 -- :set verbose=1 formatoptions?
 
----[Identation]
+--##[Identation]
 vim.opt.autoindent = true
 vim.opt.smartindent = true
 
@@ -96,23 +95,32 @@ v.opt.shiftwidth = 4 -- Number of spaces to use for indentation
 v.opt.tabstop = 4
 v.opt.softtabstop = 4 -- Number of spaces to use for pressing TAB in insert mode
 
----[Text Wrapping]
+--##[Text Wrapping]
 --"t" Auto-wrap text using textwidth (for non-comments).
 --"w" Auto-wrap lines in insert mode, even without spaces.
 --"v" Don't auto-wrap lines in visual mode.
+--table.insert(formatopts, "t")
+--table.insert(formatopts, "w")
 vim.opt.textwidth = 80
+--vim.api.nvim_create_autocmd("ModeChanged", {
+--    pattern = {"txt", "md"},
+--    callback = function()
+--        vim.opt_local.formatoptions:append("t")
+--    end,vim.opt_local.formatoptions:append("w")
+--})
+
+--Visual only wraping
 vim.opt.wrap = false --word wrap off by default
 vim.opt.breakindent = true --wrapped lines conserve whole block identation
 
----[Paragraph & Line Formatting]
+--##[Paragraph & Line Formatting]
 --"a"	Auto-format paragraphs as you type (very aggressive).
 --"l" on joins, Don’t break long lines in insert mode.
 --"n"	Recognize numbered lists (1., 2., etc.) and format them properly.
 --"2"	Use a two-space indent for paragraph continuation.
 table.insert(formatopts, "n")
 
---[Commenting]
---------------------------------
+--##[Commenting]
 --"c" Auto-wrap comments using textwidth.
 --"r" Continue comments when pressing <Enter> in insert mode.
 --"o" Continue comments when opening a new line with o or O.
@@ -127,10 +135,18 @@ table.insert(formatopts, "q")
 vim.api.nvim_create_autocmd("BufEnter", {
     pattern = "*",
     callback = function()
+        local ft = vim.bo.filetype
+        if ft == "text" or ft == "markdown" then
+            table.insert(formatopts, "t")
+            table.insert(formatopts, "w")
+        end
+
         local fopts = table.concat(formatopts)
         vim.opt.formatoptions = fopts
+
     end,
 })
+
 
 
 ------------------------------------------------------------

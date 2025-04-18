@@ -1,6 +1,6 @@
 {
     "create vscode snippet": {
-        "prefix": "create vscode snippet",
+        "prefix": "create_vscode_snippet",
         "description": "Create a new VSCode snippet",
         "body": [
             "\"new snippet\": {",
@@ -62,7 +62,22 @@
         "body": [
             "----------"
         ]
+    },
+
+    "get_nvim_filetype": {
+        "prefix": "get_nvim_filetype",
+        "body": [
+            "vim.bo.filetype"
+        ]
+    },
+
+    "get_nvim_buffertype": {
+        "prefix": "get_nvim_buffertype",
+        "body": [
+            "vim.bo.buftype"
+        ]
     }
+
 
 }
 

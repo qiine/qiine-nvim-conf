@@ -95,3 +95,5 @@ vim.api.nvim_create_autocmd("Vimenter", {
 --         change_scale_factor(1/1.25)
 --     end)
 -- end
+
+

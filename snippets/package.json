@@ -1,9 +1,0 @@
-{
-  "name": "common_snippets",
-  "contributes": {
-    "snippets": [
-      { "language": "lua", "path": "./lua.json" }
-    ]
-  }
-}
-

@@ -36,14 +36,15 @@ v.opt.showmode = false --show curr mode in cmd
 --#[Cursor]
 --{modes}:{shape}-{blinking options}
 local cursor_styles = {
-    "n-v-c:block", -- Normal, Visual, Command: Block cursor
+    "n:block",
+    "v:block",
     "i-ci-ve-c-t:ver85", -- Insert, Command Insert, Visual-Exclude: Block cursor
     "r-cr:hor40", -- Replace, Command Replace: 20% height horizontal bar
     "o:hor50", -- Operator-pending: 50% height horizontal bar
     "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor", -- Global blinking settings
     --Cursor stays solid for 700ms before blinking starts.
-    --blinkoff400 → Cursor is off for 400ms while blinking.
-    --blinkon250 → Cursor is on for 250ms while blinking.
+    --blinkoff400 -> Cursor is off for 400ms while blinking.
+    --blinkon250 -> Cursor is on for 250ms while blinking.
 }
 vim.opt.guicursor = table.concat(cursor_styles, ",")
 vim.opt.cursorline = true
@@ -258,7 +259,7 @@ vim.diagnostic.config({
 --})
 
 
---[Conceal]
+--#[Conceal]
 vim.opt.conceallevel=0
 --0		Text is shown normally
 --	1		Each block of concealed text is replaced with one

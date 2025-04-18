@@ -9,9 +9,21 @@ local vap = vim.api
 local vopt = vim.opt
 ------------------------------------
 
---Disable nvim intro
-v.opt.shortmess:append("sI")
 
+v.opt.shortmess:append("si")
+-- "f"	Use "(file # of #)" instead of full file name in messages
+-- "i"	Don't give intro message when starting Vim
+-- "l"	Don't show "line x of y" in messages
+-- "m"	Don't show [modified] message
+-- "n"	Don't show "file [New]" when editing a new file
+-- "r"	Don't show hit-enter prompts (e.g., after messages that pause the UI)
+-- "s"	Don't show "search hit BOTTOM, continuing at TOP"
+-- "t"	Truncate file messages at the start if too long
+-- "w"	Don't show "written" after :w
+-- "c"	Don't show completion messages (-- XXX completion (YYY) etc.)
+-- "a"	Abbreviation: combine c, s, and w (used in some plugin defaults)
+
+--Splits
 vim.opt.splitbelow = true -- Open new split windows below the current window
 vim.opt.splitright = true -- Open new split windows to the right of the current window
 
@@ -20,6 +32,8 @@ v.opt.showmode = false --show curr mode in cmd
 -- vim.opt.showcmd = false
 --displaying selection info. It also shows incomplete commands in the bottom-right corner.
 
+
+--#[Cursor]
 --{modes}:{shape}-{blinking options}
 local cursor_styles = {
     "n-v-c:block", -- Normal, Visual, Command: Block cursor
@@ -38,11 +52,14 @@ vim.opt.cursorline = true
 --v.opt.keymodel=startsel
 --startsel: Start selection when entering visual mode.
 
+
 --Search
 vim.opt.ignorecase = true
 vim.opt.smartcase = true --case-sensitive only if uppercase letters are typed
 vim.opt.hlsearch = true --Highlight all matches
 vim.opt.incsearch = true --Highlight as you type
+
+--vim.opt.colorcolumn="80"
 
 --[Rendering]
 vim.opt.updatetime = 200 --screen redraw speed in ms
@@ -53,7 +70,6 @@ v.opt.scrolloff = 3
 v.opt.sidescrolloff = 5
 --v.opt.sidescroll=1
 
---vim.opt.colorcolumn="80"
 
 
 --[Gutter]--------------------------------------------------

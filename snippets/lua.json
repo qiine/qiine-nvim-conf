@@ -1,16 +1,68 @@
 {
-
-    "dashline": {
-        "prefix": "----",
+    "create vscode snippet": {
+        "prefix": "create vscode snippet",
+        "description": "Create a new VSCode snippet",
         "body": [
-            "----------"  
+            "\"new snippet\": {",
+            "\t\"prefix\": \"<your-prefix>\",",
+            "\t\"description\": \"<your-description>\",",
+            "\t\"body\": [",
+            "\t\t\"<your-snippet-body>\"",
+            "\t],",
+            "\"}"
         ]
     },
-    "test": {
-        "prefix": "test",
+
+    "create vim user command": {
+        "prefix": "create vim user command",
         "body": [
-            "'testing'"  
+            "vim.api.nvim_create_user_command(\"NewUserCmd\", function()",
+                "\t--cmd",
+            "end, {})"
+        ]
+    },
+
+    "create vim autocommand": {
+        "prefix": "create vim autocommand",
+        "description": "Create a new nvim auto command",
+        "body": [
+            "vim.api.nvim_create_autocmd('BufEnter', {",
+            "\tgroup = 'UserAutoCmds',",
+            "\tpattern = '*',",
+            "\tcallback = function()",
+            "\t\t--do stuff",
+            "\tend,",
+            "})"
+        ]
+    },
+
+    "create nvim keymap": {
+        "prefix": "create nvim keymap",
+        "body": [
+            "vmap(${1:\"n\"}, ${2:\"<key>\"}, ${3:\" \"})"
+        ]
+    },
+
+    "for each table": {
+        "prefix": "for each table",
+        "body": [
+            "for _, item in pairs(table) do",
+            "\t--stuff",
+            "end"
+        ]
+    },
+
+    "get home": {
+        "prefix": "get home",
+        "body": "os.getenv(\"HOME\")"
+    },
+
+    "dashline10": {
+        "prefix": "dashline10",
+        "body": [
+            "----------"
         ]
     }
 
 }
+

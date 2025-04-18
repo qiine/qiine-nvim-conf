@@ -71,13 +71,13 @@ vmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force qui
 
 --Ressource curr file
 vmap(modes, "ç", --altgr-r
-    function()
-        local cf = vim.fn.expand("%:p")
-        vim.cmd("source "..cf)
+function()
+local cf = vim.fn.expand("%:p")
+vim.cmd("source "..cf)
 
-        local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
-        vim.cmd(string.format("echo '%s ressourced'", fname))
-    end
+local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
+vim.cmd(string.format("echo '%s ressourced'", fname))
+end
 )
 
 --Quick restart nvim
@@ -89,7 +89,9 @@ vmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloade
 
 ---[LSP]
 --Goto deffinition
-vmap("n", "<F12>", "<Ctrl-]>", {noremap=true})
+vmap("i", "<F12>", "<Esc>gdi")
+vmap("n", "<F12>", "gd")
+vmap("v", "<F12>", "<Esc>gd")
 
 
 
@@ -100,32 +102,32 @@ vmap(modes, "<C-S-s>", "<cmd>wa<cr>", {noremap = true})
 
 --Create new file
 local function create_newfile()
-    local buff_count = vim.api.nvim_list_tabpages()
-    local newbuff_num = #buff_count
-    v.cmd("tabnew")
-    v.cmd("edit untitled_" .. newbuff_num)
+local buff_count = vim.api.nvim_list_tabpages()
+local newbuff_num = #buff_count
+v.cmd("tabnew")
+v.cmd("edit untitled_" .. newbuff_num)
 end
 vmap(modes, "<C-n>", create_newfile, {noremap = true})
 
 
 
---[View]----------------------------------------
+--[View]--------------------------------------------------
 --alt-z toggle line wrap
 vmap(
-    {"i", "n", "v"}, "<A-z>",
-    function()
-        v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
-    end,
-    {noremap = true}
+{"i", "n", "v"}, "<A-z>",
+function()
+    v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
+end,
+{noremap = true}
 )
 
 --Gutter on/off
 vmap("n", "<M-g>", function()
-    local toggle = "yes"
-    vim.opt.number = false
-    vim.opt.relativenumber = false
-    vim.opt.signcolumn = "no"
-    vim.opt.foldenable = false
+local toggle = "yes"
+vim.opt.number = false
+vim.opt.relativenumber = false
+vim.opt.signcolumn = "no"
+vim.opt.foldenable = false
 end, {noremap=true, desc = "Toggle Gutter" })
 
 
@@ -148,16 +150,16 @@ vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 --[Tabs]--------------------------------------------------
 --create new tab
 vmap(
-    modes,"<C-t>",
-    function() vim.cmd("tabnew") end,
-    {noremap = true, silent = true}
+modes,"<C-t>",
+function() vim.cmd("tabnew") end,
+{noremap = true, silent = true}
 )
 --tabs close
 vmap(
-    modes,
-    "<C-w>",
-    function() vim.cmd("bd!") end,
-    {noremap = true, silent = true}
+modes,
+"<C-w>",
+function() vim.cmd("bd!") end,
+{noremap = true, silent = true}
 )
 
 --tabs nav
@@ -187,6 +189,21 @@ vmap("n", "<C-PageDown>", "<C-o>")
 
 vmap({"i","v"}, "<C-PageUp>", "<Esc><C-i>")
 vmap("n", "<C-PageUp>", "<C-i>")
+
+--smart Jump to link
+vmap({"i","n"}, "<C-CR>",
+function()
+    local word = vim.fn.expand("<cfile>")
+    local filetype = vim.bo.filetype
+
+    -- crude check: if it's a URL or a file-like string
+    if word:match("^https?://") or vim.fn.filereadable(word) == 1 then
+        vim.cmd.normal("gx")
+    else
+        vim.cmd.normal("%")
+    end
+end
+)
 
 
 --#[Fast cursor move]
@@ -536,13 +553,13 @@ vmap("t", "œ", "<Esc> <C-\\><C-n>", {noremap=true})
 vmap("c", "œ", "<Esc><cmd>echon' '<CR>") --echon' ' clear command-line
 
 --Cmd menu nav
-vmap("c", "<Up>", "<C-p>", {noremap=true})
-vmap("c", "<Down>", "<C-n>", {noremap=true})
-vmap("c", "<S-Tab>", "<C-n>", {noremap=true})
+vmap("c", "<Up>", "<C-p>")
+vmap("c", "<Down>", "<C-n>")
+vmap("c", "<S-Tab>", "<C-n>")
 
 --Accept
---vmap('c', '<cr>', '<CR>', {remap=true})
-vmap('c', '<tab>', '<CR>', {remap=true})
+--vmap('c', '<cr>', '<CR>')
+vmap('c', '<tab>', '<CR>')
 
 
 

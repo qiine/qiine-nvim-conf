@@ -35,7 +35,6 @@ return
                 signcolumn    = "yes:2",
                 cursorcolumn  = true,
                 foldcolumn    = "0",
-                spell         = true,
                 list          = false,
                 conceallevel  = 3,
                 concealcursor = "nvic",
@@ -103,6 +102,8 @@ return
 
         --Quick open
         vim.keymap.set({ "i", "n", "v" }, "*-", function()
+            if vim.bo.filetype == "oil" then return end
+
             vim.cmd("stopinsert")
 
             local fp = vim.fn.expand("%:p")

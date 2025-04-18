@@ -19,7 +19,7 @@ return
                     statusline = {},
                     winbar = {},
                 },
-                ignore_focus = {"neo-tree", "trouble"},
+                ignore_focus = {"neo-tree", "trouble", "help"},
             },
 
             sections =
@@ -58,13 +58,16 @@ return
                         function() return " 📂" end,
                         on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
                         padding=0,
+                        color = { bg = 'NONE'},
                     },
 
                     {
-                        "branch", -- ""
+                        "branch", -- git ""
                         on_click = function() vim.cmd(":term lazygit") end,
-                        left_padding = 0, right_padding=0
+                        padding={left=1, right=1},
+                        color = { bg = 'NONE'},
                     },
+                    {function() return "|" end, padding=0, color={fg='#a8a7a7', bg="NONE"}},
                 },
 
                 lualine_c = {
@@ -73,7 +76,7 @@ return
                         sections = { 'error', 'warn', "hint"},
                         always_visible = true,
                         on_click = function() vim.cmd("Trouble diagnostics toggle focus=true filter.buf=0") end,
-                        right_padding=0,
+                        padding=1,
                     },
                     {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
                     {--term
@@ -91,7 +94,7 @@ return
                         left_padding = 1,
                         --color = { fg = '#0c0c0c'},
                     },
-                    { --cmd return
+                    { --cmdwin
                         function() return '⌨' end, --🖵
                         on_click = function()
                         if vim.bo.filetype == "vim" then
@@ -104,26 +107,24 @@ return
 
                 lualine_x =
                 {
-                    {
+                    {--select count
                         function()
                             local m = vim.fn.mode()
-                            if m == "v" or m == "V" then return'<>'
-                            else return ""
-                            end
+                            if m == "v" or m == "V" then return'<>' else return "" end
                         end,
                         padding=0,
                     },
                     {"selectioncount", left_padding=1, right_padding=0},
                     {'location', padding=0},
-                    {
-                        function() --line count
+                    {--line count
+                        function()
                             local lines = vim.api.nvim_buf_line_count(0)
                             return lines..'L'
                         end,
                         padding=1,
                     },
-                    {
-                        function() --fsize
+                    {--fsize
+                        function()
                             local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
 
                             local function human_readable_size(bytes)
@@ -149,6 +150,10 @@ return
                             local buft = vim.bo.buftype
                             if buft == "" then buft = "regular" end
                             return ""..buft--.."|"
+                        end,
+                        on_click = function()
+                            local output = vim.fn.execute("ls", true)
+                            vim.notify(output, vim.log.levels.INFO, { title = "Buffers" })
                         end,
                         padding=0,
                         separator={left=''},
@@ -217,9 +222,9 @@ return
                         function() --toggle neotree
                             return " ⇥ "
                         end,
+                        on_click=function() vim.cmd("Neotree toggle") end,
                         right_padding = 1,
                         color = { fg = "#5c5c5c", bg = 'NONE'},
-                        on_click=function() vim.cmd("Neotree toggle") end,
                     },
                 },
                 lualine_b = {

@@ -140,6 +140,7 @@ function M.bool_toggle(bword)
         ["yes"] = "no", ["no"] = "yes",
         ["on"] = "off", ["off"] = "on",
         ["activate"] = "deactivate", ["deactivate"] = "activate",
+        ["enable"] = "disable", ["disable"] = "enable",
     }
 
     local wtoggle = toggle_map[string.lower(bword)]

@@ -8,7 +8,8 @@ return
         --"moyiz/blink-emoji.nvim",
     },
 
-    opts = {
+    opts =
+    {
         completion={
             ghost_text = {enabled = false,},
             documentation = {
@@ -18,6 +19,7 @@ return
                 show_on_insert_on_trigger_character = false,
             },
         },
+
         signature = {
             enabled = true,
             trigger = {
@@ -48,6 +50,7 @@ return
                 show_documentation = false, --show signature but not the doc
             },
         },
+
         cmdline = {
             enabled = true,
             -- use 'inherit' to inherit mappings from top level `keymap` config
@@ -78,6 +81,7 @@ return
             },
 
         },
+
         appearance = {
             -- Sets the fallback highlight groups to nvim-cmp's highlight groups
             -- Useful for when your theme doesn't support blink.cmp
@@ -96,7 +100,7 @@ return
             providers = {
                 cmdline = {
                     min_keyword_length = function(ctx)
-                        -- when typing a command, only show when the keyword is 3 characters or longer
+                        -- when typing a command, only show when the keyword is 2 characters or longer
                         if ctx.mode == 'cmdline' and string.find(ctx.line, ' ') == nil then return 2 end
                         return 0
                     end
@@ -104,9 +108,11 @@ return
             },
         },
 
+        fuzzy = { implementation = "prefer_rust_with_warning" },
+
         keymap =
         {
-            preset = 'none',
+            preset = 'none', --or default
 
             ['<CR>'] = { 'accept', 'fallback' },
             --['<Tab>'] = {
@@ -136,8 +142,7 @@ return
 
         },
 
-        fuzzy = { implementation = "prefer_rust_with_warning" }
+    },--opts
 
-    },
     opts_extend = { "sources.default" }
-}
+}--return

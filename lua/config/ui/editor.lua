@@ -51,10 +51,8 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 })
 
 
--------------------------------------------------------
--- Editing --
--------------------------------------------------------
---[Keymapping]
+--[Editing]--------------------------------------------------
+--#[Keymapping]
 v.opt.timeoutlen = 300 --delay between key press to register shortcuts
 
 --Define what a word is
@@ -65,7 +63,9 @@ v.opt.backspace = { "indent", "eol", "start" }
 --"eol" → Allows Backspace to delete past line breaks.
 --"start" → Allows Backspace at the start of insert mode.
 
-vim.opt.spell = true
+
+--#[Spellcheck]
+vim.opt.spell = false
 --vim.api.nvim_create_autocmd({ "FileType" }, {
 --    pattern = { "markdown", "plaintext" },
 --    callback = function()
@@ -73,19 +73,20 @@ vim.opt.spell = true
 --    end,
 --})
 
-vim.opt.spelllang = {
-    "en_us",
-    --"en_fr"
-}
+--vim.opt.spelllang = {
+--    "en_us",
+--    --"en_fr"
+--}
+--option.spelloptions:append("noplainbuffer") --no spelling for certain buftype
 
---[Formating]
+
+--#[Formating]
 local formatopts = {} --will hold all users formats opts
 
 --View the current formatoptions with:
 -- :set verbose=1 formatoptions?
 
---[Identation]
-------------------------------
+---[Identation]
 vim.opt.autoindent = true
 vim.opt.smartindent = true
 
@@ -95,8 +96,7 @@ v.opt.shiftwidth = 4 -- Number of spaces to use for indentation
 v.opt.tabstop = 4
 v.opt.softtabstop = 4 -- Number of spaces to use for pressing TAB in insert mode
 
---Text Wrapping
-------------------------------
+---[Text Wrapping]
 --"t" Auto-wrap text using textwidth (for non-comments).
 --"w" Auto-wrap lines in insert mode, even without spaces.
 --"v" Don't auto-wrap lines in visual mode.
@@ -104,12 +104,11 @@ vim.opt.textwidth = 80
 vim.opt.wrap = false --word wrap off by default
 vim.opt.breakindent = true --wrapped lines conserve whole block identation
 
---Paragraph & Line Formatting
------------------------------
---a	Auto-format paragraphs as you type (very aggressive).
+---[Paragraph & Line Formatting]
+--"a"	Auto-format paragraphs as you type (very aggressive).
 --"l" on joins, Don’t break long lines in insert mode.
---n	Recognize numbered lists (1., 2., etc.) and format them properly.
---2	Use a two-space indent for paragraph continuation.
+--"n"	Recognize numbered lists (1., 2., etc.) and format them properly.
+--"2"	Use a two-space indent for paragraph continuation.
 table.insert(formatopts, "n")
 
 --[Commenting]

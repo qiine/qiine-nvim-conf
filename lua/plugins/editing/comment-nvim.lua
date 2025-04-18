@@ -7,6 +7,7 @@ return
         require('Comment').setup({
             padding = false,
             mappings = { basic = true, extra = false },
+            ignore = '^$',
             -- extra = {
             --     above = ' ',
             --     below = ' ',

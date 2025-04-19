@@ -46,8 +46,11 @@ trouble.nvim
 ident-blankline  
 
 ### Session
-tiny session management helpers, with save on BufEnter, command to save/edit 
-global session and auto reload session on restart command
+Tiny session management helpers, featureing:  
+- save on VimLeavePre,
+- command to save/edit session 
+- reload session on restart command
+only support one global session for now  
 
 ### Theme
 mostly nightfox with a bunch of custom highlight groups on top  

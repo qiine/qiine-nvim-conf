@@ -25,7 +25,7 @@ local nvmap = vim.api.nvim_set_keymap
 --opts: Optional settings, usually passed as a table.
 
 --Setting key example:
---vim.keymap.set("i", "<C-d>", "dd",{noremap = true, silent = true, desc ="ctrl+d delette line"})
+--vim.keymap.set("i", "<C-d>", "dd",{noremap = true, silent = true, desc ="ctrl+d delete line"})
 --noremap = true,  Ignore any existing remappings will act as if there is no custom mapping.
 --silent = true Prevents displaying command in the command-line when executing the mapping.
 
@@ -70,14 +70,16 @@ local function currmod() return vim.api.nvim_get_mode().mode end
 vmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
 
 --Ressource curr file
-vmap(modes, "ç", --altgr-r
-function()
-local cf = vim.fn.expand("%:p")
-vim.cmd("source "..cf)
+vmap(modes, "ç", --"<altgr-r>"
+    function()
+        local cf = vim.fn.expand("%:p")
 
-local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
-vim.cmd(string.format("echo '%s ressourced'", fname))
-end
+        vim.cmd("source "..cf)
+
+        --broadcast
+        local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
+        vim.cmd(string.format("echo '%s ressourced'", fname))
+    end
 )
 
 --Quick restart nvim
@@ -375,7 +377,8 @@ vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
 
 
 --#[Deletion]
---backspace delete char
+--##[Backspace]
+--BS remove char
 --vmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 vmap("n", "<BS>", '<Esc>"_X<Esc>')
 vmap("v", "<BS>", '"_x')
@@ -385,23 +388,32 @@ vmap("i", "<C-H>", "<C-w>")
 vmap("n", "<C-H>", '"_dB')
 vmap("v", "<C-H>", '"_dB"')
 
---Shift+backspace clear line
-vmap("i", "<S-BS>", '<Esc>0"_d$i', {silent = true})
-vmap("n", "<S-BS>", '0"_d$', {silent = true})
-vmap("v", "<S-BS>", '<Esc>"_cc', {silent=true})
+--Bacspace from cursor to start
+vmap("i", "<M-BS>", '<Esc>"_d0i')
+vmap("n", "<M-BS>", '"_d0')
 
---*[Del]
+--Shift+backspace clear line
+vmap("i", "<S-BS>", '<Esc>0"_d$i')
+vmap("n", "<S-BS>", '0"_d$')
+vmap("v", "<S-BS>", '<Esc>"_cc')
+
+
+--##[Del]
 vmap("n", "<Del>", 'v"_d<esc>')
 vmap("v", "<Del>", '"_d<esc>i')
 
 --ctrl+Del rem word
-vmap("i", "<C-Del>", '<C-o>"_dw', {noremap = true, silent = true})
-vmap({"n","v"}, "<C-Del>", 'dw', {noremap = true, silent = true})
+vmap("i", "<C-Del>", '<C-o>"_dw')
+vmap({"n","v"}, "<C-Del>", 'dw')
+
+--del to end of line
+vmap("i", "<M-Del>", "<Esc>d$i")
+vmap("n", "<M-Del>", "d$")
 
 --Delete entire line (Shift + Del)
-vmap("i", "<S-Del>", '<C-o>"_dd', {noremap = true})
-vmap("n", "<S-Del>", '"_dd', {noremap = true})
-vmap("v", "<S-Del>", '<S-v>"_d', {noremap=true}) --expand sel before del
+vmap("i", "<S-Del>", '<C-o>"_dd')
+vmap("n", "<S-Del>", '"_dd')
+vmap("v", "<S-Del>", '<S-v>"_d') --expand sel before del
 
 
 --*[Replace]

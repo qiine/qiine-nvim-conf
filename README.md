@@ -45,6 +45,10 @@ barbar for tabs
 trouble.nvim  
 ident-blankline  
 
+### Session
+tiny session management helpers, with save on BufEnter, command to save/edit 
+global session and auto reload session on restart command
+
 ### Theme
 mostly nightfox with a bunch of custom highlight groups on top  
 I am on an B&W eInk monitor so colors must be off for now  

@@ -32,19 +32,25 @@ vim.opt.encoding = "UTF-8"
 local function safe_require(module_name)
     local status, err = pcall(require, module_name)
     if not status then
-        vim.notify("Error with module: '" .. module_name .. "'\n" .. err .. "\nmodule loading aborted", vim.log.levels.ERROR)
+        vim.notify(
+            "Error with module: '"..module_name.."'\n"..err.."\nmodule loading aborted",
+            vim.log.levels.ERROR
+        )
     end
 end
 
+safe_require("modules.tinysession")
+
 safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
-safe_require("config.common_autocmds")
+safe_require("utils.common_autocmds")
 
-safe_require("config.lazy")
+safe_require("config.lazy") --plugins
 
 safe_require("config.keymaps")
 safe_require("config.mousemaps")
 
+--settings
 safe_require("config.settings")
 
 safe_require("config.ui.editor")
@@ -53,6 +59,7 @@ safe_require("config.ui.menus")
 safe_require("config.ui.theme")
 
 
+--debug messages
 vim.api.nvim_create_autocmd("Vimenter", {
      pattern = "*",
      callback = function()
@@ -61,13 +68,6 @@ vim.api.nvim_create_autocmd("Vimenter", {
 })
 
 -------------------------------
-
---disable nvim built-in file explorer
---vim.g.loaded_netrw = 1
---vim.g.loaded_netrwPlugin = 1
-
---print("init success")
---vim.api.nvim_set_var("NVIM_LISTEN_ADDRESS", "/tmp/nvim.sock")
 
 
 --neovide

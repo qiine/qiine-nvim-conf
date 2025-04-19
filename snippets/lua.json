@@ -8,8 +8,8 @@
             "\t\"description\": \"<your-description>\",",
             "\t\"body\": [",
             "\t\t\"<your-snippet-body>\"",
-            "\t],",
-            "\"}"
+            "\t]",
+            "}"
         ]
     },
 
@@ -30,9 +30,16 @@
             "\tgroup = 'UserAutoCmds',",
             "\tpattern = '*',",
             "\tcallback = function()",
-            "\t\t--do stuff",
+                "\t\t--do stuff",
             "\tend,",
             "})"
+        ]
+    },
+
+    "create_user_autocmd_group": {
+        "prefix": "create_user_autocmd_group",
+        "body": [
+            "vim.api.nvim_create_augroup('NewUserAutoCmdGroup', { clear = true })"
         ]
     },
 
@@ -77,7 +84,5 @@
             "vim.bo.buftype"
         ]
     }
-
-
 }
 

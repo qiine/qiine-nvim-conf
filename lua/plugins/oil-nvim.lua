@@ -31,12 +31,13 @@ return
                 spell = true,
             },
             win_options = {
-                wrap          = false,
+                --wrap          = false,
                 signcolumn    = "yes:2",
-                cursorcolumn  = true,
-                foldcolumn    = "0",
-                list          = false,
-                conceallevel  = 3,
+                cursorcolumn = false,
+                foldcolumn = "0",
+                spell = false,
+                list = false,
+                conceallevel = 3,
                 concealcursor = "nvic",
             },
             preview_win = {

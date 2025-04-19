@@ -1,7 +1,6 @@
 -------------------------
 -- User commands --
 -------------------------
-
 local v = vim
 local vapi = vim.api
 local vcmd = vim.cmd
@@ -19,14 +18,15 @@ vim.api.nvim_create_user_command("RessourceCurrent", function()
     vim.cmd("source " .. currf)
 end, {})
 
---Restart
+--Restart nvim
 vim.api.nvim_create_user_command("Restart", function()
-    local curfile = vim.fn.expand("%:p") -- Get the current file location
+    local curfile = vim.fn.expand("%:p") --Get curr file location
     local curdir = vim.fn.fnamemodify(curfile, ':p:h')
 
     vim.loop.spawn("wezterm", {
-        args = { "-e", "nvim", "--cmd", "cd " .. curdir, curfile },
-        cwd = curdir
+        --args = { "-e", "nvim", "--cmd", "cd " .. curdir, curfile },
+        --cwd = curdir
+        args = { "-e", "nvim", "-S", GLOBAL_SESSION },
     })
     vim.cmd("qa!")
 end, {})

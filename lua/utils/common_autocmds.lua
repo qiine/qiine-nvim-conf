@@ -106,19 +106,19 @@ vim.api.nvim_create_autocmd('TabLeave', {
 
 --default save loc and name
 --TODO create unique name each time
-vim.api.nvim_create_autocmd('BufWriteCmd', {
-    group = "UserAutoCmds",
+--vim.api.nvim_create_autocmd('BufWriteCmd', {
+--    group = "UserAutoCmds",
 
-    pattern = '[No Name]',
-    callback = function()
-        local default_path = vim.fn.expand('~/Desktop')
-        local default_filename = 'new_text.txt'
+--    pattern = '[No Name]',
+--    callback = function()
+--        local default_path = vim.fn.expand('~/Desktop')
+--        local default_filename = 'new_text.txt'
 
-        if vim.fn.bufname('%') == '' then
-            vim.cmd('file ' .. default_path .. '/' .. default_filename)
-        end
-    end,
-})
+--        if vim.fn.bufname('%') == '' then
+--            vim.cmd('file ' .. default_path .. '/' .. default_filename)
+--        end
+--    end,
+--})
 
 --local conf = vim.fn.stdpath('config')
 ---- TODO Autocommand to reload the configuration when any file in the config directory is saved
@@ -154,16 +154,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 
--- Auto go into normal mode when Neotree gains focus
---vim.api.nvim_create_autocmd("BufEnter", {
---    group = "UserAutoCmds",
---    pattern = "*",
---    callback = function()
---        if vim.bo.filetype == "neo-tree" then
---            vap.nvim_feedkeys(vap.nvim_replace_termcodes("<Esc>", true, true, true), "n", true)
---        end
---    end
---})
 
 
 --[Buffers]--------------------------------------------------

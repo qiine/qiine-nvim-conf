@@ -1,4 +1,4 @@
-# My Fancy Neovim Config
+# ✨ My Fancy Neovim Config
 
 Surely **overcomplicated**  
 Absolutely **not finished**  
@@ -9,15 +9,15 @@ My text editor journey:
 
 ---
 
-## ✏️ Editing
+## ✏️Editing
 
 - Hundreds of custom keymaps (I am unable to stop myself ;p)  
 - Mouse support! (°)°)  
-- Word "speed dial" in normal mode with `+` / `-`  
-- Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
-- Capitalization flipping  
+- Native Word "speed dial" in normal mode with `+` / `-`  
+- with Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
+- and Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
-- Whitespace trimming on save (+custom command)  
+- Built-in Whitespace trimming on save (+custom command)  
 - Completion via **blink.cmp**
 
 ---
@@ -57,10 +57,10 @@ My text editor journey:
 
 ---
 
-## 📂 Session Management
+## 💾 Session Management
 
 Tiny helpers:
-- Save on `VimLeavePre`  
+- Auto save on `VimLeavePre`  
 - Command to save/edit session  
 - Reload session with a custom command
 

@@ -97,22 +97,22 @@ vim.api.nvim_create_autocmd("VimEnter", {
             v.api.nvim_command(item)
         end
 
-        --smart enable/disable based on context
+    end,
+})
+
+vim.api.nvim_create_autocmd('MenuPopup', {
+    group = 'UserAutoCmds',
+    pattern = '*',
+    callback = function()
         vim.cmd[[
             amenu disable PopUp.Open\ in\ browser
         ]]
 
-        --if vim.lsp.get_clients({ bufnr = 0 })[1] then
-        --    vim.cmd[[
-        --        amenu enable PopUp.References
-        --    ]]
-        --end
-
         local urls = require("vim.ui")._get_urls()
-        if vim.startswith(urls[1], "http") then
-             vim.cmd[[
-                 amenu enable PopUp.Open\ in\ browser
-            ]]
+        if urls and #urls > 0 and vim.startswith(urls[1], "http") then
+            vim.cmd([[
+                amenu enable PopUp.Open\ in\ browser
+            ]])
         end
     end,
 })

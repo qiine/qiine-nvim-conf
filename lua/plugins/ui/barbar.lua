@@ -40,8 +40,8 @@ return
                     custom_colors = false,
                 },
                 button = '', --close button
-                modified = {button = '🖬'},
-                pinned = {button = '', filename = true},
+                modified = {button = '💾'}, --🖬
+                pinned = {button = '', filenamefalse= true},
 
                 separator = {left = '▎', right = '▕'}, --│ |
                 separator_at_end = false, --Add additional separator at the end of the buffer list

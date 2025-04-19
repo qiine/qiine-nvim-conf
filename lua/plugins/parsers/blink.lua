@@ -63,7 +63,10 @@ return
         cmdline = {
             enabled = true,
             -- use 'inherit' to inherit mappings from top level `keymap` config
-            keymap = { preset = 'cmdline' },
+            keymap = {
+                preset = 'inherit',
+                ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
+            },
             completion = {
                 trigger = {
                     show_on_blocked_trigger_characters = {},
@@ -128,21 +131,26 @@ return
 
         keymap =
         {
+            --fallback: Runs the next non-blink keymap, or runs the built-in neovim binding
+            --fallback_to_mappings: Runs the next non-blink keymap (not built-in behavior)
+
             preset = 'none', --or default
 
             ['<CR>'] = { 'accept', 'fallback' },
-            --['<Tab>'] = {
-            --     function(cmp)
-            --     if cmp.snippet_active() then return cmp.accept()
-            --         else return cmp.select_and_accept() end
-            --             end,
-            --             'snippet_forward',
-            --             'fallback'
-            --},
+            ['<Tab>'] = {
+                 function(cmp)
+                 if cmp.snippet_active() then return cmp.accept()
+                     else return cmp.select_and_accept() end
+                end,
+                "snippet_forward",
+                'fallback'
+            },
             ["<Esc>"] = {"cancel", 'fallback'},
 
-            ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
-            ['<C-e>'] = { 'hide' },
+            ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation', "fallback" },
+            ['<C-e>'] = { 'hide', "fallback" },
+
+            ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
 
             ['<Up>'] = { 'select_prev', 'fallback' },
             ['<Down>'] = { 'select_next', 'fallback' },
@@ -152,11 +160,8 @@ return
             ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
             ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
 
-            ['<Tab>'] = { 'snippet_forward', 'fallback' },
+            --['<Tab>'] = { 'snippet_forward' },
             ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
-
-            ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
-
         },
 
     },--opts

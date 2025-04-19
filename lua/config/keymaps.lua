@@ -207,6 +207,8 @@ function()
 end
 )
 
+--to normal on tangeant arrow move
+--vmap("i", "<Up><Right>", "<Esc>")
 
 --#[Fast cursor move]
 --Fast move normal mode
@@ -324,6 +326,32 @@ vmap("v", "<C-f>", "<Esc>*<cr>")
 
 
 --[Editing]--------------------------------------------------
+--Typing in visual mode insert chars
+local chars = utils.table_flatten(
+    {
+        utils.alphabet_lowercase,
+        utils.alphabet_uppercase,
+        utils.numbers,
+        utils.punctuation,
+    }
+)
+for _, char in ipairs(chars) do
+    vmap('v', char, "<del><Esc>i"..char, {noremap=true})
+end
+vmap("v", "<space>", "<del>i<space>", {noremap=true})
+vmap("v", "<cr>", "<del>i<cr>", {noremap=true})
+
+--insert some chars in normal mode
+vmap("n", "F", "iF<Esc>")
+vmap("n", "J", "iJ<Esc>")
+vmap("n", "K", "iK<Esc>")
+vmap("n", "o", "io<Esc>")
+vmap("n", "q", "iq<Esc>")
+vmap("n", "z", "iz<Esc>")
+vmap("n", ".", "i.<Esc>")
+
+
+--toggle insert/normal with insert key
 vmap("i", "<Ins>", "<Esc>", {noremap = true})
 vmap("n", "<Ins>", "i", {noremap = true})
 vmap("v", "<Ins>", "<Esc>i", {noremap = true})
@@ -417,21 +445,6 @@ vmap("v", "<S-Del>", '<S-v>"_d') --expand sel before del
 
 
 --*[Replace]
---Typing in visual mode insert chars
-local chars = utils.table_flatten(
-    {
-        utils.alphabet_lowercase,
-        utils.alphabet_uppercase,
-        utils.numbers,
-        utils.punctuation,
-    }
-)
-for _, char in ipairs(chars) do
-    vmap('v', char, "<del><Esc>i"..char, {noremap=true})
-end
-vmap("v", "<space>", "<del>i<space>", {noremap=true})
-vmap("v", "<cr>", "<del>i<cr>", {noremap=true})
-
 --replace selection with char
 vmap("v", "<F2>", "\"zy:%s/<C-r>z//g<Left><Left>", {noremap = true, silent = false })
 

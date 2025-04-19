@@ -167,3 +167,14 @@ vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
 
+
+--vim.api.nvim_create_user_command("NewUserCmd", function()
+--    vim.ui.select({ "One", "Two", "Three" }, {
+--        prompt = "Choose one:",
+--    }, function(choice)
+--        if choice then
+--            print("You selected: " .. choice)
+--        end
+--    end)
+
+--end, {})

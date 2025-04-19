@@ -1,13 +1,8 @@
 
 -- Session management --
-local M = {}
 
 --Session loc: "~/.local/share/nvim/global_session.vim"
 GLOBAL_SESSION = vim.fn.stdpath("data") .. "/global_session.vim"
-
-function M.get_globalsession()
-    return vim.fn.stdpath("data") .. "/global_session.vim"
-end
 
 --Session setings
 vim.opt.sessionoptions = {
@@ -53,7 +48,7 @@ end, {})
 vim.api.nvim_create_augroup('TinySession', { clear = true })
 
 --Smart auto save session
-vim.api.nvim_create_autocmd('VimLeavePre', {
+vim.api.nvim_create_autocmd({"BufAdd","BufDelete","VimLeavePre"}, {
     group = 'TinySession',
     pattern = '*',
     callback = function()

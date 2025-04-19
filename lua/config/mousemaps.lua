@@ -25,9 +25,9 @@ nvmap('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true}
 --nvmap("n", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 
 --Middle click
-nvmap("i", "<MiddleMouse>", "", {noremap=true, silent=true})
-nvmap("n", "<MiddleMouse>", "", {noremap=true, silent=true})
-nvmap("v", "<MiddleMouse>", "", {noremap=true, silent=true})
+--nvmap("i", "<MiddleMouse>", "")
+--nvmap("n", "<MiddleMouse>", "")
+--nvmap("v", "<MiddleMouse>", "")
 
 
 --nvmap('n', '<LeftMouse>', '', {noremap=true, silent=true})

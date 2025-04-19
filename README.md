@@ -1,66 +1,99 @@
-# My fancy config:
+# My Fancy Neovim Config
 
-Surely overcomplicated
+Surely **overcomplicated**  
+Absolutely **not finished**  
+Extremely **heretical** ;p
 
-Absolutely not finished
+My text editor journey:  
+`Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
 
-Extremely heretical ;p
+---
 
-My text editor journey looked like this:
-Code::Blocks -> notepad++ -> Visual Studio -> VSCode -> Neovim  
+## ✏️ Editing
 
-### Editing
-- A few hundred custom keymaps (I am unable to stop myself ;) 
-- And... some mousemaps!(°)°)  
-- Custom word "speed dial" in normal mode with +/-  
-- Easy toggle booleans like true/false yes/no on/off etc...  
-- Easy capitalization switching  
-- Auto pairing with nvim-autopairs  
-- Auto white space trimming on save with custom commands  
-- Auto complete with blink.comp  
+- Hundreds of custom keymaps (I am unable to stop myself ;p)  
+- Mouse support! (°)°)  
+- Word "speed dial" in normal mode with `+` / `-`  
+- Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
+- Capitalization flipping  
+- Auto-pairing via **nvim-autopairs**  
+- Whitespace trimming on save (+custom command)  
+- Completion via **blink.cmp**
 
-### Text parsing
-supported langauge :
-- lua
-- markdown
-- yaml
-- toml  
+---
 
-highlighting: treesitter  
-LSP  
-custom snippets  
+## 🧠 Text Parsing
 
-nvim-lint  
-spell checking  
-conform-nvim  
+**Supported languages**:
+- Lua  
+- Markdown  
+- YAML  
+- TOML
 
-### file management
-- neotree  
-- oil  
-- telescope  
+**Tools**:
+- Treesitter highlighting  
+- LSP  
+- Custom snippets  
+- **nvim-lint**, 
+- **conform.nvim**  
+- Spell checking
 
-### ui
-lualine with many custom components  
-barbar for tabs  
-trouble.nvim  
-ident-blankline  
+---
 
-### Session
-Tiny session management helpers, featureing:  
-- save on VimLeavePre,
-- command to save/edit session 
-- reload session on restart command
-only support one global session for now  
+## 📂 File Management
 
-### Theme
-mostly nightfox with a bunch of custom highlight groups on top  
-I am on an B&W eInk monitor so colors must be off for now  
+- **neo-tree**  
+- **oil.nvim**  
+- **telescope.nvim**
 
-### Plugin management with lazy.nvim
+---
 
-### Tested on wezterm with latest nvim version
-wezterm config here:  
-https://github.com/qiine/wezterm-conf  
+## 🖼 UI
 
-### dependencies 
+- **lualine** with many custom components  
+- **barbar.nvim** for tabs  
+- **trouble.nvim**  
+- **indent-blankline.nvim**
+
+---
+
+## 📂 Session Management
+
+Tiny helpers:
+- Save on `VimLeavePre`  
+- Command to save/edit session  
+- Reload session with a custom command
+
+Currently only supports **one global session**
+
+---
+
+## 🎨 Theme
+
+- Based on **Nightfox**  
+- Custom highlight groups  
+- Tweaked for a **black & white eInk monitor** — no colors for now
+
+---
+
+## 📦 Plugin Management
+
+- Managed via **lazy.nvim**
+
+---
+
+## 🧪 Environment
+
+### Dependencies
+- stylua
+- marksman
+- lua_ls
+- luacheck
+- eslint_d
+
+---
+
+- Tested on **WezTerm** with the latest **Neovim**  
+- My WezTerm config:  
+  [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
 

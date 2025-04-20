@@ -40,7 +40,7 @@ return
                     custom_colors = false,
                 },
                 button = '', --close button
-                modified = {button = '💾'}, --🖬
+                modified = {button = '🖬'}, --🖬💾
                 pinned = {button = '', filenamefalse= true},
 
                 separator = {left = '▎', right = '▕'}, --│ |

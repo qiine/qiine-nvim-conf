@@ -40,6 +40,7 @@ local function safe_require(module_name)
 end
 
 safe_require("modules.tinysession")
+safe_require("modules.rouleau-nvim")
 
 safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")

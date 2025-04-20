@@ -13,7 +13,7 @@ return
                 show_exact_scope = false,
             },
             indent = {
-               char = "▏", --"┊"  "▏"  "│" `▕`
+               char = "▏", --"▏"  "│" `▕`   dotted:"┊"
             },
             exclude = {
                 filetypes = {

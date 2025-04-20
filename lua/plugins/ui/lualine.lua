@@ -121,9 +121,10 @@ return
                             local lines = vim.api.nvim_buf_line_count(0)
                             return lines..'L'
                         end,
-                        padding=1,
+                        padding={left=1,right=0},
                     },
-                    {--fsize
+                    {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
+                    {--filesize
                         function()
                             local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
 
@@ -243,7 +244,18 @@ return
                     },
 
                 },
-                lualine_z = {
+
+                lualine_z =
+                {
+                    {
+                        function () --add to favorite
+                            return "☆" --☆ ★
+                        end,
+                        on_click=function() vim.cmd("echo'fav!'") end,
+                        padding=0,
+                        color = { fg = "#5c5c5c", bg = 'NONE'},
+                    },
+
                     {
                         function()
                           return "≡"

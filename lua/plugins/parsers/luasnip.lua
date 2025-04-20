@@ -1,7 +1,7 @@
 return
 {
     "L3MON4D3/LuaSnip",
-    lazy = true,
+    lazy = false,
 
     dependencies = { "rafamadriz/friendly-snippets", lazy = true },
 

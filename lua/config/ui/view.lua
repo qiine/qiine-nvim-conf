@@ -115,8 +115,8 @@ vim.opt.listchars:append({
     tab="  ",
     eol=" ",
     nbsp="␣",
-    precedes="⇐",
-    extends="⇒",
+    precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯
+    extends="⟾",  -- ⇒ ⇛ ↦ ⤍ ┅
     conceal="."
 })
 

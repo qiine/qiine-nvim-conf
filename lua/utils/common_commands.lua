@@ -23,9 +23,11 @@ vim.api.nvim_create_user_command("Restart", function()
     local curfile = vim.fn.expand("%:p") --Get curr file location
     local curdir = vim.fn.fnamemodify(curfile, ':p:h')
 
+    local sess = GLOBAL_SESSION
     vim.loop.spawn("wezterm", {
         --args = { "-e", "nvim", "--cmd", "cd " .. curdir, curfile },
         --cwd = curdir
+
         args = { "-e", "nvim", "-S", GLOBAL_SESSION },
     })
     vim.cmd("qa!")
@@ -83,6 +85,15 @@ end, { nargs = 1 })
 -- vim.cmd("setlocal buftype=help")
 -- vim.cmd("help "..opts.args)
 -- end, { nargs = "*" })
+
+--Easy del files without file browser
+vim.api.nvim_create_user_command("DeleteCurrentFile", function()
+    local filepath = vim.fn.expand('%:p')
+    if vim.fn.confirm("Delete file?\n" .. filepath, "&Yes\n&No", 2) == 1 then
+        vim.fn.delete(filepath)
+        vim.cmd('bdelete!')
+    end
+end, {})
 
 
 

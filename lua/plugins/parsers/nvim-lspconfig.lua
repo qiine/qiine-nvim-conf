@@ -4,7 +4,7 @@ return
     enabled = true,
     dependencies=
     {
-        "saghen/blink.cmp" 
+        "saghen/blink.cmp"
     },
 
     config = function()
@@ -51,7 +51,7 @@ return
                         -- Get the language server to recognize the `vim` global
                         globals = {
                             'vim',
-                            'require'
+                            --'require'
                         },
                         disable = {},
                     },

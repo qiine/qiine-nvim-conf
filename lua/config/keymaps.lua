@@ -58,7 +58,7 @@ local tab = "<Tab>"
 local space = "<Space>"
 
 --modes helpers
-local modes = { "i", "n", "v", "o", "t", "c" }
+local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 local function currmod() return vim.api.nvim_get_mode().mode end
 
@@ -104,12 +104,12 @@ vmap(modes, "<C-S-s>", "<cmd>wa<cr>", {noremap = true})
 
 --Create new file
 local function create_newfile()
-local buff_count = vim.api.nvim_list_tabpages()
-local newbuff_num = #buff_count
-v.cmd("tabnew")
-v.cmd("edit untitled_" .. newbuff_num)
+    local buff_count = vim.api.nvim_list_tabpages()
+    local newbuff_num = #buff_count
+    v.cmd("enew")
+    v.cmd("e untitled_" .. newbuff_num)
 end
-vmap(modes, "<C-n>", create_newfile, {noremap = true})
+vmap(modes, "<C-n>", create_newfile)
 
 
 
@@ -149,23 +149,21 @@ end, {noremap=true, desc = "Toggle Gutter" })
 vmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 
+
 --[Tabs]--------------------------------------------------
 --create new tab
-vmap(
-modes,"<C-t>",
-function() vim.cmd("tabnew") end,
-{noremap = true, silent = true}
-)
---tabs close
-vmap(
-modes,
-"<C-w>",
-function() vim.cmd("bd!") end,
-{noremap = true, silent = true}
+vmap( modes,"<C-t>",
+    function()
+        vim.cmd("enew")
+        vim.cmd("Alpha")
+    end
 )
 
+--tabs close
+vmap(modes, "<C-w>", function() vim.cmd("bd!") end)
+
 --tabs nav
-vmap(modes, "<C-Tab>", "<cmd>bnext<cr>", {noremap = true, silent = true})
+vmap(modes, "<C-Tab>", "<cmd>bnext<cr>")
 
 
 
@@ -178,12 +176,12 @@ vmap("v", "<M-w>", "<Esc><C-w>")
 
 --[Navigation]----------------------------------------
 --Jump next word
-vmap('i', '<C-Right>', '<C-o>w', { noremap = true, silent = true })
-vmap('v', '<C-Right>', 'w', { noremap = true, silent = true })
+vmap('i', '<C-Right>', '<C-o>w')
+vmap('v', '<C-Right>', 'w')
 
 --Jump previous word
-vmap('i', '<C-Left>', '<C-o>b', { noremap = true, silent = true })
-vmap('v', '<C-Left>', 'b', {noremap = true, silent = true })
+vmap('i', '<C-Left>', '<C-o>b')
+vmap('v', '<C-Left>', 'b')
 
 --to next/prev cursor loc
 vmap({"i","v"}, "<C-PageDown>", "<Esc><C-o>")
@@ -244,7 +242,6 @@ vmap({"n","v"}, "<End>", "G0", {noremap=true})
 
 --[Selection]----------------------------------------
 --Select word under cursor
-vmap("i", "<S-w>", "<Esc>viw")
 vmap("n", "<S-w>", "viw")
 
 vmap("n", "ww", "viw")
@@ -360,7 +357,7 @@ vmap("v", "<Ins>", "<Esc>i", {noremap = true})
 vmap("v", "<M-i>", "I", {noremap=true})
 
 --#[Copy / Cut / Past]
---Copy
+--Copying
 -- ' "+ ' is the os register
 vmap("i", "<C-c>",
     function()
@@ -373,15 +370,18 @@ vmap("i", "<C-c>",
 vmap("n", "<C-c>", '"+yl', {noremap = true})
 vmap("v", "<C-c>", '"+y', {noremap = true})
 
---Fast copy word
+--Fast copy/cut word
 vmap("n", "<C-c><C-c>", 'viw"+y')
 
---ctrl+x cut
+--Cuting
 vmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
 vmap("n", "<C-x>", '"+x', { noremap = true, silent = true })
 vmap("v", "<C-x>", '"+d<Esc>', { noremap = true, silent = true }) --d both delette and copy so..
 
---Map Ctrl-v  paste
+--fast cut word
+vmap("n", "<C-x><C-x>", 'viw"+x')
+
+--Pasting
 vmap("i", "<C-v>", '<esc>"+Pli')
 vmap("n", "<C-v>", '"+p')
 vmap("v", "<C-v>", '"_d"+P')
@@ -569,13 +569,13 @@ vmap({"i","n"}, "<F56>", --equivalent to <M-F8>
 
 --[cmd]----------------------------------------
 --Open command line
-vmap("i", "œ", "<esc>:", {noremap=true})
-vmap("n", "œ", ":", {noremap=true})
-vmap("v", "œ", ":", {noremap=true})
-vmap("t", "œ", "<Esc> <C-\\><C-n>", {noremap=true})
+vmap("i", "œ", "<esc>:")
+vmap("n", "œ", ":")
+vmap("v", "œ", ":")
+vmap("t", "œ", "<Esc> <C-\\><C-n>")
 
 --Cmd close
-vmap("c", "œ", "<Esc><cmd>echon' '<CR>") --echon' ' clear command-line
+vmap("c", "œ", "<Esc>' '<CR>")
 
 --cmd completion menu
 --vmap("c", "<C-d>", "<C-d>")

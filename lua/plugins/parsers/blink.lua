@@ -4,7 +4,7 @@ return
     enabled = true,
     version = '*',  -- use a release tag to download pre-built binaries
     dependencies = {
-        'rafamadriz/friendly-snippets',
+        --'rafamadriz/friendly-snippets',
         --"moyiz/blink-emoji.nvim",
     },
 
@@ -12,13 +12,21 @@ return
     {
         --the main options
         completion={
-            list = { selection = { preselect = true, auto_insert = true } },
+            list = {
+                selection = { preselect = true, auto_insert = true },
+                cycle = { from_bottom = true, from_top = true, },
+            },
             keyword = { range = "prefix" },
             ghost_text = {enabled = false},
             trigger = {
+                show_on_keyword = true,
+                show_on_trigger_character = false,
                 show_on_insert_on_trigger_character = false,
             },
             menu = {
+            auto_show = true,
+            winblend = 5,  --opacity
+            direction_priority = { 's', "n" },
                 draw = {
                     columns = {
                         { "label", "label_description", gap = 1 },
@@ -66,6 +74,21 @@ return
             keymap = {
                 preset = 'inherit',
                 ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
+                ["<ESC>"] = {
+                    --https://github.com/Saghen/blink.cmp/issues/547
+                    --Neovim behaves as if <Esc> was mapped to <CR>
+                    --Makes it very difficult to have a useful command mode mapping for the
+                    --escape key (e.g. a conditional mapping such as: close the completion window if
+                    --it is visible, otherwise abort the cmdline with <Esc> as if it had never been
+                    --mapped in the first place).
+                    function(cmp)
+                        if cmp.is_visible() then
+                            cmp.cancel()
+                        else
+                            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-c>", true, true, true), "n", true)
+                        end
+                    end,
+                },
             },
             completion = {
                 trigger = {
@@ -91,16 +114,6 @@ return
                 -- Displays a preview of the selected item on the current line
                 ghost_text = { enabled = true }
             },
-        },
-
-        appearance = {
-            -- Sets the fallback highlight groups to nvim-cmp's highlight groups
-            -- Useful for when your theme doesn't support blink.cmp
-            -- Will be removed in a future release
-            use_nvim_cmp_as_default = true,
-            -- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-            -- Adjusts spacing to ensure icons are aligned
-            nerd_font_variant = 'mono'
         },
 
         -- Default list of enabled providers defined so that you can extend it

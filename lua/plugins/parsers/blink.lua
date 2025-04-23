@@ -151,19 +151,18 @@ return
 
             ['<CR>'] = { 'accept', 'fallback' },
             ['<Tab>'] = {
-                 function(cmp)
-                 if cmp.snippet_active() then return cmp.accept()
-                     else return cmp.select_and_accept() end
+                function(cmp)
+                if cmp.snippet_active() then return cmp.accept()
+                    else return cmp.select_and_accept() end
                 end,
                 "snippet_forward",
                 'fallback'
             },
             ["<Esc>"] = {"cancel", 'fallback'},
 
-            ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation', "fallback" },
-            ['<C-e>'] = { 'hide', "fallback" },
-
-            ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
+            ['<C-space>'] = { 'show', "fallback" },
+            ['<C-d>'] = { 'show_documentation', 'hide_documentation', "fallback" },
+            ['<C-s>'] = { 'show_signature', 'hide_signature', 'fallback' },
 
             ['<Up>'] = { 'select_prev', 'fallback' },
             ['<Down>'] = { 'select_next', 'fallback' },

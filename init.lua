@@ -28,17 +28,22 @@ vim.opt.encoding = "UTF-8"
 
 -------------------------------
 
-
+--avoid breaking everything when a lua modules have errors
 local function safe_require(module_name)
-    local status, err = pcall(require, module_name)
+    local status, module = pcall(require, module_name)
     if not status then
         vim.notify(
-            "Error with module: '"..module_name.."'\n"..err.."\nmodule loading aborted",
+            "Error with module: '" .. module_name .. "'\n" .. module .. "\nmodule loading aborted",
             vim.log.levels.ERROR
         )
+        return nil
     end
+    return module
 end
 
+local module --will hold local modules
+
+module = safe_require("modules.vimenveloppe") if module then module.setup() end
 safe_require("modules.tinysession")
 safe_require("modules.rouleau-nvim")
 

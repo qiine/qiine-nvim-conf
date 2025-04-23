@@ -11,7 +11,7 @@ return
         local builtin = require('telescope.builtin')
         local act = require("telescope.actions")
         local z_utils = require("telescope._extensions.zoxide.utils")
-        
+
         vim.api.nvim_set_hl(0, "TelescopeNormal", {bg = "none"})
 
         require('telescope').setup{
@@ -26,7 +26,7 @@ return
                 },
                 path_display = {"smart"},
                 sorting_strategy = "descending",
-                file_ignore_patterns = { 
+                file_ignore_patterns = {
                     "node_modules", ".git", ".venv", ".cache",
                 },
                 hidden = true, --show hidden files
@@ -50,7 +50,7 @@ return
                     hidden = true,
                     find_command = {
                         'fdfind', '--type', 'f',
-                        '--no-follow', '--max-depth', '30', '--max-results', '7000'
+                        '--no-follow', '--max-depth', '30', '--max-results', '100000'
                     },
                 },
                 live_grep = {
@@ -73,30 +73,44 @@ return
         }
 
         vim.keymap.set({"i","n","v"}, '<M-f>b', builtin.builtin, {desc = 'Telescope search builtins'})
-        --vim.keymap.set(
-        --    {"i","n","v"},
-        --    '<M-f>',
-        --    function()
-        --        local cwd=vim.fn.getcwd()
-        --        builtin.find_files({
-        --            previewer = true,
-        --            prompt_title = 'Find Files in cwd: '..cwd,
-        --        })
-        --    end,
-        --    {desc = 'Telescope find files in cwd'}
-        --)
+
+        vim.keymap.set(
+            {"i","n","v"},
+            '<M-f>p',
+            function()
+                local p = vim.fn.getcwd()
+                builtin.find_files({
+                    cwd = p,
+                    previewer = true,
+                    prompt_title = 'Find Files in cwd: '..p,
+                })
+            end,
+            {desc = 'Telescope find files in cwd'}
+        )
         vim.keymap.set(
             {"i","n","v"},
             '<M-f>',
             function()
+                local p = vim.fn.expand("~")
                 builtin.find_files({
-                    cwd = "~",
-                    prompt_title = 'Find Files in "~"',
+                    cwd = p,
+                    prompt_title = 'Find Files in: '..p,
                 })
             end,
             {desc = 'Telescope find files in home'}
         )
-        vim.keymap.set({"i","n","v"}, '<M-f>g', builtin.live_grep, {desc='Telescope live grep'})
+
+        vim.keymap.set({"i","n","v"}, '<M-f>g',
+            function()
+                local p = vim.fn.getcwd()
+                builtin.live_grep({
+                    cwd = p,
+                    prompt_title = 'Grep in: '..p,
+                })
+            end,
+            {desc='Telescope live grep'}
+        )
+
         --vim.keymap.set({"i","n","v"}, '<leader>fb', builtin.buffers, {desc='Telescope buffers'})
         vim.keymap.set({"i","n","v"}, '<M-f>o', builtin.vim_options, {desc='Telescope vim opts'})
 

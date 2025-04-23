@@ -162,7 +162,7 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufRead", "BufNewFile"}, {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
-        if not vim.g.buffenter_startinsert then return end
+        if not vim.g.autostartinsert then return end
 
         local buftype = vim.bo.buftype
         local ft = vim.bo.filetype
@@ -196,5 +196,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         end
     end
 })
+
+vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
+callback = function()
+    vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
+end,
+})
+
 
 

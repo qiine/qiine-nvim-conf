@@ -42,7 +42,7 @@ local cursor_styles = {
     "r-cr:hor40", -- Replace, Command Replace: 20% height horizontal bar
     "o:hor50", -- Operator-pending: 50% height horizontal bar
     "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor", -- Global blinking settings
-    --Cursor stays solid for 700ms before blinking starts.
+--Cursor stays solid for 700ms before blinking starts.
     --blinkoff400 -> Cursor is off for 400ms while blinking.
     --blinkon250 -> Cursor is on for 250ms while blinking.
 }
@@ -62,7 +62,7 @@ vim.opt.incsearch = true --Highlight as you type
 
 --vim.opt.colorcolumn="80"
 
---[Rendering]
+--#[Rendering]
 vim.opt.updatetime = 200 --screen redraw speed in ms
 
 --v.opt.lazyredraw = true  -- will scroll the view when moving the cursor
@@ -87,7 +87,7 @@ v.opt.signcolumn = "yes" --whow letters for error/warning/hint
 v.opt.number = true
 v.opt.relativenumber = false
 
---[Folding]
+--#[Folding]
 v.opt.foldenable = true
 
 --"0" Hides fold numbers and uses "fillchars" for fold lines
@@ -109,7 +109,7 @@ vim.opt.fillchars:append({
 })
 
 
---[Whitespace symbols]
+--#[Whitespace symbols]
 v.opt.list = true
 vim.opt.listchars:append({
     tab="  ",
@@ -146,6 +146,53 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     end,
 })
 
+--vim.api.nvim_create_autocmd({"CursorMoved","ModeChanged"}, {
+--    group = 'UserAutoCmds',
+--    pattern = '*',
+--    callback = function()
+--        local mode = vim.fn.mode()
+--        if mode ~= "n" then return end
+
+--        local cchar = utils.get_char_at_cursorpos()
+--        if cchar == "¶" then
+--            vim.opt.listchars:append({eol="¶"})
+--        end
+--    end,
+--})
+
+vim.api.nvim_create_autocmd({"CursorMoved", "CursorMovedI"}, {
+    group = 'UserAutoCmds',
+    pattern = '*',
+    callback = function()
+        if vim.bo.buftype ~= "" then return end
+
+        local buffer_id = vim.api.nvim_get_current_buf()
+        local cp = utils.get_cursor_pos()
+        local cchar = utils.get_char_at_cursorpos()
+
+        if cchar ~= " " then return end
+
+        local ns = vim.api.nvim_create_namespace("user_marks")
+        local mark_id = nil
+
+        --vim.api.nvim_buf_clear_namespace(0, ns, 0, -1) --clear prev mark
+        --vim.api.nvim_buf_set_extmark(buffer_id, ns, cp[1], cp[2], {
+        --    id = mark_id,
+        --    virt_text = { { "S", "Comment" } },
+        --    virt_text_pos = 'eol', --eol overlay inline
+        --})
+    end,
+})
+
+
+--vim.api.nvim_buf_set_extmark(0, ns, row - 1, #line, {
+--          virt_text = {{"¶", "NonText"}},
+--          virt_text_pos = "overlay",
+--          hl_mode = "combine"
+--      })
+
+
+
 --Show/hide whitespace symbols when selecting
 --vim.api.nvim_create_autocmd("CursorMoved", {
 --    group = "UserAutoCmds",
@@ -157,19 +204,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 --    end,
 --})
 
---local function update_eol_display()
---  -- Check if the cursor is at the end of the line
---  local line = vim.fn.line('.')
---  local col = vim.fn.col('.')
---  local line_len = vim.fn.col('$') - 1
---
---  -- Only show EOL if cursor is at the end of the line
---  if col == line_len then
---    vim.opt.listchars = { eol = "¶" }
---  else
---    vim.opt.listchars = { eol = "" }
---  end
---end
+
 
 --[Diagnostic]
 vim.diagnostic.config({

@@ -7,7 +7,7 @@ local vopt = vim.opt
 
 
 --[Navigation]--------------------------------------------------
-vim.g.buffenter_startinsert = true
+vim.g.autostartinsert = true
 
 --[Mouse]
 v.opt.mouse = "a"

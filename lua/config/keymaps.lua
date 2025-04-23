@@ -64,7 +64,7 @@ local function currmod() return vim.api.nvim_get_mode().mode end
 
 
 --[Internal]--------------------------------------------------
---vim.g.mapleader = " "
+--vim.g.mapleader = "<M-space>"
 
 --Ctrl+q to quit
 vmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
@@ -95,21 +95,34 @@ vmap("i", "<F12>", "<Esc>gdi")
 vmap("n", "<F12>", "gd")
 vmap("v", "<F12>", "<Esc>gd")
 
+--show hover window
+vmap({"i","n","v"}, "<M-h>", function() vim.lsp.buf.hover() end)
+
+--rename symbol
+vmap({"i","n"}, "<F2>",
+    function() --vim.lsp.buf.rename() end)
+        vim.lsp.buf.rename()
+        local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+        vim.api.nvim_feedkeys(key, "c", false)
+        vim.api.nvim_feedkeys("0", "n", false)
+    end
+)
 
 
 --[File]----------------------------------------
 --ctrl+s save
-vmap(modes, "<C-s>", "<cmd>write<cr>", {noremap = true})
-vmap(modes, "<C-S-s>", "<cmd>wa<cr>", {noremap = true})
+vmap(modes, "<C-s>", "<cmd>write<cr>")
+vmap(modes, "<C-S>", "<cmd>wa<cr>")
 
 --Create new file
-local function create_newfile()
-    local buff_count = vim.api.nvim_list_tabpages()
-    local newbuff_num = #buff_count
-    v.cmd("enew")
-    v.cmd("e untitled_" .. newbuff_num)
-end
-vmap(modes, "<C-n>", create_newfile)
+vmap(modes, "<C-n>",
+    function()
+        local buff_count = vim.api.nvim_list_bufs()
+        local newbuff_num = #buff_count
+        v.cmd("enew")
+        vim.cmd("e untitled_"..newbuff_num)
+    end
+)
 
 
 
@@ -191,16 +204,16 @@ vmap({"i","v"}, "<C-PageUp>", "<Esc><C-i>")
 vmap("n", "<C-PageUp>", "<C-i>")
 
 --smart Jump to link
-vmap({"i","n"}, "<C-CR>",
+vmap({"i","n","v"}, "<C-CR>",
 function()
     local word = vim.fn.expand("<cfile>")
     local filetype = vim.bo.filetype
 
     -- crude check: if it's a URL or a file-like string
     if word:match("^https?://") or vim.fn.filereadable(word) == 1 then
-        vim.cmd.normal("gx")
+        vim.cmd("normal! gx")
     else
-        vim.cmd.normal("%")
+        vim.cmd("normal! %")
     end
 end
 )
@@ -255,7 +268,7 @@ vmap("i", "<M-v>", "<esc><C-S-v>", {noremap=true})
 vmap({"n","v"}, "<M-v>", "<C-S-v>", {noremap=true})
 
 --ctrl+a select all
-vmap(modes, "<C-a>", "<Esc>ggVG", {noremap = true, silent = true })
+vmap(modes, "<C-a>", "<Esc>ggVG")
 
 --shift+arrows vis select
 vmap("i", "<S-Left>", "<Esc>hv", {noremap = true, silent = true})
@@ -339,22 +352,23 @@ vmap("v", "<space>", "<del>i<space>", {noremap=true})
 vmap("v", "<cr>", "<del>i<cr>", {noremap=true})
 
 --insert some chars in normal mode
-vmap("n", "F", "iF<Esc>")
-vmap("n", "J", "iJ<Esc>")
-vmap("n", "K", "iK<Esc>")
-vmap("n", "o", "io<Esc>")
-vmap("n", "q", "iq<Esc>")
-vmap("n", "z", "iz<Esc>")
+--vmap("n", "F", "iF<Esc>")
+--vmap("n", "J", "iJ<Esc>")
+--vmap("n", "K", "iK<Esc>")
+--vmap("n", "o", "io<Esc>")
+--vmap("n", "q", "iq<Esc>")
+--vmap("n", "z", "iz<Esc>")
 vmap("n", ".", "i.<Esc>")
 
 
 --toggle insert/normal with insert key
-vmap("i", "<Ins>", "<Esc>", {noremap = true})
-vmap("n", "<Ins>", "i", {noremap = true})
-vmap("v", "<Ins>", "<Esc>i", {noremap = true})
+vmap("i", "<Ins>", "<Esc>")
+vmap("n", "<Ins>", "i")
+vmap("v", "<Ins>", "<Esc>i")
 
---Visual insert mode
-vmap("v", "<M-i>", "I", {noremap=true})
+--To Visual insert mode
+vmap("v", "<M-i>", "I")
+
 
 --#[Copy / Cut / Past]
 --Copying
@@ -444,12 +458,12 @@ vmap("n", "<S-Del>", '"_dd')
 vmap("v", "<S-Del>", '<S-v>"_d') --expand sel before del
 
 
---*[Replace]
+--#[Replace]
 --replace selection with char
-vmap("v", "<F2>", "\"zy:%s/<C-r>z//g<Left><Left>", {noremap = true, silent = false })
+vmap("v", "*", "\"zy:%s/<C-r>z//g<Left><Left>")
 
 
---*[Incrementing]
+--#[Incrementing]
 --vmap("n", "+", "<C-a>")
 vmap("v", "+", "<C-a>gv")
 
@@ -492,12 +506,12 @@ vmap("v", "<S-Tab>", "<gv")
 --#[Line break]
 vmap("n", "<cr>", "i<cr><esc>")
 
---1 above
+--breakline above
 vmap("i", "<S-cr>", "<Esc>O")
 vmap("n", "<S-cr>", "O<esc>")
 vmap("v", "<S-cr>", "<esc>O<esc>vgv")
 
---1 below
+--breakline below
 vmap("i", "<M-cr>", "<Esc>o")
 vmap("n", "<M-cr>", 'o<Esc>')
 vmap("v", "<M-cr>", "<Esc>o<Esc>vgv")
@@ -556,6 +570,7 @@ vmap({"i","n"}, "<F20>", --equivalent to <S-F8>
     end
 )
 
+--exec command
 vmap({"i","n"}, "<F56>", --equivalent to <M-F8>
     function()
         vim.cmd("stopinsert")
@@ -574,8 +589,9 @@ vmap("n", "œ", ":")
 vmap("v", "œ", ":")
 vmap("t", "œ", "<Esc> <C-\\><C-n>")
 
---Cmd close
-vmap("c", "œ", "<Esc>' '<CR>")
+--Accept
+--vmap('c', '<cr>', '<CR>')
+--vmap('c', '<tab>', '<CR>')
 
 --cmd completion menu
 --vmap("c", "<C-d>", "<C-d>")
@@ -585,9 +601,11 @@ vmap("c", "<Up>", "<C-p>")
 vmap("c", "<Down>", "<C-n>")
 vmap("c", "<S-Tab>", "<C-n>")
 
---Accept
---vmap('c', '<cr>', '<CR>')
---vmap('c', '<tab>', '<CR>')
+--Cmd close
+vmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
+
+--clear text
+vmap("n", "Ô", "<C-L>")
 
 
 

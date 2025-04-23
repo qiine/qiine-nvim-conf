@@ -5,10 +5,11 @@
 ## editing
 - better grow selection
 - activate auto wrap on 80+ line for comment and non code text  
-- understand asdf and isntall npm and node and prettier proeprly with it  
+- understand asdf and install npm and node and prettier properly with it  
 - add an autocmd to format on save for yaml  
 - create a g property for autotrimtrailspace with options like on/off/onsave/which file types etc...
 - integrate grug-far.nvim
+
 ## code
 - luasnip, friendly-snippets  
 - understand quickfix  
@@ -17,8 +18,7 @@
 - understand why blink comp don't suggest words from other part of the project  
 
 ## ui
-- unerstand how to add rightclick menu items properly  
-- try dropbar again  
+- uderstand how to add rightclick menu items properly  
 - learn alpha.nvim  
 - proper toggle virtual lines  
 - middle click close tab  
@@ -36,6 +36,7 @@
 
 - Install wsywyg markdonw plugin  
 - img support  
+- add some padlock icon when buffer is not modifyable
 
 ## proj
 - proper project management  

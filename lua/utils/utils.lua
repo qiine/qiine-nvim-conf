@@ -43,9 +43,10 @@ function M.get_char_at_pos(pos)
     return char
 end
 
+---@return string
 function M.get_char_at_cursorpos()
     local cpos = M.get_cursor_pos()
-    local char = M.get_char_at_pos({cpos[1], cpos[2]+1})
+    local char = M.get_char_at_pos(cpos)
     return char
 end
 
@@ -203,8 +204,10 @@ end
 
 --[cursor]--------------------------------------------------
 function M.get_cursor_pos()
-    --return {row, col}, but column is zero-based and row is 1-based!
-    return vim.api.nvim_win_get_cursor(0)
+    local cpos = vim.api.nvim_win_get_cursor(0)
+    --row is 1-based, col is 0-based, so we increment col to make both 1-based
+    return { cpos[1], cpos[2] + 1 }
+    --return cpos
 end
 
 function M.is_cursor_inside_word()

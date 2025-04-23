@@ -53,7 +53,9 @@ local contextmenu_items =
 {
     "anoremenu PopUp.Open\\ in\\ browser " .. [[gx]],
     "anoremenu PopUp.{}Goto\\ definition ".. [[gd]],
-    "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references toggle focus=true<CR>]],
+    "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references toggle<CR>]],
+    "anoremenu PopUp.{}Tooltip ".. [[<cmd>lua vim.lsp.buf.hover()<CR>]],
+    "anoremenu PopUp.{}Rename ".. [[<cmd>lua vim.lsp.buf.rename()<CR>]],
     --"aunmenu PopUp.Inspect ",
     "vnoremenu PopUp.Format\\ selected " .. ":FormatSelected<CR>",
     "amenu     PopUp.───────────────── <NOP>",

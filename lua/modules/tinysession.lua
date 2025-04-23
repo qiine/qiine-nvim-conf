@@ -1,5 +1,6 @@
-
--- Session management --
+--------------------------------------------------------------------------------
+-- tiny-session --
+--------------------------------------------------------------------------------
 
 local M = {}
 
@@ -10,7 +11,7 @@ GLOBAL_SESSION = vim.fn.stdpath("data") .. "/global_session.vim"
 vim.opt.sessionoptions = {
     "curdir",
     --"blank",  	--empty windows
-    "buffers",   --hidden and unloaded buffers, not just those in windows
+    --"buffers",   --hidden and unloaded buffers, not just those in windows
     "tabpages",  --all tab pages; without this only the current tab page is restored
     "terminal",
     "folds",     --manually created folds, opened/closed folds and local fold options
@@ -24,17 +25,6 @@ vim.opt.sessionoptions = {
     --"skiprtp",	--exclude 'runtimepath' and 'packpath' from the options
     --"sesdir", 	--the dir in which the session file is stored will become the current dir
 }
-
---create/save session
-vim.api.nvim_create_user_command("SaveGlobalSession", function()
-    vim.cmd("mksession! " .. GLOBAL_SESSION)
-    print("global session saved: " .. GLOBAL_SESSION)
-end, {})
-
---edit global session file
-vim.api.nvim_create_user_command("EditGlobalSession", function()
-    vim.cmd("e "..GLOBAL_SESSION)
-end, {})
 
 --clean session
 function M.session_clean(session)
@@ -66,9 +56,61 @@ function M.session_clean(session)
     end
 end
 
+function M.session_clear_hiddenbufs(path)
+    local lines = {}
+    local ok, session = pcall(io.open, path, "r")
+    if not ok or not session then
+        return
+    end
+
+    for line in session:lines() do
+        if not line:match("^badd ")
+            and not line:match("^silent! badd ")
+            and not line:match("^%$argadd ")
+        then
+            table.insert(lines, line)
+        end
+    end
+
+    session:close()
+
+    local out, err = io.open(path, "w")
+    if not out then
+        return
+    end
+
+    for _, l in ipairs(lines) do
+        out:write(l .. "\n")
+    end
+    out:close()
+end
+
+function M.globalsession_save()
+    if vim.fn.win_gettype() == "command" then return end  --mksession not allowed in cmdline
+    vim.cmd("mksession! " .. GLOBAL_SESSION)
+    M.session_clear_hiddenbufs(GLOBAL_SESSION)
+end
+
+--create/save session
+vim.api.nvim_create_user_command("SaveGlobalSession", function()
+M.globalsession_save()
+    print("global session saved: " .. GLOBAL_SESSION)
+end, {})
+
+--edit global session file
+vim.api.nvim_create_user_command("EditGlobalSession", function()
+    vim.cmd("e "..GLOBAL_SESSION)
+end, {})
+
 --Load session
 vim.api.nvim_create_user_command("LoadGlobalSession", function()
     vim.cmd("silent! source " .. GLOBAL_SESSION)
+end, {})
+
+--Flush global session file
+vim.api.nvim_create_user_command("DeleteGlobalSession", function()
+    vim.fn.delete(GLOBAL_SESSION)
+    print('Global session: "'..GLOBAL_SESSION..'" deleted')
 end, {})
 
 
@@ -79,7 +121,9 @@ vim.api.nvim_create_autocmd({"BufAdd","BufDelete","DirChanged","VimLeavePre"}, {
     group = 'TinySession',
     pattern = '*',
     callback = function()
-        vim.cmd("mksession! " .. GLOBAL_SESSION)
+        M.globalsession_save()
     end,
 })
+
+
 

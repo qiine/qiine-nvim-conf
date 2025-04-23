@@ -23,6 +23,8 @@ vim.api.nvim_create_user_command("Restart", function()
     local curfile = vim.fn.expand("%:p") --Get curr file location
     local curdir = vim.fn.fnamemodify(curfile, ':p:h')
 
+    vim.cmd("SaveGlobalSession")
+
     local sess = GLOBAL_SESSION
     vim.loop.spawn("wezterm", {
         --args = { "-e", "nvim", "--cmd", "cd " .. curdir, curfile },

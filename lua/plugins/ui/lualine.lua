@@ -97,8 +97,8 @@ return
                     { --cmdwin
                         function() return '⌨' end, --🖵
                         on_click = function()
-                        if vim.bo.filetype == "vim" then
-                            vim.api.nvim_input('<esc>:quit<cr>') else vim.api.nvim_input('<esc>q:') end
+                            if vim.bo.filetype == "vim" then
+                                vim.api.nvim_input('<esc>:quit<cr>') else vim.api.nvim_input('<esc>q:') end
                         end,
                         padding = 0,
                         color = { fg = '#545454'},
@@ -153,66 +153,80 @@ return
                             return ""..buft--.."|"
                         end,
                         on_click = function()
-                            local output = vim.fn.execute("ls", true)
+                            local output = vim.fn.execute("ls")
                             vim.notify(output, vim.log.levels.INFO, { title = "Buffers" })
                         end,
-                        padding=0,
-                        separator={left=''},
+                        color={gui = 'none'},
+                        padding={left=0,right=0},
+                        separator={left="▐"}
                     },
                 },
 
                 lualine_z =
                 {
-                    {--Get curr LSP
+                    {
                         function()
-                            local clients = vim.lsp.get_active_clients({ bufnr = 0 })
-                            if #clients == 0 then
-                                return "ⓘ NoLSP"
-                        end
-                        local names = {}
-                        for _, client in ipairs(clients) do
-                            table.insert(names, client.name)
-                        end
-                            return "{"..table.concat(names, ", ").."}"
+                            local ft = vim.bo.filetype
+                            if ft == "" then return ".nofile" end
+                            local fn = vim.fn.expand("%:t")
+                            return fn
                         end,
+                        color={gui = 'none'},
+                        padding={left=0,right=0},
+                        separator={left="▐"}
+                    },
 
-                        on_click = function()
-                            local clients = vim.lsp.get_active_clients({ bufnr = 0 })
-                            if #clients == 0 then
-                                print("No active LSP clients")
-                                return
-                            end
-                            local client = clients[1] -- Assuming only one client
-                            local root_dir = client.config.root_dir
-                            print("LSP root dir: " .. root_dir)
-                        end,
-                        padding = 0,
-                        separator={left=''},
-                    },--Get curr LSP
+                    --{--Get curr LSP
+                    --    function()
+                    --        local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+                    --        if #clients == 0 then
+                    --            return "ⓘ NoLSP"
+                    --    end
+                    --    local names = {}
+                    --    for _, client in ipairs(clients) do
+                    --        table.insert(names, client.name)
+                    --    end
+                    --        return "{"..table.concat(names, ", ").."}"
+                    --    end,
+
+                    --    on_click = function()
+                    --        local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+                    --        if #clients == 0 then
+                    --            print("No active LSP clients")
+                    --            return
+                    --        end
+                    --        local client = clients[1] -- Assuming only one client
+                    --        local root_dir = client.config.root_dir
+                    --        print("LSP root dir: " .. root_dir)
+                    --    end,
+                    --    padding = 0,
+                    --    --separator={left=''},
+                    --},--Get curr LSP
                     --{
                     --    'lsp_status',
                     --    icon = '', -- f013
                     --    symbols = {
-                    --    -- Standard unicode symbols to cycle through for LSP progress:
-                    --    spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
-                    --    -- Standard unicode symbol for when LSP is done:
-                    --    done = '✓',
-                    --    -- Delimiter inserted between LSP names:
-                    --    separator = ' ',
+                    --        spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+                    --        done = '',
+                    --        -- Delimiter inserted between LSP names:
+                    --        separator = ' ',
                     --    },
                     --    -- List of LSP names to ignore (e.g., `null-ls`):
                     --    ignore_lsp = {},
-                    --    separator={left=''},
                     --},
+
                     {
-                        function()
-                            local ft = vim.bo.filetype
-                            if ft == "" then ft = "nofile" end
-                            return " ."..ft
+                        "filetype",
+                        icon_only = true,
+                        on_click = function()
+                        local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+                        if not clients then return "ⓘ NoLSP" end
+                            for _, client in ipairs(clients) do
+                                print("LSPs:", client.name)
+                            end
                         end,
-                        padding=0,
+                        padding = 0
                     },
-                    {"filetype", icon_only = true, padding = 0},
                 },
             },
 

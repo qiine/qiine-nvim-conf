@@ -12,13 +12,13 @@ My text editor journey:
 ## ✏️Editing
 
 - Hundreds of custom keymaps (I am unable to stop myself ;p)  
-- Mouse support! (°)°)  
+- Extensive mouse support! (°)°) with mouse binds! 
 - Native Word "speed dial" in normal mode with `+` / `-`  
 - with Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
 - and Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
 - Built-in Whitespace trimming on save (+custom command)  
-- Completion via **blink.cmp**
+- Completion via fine tuned **blink.cmp**
 
 ---
 
@@ -93,7 +93,6 @@ Currently only supports **one global session**
 
 ---
 
-- Tested on **WezTerm** with the latest **Neovim**  
-- My WezTerm config:  
-  [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
+- Tested with latest **Neovim**  
+- Using **WezTerm**, config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
 

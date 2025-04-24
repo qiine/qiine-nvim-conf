@@ -162,7 +162,7 @@ return
 
             ['<C-space>'] = { 'show', "fallback" },
             ['<C-d>'] = { 'show_documentation', 'hide_documentation', "fallback" },
-            ['<C-s>'] = { 'show_signature', 'hide_signature', 'fallback' },
+            ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
 
             ['<Up>'] = { 'select_prev', 'fallback' },
             ['<Down>'] = { 'select_next', 'fallback' },

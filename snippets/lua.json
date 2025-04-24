@@ -46,7 +46,7 @@
     "create nvim keymap": {
         "prefix": "create nvim keymap",
         "body": [
-            "vmap(${1:\"n\"}, ${2:\"<key>\"}, ${3:\" \"})"
+            "vim.keymap.set(${1:\"n\"}, ${2:\"<key>\"}, ${3:\" \"})"
         ]
     },
 
@@ -73,16 +73,23 @@
 
     "get_nvim_filetype": {
         "prefix": "get_nvim_filetype",
-        "body": [
-            "vim.bo.filetype"
-        ]
+        "body": [ "vim.bo.filetype" ]
     },
 
     "get_nvim_buffertype": {
         "prefix": "get_nvim_buffertype",
-        "body": [
-            "vim.bo.buftype"
-        ]
+        "body": [ "vim.bo.buftype" ]
+    },
+
+    "vim cmd": {
+        "prefix": "vim.cmd",
+        "body": [ "vim.cmd(\"\")" ]
+    },
+
+    "get nvim mode": {
+        "prefix": "get_nvim_mode",
+        "body": [ "vim.fn.mode()" ]
     }
+
 }
 

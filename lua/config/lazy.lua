@@ -25,7 +25,7 @@ require("lazy").setup({
 
     spec = {
         --import/override with your plugins
-        --sadly no recursive search in "plugins" 
+        --sadly no recursive search in "plugins"
        { import = "plugins" },
        { import = "plugins.parsers" },
        { import = "plugins.editing" },
@@ -65,8 +65,8 @@ require("lazy").setup({
             -- "matchparen",
             -- "netrwPlugin",
             "tarPlugin",
-            "tohtml",
-            "tutor",
+            --"tohtml",
+            --"tutor",
             "zipPlugin",
             },
         },

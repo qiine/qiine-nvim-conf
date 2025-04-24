@@ -4,7 +4,6 @@
 
 ## editing
 - better grow selection
-- activate auto wrap on 80+ line for comment and non code text  
 - understand asdf and install npm and node and prettier properly with it  
 - add an autocmd to format on save for yaml  
 - create a g property for autotrimtrailspace with options like on/off/onsave/which file types etc...
@@ -13,8 +12,6 @@
 ## code
 - luasnip, friendly-snippets  
 - understand quickfix  
-- understand spellchecking  
-- use quickfix to suggest spelling  
 - understand why blink comp don't suggest words from other part of the project  
 
 ## ui
@@ -41,6 +38,13 @@
 ## proj
 - proper project management  
 - find a way to smartly save session in project  
+
+
+## writing
+- activate auto wrap on 80+ line for comment and non code text  
+- understand spellchecking  
+- use quickfix to suggest spelling  
+- use hover to show definition of words like from a dictionary
 
 
 

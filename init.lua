@@ -43,8 +43,8 @@ end
 
 local module --will hold local modules
 
-module = safe_require("modules.vimenveloppe") if module then module.setup() end
-safe_require("modules.tinysession")
+module = safe_require("modules.vim-enveloppe") if module then module.setup() end
+safe_require("modules.tiny-session")
 safe_require("modules.rouleau-nvim")
 
 safe_require("utils.common_commands")

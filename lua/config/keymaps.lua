@@ -96,23 +96,32 @@ vmap("n", "<F12>", "gd")
 vmap("v", "<F12>", "<Esc>gd")
 
 --show hover window
-vmap({"i","n","v"}, "<M-h>", function() vim.lsp.buf.hover() end)
+vmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 
 --rename symbol
+--vmap({"i","n"}, "<F2>", function()
+--    vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+--        callback = function()
+--            local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+--            vim.api.nvim_feedkeys(key, "c", false)
+--            return true
+--        end,
+--    })
+--    vim.lsp.buf.rename()
+--end)
+
 vmap({"i","n"}, "<F2>",
-    function() --vim.lsp.buf.rename() end)
-        vim.lsp.buf.rename()
-        local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
-        vim.api.nvim_feedkeys(key, "c", false)
-        vim.api.nvim_feedkeys("0", "n", false)
+    function()
+        require("live-rename").rename({ text = "", insert = true })
     end
 )
 
 
+
 --[File]----------------------------------------
 --ctrl+s save
-vmap(modes, "<C-s>", "<cmd>write<cr>")
-vmap(modes, "<C-S>", "<cmd>wa<cr>")
+vmap(modes, "<C-s>", function() vim.cmd("wa") end)
+vmap(modes, "<C-S-s>", function() vim.cmd("wa") end)
 
 --Create new file
 vmap(modes, "<C-n>",
@@ -128,13 +137,12 @@ vmap(modes, "<C-n>",
 
 --[View]--------------------------------------------------
 --alt-z toggle line wrap
-vmap(
-{"i", "n", "v"}, "<A-z>",
-function()
-    v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
-end,
-{noremap = true}
+vmap({"i", "n", "v"}, "<A-z>",
+    function()
+        v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
+    end
 )
+
 
 --Gutter on/off
 vmap("n", "<M-g>", function()
@@ -196,12 +204,14 @@ vmap('v', '<C-Right>', 'w')
 vmap('i', '<C-Left>', '<C-o>b')
 vmap('v', '<C-Left>', 'b')
 
+
 --to next/prev cursor loc
 vmap({"i","v"}, "<C-PageDown>", "<Esc><C-o>")
 vmap("n", "<C-PageDown>", "<C-o>")
 
 vmap({"i","v"}, "<C-PageUp>", "<Esc><C-i>")
 vmap("n", "<C-PageUp>", "<C-i>")
+
 
 --smart Jump to link
 vmap({"i","n","v"}, "<C-CR>",
@@ -248,8 +258,8 @@ vmap("v", "<M-Right>", "$")
 vmap("i", "<Home>", "<Esc>gg0i", {noremap=true})
 vmap({"n","v"}, "<Home>", "gg0", {noremap=true})
 
-vmap("i", "<End>", "<Esc>G0i", {noremap=true})
-vmap({"n","v"}, "<End>", "G0", {noremap=true})
+vmap("i", "<End>", "<Esc>G0i")
+vmap({"n","v"}, "<End>", "G0")
 
 
 
@@ -262,10 +272,6 @@ vmap("n", "ww", "viw")
 vmap("i", "«", "<esc>viw") --<altgr-w>
 vmap("n", "«", "viw")
 vmap("v", "«", "iw")
-
---Visual block
-vmap("i", "<M-v>", "<esc><C-S-v>", {noremap=true})
-vmap({"n","v"}, "<M-v>", "<C-S-v>", {noremap=true})
 
 --ctrl+a select all
 vmap(modes, "<C-a>", "<Esc>ggVG")
@@ -346,10 +352,10 @@ local chars = utils.table_flatten(
     }
 )
 for _, char in ipairs(chars) do
-    vmap('v', char, "<del><Esc>i"..char, {noremap=true})
+    vmap('v', char, '"_d<Esc>i'..char, {noremap=true})
 end
-vmap("v", "<space>", "<del>i<space>", {noremap=true})
-vmap("v", "<cr>", "<del>i<cr>", {noremap=true})
+vmap("v", "<space>", '"_di<space>', {noremap=true})
+vmap("v", "<cr>", '"_di<cr>', {noremap=true})
 
 --insert some chars in normal mode
 --vmap("n", "F", "iF<Esc>")
@@ -369,8 +375,10 @@ vmap("v", "<Ins>", "<Esc>i")
 --To Visual insert mode
 vmap("v", "<M-i>", "I")
 
+--insert literal
+vmap("n", "<C-i>", "i<C-v>")
 
---#[Copy / Cut / Past]
+--#[Copy / Cut / Paste]
 --Copying
 -- ' "+ ' is the os register
 vmap("i", "<C-c>",
@@ -414,8 +422,8 @@ vmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
 vmap({"n","v"}, "<C-z>", "u", {noremap = true})
 
 --redo
-vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>", {noremap = true})
-vmap({"n","v"}, "<C-y>", "<C-r>", {noremap = true})
+vmap("i", "<C-y>", "<cmd>normal! <C-r><cr>")
+vmap({"n","v"}, "<C-y>", "<C-r>")
 
 
 --#[Deletion]
@@ -426,9 +434,9 @@ vmap("n", "<BS>", '<Esc>"_X<Esc>')
 vmap("v", "<BS>", '"_x')
 
 --Ctrl+BS remove word
-vmap("i", "<C-H>", "<C-w>")
-vmap("n", "<C-H>", '"_dB')
-vmap("v", "<C-H>", '"_dB"')
+vmap("i", "<S-M-BS>", "<C-w>")
+vmap("n", "<S-M-BS>", '"_db')
+vmap("v", "<S-M-BS>", '"_db"')
 
 --Bacspace from cursor to start
 vmap("i", "<M-BS>", '<Esc>"_d0i')
@@ -490,7 +498,8 @@ vmap("n", "<space>", "i<space><esc>")
 vim.keymap.set("i", "<Tab>",
     function()
         local inword = utils.is_cursor_inside_word()
-        if inword then vcmd("normal! v>") vim.cmd("normal! 4l")
+
+        if inword then vim.cmd("normal! v>") vim.cmd("normal! 4l")
         else vim.cmd("normal! i\t") --don't care about softab here
         end
     end
@@ -525,7 +534,7 @@ vmap("n", "<S-M-cr>", "o<esc>kO<esc>j")
 vmap("v", "<C-j>", "<S-j>")
 
 vmap("i", "<C-j>", "<Esc>vj<S-j><Esc>i") --Join one below
-vmap("n", "<C-j>", "vj<S-j>")      --|
+vmap("n", "<C-j>", "vj<S-j>")
 
 
 --#[move lines]

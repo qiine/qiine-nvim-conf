@@ -1,4 +1,4 @@
-# ✨ My Fancy Neovim Config
+# ✨ My Fancy Neovim Config ✨
 
 Surely **overcomplicated**  
 Absolutely **not finished**  

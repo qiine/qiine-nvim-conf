@@ -49,8 +49,11 @@ return
                     previewer = true,
                     hidden = true,
                     find_command = {
-                        'fdfind', '--type', 'f',
-                        '--no-follow', '--max-depth', '30', '--max-results', '100000'
+                        'fdfind',
+                        '--type', 'f',
+                        '--no-follow',
+                        '--max-depth', '30',
+                        '--max-results', '100000'
                     },
                 },
                 live_grep = {

@@ -271,7 +271,7 @@ return
                     },
 
                     {
-                        function()
+                        function() --burger
                           return "≡"
                         end,
                         color = { fg = "#5c5c5c", bg = 'NONE'},

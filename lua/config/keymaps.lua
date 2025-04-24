@@ -112,7 +112,7 @@ vmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 
 vmap({"i","n"}, "<F2>",
     function()
-        require("live-rename").rename({ text = "", insert = true })
+        require("live-rename").rename({ insert = true })
     end
 )
 

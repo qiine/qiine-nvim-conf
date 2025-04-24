@@ -59,7 +59,8 @@ safe_require("config.mousemaps")
 --settings
 safe_require("config.settings")
 
-safe_require("config.ui.editor")
+safe_require("config.ui.editing")
+safe_require("config.ui.conceal")
 safe_require("config.ui.view")
 safe_require("config.ui.menus")
 safe_require("config.ui.theme")

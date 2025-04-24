@@ -142,11 +142,17 @@ function M.bool_toggle(bword)
         ["on"] = "off", ["off"] = "on",
         ["activate"] = "deactivate", ["deactivate"] = "activate",
         ["enable"] = "disable", ["disable"] = "enable",
+        ["always"] = "never", ["never"] = "always",
     }
 
-    local wtoggle = toggle_map[string.lower(bword)]
-    if wtoggle then
-        vim.cmd("normal! ciw" .. wtoggle) vim.cmd("normal! b")
+    --Store case
+
+    local bwtoggle = toggle_map[string.lower(bword)]
+
+    --apply case back
+
+    if bwtoggle then
+        vim.cmd("normal! ciw" .. bwtoggle) vim.cmd("normal! b")
     end
 end
 

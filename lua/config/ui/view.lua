@@ -67,7 +67,7 @@ vim.opt.updatetime = 200 --screen redraw speed in ms
 
 --v.opt.lazyredraw = true  -- will scroll the view when moving the cursor
 -- Allow scrolling beyond the end of the file
-v.opt.scrolloff = 3
+v.opt.scrolloff = 2
 v.opt.sidescrolloff = 5
 --v.opt.sidescroll=1
 
@@ -159,30 +159,6 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 --        end
 --    end,
 --})
-
-vim.api.nvim_create_autocmd({"CursorMoved", "CursorMovedI"}, {
-    group = 'UserAutoCmds',
-    pattern = '*',
-    callback = function()
-        if vim.bo.buftype ~= "" then return end
-
-        local buffer_id = vim.api.nvim_get_current_buf()
-        local cp = utils.get_cursor_pos()
-        local cchar = utils.get_char_at_cursorpos()
-
-        if cchar ~= " " then return end
-
-        local ns = vim.api.nvim_create_namespace("user_marks")
-        local mark_id = nil
-
-        --vim.api.nvim_buf_clear_namespace(0, ns, 0, -1) --clear prev mark
-        --vim.api.nvim_buf_set_extmark(buffer_id, ns, cp[1], cp[2], {
-        --    id = mark_id,
-        --    virt_text = { { "S", "Comment" } },
-        --    virt_text_pos = 'eol', --eol overlay inline
-        --})
-    end,
-})
 
 
 --vim.api.nvim_buf_set_extmark(0, ns, row - 1, #line, {
@@ -294,32 +270,6 @@ vim.diagnostic.config({
 --})
 
 
---#[Conceal]
-vim.opt.conceallevel=0
---0		Text is shown normally
---	1		Each block of concealed text is replaced with one
---			character.  If the syntax item does not have a custom
---			replacement character defined (see |:syn-cchar|) the
---			character defined in 'listchars' is used.
---			It is highlighted with the "Conceal" highlight group.
---	2		Concealed text is completely hidden unless it has a
---			custom replacement character defined (see
---			|:syn-cchar|).
---	3		Concealed text is completely hidden.
-
-vim.opt.concealcursor=n
-
---vim.api.nvim_create_autocmd("FileType", {
---    pattern = {"lua"},
---    callback = function()
---        vim.cmd [[
---            syntax match ConcealFunction /\_<function\>/ conceal cchar=𝒇𝒏
---            syntax match ConcealFunction /\_::/ conceal cchar=⋮ --⁝⁞
---        ]]
---    end,
---})
-----§class
-
 
 ------------------------------------------
 -- Command line --
@@ -345,12 +295,12 @@ vim.opt.cmdheight=1
 --})
 
 --AutoClear the command line
-vim.api.nvim_create_autocmd("CmdlineLeave", {
-    group = "UserAutoCmds",
-    callback = function()
-        vim.defer_fn(function()
-            vim.cmd('echo""')
-        end, 100000)
-    end,
-})
+--vim.api.nvim_create_autocmd("CmdlineLeave", {
+--    group = "UserAutoCmds",
+--    callback = function()
+--        vim.defer_fn(function()
+--            vim.cmd('echo""')
+--        end, 100000)
+--    end,
+--})
 

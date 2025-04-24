@@ -149,20 +149,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 
 
-------------------------------------------------------------
--- Files --
-------------------------------------------------------------
-v.opt.undofile = false -- Save undo history
---v.opt.undodir = vim.fn.stdpath("state") --"~/.local/state/nvim/undo"
-
-v.opt.swapfile = false --no swap files
-
-v.opt.hidden = true --Allows switching buffers without saving
-
-v.opt.autoread = false --auto reload file on modif
-
-
-------------------------------------------------------------
+-----------------------------------------------------------
 -- Command line --
 ------------------------------------------------------------
 --Auto complete menu for cmd

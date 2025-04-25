@@ -18,9 +18,9 @@
 - uderstand how to add rightclick menu items properly  
 - learn alpha.nvim  
 - proper toggle virtual lines  
-- middle click close tab  
 - show white space when normal curosr on them  
 - test buferline plugin for tabs  
+- middle click close tab  
 
 - generate some sort of doc  
 - learn how to write test in lua and for nvim  

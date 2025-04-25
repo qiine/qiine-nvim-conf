@@ -157,8 +157,102 @@ vim.opt.wildmenu = false --we use blink.cmp instead
 vim.opt.wildmode = "longest:full,full"
 vim.opt.wildoptions = "pum"
 
-
 ------------------------------------------------------------
 --Term
 ------------------------------------------------------------
+
+--vim.on_key(function(char)
+--    if vim.fn.mode() ~= "n" then return end
+
+--    local current_time = now()
+--    table.insert(last_keys, current_time)
+
+--    -- trim to last N keys
+--    while #last_keys > key_limit do
+--        table.remove(last_keys, 1)
+--    end
+
+--    -- check timing
+--    if #last_keys == key_limit and (last_keys[#last_keys] - last_keys[1]) < threshold_ms then
+--        vim.schedule(function()
+--            if vim.fn.mode() == "n" then
+--                vim.cmd("startinsert")
+--            end
+--        end)
+--        last_keys = {}
+--    end
+--end, ns)
+
+
+-- Attach key logger only in normal mode
+--local function attach_keylogger()
+--    vim.on_key(function(char)
+--        vim.schedule(function()
+--            if vim.fn.keytrans(char) == "<Up>" then
+--                vim.cmd("startinsert")
+--            end
+--        end)
+--    end, ns_id)
+--end
+
+--Exist insert mode on diagonal moves
+local ns_id = vim.api.nvim_create_namespace("KeyLogger")
+
+local last_key = nil
+local last_time = nil
+local timeout = 100 --ms
+
+local function now()
+    return math.floor(vim.uv.hrtime() / 1e6)
+end
+
+local function clear_keylogger()
+    pcall(vim.on_key, nil, ns_id)
+end
+
+local function attach_keylogger()
+    clear_keylogger()
+
+    vim.on_key(function(char)
+        local key = vim.fn.keytrans(char)
+        local t = now()
+
+        vim.schedule(function()
+            if last_key and t - last_time <= timeout then
+                if last_key == "<Up>" and key == "<Right>" then
+                    vim.cmd("stopinsert")
+                    last_key, last_time = nil, nil
+                    return
+                elseif last_key == "<Down>" and key == "<Left>" then
+                    vim.cmd("stopinsert")
+                    last_key, last_time = nil, nil
+                    return
+                end
+            end
+
+            last_key = key
+            last_time = now()
+        end)
+    end, ns_id)
+end
+
+vim.api.nvim_create_augroup("UserKeyLogger", { clear = true })
+vim.api.nvim_create_autocmd("BufEnter", {
+    group = "UserKeyLogger",
+    callback = function()
+        if vim.fn.mode() == "i" then
+            attach_keylogger()
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("InsertLeave", {
+    group = "UserKeyLogger",
+    callback = clear_keylogger,
+})
+
+vim.api.nvim_create_autocmd("InsertEnter", {
+    group = "UserKeyLogger",
+    callback = attach_keylogger,
+})
 

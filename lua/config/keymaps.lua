@@ -196,6 +196,12 @@ vmap("v", "<M-w>", "<Esc><C-w>")
 
 
 --[Navigation]----------------------------------------
+--remap home row nav
+--vmap("n", "k", "<Left>")
+--vmap("n", "m","<Right>")
+--vmap("n", "o","<Up>")
+--vmap("n", "l","<Down>")
+
 --Jump next word
 vmap('i', '<C-Right>', '<C-o>w')
 vmap('v', '<C-Right>', 'w')
@@ -215,38 +221,42 @@ vmap("n", "<C-PageUp>", "<C-i>")
 
 --smart Jump to link
 vmap({"i","n","v"}, "<C-CR>",
-function()
-    local word = vim.fn.expand("<cfile>")
-    local filetype = vim.bo.filetype
+    function()
+        local word = vim.fn.expand("<cfile>")
+        local filetype = vim.bo.filetype
 
-    -- crude check: if it's a URL or a file-like string
-    if word:match("^https?://") or vim.fn.filereadable(word) == 1 then
-        vim.cmd("normal! gx")
-    else
-        vim.cmd("normal! %")
+        -- crude check: if it's a URL or a file-like string
+        if word:match("^https?://") or vim.fn.filereadable(word) == 1 then
+            vim.cmd("normal! gx")
+        else
+            vim.cmd("normal! %")
+        end
     end
-end
 )
 
 --to normal on tangeant arrow move
 --vmap("i", "<Up><Right>", "<Esc>")
 
 --#[Fast cursor move]
---Fast move normal mode
-vmap('n', '<C-Right>', '5l', { noremap = true, silent = true })
-vmap('n', '<C-Left>', '5h', { noremap = true, silent = true })
+--Fast left/right move normal mode
+vmap('n', '<C-Right>', "5l")
+vmap('n', '<C-Left>', "5h")
+
+vmap('n', '<C-m>', "5l")
+vmap('n', '<C-k>', "5h")
 
 --ctrl+up/down to move fast
-vmap("i", "<C-Up>", function() vim.cmd("normal! 3k") end, {noremap = true, silent = true })
-vmap("n", "<C-Up>", "4k", {noremap = true, silent = true })
-vmap("v", "<C-Up>", "3k", {noremap = true, silent = true })
+vmap("i", "<C-Up>", "<Esc>3ki")
+vmap("n", "<C-Up>", "4k")
+vmap("v", "<C-Up>", "3k")
 
-vmap("i", "<C-Down>", function() vim.cmd("normal! 3j") end, {noremap = true, silent = true })
-vmap("n", "<C-Down>", "4j", {noremap = true, silent = true })
-vmap("v", "<C-Down>", "3j", {noremap = true, silent = true })
+vmap("i", "<C-Down>", "<Esc>3ji")
+vmap("n", "<C-Down>", "4j")
+vmap("v", "<C-Down>", "3j")
+
 
 --alt+left/right move to start/end of line
-vmap("i", "<M-Left>", function() vim.cmd("normal! 0") end, {noremap=true})
+vmap("i", "<M-Left>", "<Esc>0i")
 vmap("n", "<M-Left>", "0")
 vmap("v", "<M-Left>", "0")
 
@@ -255,8 +265,8 @@ vmap("n", "<M-Right>", "$")
 vmap("v", "<M-Right>", "$")
 
 --Quick home/end
-vmap("i", "<Home>", "<Esc>gg0i", {noremap=true})
-vmap({"n","v"}, "<Home>", "gg0", {noremap=true})
+vmap("i", "<Home>", "<Esc>gg0i")
+vmap({"n","v"}, "<Home>", "gg0")
 
 vmap("i", "<End>", "<Esc>G0i")
 vmap({"n","v"}, "<End>", "G0")
@@ -265,8 +275,6 @@ vmap({"n","v"}, "<End>", "G0")
 
 --[Selection]----------------------------------------
 --Select word under cursor
-vmap("n", "<S-w>", "viw")
-
 vmap("n", "ww", "viw")
 
 vmap("i", "«", "<esc>viw") --<altgr-w>

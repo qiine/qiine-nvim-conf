@@ -6,7 +6,7 @@ return
     dependencies = { 'nvim-tree/nvim-web-devicons' },
 
     config = function()
-        vim.opt.cmdheight = 1
+        --local utils = require("utils.utils")
         require("lualine").setup({
             options = {
                 theme = 'auto',
@@ -165,7 +165,7 @@ return
                 lualine_z =
                 {
                     {
-                        function()
+                        function() --file name
                             local ft = vim.bo.filetype
                             if ft == "" then return ".nofile" end
                             local fn = vim.fn.expand("%:t")
@@ -219,12 +219,16 @@ return
                         "filetype",
                         icon_only = true,
                         on_click = function()
-                        local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
-                        if not clients then return "ⓘ NoLSP" end
+                            local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+
+                            if #clients == 0 then return "ⓘ NoLSP" end
+                            local names = {}
                             for _, client in ipairs(clients) do
-                                print("LSPs:", client.name)
+                                table.insert(names, client.name)
                             end
+                            print("LSPs: "..table.concat(names, ", "))
                         end,
+
                         padding = 0
                     },
                 },

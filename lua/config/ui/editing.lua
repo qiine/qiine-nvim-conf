@@ -88,6 +88,7 @@ local formatopts = {} --will hold all users formats opts
 --##[Identation]
 vim.opt.autoindent = true
 vim.opt.smartindent = true
+--vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
 
 v.opt.expandtab = true --Use spaces instead of tabs
 vim.opt.shiftround = true --always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.

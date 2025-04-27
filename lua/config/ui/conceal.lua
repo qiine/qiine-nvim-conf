@@ -24,7 +24,7 @@ vim.opt.concealcursor="n" --stay concealed in normal mode aswel
 --Selective conceal activation
 vim.api.nvim_create_autocmd('BufEnter', {
     group = 'UserAutoCmds',
-    pattern = {'*.lua'},
+    pattern = { "*.lua", "*.cpp", "*.c", "*.h", "*.rs", "*.sh" },
     callback = function()
         vim.opt.conceallevel=1
     end,
@@ -41,9 +41,11 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd("FileType", {
     group = "UserAutoCmds",
-    pattern = "lua",
+    pattern = {"lua"},
     callback = function()
-        vim.cmd[[syntax match concealfunction /::/ conceal cchar=•]]
+        vim.cmd[[ syntax match concealfunction /::/ conceal cchar=• ]]
+        --vim.cmd[[ syntax match pyNiceOperator "<=" conceal cchar=≤ ]]
+        --vim.cmd[[ syntax match pyNiceOperator ">=" conceal cchar=≥ ]]
         --vim.cmd[[syntax match ConcealFunction /\<function\>/ conceal cchar=f containedin=ALL]]
     end,
 })
@@ -113,7 +115,6 @@ vim.api.nvim_create_autocmd({"BufEnter","TextChangedI"}, {
         end
     end,
 })
-
 
 
 

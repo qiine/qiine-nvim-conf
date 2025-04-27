@@ -26,6 +26,7 @@ return
             --"harper_ls",
         }
 
+
         --local installed_servers = require("mason-lspconfig").get_installed_servers()
         --
         --for _, server_name in ipairs(installed_servers) do

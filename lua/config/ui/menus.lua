@@ -52,19 +52,20 @@ vim.o.pumblend = 10 --Transparency for popup-menu
 local contextmenu_items =
 {
     "anoremenu PopUp.Open\\ in\\ browser " .. [[gx]],
-    "anoremenu PopUp.{}Goto\\ definition ".. [[gd]],
     "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references toggle<CR>]],
-    "anoremenu PopUp.{}Tooltip ".. [[<cmd>lua vim.lsp.buf.hover()<CR>]],
-    "anoremenu PopUp.{}Rename ".. [[<cmd>lua vim.lsp.buf.rename()<CR>]],
+    "anoremenu PopUp.🛈Tooltip ".. [[<cmd>lua vim.lsp.buf.hover()<CR>]],
+    "anoremenu PopUp.{}Goto\\ definition ".. [[gd]],
     --"aunmenu PopUp.Inspect ",
+    "anoremenu PopUp.{}Rename ".. [[<cmd>lua vim.lsp.buf.rename()<CR>]],
     "vnoremenu PopUp.Format\\ selected " .. ":FormatSelected<CR>",
+    "anoremenu PopUp.💡QuickFix " .. [[<cmd>lua vim.lsp.buf.code_action()<CR>]],
     "amenu     PopUp.───────────────── <NOP>",
     "vnoremenu PopUp.🗐Copy ".. [["+y]],
     "vnoremenu PopUp.✀\\ Cut ".. [["+d]],
     "anoremenu PopUp.🗅Paste ".. [["+p]],
     "vnoremenu PopUp.🗑Delete ".. [["_d]],
     "amenu     PopUp.-──────────────── <NOP>",
-    "anoremenu PopUp.🔎Telescope " .. [[<cmd>Telescope<CR>]],
+    "anoremenu PopUp.🔍Telescope " .. [[<cmd>Telescope<CR>]],
 }
 
 vim.api.nvim_create_autocmd("VimEnter", {

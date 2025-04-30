@@ -2,6 +2,7 @@ return
 {
     'saghen/blink.cmp',
     enabled = true,
+    event = {"InsertEnter","CmdlineEnter"},
     version = '*',  -- use a release tag to download pre-built binaries
     dependencies = {
         --'rafamadriz/friendly-snippets',

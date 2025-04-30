@@ -3,7 +3,9 @@ return
     'nvim-telescope/telescope.nvim',
     enabled = true,
     dependencies = {
-        "nvim-lua/popup.nvim", "nvim-lua/plenary.nvim",
+        "nvim-lua/popup.nvim",
+        "nvim-lua/plenary.nvim",
+        --"nvim-telescope/telescope-ui-select.nvim",
         "nvim-telescope/telescope-media-files.nvim", "jvgrootveld/telescope-zoxide",
     },
 
@@ -64,8 +66,16 @@ return
                     enable_preview = true,
                 },
             },
-            extensions = {
-                media_files = {
+
+            extensions =
+            {
+                --["ui-select"] = {
+                --    require("telescope.themes").get_dropdown {
+                --        -- even more opts
+                --    }
+                --},
+
+                ["media_files"] = {
                   -- filetypes whitelist
                   -- defaults to {"png", "jpg", "mp4", "webm", "pdf"}
                   filetypes = {"png", "webp", "jpg", "jpeg"},
@@ -73,7 +83,11 @@ return
                   find_cmd = "rg"
                 }
             },
-        }
+        }--setup
+
+        -- To get ui-select loaded and working with telescope, you need to call
+        -- load_extension, somewhere after setup function:
+        --require("telescope").load_extension("ui-select")
 
         vim.keymap.set({"i","n","v"}, '<M-f>b', builtin.builtin, {desc = 'Telescope search builtins'})
 

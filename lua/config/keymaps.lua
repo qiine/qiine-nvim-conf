@@ -529,7 +529,7 @@ vmap("n", "<S-cr>", "O<esc>")
 vmap("v", "<S-cr>", "<esc>O<esc>vgv")
 
 --breakline below
-vmap("i", "<M-cr>", "<Esc>o")
+vmap("i", "<M-cr>", "<Esc>o<Esc>A")
 vmap("n", "<M-cr>", 'o<Esc>')
 vmap("v", "<M-cr>", "<Esc>o<Esc>vgv")
 

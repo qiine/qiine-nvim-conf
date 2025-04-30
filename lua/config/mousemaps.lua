@@ -8,6 +8,7 @@ local nvmap = vim.api.nvim_set_keymap
 local vcmd = vim.cmd
 -----------------------------------------------
 
+--scrolling
 --nvmap("i", "<ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
 --nvmap("n", "<ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
 
@@ -17,6 +18,7 @@ local vcmd = vim.cmd
 nvmap('n', '<ScrollWheelLeft>', '<cmd>echo Scrolling left<CR>', {noremap=true})
 nvmap('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true})
 
+
 ---Ctrl+wheel zoom
 --nvmap("i", "<C-ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
 --nvmap("n", "<C-ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
@@ -24,16 +26,20 @@ nvmap('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true}
 --nvmap("i", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 --nvmap("n", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 
+
 --Middle click
 --nvmap("i", "<MiddleMouse>", "")
 --nvmap("n", "<MiddleMouse>", "")
 --nvmap("v", "<MiddleMouse>", "")
-
 
 --nvmap('n', '<LeftMouse>', '', {noremap=true, silent=true})
 --nvmap('n', '<RightMouse>', '', { noremap=true, silent=true})
 
 --double left click insert
 vmap("n", "<2-LeftMouse>", "i", {noremap = true})
+
+
+--show hover with ctrl+rightclick
+vmap({"i","n","v"}, '<C-RightMouse>', function() vim.lsp.buf.hover() end)
 
 

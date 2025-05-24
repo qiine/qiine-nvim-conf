@@ -41,7 +41,7 @@ local function safe_require(module_name)
     return module
 end
 
-local module --will hold local modules
+local module   --will hold local modules
 
 module = safe_require("modules.v-enveloppe") if module then module.setup() end
 safe_require("modules.tiny-session")
@@ -59,7 +59,7 @@ safe_require("config.mousemaps")
 --settings
 safe_require("config.settings")
 
-safe_require("config.ui.editing")
+safe_require("config.editing")
 safe_require("config.ui.conceal")
 safe_require("config.ui.view")
 safe_require("config.ui.menus")

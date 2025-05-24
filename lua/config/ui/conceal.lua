@@ -35,7 +35,7 @@ vim.api.nvim_create_autocmd("FileType", {
     group = "UserAutoCmds",
     pattern = "json",
     callback = function()
-
+        vim.opt.conceallevel=0
     end,
 })
 

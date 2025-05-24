@@ -38,20 +38,19 @@ return
                 auto_expand_width = false, -- expand the window when file exceeds the window width. does not work with position = "float"
                 popup = { -- settings that apply to float position only
                     size = {
-                    height = "70%",
-                    width = "50%",
+                        height = "70%",
+                        width = "50%",
                     },
                     position = "50%", -- 50% means center it
                 },
             },
-            
-            filesystem = {
 
+            filesystem = {
                 use_libuv_file_watcher = true, -- Auto-refresh
                 bind_to_cwd = true,  -- Enable 2-way binding between Neovim's cwd and Neo-tree's root
                 cwd_target = {
                   sidebar = "global",   --"global", "tab"
-                  current = "cwd" 
+                  current = "cwd"
                 },
                 hijack_netrw = true,
 
@@ -66,31 +65,31 @@ return
                         --"node_modules",
                     },
                 },
-                
+
                 window = {
                     --Detect project root using LSP or common markers (.git)
                     --follow_current_file = true, --Auto-open curr file's dir
                     --use_libuv_file_watcher = true, --os Auto-refresh on files change
                     mappings = {
                         ["<Mouse-Left>"] = "open",
-                        ["H"] = hide_hidden,
+                        ["H"] = "hide_hidden",
                         ["P"] = {
                             "toggle_preview",
                             config = {
                                 use_float = false,
-                                -- use_image_nvim = true,
+                                use_image_nvim = true,
                                 -- title = 'Neo-tree Preview',
                             },
                         },
-                       ["<Del>"] = {"delete", config = {confirm = false}},
-                       ["<F2>"] = "rename",
-                       ["N"] = "add_directory",
+                        ["<Del>"] = {"delete", config = {confirm = false}},
+                        ["<F2>"] = "rename",
+                        ["N"] = "add_directory",
                         ["n"] = {
-                        "add",
-                        -- some commands may take optional config options, see `:h neo-tree-mappings` for details
-                        config = {
-                          show_path = "none", --"none", "relative", "absolute"
-                        }
+                            "add",
+                            -- some commands may take optional config options, see `:h neo-tree-mappings` for details
+                            config = {
+                            show_path = "none", --"none", "relative", "absolute"
+                            }
                         },
                     },
                 },

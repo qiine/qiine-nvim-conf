@@ -1,3 +1,4 @@
+
 -- ed --
 
 local v = vim
@@ -6,8 +7,10 @@ local vopt = vim.opt
 ---------------------
 
 
+
 --[Navigation]--------------------------------------------------
 vim.g.autostartinsert = true
+
 
 --[Mouse]
 v.opt.mouse = "a"
@@ -50,6 +53,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 })
 
 
+
 --[Editing]--------------------------------------------------
 --#[Keymapping]
 v.opt.timeoutlen = 300 --delay between key press to register shortcuts
@@ -61,6 +65,7 @@ v.opt.backspace = { "indent", "eol", "start" }
 --"indent" → Allows Backspace to delete auto-indent.
 --"eol" → Allows Backspace to delete past line breaks.
 --"start" → Allows Backspace at the start of insert mode.
+
 
 
 --#[Spellcheck]
@@ -79,11 +84,13 @@ vim.opt.spell = false
 --option.spelloptions:append("noplainbuffer") --no spelling for certain buftype
 
 
+
 --#[Formating]
 local formatopts = {} --will hold all users formats opts
 
 --View the current formatoptions with:
 -- :set verbose=1 formatoptions?
+
 
 --##[Identation]
 vim.opt.autoindent = true
@@ -150,18 +157,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 
 
------------------------------------------------------------
--- Command line --
-------------------------------------------------------------
---Auto complete menu for cmd
-vim.opt.wildmenu = false --we use blink.cmp instead
-vim.opt.wildmode = "longest:full,full"
-vim.opt.wildoptions = "pum"
-
-------------------------------------------------------------
---Term
-------------------------------------------------------------
-
 --vim.on_key(function(char)
 --    if vim.fn.mode() ~= "n" then return end
 
@@ -195,65 +190,4 @@ vim.opt.wildoptions = "pum"
 --        end)
 --    end, ns_id)
 --end
-
---Exist insert mode on diagonal moves
-local ns_id = vim.api.nvim_create_namespace("KeyLogger")
-
-local last_key = nil
-local last_time = nil
-local timeout = 100 --ms
-
-local function now()
-    return math.floor(vim.uv.hrtime() / 1e6)
-end
-
-local function clear_keylogger()
-    pcall(vim.on_key, nil, ns_id)
-end
-
-local function attach_keylogger()
-    clear_keylogger()
-
-    vim.on_key(function(char)
-        local key = vim.fn.keytrans(char)
-        local t = now()
-
-        vim.schedule(function()
-            if last_key and t - last_time <= timeout then
-                if last_key == "<Up>" and key == "<Right>" then
-                    vim.cmd("stopinsert")
-                    last_key, last_time = nil, nil
-                    return
-                elseif last_key == "<Down>" and key == "<Left>" then
-                    vim.cmd("stopinsert")
-                    last_key, last_time = nil, nil
-                    return
-                end
-            end
-
-            last_key = key
-            last_time = now()
-        end)
-    end, ns_id)
-end
-
-vim.api.nvim_create_augroup("UserKeyLogger", { clear = true })
-vim.api.nvim_create_autocmd("BufEnter", {
-    group = "UserKeyLogger",
-    callback = function()
-        if vim.fn.mode() == "i" then
-            attach_keylogger()
-        end
-    end,
-})
-
-vim.api.nvim_create_autocmd("InsertLeave", {
-    group = "UserKeyLogger",
-    callback = clear_keylogger,
-})
-
-vim.api.nvim_create_autocmd("InsertEnter", {
-    group = "UserKeyLogger",
-    callback = attach_keylogger,
-})
 

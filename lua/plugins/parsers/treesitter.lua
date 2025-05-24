@@ -1,81 +1,66 @@
 return
 {
-    "nvim-treesitter/nvim-treesitter",
-    enabled = true,
-    build = ":TSUpdate",
+    'nvim-treesitter/nvim-treesitter',
     dependencies = {
-        "windwp/nvim-ts-autotag",
         "nvim-treesitter/nvim-treesitter-textobjects",
     },
+    version = false,
+    build = ':TSUpdate',
 
-    config = function()
-                     
-        local treesitter = require("nvim-treesitter.configs")
+    opts = {
+        ensure_installed = {
+            'bash',
 
-        treesitter.setup({
+            'c',
+            'cpp',
 
-            --Install parsers synchronously (only applied to `ensure_installed`)
-            sync_install = false,
-                      
-            -- Automatically install missing parsers when entering buffer
-            -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-            auto_install = true,
+            'rust',
 
-            ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-            -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+            'fish',
+            'gitcommit',
+            'graphql',
+            'html',
+            'java',
 
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = false,
+            'javascript',
+            'typescript',
+            'tsx',
+
+            'json',
+            'json5',
+            'jsonc',
+
+            'lua',
+            'markdown',
+            'markdown_inline',
+
+            'python',
+            'query',
+            'yaml',
+            'regex',
+            'rasi',
+            'scss',
+            'toml',
+            'vim',
+            'vimdoc',
+        },
+        highlight = { enable = true },
+        incremental_selection = {
+            enable = false,
+            keymaps = {
+                init_selection = '<cr>',
+                node_incremental = '<cr>',
+                scope_incremental = false,
+                node_decremental = '<bs>',
             },
-
-            indent = { enable = false },
-        
-            autotag =
-            {
-                --list of parser names, or "all" (the listed parsers MUST always be installed)
-                ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline" },
-                enable = true,
-            },
-
-            ensure_installed =
-            {
-                "json",
-                "jsonc",
-                "javascript",
-                "typescript",
-                "tsx",
-                "python",
-                "yaml",
-                "toml",
-                "html",
-                "css",
-                "markdown",
-                "markdown_inline",
-                "bash",
-                "lua",
-                "vim",
-                "dockerfile",
-                "gitignore",
-                "c",
-                "rust",
-            },
-
-            incremental_selection = {
-                enable = true,
-                keymaps = {
-                    init_selection = "<C-space>",
-                    node_incremental = "<C-space>",
-                    scope_incremental = false,
-                    node_decremental = false,
-                },
-            },
-
-            context_commentstring = {
-                enable = true,
-                enable_autocmd = false,
-            },
-        })
-
-    end,--setup
+        },
+        indent = {
+            enable = false,
+            -- Treesitter unindents Yaml lists for some reason.
+            disable = { 'yaml' },
+        },
+    },
+    config = function(_, opts)
+        require('nvim-treesitter.configs').setup(opts)
+    end
 }

@@ -3,11 +3,10 @@ return
     "luukvbaal/statuscol.nvim",
     enabled = true,
     desc = "customize gutter line",
-    
+
     config = function()
         local builtin = require('statuscol.builtin')
         require("statuscol").setup({
-
                 ft_ignore = nil,       -- Lua table with 'filetype' values for which 'statuscolumn' will be unset
                 bt_ignore = {"help"},       -- Lua table with 'buftype' values for which 'statuscolumn' will be unset
                 segments =

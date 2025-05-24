@@ -54,7 +54,7 @@ vim.opt.cursorline = true
 --startsel: Start selection when entering visual mode.
 
 
---Search
+--#[Search]
 vim.opt.ignorecase = true
 vim.opt.smartcase = true --case-sensitive only if uppercase letters are typed
 vim.opt.hlsearch = true --Highlight all matches
@@ -62,7 +62,9 @@ vim.opt.incsearch = true --Highlight as you type
 
 --vim.opt.colorcolumn="80"
 
---#[Rendering]
+
+
+--[Rendering]--------------------------------------------------
 vim.opt.updatetime = 200 --screen redraw speed in ms
 
 --v.opt.lazyredraw = true  -- will scroll the view when moving the cursor
@@ -74,9 +76,14 @@ v.opt.sidescrolloff = 5
 
 
 --[Gutter]--------------------------------------------------
---vim.opt.statuscolumn = "%s%l %c"
+--vim.opt.statuscolumn = "%s%l %C"
+--%l	line number column for currently drawn line
+--%s	sign column for currently drawn line
+--%C	fold column for currently drawn line
+--statuscolumn=%@SignCb@%s%=%T%@NumCb@%l│%T
 
-v.opt.signcolumn = "yes" --whow letters for error/warning/hint
+
+v.opt.signcolumn = "yes" --show letters for error/warning/hint
 --"yes" → Always keeps the sign column visible (prevents text movement).
 --"no" → Disables the sign column.
 --"auto" → Only shows the sign column when needed.
@@ -103,13 +110,14 @@ vim.opt.fillchars:append({
     fold = ".", --in place of the folded text
     foldopen = "", -- 
     foldclose = ">", --
-    foldsep = " ", --│  --separate folds (for open folds)
+    foldsep = " ", -- │  --separate folds (for open folds)
 
     eob="~",
 })
 
 
---#[Whitespace symbols]
+
+--[Whitespace symbols]--------------------------------------------------
 v.opt.list = true
 vim.opt.listchars:append({
     tab="  ",
@@ -182,7 +190,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 
 
 
---[Diagnostic]
+--[Diagnostic]--------------------------------------------------
 vim.diagnostic.config({
     underline = true,
     update_in_insert = false, --false so diags update on InsertLeave
@@ -271,9 +279,7 @@ vim.diagnostic.config({
 
 
 
-------------------------------------------
--- Command line --
-------------------------------------------
+--[Commandline]--------------------------------------------------
 vim.opt.cmdheight=1
 
 --vim.api.nvim_create_autocmd("CmdlineEnter", {
@@ -293,6 +299,12 @@ vim.opt.cmdheight=1
 --        vim.wo.cmdheight = 1  -- Show the command line for messages
 --    end,
 --})
+
+--Auto complete menu for cmd
+vim.opt.wildmenu = false --we use blink.cmp instead
+vim.opt.wildmode = "longest:full,full"
+vim.opt.wildoptions = "pum"
+
 
 --AutoClear the command line
 --vim.api.nvim_create_autocmd("CmdlineLeave", {

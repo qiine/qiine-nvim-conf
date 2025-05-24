@@ -31,7 +31,6 @@
 
 - fix telescope root finding and grep  
 
-- Install wsywyg markdonw plugin  
 - img support  
 - add some padlock icon when buffer is not modifyable
 
@@ -41,9 +40,11 @@
 
 
 ## writing
+- Install wsywyg markdonw plugin  
 - activate auto wrap on 80+ line for comment and non code text  
 - understand spellchecking  
-- use quickfix to suggest spelling  
+- use code action to suggest spelling  
+    https://www.rockyourcode.com/write-better-in-neovim-with-languagetool/
 - use hover to show definition of words like from a dictionary
 
 

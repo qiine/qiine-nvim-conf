@@ -144,12 +144,12 @@ kmap({"i", "n", "v"}, "<A-z>",
 
 --Gutter on/off
 kmap("n", "<M-g>", function()
-local toggle = "yes"
-vim.opt.number = false
-vim.opt.relativenumber = false
-vim.opt.signcolumn = "no"
-vim.opt.foldenable = false
-end, {noremap=true, desc = "Toggle Gutter" })
+    local toggle = "yes"
+    vim.opt.number = false
+    vim.opt.relativenumber = false
+    vim.opt.signcolumn = "no"
+    vim.opt.foldenable = false
+end, {desc = "Toggle Gutter" })
 
 
 --[Folding]
@@ -302,7 +302,6 @@ kmap('n', '<C-Left>', "5h")
 --    end
 --end
 
----- Map the function to a key combination, for example, <F2> in normal mode
 --vim.keymap.set('n', '<C-Right>',  function() local press_time = nil on_key_press(press_time) end)
 
 
@@ -341,9 +340,6 @@ kmap("i", "<C-S-w>", "<esc>viw")
 kmap("n", "<C-S-w>", "viw")
 kmap("n", "ww", "viw")
 
-kmap("i", "«", "<esc>viw") --<altgr-w>
-kmap("n", "«", "viw")
-kmap("v", "«", "iw")
 
 --Sel to home
 kmap("i", "<S-Home>", "<Esc>vgg0i")
@@ -353,25 +349,32 @@ kmap("n", "<S-Home>", "vgg0")
 kmap("i", "<S-End>", "<Esc>vGi")
 kmap("n", "<S-End>", "vG")
 
+
 --ctrl+a select all
 kmap(modes, "<C-a>", "<Esc>ggVG")
 
+
 --shift+arrows vis select
-kmap("i", "<S-Left>", "<Esc>hv", {noremap = true, silent = true})
-kmap("n", "<S-Left>", "vh", {noremap = true, silent = true})
+kmap("i", "<S-Left>", "<Esc>hv", {noremap = true})
+kmap("n", "<S-Left>", "vh", {noremap = true})
 kmap("v", "<S-Left>", "<Left>")
 
-kmap("i", "<S-Right>", "<Esc>v", {noremap = true, silent = true})
-kmap("n", "<S-Right>", "vl", {noremap = true, silent = true})
+kmap("i", "<S-Right>", "<Esc>v", {noremap = true})
+kmap("n", "<S-Right>", "vl", {noremap = true})
 kmap("v", "<S-Right>", "<Right>")
 
-kmap("i", "<S-Up>", "<Esc>vk", {noremap=true, silent=true})
-kmap("n", "<S-Up>", "vk", {noremap=true, silent=true})
-kmap("v", "<S-Up>", "k", {noremap=true, silent=true}) --avoid fast scrolling around
+kmap("i", "<S-Up>", "<Esc>vk", {noremap=true})
+kmap("n", "<S-Up>", "vk", {noremap=true})
+kmap("v", "<S-Up>", "k", {noremap=true}) --avoid fast scrolling around
 
-kmap("i", "<S-Down>", "<Esc>vh", {noremap=true, silent=true})
-kmap("n", "<S-Down>", "vj", {noremap=true, silent=true})
-kmap("v", "<S-Down>", "j", {noremap=true, silent=true}) --avoid fast scrolling around
+kmap("i", "<S-Down>", "<Esc>vh", {noremap=true})
+kmap("n", "<S-Down>", "vj", {noremap=true})
+kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
+
+--select word from insert
+kmap("i", "<C-S-Right>", "<Esc>viw")
+kmap("i", "<C-S-Left>", "<Esc>vb")
+
 
 --Alt-arrow block selection
 kmap({"i","n"}, "<M-Up>", "<Esc><C-v>k")
@@ -458,9 +461,11 @@ kmap("v", "<M-i>", "I")
 --insert literal
 kmap("n", "<C-i>", "i<C-v>")
 
+
 --#[Copy / Paste]
---Copying
 -- ' "+ ' is the os register
+--Copy
+--Copy whole line in insert
 kmap("i", "<C-c>",
     function()
         vim.cmd('normal! ^"+y$')
@@ -472,16 +477,25 @@ kmap("i", "<C-c>",
 kmap("n", "<C-c>", '"+yl', {noremap = true})
 kmap("v", "<C-c>", '"+y', {noremap = true})
 
---Fast copy/cut word
+--Copy word
+kmap("i", "<C-S-c>", '<Esc>viw"+yi')
+kmap("n", "<C-S-c>", 'viw"+y')
+
 kmap("n", "<C-c><C-c>", 'viw"+y')
+
 
 --Cuting
 kmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
-kmap("n", "<C-x>", '"+x', { noremap = true, silent = true })
-kmap("v", "<C-x>", '"+d<Esc>', { noremap = true, silent = true }) --d both delete and copy so..
+kmap("n", "<C-x>", '"+x', { noremap = true})
+kmap("v", "<C-x>", '"+d<Esc>', { noremap = true}) --d both delete and copy so..
 
---fast cut word
+
+--cut word
+kmap("i", "<C-S-x>", '<esc>viw"+xi')
+kmap("n", "<C-S-x>", 'viw"+x')
+
 kmap("n", "<C-x><C-x>", 'viw"+x')
+
 
 --Pasting
 kmap("i", "<C-v>", '<esc>"+Pli')
@@ -663,52 +677,11 @@ kmap("n", "<M-r>", "q", {remap = true})
 
 
 
---[code runner]----------------------------------------
+--[code runner]--------------------------------------------------
 --run code at cursor with sniprun
---equivalent to <S-F8>
-kmap({"i","n"}, "<F20>",
-    function ()
-        local sa = require("sniprun.api")
-        local row = vim.api.nvim_win_get_cursor(0)[1]
-        local called = false
-
-        sa.register_listener(function(result)
-            if called then return end
-            called = true
-
-            if result.status ~= "ok" then
-                print("SnipRun error: " .. result.message)
-                return
-            end
-
-            local lines = vim.split(result.message, "\n", { plain = true })
-
-            --smartly wrapping results into comment, so we can call sniprun multiple times easily
-            local prefixes = {
-                lua = "---> ",
-                c = "//-> ",
-                cpp = "//-> ",
-                rust = "//-> ",
-                javascript = "//-> ",
-                typescript = "//-> ",
-                python = "#-> ",
-                sh = "#-> "
-            }
-            local ft = vim.bo.filetype
-            local prefix = prefixes[ft] or "-> "
-
-            if #lines > 0 then
-                lines[1] = prefix .. lines[1]
-            end
-
-            vim.api.nvim_buf_set_lines(0, row, row, false, lines)
-        end)
-
-        sa.run_range(1, row, nil, { display = { "Api" } })
-    end
-)
-
-kmap("v", "<F20>", ":SnipRun<CR>")
+--<F20> equivalent to <S-F8>
+kmap({"i","n","v"}, "<F20>","<cmd>SnipRunInsertRes<CR>")
+--kmap("v", "<F20>", "<cmd>SnipRunInsertRes<CR>")
 
 --exec command
 kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
@@ -722,7 +695,7 @@ kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
 
 
 
---[cmd]----------------------------------------
+--[cmd]--------------------------------------------------
 --Open command line
 kmap("i", "œ", "<esc>:")
 kmap("n", "œ", ":")

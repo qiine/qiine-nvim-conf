@@ -40,6 +40,7 @@ vmap("n", "<2-LeftMouse>", "i", {noremap = true})
 
 
 --show hover with ctrl+rightclick
-vmap({"i","n","v"}, '<C-RightMouse>', function() vim.lsp.buf.hover() end)
+vmap({"i","n"}, '<C-RightMouse>', "<LeftMouse><cmd>lua vim.lsp.buf.hover()<CR>")
+--function() vim.lsp.buf.hover() end)
 
 

@@ -37,7 +37,7 @@ return
             result_row = vhead_row
 
             if vanchor_row > vhead_row then
-                result_row = vhead_row-1
+                result_row = vhead_row - 1
                 vanchor_row, vhead_row = vhead_row, vanchor_row
             end
 
@@ -70,9 +70,6 @@ return
 
             --Snip
             if vim.fn.mode() == "v" or vim.fn.mode() == "V" then
-            --Exit visual mode so SnipRun doesn’t get stuck
-            --vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), 'n', false)
-
                 sa.run_range(vanchor_row, vhead_row, nil, { display = { "Api" } })
             else
                 sa.run_range(1, row, nil, { display = { "Api" } })

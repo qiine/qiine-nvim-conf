@@ -182,7 +182,10 @@ kmap( modes,"<C-t>",
 kmap(modes, "<C-w>", function() vim.cmd("bd!") end)
 
 --tabs nav
+--next
 kmap(modes, "<C-Tab>", "<cmd>bnext<cr>")
+--prev
+kmap(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
@@ -211,10 +214,10 @@ kmap('v', '<C-Left>', 'b')
 
 --to next/prev cursor loc
 kmap({"i","v"}, "<C-PageDown>", "<Esc><C-o>")
-kmap("n", "<C-PageDown>", "<C-o>")
+kmap("n",       "<C-PageDown>", "<C-o>")
 
 kmap({"i","v"}, "<C-PageUp>", "<Esc><C-i>")
-kmap("n", "<C-PageUp>", "<C-i>")
+kmap("n",       "<C-PageUp>", "<C-i>")
 
 
 --smart Jump to link
@@ -338,10 +341,13 @@ kmap({"n","v"}, "<End>", "G0")
 --Select word under cursor
 kmap("i", "<C-S-w>", "<esc>viw")
 kmap("n", "<C-S-w>", "viw")
-kmap("n", "ww", "viw")
+
+--select word from insert
+kmap("i", "<C-S-Right>", "<Esc>viw")
+kmap("i", "<C-S-Left>",  "<Esc>vb")
 
 
---Sel to home
+--Select to home
 kmap("i", "<S-Home>", "<Esc>vgg0i")
 kmap("n", "<S-Home>", "vgg0")
 
@@ -354,7 +360,7 @@ kmap("n", "<S-End>", "vG")
 kmap(modes, "<C-a>", "<Esc>ggVG")
 
 
---shift+arrows vis select
+--shift+arrows visual select
 kmap("i", "<S-Left>", "<Esc>hv", {noremap = true})
 kmap("n", "<S-Left>", "vh", {noremap = true})
 kmap("v", "<S-Left>", "<Left>")
@@ -370,10 +376,6 @@ kmap("v", "<S-Up>", "k", {noremap=true}) --avoid fast scrolling around
 kmap("i", "<S-Down>", "<Esc>vh", {noremap=true})
 kmap("n", "<S-Down>", "vj", {noremap=true})
 kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
-
---select word from insert
-kmap("i", "<C-S-Right>", "<Esc>viw")
-kmap("i", "<C-S-Left>", "<Esc>vb")
 
 
 --Alt-arrow block selection
@@ -417,6 +419,7 @@ kmap("v", "<S-PageDown>",
     end
 )
 
+
 --#[search]
 kmap("i", "<C-f>", "<Esc>/")
 kmap("n","<C-f>", "/")
@@ -458,6 +461,7 @@ kmap("v", "<Ins>", "<Esc>i")
 --To Visual insert mode
 kmap("v", "<M-i>", "I")
 
+
 --insert literal
 kmap("n", "<C-i>", "i<C-v>")
 
@@ -468,14 +472,28 @@ kmap("n", "<C-i>", "i<C-v>")
 --Copy whole line in insert
 kmap("i", "<C-c>",
     function()
+        local cpos = vim.api.nvim_win_get_cursor(0)
+
         vim.cmd('normal! ^"+y$')
-        --local copied_text = vim.fn.getreg("+")
-        --local message = string.format('echo "Copied: %s"', copied_text)
+
+        vim.api.nvim_win_set_cursor(0, cpos)
+
         vim.cmd("echo 'copied !'")
     end,
 {noremap=true} )
+
 kmap("n", "<C-c>", '"+yl', {noremap = true})
-kmap("v", "<C-c>", '"+y', {noremap = true})
+kmap("v", "<C-c>",
+    function()
+        local cpos = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd('normal! "+y')
+
+        vim.api.nvim_win_set_cursor(0, cpos)
+
+        vim.cmd("echo 'copied !'")
+    end,
+{noremap=true})
 
 --Copy word
 kmap("i", "<C-S-c>", '<Esc>viw"+yi')
@@ -499,7 +517,7 @@ kmap("n", "<C-x><C-x>", 'viw"+x')
 
 --Pasting
 kmap("i", "<C-v>", '<esc>"+Pli')
-kmap("n", "<C-v>", '"+p')
+kmap("n", "<C-v>", '"+P')
 kmap("v", "<C-v>", '"_d"+P')
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
@@ -532,7 +550,7 @@ kmap("i", "<S-M-BS>", "<C-w>")
 kmap("n", "<S-M-BS>", '"_db')
 kmap("v", "<S-M-BS>", '"_db"')
 
---Backspace from cursor to start replace with white spaces
+--Backspace replace with white spaces, from cursor to line start
 kmap({"i","n"}, "<M-BS>",
     function()
         local row, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -544,7 +562,7 @@ kmap({"i","n"}, "<M-BS>",
         local spaces = left:gsub(".", " ")
         vim.api.nvim_set_current_line(spaces .. right)
 
-        -- Keep cursor position
+        -- Keep cursor pos
         vim.api.nvim_win_set_cursor(0, {row, col})
     end
 )

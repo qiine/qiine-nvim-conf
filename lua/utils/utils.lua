@@ -164,16 +164,14 @@ end
 
 function M.smartincrement()
     local word = vim.fn.expand("<cword>")
-    local num = tonumber(word)
+    local num = tonumber(word) --also check if word is a number in a string
 
     if num then
-        local num_increm = num + 1
-        local incremented_word = tostring(num_increm)
-
-        vim.cmd("normal! ciw" .. incremented_word)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-A>", true, false, true), "n", false)
         return
     end
 
+    --increment letter so a becomes b (roman alphabet)
     if #word == 1 and word:match("%a") then
         local next_char = string.char(word:byte() + 1)
         vim.cmd("normal! r"..next_char)
@@ -187,16 +185,14 @@ end
 
 function M.smartdecrement()
     local word = vim.fn.expand("<cword>")
-    local num = tonumber(word)
+    local num = tonumber(word) --also check if word is a number in a string
 
     if num then
-        local num_decrem = num - 1
-        local decremented_word = tostring(num_decrem)
-
-        vim.cmd("normal! ciw" .. decremented_word)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-X>", true, false, true), "n", false)
         return
     end
 
+    --decrement letter so b becomes a (roman alphabet)
     if #word == 1 and word:match("%a") then
         local next_char = string.char(word:byte() - 1)
         vim.cmd("normal! r"..next_char)
@@ -204,6 +200,8 @@ function M.smartdecrement()
     end
 
     M.bool_toggle(word)
+
+    M.lessergreater_toggle(word)
 end
 
 

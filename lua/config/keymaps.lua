@@ -463,6 +463,7 @@ kmap("v", "<M-i>", "I")
 
 
 --insert literal
+kmap("i", "<C-i>", "<C-v>")
 kmap("n", "<C-i>", "i<C-v>")
 
 
@@ -698,10 +699,17 @@ kmap("n", "<M-r>", "q", {remap = true})
 --[code runner]--------------------------------------------------
 --run code at cursor with sniprun
 --<F20> equivalent to <S-F8>
-kmap({"i","n","v"}, "<F20>","<cmd>SnipRunInsertRes<CR>")
---kmap("v", "<F20>", "<cmd>SnipRunInsertRes<CR>")
+--run curr line only and insert res below
+kmap({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 
---exec command
+--run selected code
+kmap("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
+
+--run whole file until curr line and insert
+kmap({"i","n"}, "<F20>","<cmd>SnipRunToLineInsertResult<CR>")
+
+
+--exec curr line as command
 kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
     function()
         vim.cmd("stopinsert")

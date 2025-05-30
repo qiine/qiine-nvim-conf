@@ -93,7 +93,7 @@ return
 
         vim.keymap.set(
             {"i","n","v"},
-            '<M-f>p',
+            '<C-S-f>',
             function()
                 local p = vim.fn.getcwd()
                 builtin.find_files({
@@ -111,7 +111,7 @@ return
                 local p = vim.fn.expand("~")
                 builtin.find_files({
                     cwd = p,
-                    prompt_title = 'Find Files in: '..p,
+                    prompt_title = 'Find Files in: ' .. p,
                 })
             end,
             {desc = 'Telescope find files in home'}
@@ -122,7 +122,7 @@ return
                 local p = vim.fn.getcwd()
                 builtin.live_grep({
                     cwd = p,
-                    prompt_title = 'Grep in: '..p,
+                    prompt_title = 'Grep in: ' .. p,
                 })
             end,
             {desc='Telescope live grep'}

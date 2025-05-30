@@ -16,37 +16,15 @@ local vfn  = vim.fn
 vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 
--- vim.api.nvim_create_autocmd({"CursorMoved", "CursorMovedI"},
--- {
---     group = "UserAutoCmds",
---
---     callback = function()
---
---     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
---     local current_line = vim.api.nvim_get_current_line()
---
---     --Ensure `col` is within valid range
---     if col < 1 or col > #current_line then
---         return
---     end
---
---     -- Check both left and right of cursor
---     local char_left = current_line:sub(col - 1, col - 1)
---     local char_right = current_line:sub(col, col)
---
---     -- Clear previous matches
---     vim.fn.matchdelete(99)
---
---     -- Check if either side of the cursor is a bracket
---     if char_left:match("[{}%[%]()]") or char_right:match("[{}%[%]()]") then
---         vim.fn.matchadd("MatchParen", vim.fn.matchadd("MatchParen", [[{}\[\]()<>]] ) -- Fix pattern
---         else
---             vim.cmd("match none") -- Remove highlight if not inside brackets
---         end
---     end,
--- })
 
---Prevent normal mode cursor left offseting
+--[File]--------------------------------------------------
+--TODO Auto save all buff if manually saved at least once
+--vim.api.nvim_create_autocmd('TabLeave', {
+
+
+
+--[Editing]--------------------------------------------------
+--Prevent cursor left offseting when going from insert to normal mode
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = "UserAutoCmds",
     pattern = "*",
@@ -55,19 +33,22 @@ vim.api.nvim_create_autocmd("InsertLeave", {
     end,
 })
 
---Auto disable any search highlight on enter insert
-vim.api.nvim_create_autocmd('InsertEnter', {
+--Auto Trim trail spaces in Curr Buffer on save
+vim.api.nvim_create_autocmd("BufWritePre", {
     group = "UserAutoCmds",
-    pattern = '*.*',
+    pattern = "*",
     callback = function()
-        vim.defer_fn(function()
-        vim.cmd('nohlsearch')
-        end, 1) --slight dealay otherwise won't work? (milliseconds)
-    end,
-})
+        if vim.bo.filetype == "markdown" then return end
 
---TODO Auto save all buff if manually saved at least once
---vim.api.nvim_create_autocmd('TabLeave', {
+        if
+            vim.bo.buftype == "" and
+            vim.bo.modifiable and
+            not vim.bo.readonly
+        then
+            vim.cmd("TrimCurrBufferTrailSpaces")
+        end
+    end
+})
 
 
 --TODO prevent closing tab if unsaved buffs
@@ -84,7 +65,7 @@ vim.api.nvim_create_autocmd('TabLeave', {
     group = 'UserAutoCmds',
     pattern = '*',
     callback = function ()
-        print(check_unsaved_buffers)
+        --print(check_unsaved_buffers)
         --if check_unsaved_buffers() then
         --    local choice = vim.fn.confirm("unsaved changes, save before closing?", "&Yes\n&No\n&Cancel", 3)
         --    if choice == 1 then
@@ -103,22 +84,6 @@ vim.api.nvim_create_autocmd('TabLeave', {
         --end
     end,
 })
-
---default save loc and name
---TODO create unique name each time
---vim.api.nvim_create_autocmd('BufWriteCmd', {
---    group = "UserAutoCmds",
-
---    pattern = '[No Name]',
---    callback = function()
---        local default_path = vim.fn.expand('~/Desktop')
---        local default_filename = 'new_text.txt'
-
---        if vim.fn.bufname('%') == '' then
---            vim.cmd('file ' .. default_path .. '/' .. default_filename)
---        end
---    end,
---})
 
 --local conf = vim.fn.stdpath('config')
 ---- TODO Autocommand to reload the configuration when any file in the config directory is saved
@@ -144,6 +109,10 @@ vim.api.nvim_create_autocmd('TabLeave', {
 --    end,
 --})
 
+
+
+
+--[View]--------------------------------------------------
 --highlight yanked text
 vim.api.nvim_create_augroup("highlight_yank", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -151,6 +120,17 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     pattern = "*",
     callback = function()
         vim.highlight.on_yank({higroup='IncSearch', timeout = 200 })
+    end,
+})
+
+--Auto disable any search highlight on enter insert
+vim.api.nvim_create_autocmd('InsertEnter', {
+    group = "UserAutoCmds",
+    pattern = '*.*',
+    callback = function()
+        vim.defer_fn(function()
+        vim.cmd('nohlsearch')
+        end, 1) --slight dealay otherwise won't work? (milliseconds)
     end,
 })
 
@@ -180,27 +160,11 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufRead", "BufNewFile"}, {
     end,
 })
 
---Auto Trim trail spaces in Curr Buffer
-vim.api.nvim_create_autocmd("BufWritePre", {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        if vim.bo.filetype == "markdown" then return end
-
-        if
-            vim.bo.buftype == "" and
-            vim.bo.modifiable and
-            not vim.bo.readonly
-        then
-            vim.cmd("TrimCurrBufferTrailSpaces")
-        end
-    end
-})
 
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
-callback = function()
-    vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
-end,
+    callback = function()
+        vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
+    end,
 })
 
 

@@ -17,6 +17,7 @@ local nvmap = vim.api.nvim_set_keymap
 ----------------------------------------
 
 
+
 --[Doc]--------------------------------------------------
 --vim.api.nvim_set_keymap(mode, lhs, rhs, opts)
 --mode:  mode in which the mapping will work
@@ -28,9 +29,6 @@ local nvmap = vim.api.nvim_set_keymap
 --vim.keymap.set("i", "<C-d>", "dd",{noremap = true, silent = true, desc ="ctrl+d delete line"})
 --noremap = true,  Ignore any existing remappings will act as if there is no custom mapping.
 --silent = true Prevents displaying command in the command-line when executing the mapping.
-
---calling func in keymap
---vim.keymap.set("n", "<M-n>", function()v.cmd("echo 'hello copy'") end, {noremap = true})
 
 --!WARNING! using vim.cmd("Some command") in a setkey will be auto-executed  when the file is sourced !!
 
@@ -60,27 +58,11 @@ local space = "<Space>"
 --modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
-local function currmod() return vim.api.nvim_get_mode().mode end
 
 
 --[Internal]--------------------------------------------------
---vim.g.mapleader = "<M-space>"
-
 --Ctrl+q to quit
 kmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
-
---Ressource curr file
-kmap(modes, "ç", --"<altgr-r>"
-    function()
-        local cf = vim.fn.expand("%:p")
-
-        vim.cmd("source "..cf)
-
-        --broadcast
-        local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
-        vim.cmd(string.format("echo '%s ressourced'", fname))
-    end
-)
 
 --Quick restart nvim
 kmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
@@ -119,19 +101,71 @@ kmap({"i","n"}, "<F2>",
 
 
 --[File]----------------------------------------
---ctrl+s save
-kmap(modes, "<C-s>", function() vim.cmd("w") end)
-kmap(modes, "<C-S-s>", function() vim.cmd("wa") end)
-
 --Create new file
 kmap(modes, "<C-n>",
+function()
+    local buff_count = vim.api.nvim_list_bufs()
+    local newbuff_num = #buff_count
+    v.cmd("enew")
+    vim.cmd("e untitled_"..newbuff_num)
+end
+)
+
+
+--ctrl+s save
+kmap(modes, "<C-s>",
     function()
-        local buff_count = vim.api.nvim_list_bufs()
-        local newbuff_num = #buff_count
-        v.cmd("enew")
-        vim.cmd("e untitled_"..newbuff_num)
+        local cbuf = vim.api.nvim_get_current_buf()
+        local path = vim.api.nvim_buf_get_name(0)
+
+        if vim.fn.filereadable(path) == 1 then
+            vim.cmd("write")
+        else
+            vim.ui.input(
+                { prompt = "Save as: ", default = path },
+                function(input)
+                    if input and input ~= "" then
+                        vim.api.nvim_buf_set_name(cbuf, input)
+                        vim.cmd("write")
+                    else
+                        vim.notify("Write cancelled.", vim.log.levels.INFO)
+                    end
+                end
+            )
+        end
     end
 )
+
+--Save all buffers
+kmap(modes, "<C-S-s>",
+    function()
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_is_loaded(buf)
+                and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1
+                and vim.bo[buf].modifiable
+                and not vim.bo[buf].readonly
+            then
+                vim.api.nvim_buf_call(buf, function() vim.cmd("write") end)
+            end
+        end
+    end
+)
+
+
+--Ressource curr file
+kmap(modes, "ç", --"<altgr-r>"
+    function()
+        local cf = vim.fn.expand("%:p")
+
+        vim.cmd("source "..cf)
+
+        --broadcast
+        local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
+        vim.cmd(string.format("echo '%s ressourced'", fname))
+    end
+)
+
+
 
 --[View]--------------------------------------------------
 --alt-z toggle line wrap
@@ -140,7 +174,6 @@ kmap({"i", "n", "v"}, "<A-z>",
         v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
     end
 )
-
 
 --Gutter on/off
 kmap("n", "<M-g>", function()
@@ -152,7 +185,7 @@ kmap("n", "<M-g>", function()
 end, {desc = "Toggle Gutter" })
 
 
---[Folding]
+--#[Folding]
 -- vmap({"i","n","v}", "<M-f>",
 --     function()
 --         if v.fn.foldclosed(".") == -1 then
@@ -332,9 +365,14 @@ kmap("v", "<M-Right>", "$")
 kmap("i", "<Home>", "<Esc>gg0i")
 kmap({"n","v"}, "<Home>", "gg0")
 
+kmap("i", "<M-Up>", "<Esc>gg0i")
+kmap({"n","v"}, "<M-Up>", "gg0")
+
 kmap("i", "<End>", "<Esc>G0i")
 kmap({"n","v"}, "<End>", "G0")
 
+kmap("i", "<M-Down>", "<Esc>G0i")
+kmap({"n","v"}, "<M-Down>", "G0")
 
 
 --[Selection]----------------------------------------
@@ -378,12 +416,50 @@ kmap("n", "<S-Down>", "vj", {noremap=true})
 kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
 
 
---Alt-arrow block selection
-kmap({"i","n"}, "<M-Up>", "<Esc><C-v>k")
-kmap("v", "<M-Up>", "k")
+--Visual block selection
+kmap({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
+kmap("v", "<S-M-Left>",
+    function()
+        if vim.fn.mode() == '\22' then
+            vim.cmd("normal! h")
+        else
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>h", true, false, true), "n", false)
+        end
+    end
+)
 
-kmap({"i","n"}, "<M-Down>", "<Esc><C-v>j")
-kmap("v", "<M-Down>", "j")
+kmap({"i","n"}, "<S-M-Right>", "<Esc><C-v>l")
+kmap("v", "<S-M-Right>",
+    function()
+        if vim.fn.mode() == '\22' then
+            vim.cmd("normal! l")
+        else
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>l", true, false, true), "n", false)
+        end
+    end
+)
+
+kmap({"i","n"}, "<S-M-Up>", "<Esc><C-v>k")
+kmap("v", "<S-M-Up>",
+    function()
+        if vim.fn.mode() == '\22' then
+            vim.cmd("normal! k")
+        else
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>k", true, false, true), "n", false)
+        end
+    end
+)
+
+kmap({"i","n"}, "<S-M-Down>", "<Esc><C-v>j")
+kmap("v", "<S-M-Down>",
+    function()
+        if vim.fn.mode() == '\22' then
+            vim.cmd("normal! j")
+        else
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>j", true, false, true), "n", false)
+        end
+    end
+)
 
 
 --#[Grow select]
@@ -428,22 +504,7 @@ kmap("v", "<C-f>", "<Esc>*<cr>")
 
 
 --[Editing]--------------------------------------------------
---Typing in visual mode insert chars
-local chars = utils.table_flatten(
-    {
-        utils.alphabet_lowercase,
-        utils.alphabet_uppercase,
-        utils.numbers,
-        utils.punctuation,
-    }
-)
-for _, char in ipairs(chars) do
-    kmap('v', char, '"_d<Esc>i'..char, {noremap=true})
-end
-kmap("v", "<space>", '"_di<space>', {noremap=true})
-kmap("v", "<cr>", '"_di<cr>', {noremap=true})
-
---insert some chars in normal mode
+--Insert some chars in normal mode
 --vmap("n", "F", "iF<Esc>")
 --vmap("n", "J", "iJ<Esc>")
 --vmap("n", "K", "iK<Esc>")
@@ -462,9 +523,26 @@ kmap("v", "<Ins>", "<Esc>i")
 kmap("v", "<M-i>", "I")
 
 
---insert literal
-kmap("i", "<C-i>", "<C-v>")
+--Insert literal
+--kmap("i", "<C-i>", "<C-v>") --collide with tab :(
 kmap("n", "<C-i>", "i<C-v>")
+
+
+--Typing in visual mode insert chars
+local chars = utils.table_flatten(
+    {
+        utils.alphabet_lowercase,
+        utils.alphabet_uppercase,
+        utils.numbers,
+        utils.punctuation,
+    }
+)
+for _, char in ipairs(chars) do
+    kmap('v', char, '"_d<Esc>i'..char, {noremap=true})
+end
+kmap("v", "<space>", '"_di<space>', {noremap=true})
+kmap("v", "<cr>", '"_di<cr>', {noremap=true})
+
 
 
 --#[Copy / Paste]
@@ -542,8 +620,9 @@ kmap({"n","v"}, "<C-y>", "<C-r>")
 --#[Deletion]
 --##[Backspace]
 --BS remove char
---vmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
-kmap("n", "<BS>", '<Esc>"_X<Esc>')
+--kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
+--kmap("n", "<BS>", '<Esc>"_X<Esc>')
+kmap("n", "<BS>", 'r ')
 kmap("v", "<BS>", '"_x')
 
 --Ctrl+BS remove word
@@ -624,14 +703,15 @@ kmap({"n"}, "-", function() utils.smartdecrement() end)
 --##[Ident]
 kmap("n", "<space>", "i<space><esc>")
 
---smart tab insert
+--smart tab in insert
 vim.keymap.set("i", "<Tab>",
     function()
         local inword = utils.is_cursor_inside_word()
 
         if inword then vim.cmd("normal! v>") vim.cmd("normal! 4l")
-        else vim.cmd("normal! i\t") --don't care about softab here
+            else vim.cmd("normal! i\t") --don't care about softab here
         end
+        print(inword)
     end
 )
 kmap("n", "<Tab>", "v>")

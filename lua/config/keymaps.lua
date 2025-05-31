@@ -362,17 +362,17 @@ kmap("n", "<M-Right>", "$")
 kmap("v", "<M-Right>", "$")
 
 --Quick home/end
-kmap("i", "<Home>", "<Esc>gg0i")
-kmap({"n","v"}, "<Home>", "gg0")
+--kmap("i", "<Home>", "<Esc>gg0i")
+--kmap({"n","v"}, "<Home>", "gg0")
 
-kmap("i", "<M-Up>", "<Esc>gg0i")
-kmap({"n","v"}, "<M-Up>", "gg0")
+--kmap("i", "<M-Up>", "<Esc>gg0i")
+--kmap({"n","v"}, "<M-Up>", "gg0")
 
-kmap("i", "<End>", "<Esc>G0i")
-kmap({"n","v"}, "<End>", "G0")
+--kmap("i", "<End>", "<Esc>G0i")
+--kmap({"n","v"}, "<End>", "G0")
 
-kmap("i", "<M-Down>", "<Esc>G0i")
-kmap({"n","v"}, "<M-Down>", "G0")
+--kmap("i", "<M-Down>", "<Esc>G0i")
+--kmap({"n","v"}, "<M-Down>", "G0")
 
 
 --[Selection]----------------------------------------

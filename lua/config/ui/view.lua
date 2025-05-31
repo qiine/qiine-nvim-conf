@@ -202,7 +202,15 @@ vim.diagnostic.config({
         prefix = "●",
         suffix = "",
         --format = function(diagnostic)
-        --    return "●| "..diagnostic.message.." "
+        --    local icons = {
+        --        [vim.diagnostic.severity.ERROR] = " ",
+        --        [vim.diagnostic.severity.WARN]  = " ",
+        --        [vim.diagnostic.severity.INFO]  = " ",
+        --        [vim.diagnostic.severity.HINT]  = " ",
+        --    }
+
+        --    local icon = icons[diagnostic.severity] or ""
+        --    return icon .. diagnostic.message
         --end,
     },
     --virtual_lines = {
@@ -212,9 +220,15 @@ vim.diagnostic.config({
     --},
     signs = {
         enabled = true,
+        text =
+        {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.INFO] = "",
+            [vim.diagnostic.severity.HINT] = ""
+        },
         severity = { min = "WARN" },
     },
-
     severity_sort = true,
     float = {
         focusable = false,

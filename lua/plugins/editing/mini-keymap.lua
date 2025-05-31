@@ -17,15 +17,15 @@ return
         --combo({"n", "v"}, '<C-Left><Left>', '0', { delay = delay_fastline })
 
         --quick insert
-        combo("n", "<Left><Right>", function() vim.cmd("startinsert") end, { delay = 75 })
-        combo("n", "<Right><Left>", function() vim.cmd("startinsert") end, { delay = 75 })
+        combo("n", "<Left><Right>", function() vim.cmd("startinsert") end, { delay = 25 })
+        combo("n", "<Right><Left>", function() vim.cmd("startinsert") end, { delay = 25 })
 
         --quick normal
-        combo("i", "<Left><Right>", "<Esc>", { delay = 75 })
-        combo("i", "<Right><Left>", "<Esc>", { delay = 75 })
+        combo("i", "<Left><Right>", "<Esc>", { delay = 25 })
+        combo("i", "<Right><Left>", "<Esc>", { delay = 25 })
 
-        combo("v", "<Left><Right>", "<Esc>", { delay = 75 })
-        combo("v", "<Right><Left>", "<Esc>", { delay = 75 })
+        combo("v", "<Left><Right>", "<Esc>")
+        combo("v", "<Right><Left>", "<Esc>")
 
         --fast move + quick normal
         combo("i", '<C-Down><C-Right>', '<Esc><Down><Right>', { delay = 300 })

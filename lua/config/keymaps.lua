@@ -71,7 +71,8 @@ kmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
 kmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
 
 
----[LSP]
+
+---[LSP]--------------------------------------------------
 --Goto deffinition
 kmap("i", "<F12>", "<Esc>gdi")
 kmap("n", "<F12>", "gd")
@@ -362,14 +363,14 @@ kmap("n", "<M-Right>", "$")
 kmap("v", "<M-Right>", "$")
 
 --Quick home/end
---kmap("i", "<Home>", "<Esc>gg0i")
---kmap({"n","v"}, "<Home>", "gg0")
+kmap("i", "<Home>", "<Esc>gg0i")
+kmap({"n","v"}, "<Home>", "gg0")
 
---kmap("i", "<M-Up>", "<Esc>gg0i")
+--kmap("i", "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
---kmap("i", "<End>", "<Esc>G0i")
---kmap({"n","v"}, "<End>", "G0")
+kmap("i", "<End>", "<Esc>G0i")
+kmap({"n","v"}, "<End>", "G0")
 
 --kmap("i", "<M-Down>", "<Esc>G0i")
 --kmap({"n","v"}, "<M-Down>", "G0")
@@ -420,7 +421,7 @@ kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
 kmap({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
 kmap("v", "<S-M-Left>",
     function()
-        if vim.fn.mode() == '\22' then
+        if vim.fn.mode() == '\22' then  --"\22" is vis block mode
             vim.cmd("normal! h")
         else
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>h", true, false, true), "n", false)
@@ -505,12 +506,12 @@ kmap("v", "<C-f>", "<Esc>*<cr>")
 
 --[Editing]--------------------------------------------------
 --Insert some chars in normal mode
---vmap("n", "F", "iF<Esc>")
---vmap("n", "J", "iJ<Esc>")
---vmap("n", "K", "iK<Esc>")
---vmap("n", "o", "io<Esc>")
---vmap("n", "q", "iq<Esc>")
---vmap("n", "z", "iz<Esc>")
+--kmap("n", "F", "iF<Esc>")
+--kmap("n", "J", "iJ<Esc>")
+--kmap("n", "K", "iK<Esc>")
+--kmap("n", "o", "io<Esc>")
+--kmap("n", "q", "iq<Esc>")
+--kmap("n", "z", "iz<Esc>")
 kmap("n", ".", "i.<Esc>")
 
 
@@ -521,7 +522,17 @@ kmap("v", "<Ins>", "<Esc>i")
 
 --To Visual insert mode
 kmap("v", "<M-i>", "I")
-
+kmap("v", "î",
+    function()
+        if vim.fn.mode() == '\22' then  --"\22" is vis block mode
+            --"$A" insert at end of each lines from vis block mode
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
+        else
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>", true, false, true), "n", false)
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
+        end
+    end
+)
 
 --Insert literal
 --kmap("i", "<C-i>", "<C-v>") --collide with tab :(

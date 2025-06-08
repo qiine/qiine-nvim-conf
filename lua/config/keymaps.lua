@@ -247,11 +247,11 @@ kmap('v', '<C-Left>', 'b')
 
 
 --to next/prev cursor loc
-kmap({"i","v"}, "<C-PageDown>", "<Esc><C-o>")
-kmap("n",       "<C-PageDown>", "<C-o>")
+kmap({"i","v"}, "<M-PageDown>", "<Esc><C-o>")
+kmap("n",       "<M-PageDown>", "<C-o>")
 
-kmap({"i","v"}, "<C-PageUp>", "<Esc><C-i>")
-kmap("n",       "<C-PageUp>", "<C-i>")
+kmap({"i","v"}, "<M-PageUp>", "<Esc><C-i>")
+kmap("n",       "<M-PageUp>", "<C-i>")
 
 
 --smart Jump to link
@@ -380,10 +380,7 @@ kmap({"n","v"}, "<End>", "G0")
 --Select word under cursor
 kmap("i", "<C-S-w>", "<esc>viw")
 kmap("n", "<C-S-w>", "viw")
-
---select word from insert
-kmap("i", "<C-S-Right>", "<Esc>viw")
-kmap("i", "<C-S-Left>",  "<Esc>vb")
+kmap("v", "<C-S-w>", "<esc>viw")
 
 
 --Select to home
@@ -465,13 +462,13 @@ kmap("v", "<S-M-Down>",
 
 --#[Grow select]
 --grow horizontally TODO proper anchor logic
-kmap("i", "<M-PageUp>", "<Esc>vl")
-kmap("n", "<M-PageUp>", "vl")
-kmap("v", "<M-PageUp>", "l")
+kmap("i", "<C-S-PageDown>", "<Esc>vl")
+kmap("n", "<C-S-PageDown>", "vl")
+kmap("v", "<C-S-PageDown>", "l")
 
-kmap("i", "<M-PageDown>", "<Esc>vh")
-kmap("n", "<M-PageDown>", "vh")
-kmap("v", "<M-PageDown>", "oho")
+kmap("i", "<C-S-PageUp>", "<Esc>vh")
+kmap("n", "<C-S-PageUp>", "vh")
+kmap("v", "<C-S-PageUp>", "oho")
 
 --grow do end/start of line
 kmap("i", "<S-PageUp>", "<Esc><S-v>k")
@@ -518,7 +515,11 @@ kmap("n", ".", "i.<Esc>")
 --toggle insert/normal with insert key
 kmap("i", "<Ins>", "<Esc>")
 kmap("n", "<Ins>", "i")
-kmap("v", "<Ins>", "<Esc>i")
+kmap("v", "<Ins>", function ()
+    --seems to be more relyable
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>i", true, false, true), "n", false)
+end)
+
 
 --To Visual insert mode
 kmap("v", "<M-i>", "I")
@@ -537,7 +538,6 @@ kmap("v", "î",
 --Insert literal
 --kmap("i", "<C-i>", "<C-v>") --collide with tab :(
 kmap("n", "<C-i>", "i<C-v>")
-
 
 --Typing in visual mode insert chars
 local chars = utils.table_flatten(
@@ -760,27 +760,78 @@ kmap("v", "<C-j>", "<S-j>")
 --##[move text]
 --Move char
 kmap("n", "<C-S-Right>", "xp")
-kmap("n", "<C-S-Left>", "x2hp")
+kmap("n", "<C-S-Left>", "xhP")
 --vmap("n", "<C-S-Up>", "xkp")
 --vmap("n", "<C-S-Down>", "xjp")
 
---Move selection
-kmap("v", "<C-S-Right>", "dplgv")
+--Move selected text
+--left
+kmap("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
+kmap("v", "<C-S-Left>", function ()
+    local col = vim.api.nvim_win_get_cursor(0)[2]
+    local mode = vim.fn.mode()
+
+    local cmd = '"zdh"zP<esc>gvhoho' --z reg should be safe
+
+    if mode == 'v' and col > 0 then --check vis mode only and not at start of line
+        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
+    else
+        --maybe wrap to next/prev line ?
+    end
+end)
+
+--right
+kmap("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
+kmap("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
+
+--TODO improve support for empty lines
+--vertical
+kmap('v', '<C-S-Up>', function ()
+    local l1 = vim.fn.line("v")
+    local l2 = vim.fn.line(".")
+    local mode = vim.fn.mode()
+
+    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
+    else
+        vim.cmd('normal! "zd')     -- delete selection into register z
+        vim.cmd('normal! k')       -- move up one line
+        vim.cmd('normal! "zP')     -- paste from register z
+        vim.cmd('normal! gvkoko')      -- reselect visual selection
+    end
+end)
+--kmap("v", "<C-S-Up>", '"zdk"zP<esc>gv')
+
+kmap('v', '<C-S-Down>', function ()
+    local l1 = vim.fn.line("v")
+    local l2 = vim.fn.line(".")
+    local mode = vim.fn.mode()
+
+    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
+    else
+        vim.cmd('normal! "zd')
+        vim.cmd('normal! j')
+        vim.cmd('normal! "zP')
+        vim.cmd('normal! gvjojo')
+    end
+end)
+--kmap("v", "<C-S-Down>", '"zdj"zP<esc>gv')
+
 
 --Move whole line
 kmap("i", "<C-S-Up>", "<Esc>:m .-2<CR>==i")
 kmap("n", "<C-S-Up>", ":m .-2<CR>==")
-kmap('v', '<C-S-Up>', ":m '<-2<CR>gv=gv")
 
 kmap("i", "<C-S-Down>", "<Esc>:m .+1<cr>==i")
 kmap("n", "<C-S-Down>", ":m .+1<cr>==")
-kmap('v', '<c-s-down>', ":m '>+1<cr>gv=gv")
 
 
 --#[Commenting]
 kmap("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
 kmap("n", "<M-a>", "gcc", {remap = true}) --remap needed
 kmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
+
 
 --#[record]
 kmap("n", "<M-r>", "q", {remap = true})

@@ -172,7 +172,7 @@ kmap(modes, "ç", --"<altgr-r>"
 --alt-z toggle line wrap
 kmap({"i", "n", "v"}, "<A-z>",
     function()
-        v.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
+        vim.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
     end
 )
 
@@ -212,7 +212,7 @@ kmap( modes,"<C-t>",
     end
 )
 
---tabs close
+--Tabs close
 kmap(modes, "<C-w>", function() vim.cmd("bd!") end)
 
 --tabs nav
@@ -372,7 +372,7 @@ kmap({"n","v"}, "<Home>", "gg0")
 kmap("i", "<End>", "<Esc>G0i")
 kmap({"n","v"}, "<End>", "G0")
 
---kmap("i", "<M-Down>", "<Esc>G0i")
+--kmap("i", "<M-Down>", "<Esc>G0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Down>", "G0")
 
 
@@ -381,20 +381,6 @@ kmap({"n","v"}, "<End>", "G0")
 kmap("i", "<C-S-w>", "<esc>viw")
 kmap("n", "<C-S-w>", "viw")
 kmap("v", "<C-S-w>", "<esc>viw")
-
-
---Select to home
-kmap("i", "<S-Home>", "<Esc>vgg0i")
-kmap("n", "<S-Home>", "vgg0")
-
---select to end
-kmap("i", "<S-End>", "<Esc>vGi")
-kmap("n", "<S-End>", "vG")
-
-
---ctrl+a select all
-kmap(modes, "<C-a>", "<Esc>ggVG")
-
 
 --shift+arrows visual select
 kmap("i", "<S-Left>", "<Esc>hv", {noremap = true})
@@ -412,6 +398,17 @@ kmap("v", "<S-Up>", "k", {noremap=true}) --avoid fast scrolling around
 kmap("i", "<S-Down>", "<Esc>vh", {noremap=true})
 kmap("n", "<S-Down>", "vj", {noremap=true})
 kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
+
+--Select to home
+kmap("i", "<S-Home>", "<Esc>vgg0i")
+kmap("n", "<S-Home>", "vgg0")
+
+--select to end
+kmap("i", "<S-End>", "<Esc>vGi")
+kmap("n", "<S-End>", "vG")
+
+--ctrl+a select all
+kmap(modes, "<C-a>", "<Esc>ggVG")
 
 
 --Visual block selection
@@ -494,7 +491,7 @@ kmap("v", "<S-PageDown>",
 )
 
 
---#[search]
+--#[select search]
 kmap("i", "<C-f>", "<Esc>/")
 kmap("n","<C-f>", "/")
 kmap("v", "<C-f>", "<Esc>*<cr>")
@@ -613,9 +610,9 @@ kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
 --Dup
-kmap("i", "<C-d>", '<Esc>yypi')
-kmap("n", "<C-d>", 'yyp')
-kmap("v", "<C-d>", '"+yP')--TODO does not place text proper
+kmap("i", "<C-d>", '<Esc>"zyy"zpi')
+kmap("n", "<C-d>", '"zyy"zp')
+kmap("v", "<C-d>", '"zy"zP')--TODO does not place text proper
 
 
 --#[Undo/redo]
@@ -673,12 +670,12 @@ kmap("i", "<C-S-Del>", "<esc>diwi")
 kmap("n", "<C-S-Del>", "diw")
 
 --ctrl+Del rem word
-kmap("i", "<C-Del>", '<C-o>"_dw')
+kmap("i",       "<C-Del>", '<C-o>"_dw')
 kmap({"n","v"}, "<C-Del>", 'dw')
 
 --del to end of line
-kmap("i", "<M-Del>", "<Esc>d$i")
-kmap("n", "<M-Del>", "d$")
+kmap("i", "<M-Del>", '<Esc>"_d$i')
+kmap("n", "<M-Del>", '"_d$')
 
 --Delete entire line (Shift + Del)
 kmap("i", "<S-Del>", '<C-o>"_dd')
@@ -769,13 +766,20 @@ kmap("n", "<C-S-Left>", "xhP")
 kmap("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
 kmap("v", "<C-S-Left>", function ()
     local col = vim.api.nvim_win_get_cursor(0)[2]
-    local mode = vim.fn.mode()
 
-    local cmd = '"zdh"zP<esc>gvhoho' --z reg should be safe
+    if vim.fn.mode() == 'v' and col > 0 then
+        local cmd = '"zdh"zP<esc>gvhoho' --z reg should be safe
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
 
-    if mode == 'v' and col > 0 then --check vis mode only and not at start of line
-        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
-    else
+        --<esc>gv allow vim.fn.getpos("'<") to be up to date
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
+        local cursor_pos = vim.api.nvim_win_get_cursor(0)
+        local anchor_start_pos = vim.fn.getpos("'<")
+
+        if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
+            vim.cmd("normal! o")
+        end
+
         --maybe wrap to next/prev line ?
     end
 end)
@@ -840,18 +844,18 @@ kmap("n", "<M-r>", "q", {remap = true})
 
 --[code runner]--------------------------------------------------
 --run code at cursor with sniprun
---<F20> equivalent to <S-F8>
 --run curr line only and insert res below
 kmap({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 
---run selected code
+--<F20> equivalent to <S-F8>
+--run selected code in visual mode
 kmap("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
 
 --run whole file until curr line and insert
 kmap({"i","n"}, "<F20>","<cmd>SnipRunToLineInsertResult<CR>")
 
 
---exec curr line as command
+--exec curr line as ex command
 kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
     function()
         vim.cmd("stopinsert")

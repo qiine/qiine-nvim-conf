@@ -25,15 +25,4 @@ vim.opt.path = { ".", "**" }
 --vim.opt.findfunc =
 
 
---#[Undo]
---Persistent undo
-vim.opt.undofile = true
 
---undofile setup
-local undodir = vim.fn.stdpath("data") .. "/undo"
-
-if vim.fn.isdirectory(undodir) == 0 then
-    vim.fn.mkdir(undodir, "p")
-end
-
-vim.opt.undodir = undodir

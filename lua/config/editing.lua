@@ -67,6 +67,30 @@ v.opt.backspace = { "indent", "eol", "start" }
 --"start" → Allows Backspace at the start of insert mode.
 
 
+--#[Undo]
+vim.opt.undolevels = 2000
+
+--Persistent undo
+vim.opt.undofile = true
+
+local undodir = vim.fn.stdpath("data") .. "/undo"
+
+if vim.fn.isdirectory(undodir) == 0 then
+    vim.fn.mkdir(undodir, "p")
+end
+
+vim.opt.undodir = undodir
+
+--autoclean undofiles for deleted files
+--for name, _ in vim.fs.dir(undodir) do
+--    local undo_path = undodir .. "/" .. name
+--    local real_path = name:gsub("%%", "/")
+
+--    if not vim.fn.filereadable(real_path) or vim.fn.isdirectory(real_path) == 1 then
+--        os.remove(undo_path)
+--    end
+--end
+
 
 --#[Spellcheck]
 vim.opt.spell = false

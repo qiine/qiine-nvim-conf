@@ -692,7 +692,7 @@ kmap({"i","n"}, "<C-M-Del>", function()
     local pchar =  cline:sub(ccol, ccol)
     local cchar =  cline:sub(ccol+1, ccol+1)
     local nchar =  cline:sub(ccol+2, ccol+2)
-    print(pchar..cchar..nchar)
+
     local pcommand = delete_commands[pchar]
     local ccommand = delete_commands[cchar]
     local ncommand = delete_commands[nchar]
@@ -700,9 +700,9 @@ kmap({"i","n"}, "<C-M-Del>", function()
     if ccommand then
         vim.cmd("normal! " .. ccommand ) return
     elseif pcommand then
-        vim.cmd("normal! " .. pcommand ) return
+        vim.cmd("normal! h" .. pcommand ) return
     elseif ncommand then
-        vim.cmd("normal! " .. ncommand ) return
+        vim.cmd("normal! l" .. ncommand ) return
     end
 end)
 
@@ -803,16 +803,18 @@ kmap("n", "<C-S-Left>", "xhP")
 --Move selected text
 --left
 kmap("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
-kmap("v", "<C-S-Left>", function ()
+kmap("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
 
     if vim.fn.mode() == 'v' and col > 0 then
         local cmd = '"zdh"zP<esc>gvhoho' --z reg should be safe
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
 
-        --<esc>gv allow vim.fn.getpos("'<") to be up to date
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
+        --Set cursor pos at start of selection
         local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
+        --Tricks to refresh vim.fn.getpos("'<")
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
         local anchor_start_pos = vim.fn.getpos("'<")
 
         if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
@@ -835,15 +837,16 @@ kmap('v', '<C-S-Up>', function ()
     local mode = vim.fn.mode()
 
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
-        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! "zd')     -- delete selection into register z
-        vim.cmd('normal! k')       -- move up one line
+        vim.cmd('normal! "zd')     -- yank and delete selection into register z
+        vim.cmd('normal! k')       -- move cursor up one line
         vim.cmd('normal! "zP')     -- paste from register z
-        vim.cmd('normal! gvkoko')      -- reselect visual selection
+
+        local anchor_start_pos = vim.fn.getpos("'<")[3]
+        vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
     end
 end)
---kmap("v", "<C-S-Up>", '"zdk"zP<esc>gv')
 
 kmap('v', '<C-S-Down>', function ()
     local l1 = vim.fn.line("v")
@@ -853,13 +856,14 @@ kmap('v', '<C-S-Down>', function ()
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! "zd')
+        vim.cmd('normal! "zd')   -- delete selection into register z
         vim.cmd('normal! j')
         vim.cmd('normal! "zP')
-        vim.cmd('normal! gvjojo')
+
+        local anchor_start_pos = vim.fn.getpos("'<")[3]
+        vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
     end
 end)
---kmap("v", "<C-S-Down>", '"zdj"zP<esc>gv')
 
 
 --Move whole line

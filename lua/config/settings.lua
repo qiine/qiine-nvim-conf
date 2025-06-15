@@ -11,9 +11,6 @@ vim.opt.clipboard = 'unnamedplus'
 ------------------------------------------------------------
 -- Files --
 ------------------------------------------------------------
-vim.opt.undofile = false -- Save undo history
---vim.opt.undodir = vim.fn.stdpath("state") --"~/.local/state/nvim/undo"
-
 vim.opt.swapfile = false --no swap files
 
 vim.opt.hidden = true --Allows switching buffers without saving
@@ -26,3 +23,17 @@ vim.opt.path = { ".", "**" }
 
 --make nvim use fd or rg for ex when using find cmd
 --vim.opt.findfunc =
+
+
+--#[Undo]
+--Persistent undo
+vim.opt.undofile = true
+
+--undofile setup
+local undodir = vim.fn.stdpath("data") .. "/undo"
+
+if vim.fn.isdirectory(undodir) == 0 then
+    vim.fn.mkdir(undodir, "p")
+end
+
+vim.opt.undodir = undodir

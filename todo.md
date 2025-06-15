@@ -48,4 +48,6 @@
 - use hover to show definition of words like from a dictionary
 
 
-
+## config refactor
+- Use 'keymaps.lua' only for pure shortcuts, move all logic to dedicated library or 
+  modules.

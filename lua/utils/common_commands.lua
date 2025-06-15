@@ -144,6 +144,10 @@ vim.api.nvim_create_user_command("UnderlineSelected", function(opts)
     vim.api.nvim_buf_set_lines(0, start_line, end_line, false, lines)
 end, { range = true })
 
+vim.api.nvim_create_user_command("ClearAllMarks", function()
+    vim.cmd([[delmarks a-zA-Z0-9"<>'[].]])
+    print("-All marks cleared-")
+end, {desc = "Delete all marks in the current buffer"})
 
 
 --[Formating]

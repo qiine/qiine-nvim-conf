@@ -661,17 +661,50 @@ kmap("n", "<S-BS>", '0"_d$')
 kmap("v", "<S-BS>", '<Esc>"_cc')
 
 
---##[Del]
+--##[Delete]
 kmap("n", "<Del>", 'v"_d<esc>')
 kmap("v", "<Del>", '"_d<esc>i')
 
---dell in word
-kmap("i", "<C-S-Del>", "<esc>diwi")
-kmap("n", "<C-S-Del>", "diw")
-
 --ctrl+Del rem word
 kmap("i",       "<C-Del>", '<C-o>"_dw')
-kmap({"n","v"}, "<C-Del>", 'dw')
+kmap({"n","v"}, "<C-Del>", '"_dw')
+
+--dell in word
+kmap("i", "<C-S-Del>", '<esc>"_diwi')
+kmap("n", "<C-S-Del>", '"_diw')
+
+--smart delete in
+kmap({"i","n"}, "<C-M-Del>", function()
+    local delete_commands = {
+        ["("] = '"_di(', [")"] = '"_di(',
+        ["["] = '"_di[', ["]"] = '"_di[',
+        ["{"] = '"_di{', ["}"] = '"_di{',
+        ["<"] = '"_di<', [">"] = '"_di<',
+
+        ['"'] = '"_di"',
+        ["'"] = '"_di',
+        ["`"] = '"_di`',
+    }
+
+    local crow, ccol = unpack(vim.api.nvim_win_get_cursor(0))
+    local cline = vim.fn.getline(crow)
+
+    local pchar =  cline:sub(ccol, ccol)
+    local cchar =  cline:sub(ccol+1, ccol+1)
+    local nchar =  cline:sub(ccol+2, ccol+2)
+    print(pchar..cchar..nchar)
+    local pcommand = delete_commands[pchar]
+    local ccommand = delete_commands[cchar]
+    local ncommand = delete_commands[nchar]
+
+    if ccommand then
+        vim.cmd("normal! " .. ccommand ) return
+    elseif pcommand then
+        vim.cmd("normal! " .. pcommand ) return
+    elseif ncommand then
+        vim.cmd("normal! " .. ncommand ) return
+    end
+end)
 
 --del to end of line
 kmap("i", "<M-Del>", '<Esc>"_d$i')
@@ -680,7 +713,13 @@ kmap("n", "<M-Del>", '"_d$')
 --Delete entire line (Shift + Del)
 kmap("i", "<S-Del>", '<C-o>"_dd')
 kmap("n", "<S-Del>", '"_dd')
-kmap("v", "<S-Del>", '<S-v>"_d') --expand sel before del
+kmap("v", "<S-Del>", function()
+    if vim.fn.mode() == "V" then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('"_d', true, false, true), "n", false)
+    else
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<S-v>"_d', true, false, true), "n", false)
+    end
+end)
 
 
 --#[Replace]
@@ -755,7 +794,7 @@ kmap("v", "<C-j>", "<S-j>")
 
 
 --##[move text]
---Move char
+--Move single char
 kmap("n", "<C-S-Right>", "xp")
 kmap("n", "<C-S-Left>", "xhP")
 --vmap("n", "<C-S-Up>", "xkp")

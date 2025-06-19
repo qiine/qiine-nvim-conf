@@ -81,9 +81,9 @@ end
 function M.setup(opts)
     opts = opts or {}
 
-    vim.keymap.set("n", "'", M.enveloppe_word_singlequote, { desc = "enveloppe word singlequote" })
-    vim.keymap.set("n", '"', M.enveloppe_word_doublequote, { desc = "enveloppe word doublequote" })
-    vim.keymap.set("n", '<', M.enveloppe_word_angledbracket, { desc = "enveloppe word angled brackets" })
+    --vim.keymap.set("n", "'", M.enveloppe_word_singlequote, { desc = "enveloppe word singlequote" })
+    --vim.keymap.set("n", '"', M.enveloppe_word_doublequote, { desc = "enveloppe word doublequote" })
+    --vim.keymap.set("n", '<', M.enveloppe_word_angledbracket, { desc = "enveloppe word angled brackets" })
 
     vim.keymap.set("v", '<C-">', M.envelope_selected_doublequote, { desc = "Surround visual selection with char" })
     vim.keymap.set("v", "<C-'>", M.envelope_selected_singlequote, { desc = "Surround visual selection with char" })

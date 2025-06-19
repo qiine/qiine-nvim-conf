@@ -9,30 +9,6 @@ local vopt = vim.opt
 
 
 --[Navigation]--------------------------------------------------
-vim.g.autostartinsert = true
-
-
---[Mouse]
-v.opt.mouse = "a"
---""    Mouse support disabled.
---"n"   Enabled in Normal mode.
---"v"	Enabled in Visual mode.
---"i"	Enabled in Insert mode.
---"c"	Enabled in Command-line mode.
---"h"	Enabled in Help pages.
---"a"	Enabled everywhere (equivalent to "nvich").
-
---v.opt.mousescroll = "ver:0,hor:0"
-
---mouse selectmode
-
-vim.opt.mousemoveevent = true
---Neovim does not track mouse movement unless you click or scroll.
---This means that just moving the cursor around inside the terminal window will not trigger any events.
---Some UI plugins (like floating windows, statuslines, and overlays) use this to provide hover tooltips, previews, or dynamic highlighting.
-
---v.opt.mousemodel = "normal" --used for selection extension in normal mode it will simply recreate a seelction
-
 vim.opt.virtualedit = "onemore" --allow to Snap cursor to closest char at eol
 --"block" → Allows cursor to move where there is no actual text in visual block mode.
 --"insert" → Allows inserting in positions where there is no actual text.
@@ -55,8 +31,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 
 
 --[Editing]--------------------------------------------------
---#[Keymapping]
-v.opt.timeoutlen = 300 --delay between key press to register shortcuts
+vim.g.autostartinsert = true
 
 --Define what a word is
 vim.opt.iskeyword = "@,48-57,192-255,-,_" --@: alphabet, 48-57: 0-9, 192-255: extended Latin chars

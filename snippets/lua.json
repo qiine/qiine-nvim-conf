@@ -89,6 +89,11 @@
     "get nvim mode": {
         "prefix": "get_nvim_mode",
         "body": [ "vim.fn.mode()" ]
+    },
+
+    "get nvim cursor position": {
+        "prefix": "get_nvim_cursor_position",
+        "body": [ "vim.api.nvim_win_get_cursor(0)" ]
     }
 
 }

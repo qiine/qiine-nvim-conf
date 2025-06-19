@@ -19,24 +19,18 @@ local nvmap = vim.api.nvim_set_keymap
 
 
 --[Doc]--------------------------------------------------
---vim.api.nvim_set_keymap(mode, lhs, rhs, opts)
---mode:  mode in which the mapping will work
---lhs: key combination you want to bind.
---rhs: The action or command that should be executed when the key is pressed.
---opts: Optional settings, usually passed as a table.
-
 --Setting key example:
 --vim.keymap.set("i", "<C-d>", "dd",{noremap = true, silent = true, desc ="ctrl+d delete line"})
 --noremap = true,  Ignore any existing remappings will act as if there is no custom mapping.
 --silent = true Prevents displaying command in the command-line when executing the mapping.
 
---!WARNING! using vim.cmd("Some command") in a setkey will be auto-executed  when the file is sourced !!
-
 --to unmap a key use <Nop>
 --vim.keymap.set("i", "<C-d>", "<Nop>",{noremap = true"})
 
+--!WARNING! using vim.cmd("Some command") in a setkey will be auto-executed  when the file is sourced !!
+
+
 --Keys
-----------------
 --<C-o> allows to execute one normal mode command while staying in insert mode.
 
 --<esc> = \27
@@ -48,15 +42,13 @@ local nvmap = vim.api.nvim_set_keymap
 --doesn't change modes which helps perf
 --`<cmd>` does need <CR>. while ":" triggers "CmdlineEnter" implicitly
 
---":"supports Ex ranges like '<,'>.
-
-local esc = "<Esc>"
-local entr = "<CR>"
-local tab = "<Tab>"
-local space = "<Space>"
-
 --modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
+
+
+
+--[Settings]--------------------------------------------------
+v.opt.timeoutlen = 300 --delay between key press to register shortcuts
 
 
 
@@ -69,35 +61,6 @@ kmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
 --F5 refresh buffer
 kmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
-
-
-
----[LSP]--------------------------------------------------
---Goto deffinition
-kmap("i", "<F12>", "<Esc>gdi")
-kmap("n", "<F12>", "gd")
-kmap("v", "<F12>", "<Esc>gd")
-
---show hover window
-kmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
-
---rename symbol
---vmap({"i","n"}, "<F2>", function()
---    vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
---        callback = function()
---            local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
---            vim.api.nvim_feedkeys(key, "c", false)
---            return true
---        end,
---    })
---    vim.lsp.buf.rename()
---end)
-
-kmap({"i","n"}, "<F2>",
-    function()
-        require("live-rename").rename({ insert = true })
-    end
-)
 
 
 
@@ -237,14 +200,29 @@ kmap("v", "<M-w>", "<Esc><C-w>")
 --vmap("n", "o","<Up>")
 --vmap("n", "l","<Down>")
 
---Jump next word
-kmap('i', '<C-Right>', '<C-o>w')
-kmap('v', '<C-Right>', 'w')
+--Jump to next word
+    kmap({"i","v"}, '<C-Right>', function()
+        local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
---Jump previous word
-kmap('i', '<C-Left>', '<C-o>b')
-kmap('v', '<C-Left>', 'b')
+        vim.cmd("normal! w")
 
+        if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
+            vim.cmd("normal! b")
+            vim.cmd("normal! A")
+        end
+    end)
+
+    --Jump to previous word
+    kmap({"i","v"}, '<C-Left>', function()
+        local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
+
+        vim.cmd("normal! b")
+
+        if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
+            vim.cmd("normal! w")
+            vim.cmd("normal! I")
+        end
+    end)
 
 --to next/prev cursor loc
 kmap({"i","v"}, "<M-PageDown>", "<Esc><C-o>")
@@ -252,22 +230,6 @@ kmap("n",       "<M-PageDown>", "<C-o>")
 
 kmap({"i","v"}, "<M-PageUp>", "<Esc><C-i>")
 kmap("n",       "<M-PageUp>", "<C-i>")
-
-
---smart Jump to link
-kmap({"i","n","v"}, "<C-CR>",
-    function()
-        local word = vim.fn.expand("<cfile>")
-        local filetype = vim.bo.filetype
-
-        -- crude check: if it's a URL or a file-like string
-        if word:match("^https?://") or vim.fn.filereadable(word) == 1 then
-            vim.cmd("normal! gx")
-        else
-            vim.cmd("normal! %")
-        end
-    end
-)
 
 
 --#[Fast cursor move]
@@ -536,7 +498,7 @@ kmap("v", "î",
 --kmap("i", "<C-i>", "<C-v>") --collide with tab :(
 kmap("n", "<C-i>", "i<C-v>")
 
---Typing in visual mode insert chars
+--Insert chars  n visual mode
 local chars = utils.table_flatten(
     {
         utils.alphabet_lowercase,
@@ -546,11 +508,10 @@ local chars = utils.table_flatten(
     }
 )
 for _, char in ipairs(chars) do
-    kmap('v', char, '"_d<Esc>i'..char, {noremap=true})
+    kmap('v', char, '"_d<esc>i'..char, {noremap=true})
 end
 kmap("v", "<space>", '"_di<space>', {noremap=true})
 kmap("v", "<cr>", '"_di<cr>', {noremap=true})
-
 
 
 --#[Copy / Paste]
@@ -561,7 +522,7 @@ kmap("i", "<C-c>",
     function()
         local cpos = vim.api.nvim_win_get_cursor(0)
 
-        vim.cmd('normal! ^"+y$')
+        vim.cmd('normal! 0"+y$')
 
         vim.api.nvim_win_set_cursor(0, cpos)
 
@@ -586,24 +547,19 @@ kmap("v", "<C-c>",
 kmap("i", "<C-S-c>", '<Esc>viw"+yi')
 kmap("n", "<C-S-c>", 'viw"+y')
 
-kmap("n", "<C-c><C-c>", 'viw"+y')
-
 
 --Cuting
-kmap("i", "<C-x>", '<esc>^"+y$"_ddi', {noremap = true})
+kmap("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true})
 kmap("n", "<C-x>", '"+x', { noremap = true})
 kmap("v", "<C-x>", '"+d<Esc>', { noremap = true}) --d both delete and copy so..
-
 
 --cut word
 kmap("i", "<C-S-x>", '<esc>viw"+xi')
 kmap("n", "<C-S-x>", 'viw"+x')
 
-kmap("n", "<C-x><C-x>", 'viw"+x')
-
 
 --Pasting
-kmap("i", "<C-v>", '<esc>"+Pli')
+kmap("i", "<C-v>", '<esc>"+Pi')
 kmap("n", "<C-v>", '"+P')
 kmap("v", "<C-v>", '"_d"+P')
 kmap("c", "<C-v>", '<C-R>+')
@@ -612,12 +568,12 @@ kmap("t", "<C-v>", '<C-o>"+P')
 --Dup
 kmap("i", "<C-d>", '<Esc>"zyy"zpi')
 kmap("n", "<C-d>", '"zyy"zp')
-kmap("v", "<C-d>", '"zy"zP')--TODO does not place text proper
+kmap("v", "<C-d>", '"zy"zP``')
 
 
 --#[Undo/redo]
 --ctrl+z to undo
-kmap("i", "<C-z>", function() v.cmd("normal! u") end, {noremap = true})
+kmap("i", "<C-z>", "<C-o>u", {noremap = true})
 kmap({"n","v"}, "<C-z>", "u", {noremap = true})
 
 --redo
@@ -631,7 +587,7 @@ kmap({"n","v"}, "<C-y>", "<C-r>")
 --kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 --kmap("n", "<BS>", '<Esc>"_X<Esc>')
 kmap("n", "<BS>", 'r ')
-kmap("v", "<BS>", '"_x')
+kmap("v", "<BS>", '"_xi')
 
 --Ctrl+BS remove word
 kmap("i", "<S-M-BS>", "<C-w>")
@@ -663,7 +619,7 @@ kmap("v", "<S-BS>", '<Esc>"_cc')
 
 --##[Delete]
 kmap("n", "<Del>", 'v"_d<esc>')
-kmap("v", "<Del>", '"_d<esc>i')
+kmap("v", "<Del>", '"_di')
 
 --ctrl+Del rem word
 kmap("i",       "<C-Del>", '<C-o>"_dw')
@@ -788,8 +744,8 @@ kmap("n", "<S-M-cr>", "o<esc>kO<esc>j")
 
 
 --##[Join]
-kmap("i", "<C-j>", "<Esc>vj<S-j><Esc>i") --Join one below
-kmap("n", "<C-j>", "vj<S-j>")
+kmap("i", "<C-j>", "<C-o><S-j>") --Join one below
+kmap("n", "<C-j>", "<S-j>")
 kmap("v", "<C-j>", "<S-j>")
 
 
@@ -831,7 +787,7 @@ kmap("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
 
 --TODO improve support for empty lines
 --vertical
-kmap('v', '<C-S-Up>', function ()
+kmap('v', '<C-S-Up>', function()
     local l1 = vim.fn.line("v")
     local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
@@ -865,7 +821,6 @@ kmap('v', '<C-S-Down>', function ()
     end
 end)
 
-
 --Move whole line
 kmap("i", "<C-S-Up>", "<Esc>:m .-2<CR>==i")
 kmap("n", "<C-S-Up>", ":m .-2<CR>==")
@@ -882,6 +837,53 @@ kmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
 
 --#[record]
 kmap("n", "<M-r>", "q", {remap = true})
+
+
+
+---[Text comprehension]--------------------------------------------------
+--Goto deffinition
+kmap("i", "<F12>", "<Esc>gdi")
+kmap("n", "<F12>", "gd")
+kmap("v", "<F12>", "<Esc>gd")
+
+--show hover window
+kmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
+
+--rename symbol
+--vmap({"i","n"}, "<F2>", function()
+--    vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
+--        callback = function()
+--            local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+--            vim.api.nvim_feedkeys(key, "c", false)
+--            return true
+--        end,
+--    })
+--    vim.lsp.buf.rename()
+--end)
+
+kmap({"i","n"}, "<F2>",
+    function()
+        require("live-rename").rename({ insert = true })
+    end
+)
+
+--smart contextual action
+kmap({"i","n","v"}, "<C-CR>", function()
+    local word = vim.fn.expand("<cfile>")
+    local cchar = utils.get_char_at_cursorpos()
+    local filetype = vim.bo.filetype
+
+
+    if word:match("^https?://") then
+        vim.cmd("normal! gx")
+    elseif vim.fn.filereadable(word) == 1 then
+        vim.cmd("normal! gf")
+    else
+        vim.cmd("normal! %")
+    end
+    --to tag
+    --<C-]>
+end)
 
 
 
@@ -910,7 +912,7 @@ kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
 
 
 
---[cmd]--------------------------------------------------
+--[vim cmd]--------------------------------------------------
 --Open command line
 kmap("i", "œ", "<esc>:")
 kmap("n", "œ", ":")

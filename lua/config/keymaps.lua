@@ -201,28 +201,33 @@ kmap("v", "<M-w>", "<Esc><C-w>")
 --vmap("n", "l","<Down>")
 
 --Jump to next word
-    kmap({"i","v"}, '<C-Right>', function()
-        local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
+kmap({"i","v"}, '<C-Right>', function()
+    local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
-        vim.cmd("normal! w")
+    vim.cmd("normal! w")
 
-        if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
-            vim.cmd("normal! b")
-            vim.cmd("normal! A")
-        end
-    end)
-
-    --Jump to previous word
-    kmap({"i","v"}, '<C-Left>', function()
-        local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
-
+    if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
         vim.cmd("normal! b")
 
-        if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
-            vim.cmd("normal! w")
-            vim.cmd("normal! I")
+        if vim.fn.mode() == "v" then
+            vim.cmd("normal! $")
+        else
+            vim.cmd("normal! A")
         end
-    end)
+    end
+end)
+
+--Jump to previous word
+kmap({"i","v"}, '<C-Left>', function()
+    local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
+
+    vim.cmd("normal! b")
+
+    if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
+        vim.cmd("normal! w")
+        vim.cmd("normal! 0")
+    end
+end)
 
 --to next/prev cursor loc
 kmap({"i","v"}, "<M-PageDown>", "<Esc><C-o>")
@@ -559,9 +564,9 @@ kmap("n", "<C-S-x>", 'viw"+x')
 
 
 --Pasting
-kmap("i", "<C-v>", '<esc>"+Pi')
-kmap("n", "<C-v>", '"+P')
-kmap("v", "<C-v>", '"_d"+P')
+kmap("i", "<C-v>", '<esc>"+P`[v`]=i')
+kmap("n", "<C-v>", '"+P`[v`]=')
+kmap("v", "<C-v>", '"_d"+P`[v`]=')
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
@@ -680,7 +685,8 @@ end)
 
 --#[Replace]
 --replace selection with char
-kmap("v", "*", "\"zy:%s/<C-r>z//g<Left><Left>")
+--kmap("n", "*", "")
+--kmap("v", "*", "\"zy:%s/<C-r>z//g<Left><Left>")
 
 
 --#[Incrementing]

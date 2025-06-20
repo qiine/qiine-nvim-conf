@@ -8,6 +8,8 @@ local vcmd = vim.cmd
 local utils = require("utils.utils")
 -------------------------
 
+
+
 vim.api.nvim_create_user_command("WorkDirToCurrent", function()
     vim.cmd("cd %:p:h") -- ":h" rem file name
 end, {})
@@ -184,14 +186,57 @@ vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
 
+--diff curr file with given rev
+vim.api.nvim_create_user_command("DiffRevision", function(opts)
+    local rev = opts.args ~= "" and opts.args or "HEAD"
 
---vim.api.nvim_create_user_command("NewUserCmd", function()
---    vim.ui.select({ "One", "Two", "Three" }, {
---        prompt = "Choose one:",
---    }, function(choice)
---        if choice then
---            print("You selected: " .. choice)
---        end
---    end)
+    local prev_wd = vim.fn.getcwd()
+    local cftype = vim.bo.filetype
 
---end, {})
+    local filename = vim.fn.expand("%:t")
+    vim.fn.chdir(vim.fn.fnamemodify(vim.fn.expand("%:p"), ":h"))
+
+    local git_meta = vim.fn.systemlist("git log -1 " .. filename)
+    local git_content = vim.fn.systemlist("git show " .. rev .. ":" .. "./" ..filename)
+
+    if vim.v.shell_error ~= 0 then
+        vim.notify("Git revision or file not found: " .. rev .. "|" .. "./" .. filename, vim.log.levels.ERROR)
+        return
+    end
+
+    --We can go back to prev wd
+    vim.fn.chdir(prev_wd)
+
+    --Create new empty buffer
+    vim.cmd("vsplit")
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_win_set_buf(0, buf)
+    vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+    vim.api.nvim_set_option_value("filetype", cftype, { buf = buf })
+    vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+
+    --Write content of commit to buffer
+    vim.api.nvim_buf_set_lines(buf, 0, 0, false, git_meta)
+    vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"============================================================"})
+    vim.api.nvim_buf_set_lines(buf, -1, -1, false, git_content)
+
+
+    --Enable diff mode in both windows
+    vim.cmd("diffthis")
+    vim.wo.scrollbind = true
+    vim.wo.cursorbind = true
+    vim.wo.foldmethod = "diff"
+    vim.wo.foldlevel = 99 --hack to Keep folds open by default
+
+    vim.cmd("wincmd p") --back to og buf
+
+    vim.cmd("diffthis")
+    vim.wo.scrollbind = true
+    vim.wo.cursorbind = true
+    vim.wo.foldmethod = "diff"
+    vim.wo.foldlevel = 99
+
+end, {nargs = "?"})
+
+

@@ -94,7 +94,11 @@
     "get nvim cursor position": {
         "prefix": "get_nvim_cursor_position",
         "body": [ "vim.api.nvim_win_get_cursor(0)" ]
-    }
+    },
 
+    "get nvim working directorie": {
+        "prefix": "get_nvim_working_directorie",
+        "body": [ "vim.fn.getcwd()" ]
+    }
 }
 

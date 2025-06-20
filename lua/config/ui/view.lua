@@ -97,11 +97,13 @@ v.opt.relativenumber = false
 --#[Folding]
 v.opt.foldenable = true
 
+v.opt.foldcolumn = "1"
 --"0" Hides fold numbers and uses "fillchars" for fold lines
 --"1" Show dedicated fold column and numbers in the gutter
-v.opt.foldcolumn = "1"
+
 v.opt.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
 v.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+
 v.opt.foldlevel = 99 --hack to Keep folds open by default
 v.opt.foldlevelstart = 99
 vim.opt.foldnestmax = 7
@@ -111,6 +113,8 @@ vim.opt.fillchars:append({
     foldopen = "", -- 
     foldclose = ">", --
     foldsep = " ", -- │  --separate folds (for open folds)
+
+    diff = "╱",
 
     eob="~",
 })

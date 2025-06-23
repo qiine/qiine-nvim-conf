@@ -48,7 +48,7 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 
 --[Settings]--------------------------------------------------
-v.opt.timeoutlen = 300 --delay between key press to register shortcuts
+vim.opt.timeoutlen = 300 --delay between key press to register shortcuts
 
 
 
@@ -66,15 +66,15 @@ kmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloade
 
 --[File]----------------------------------------
 --Create new file
-kmap(modes, "<C-n>",
-function()
+kmap(modes, "<C-n>", function()
     local buff_count = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
     v.cmd("enew")
     vim.cmd("e untitled_"..newbuff_num)
-end
-)
+end)
 
+--Open file picker
+kmap(modes, "<C-o>", function() vim.cmd("FilePicker") end)
 
 --ctrl+s save
 kmap(modes, "<C-s>",
@@ -82,20 +82,22 @@ kmap(modes, "<C-s>",
         local cbuf = vim.api.nvim_get_current_buf()
         local path = vim.api.nvim_buf_get_name(0)
 
-        if vim.fn.filereadable(path) == 1 then
+        if vim.fn.filereadable(path) == 1 then   --Check file exist on disk
             vim.cmd("write")
         else
-            vim.ui.input(
-                { prompt = "Save as: ", default = path },
-                function(input)
-                    if input and input ~= "" then
-                        vim.api.nvim_buf_set_name(cbuf, input)
-                        vim.cmd("write")
-                    else
-                        vim.notify("Write cancelled.", vim.log.levels.INFO)
+            if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
+                vim.ui.input(
+                    { prompt = "Save as: ", default = path },
+                    function(input)
+                        if input and input ~= "" then
+                            vim.api.nvim_buf_set_name(cbuf, input)
+                            vim.cmd("write")
+                        else
+                            vim.notify("Write cancelled.", vim.log.levels.INFO)
+                        end
                     end
-                end
-            )
+                )
+            end
         end
     end
 )
@@ -194,12 +196,6 @@ kmap("v", "<M-w>", "<Esc><C-w>")
 
 
 --[Navigation]----------------------------------------
---remap home row nav
---vmap("n", "k", "<Left>")
---vmap("n", "m","<Right>")
---vmap("n", "o","<Up>")
---vmap("n", "l","<Down>")
-
 --Jump to next word
 kmap({"i","v"}, '<C-Right>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
@@ -322,12 +318,10 @@ kmap("v", "<C-Down>", "3j")
 
 --alt+left/right move to start/end of line
 kmap("i", "<M-Left>", "<Esc>0i")
-kmap("n", "<M-Left>", "0")
-kmap("v", "<M-Left>", "0")
+kmap({"n","v"}, "<M-Left>", "0")
 
 kmap("i", "<M-Right>", "<Esc>$a")
-kmap("n", "<M-Right>", "$")
-kmap("v", "<M-Right>", "$")
+kmap({"n","v"}, "<M-Right>", "$")
 
 --Quick home/end
 kmap("i", "<Home>", "<Esc>gg0i")
@@ -350,7 +344,7 @@ kmap("n", "<C-S-w>", "viw")
 kmap("v", "<C-S-w>", "<esc>viw")
 
 --shift+arrows visual select
-kmap("i", "<S-Left>", "<Esc>hv", {noremap = true})
+kmap("i", "<S-Lefta", "<Esc>hv", {noremap = true})
 kmap("n", "<S-Left>", "vh", {noremap = true})
 kmap("v", "<S-Left>", "<Left>")
 
@@ -562,11 +556,10 @@ kmap("v", "<C-x>", '"+d<Esc>', { noremap = true}) --d both delete and copy so..
 kmap("i", "<C-S-x>", '<esc>viw"+xi')
 kmap("n", "<C-S-x>", 'viw"+x')
 
-
 --Pasting
-kmap("i", "<C-v>", '<esc>"+P`[v`]=i')
-kmap("n", "<C-v>", '"+P`[v`]=')
-kmap("v", "<C-v>", '"_d"+P`[v`]=')
+kmap("i", "<C-v>", '<esc>"+P`[v`]=li')
+kmap("n", "<C-v>", '"+P`[v`]=gv')
+kmap("v", "<C-v>", '"_d"+P`[v`]=gv')
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
@@ -867,6 +860,7 @@ kmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 --    vim.lsp.buf.rename()
 --end)
 
+--lsp rename
 kmap({"i","n"}, "<F2>",
     function()
         require("live-rename").rename({ insert = true })
@@ -925,9 +919,10 @@ kmap("n", "œ", ":")
 kmap("v", "œ", ":")
 kmap("t", "œ", "<Esc> <C-\\><C-n>")
 
---Accept
---vmap('c', '<cr>', '<CR>')
---vmap('c', '<tab>', '<CR>')
+--Open command line in term mode
+kmap("i", "<S-Œ>", "<esc>:!")
+kmap("n", "<S-Œ>", ":!")
+kmap("v", "<S-Œ>", ":!")
 
 --cmd completion menu
 --vmap("c", "<C-d>", "<C-d>")
@@ -935,13 +930,12 @@ kmap("t", "œ", "<Esc> <C-\\><C-n>")
 --Cmd menu nav
 kmap("c", "<Up>", "<C-p>")
 kmap("c", "<Down>", "<C-n>")
+
+--accept
 kmap("c", "<S-Tab>", "<C-n>")
 
 --Cmd close
 kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
-
---clear text
-kmap("n", "Ô", "<C-L>")
 
 
 

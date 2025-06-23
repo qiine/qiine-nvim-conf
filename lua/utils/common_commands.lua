@@ -101,6 +101,21 @@ end, {})
 
 
 
+--[Files]--------------------------------------------------
+vim.api.nvim_create_user_command("FilePicker", function()
+    local handle = io.popen('kdialog --getopenfilename')
+    if handle then
+        local result = handle:read("*a")
+        handle:close()
+        local filepath = vim.fn.trim(result)
+        if filepath ~= "" then
+            vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+        end
+    end
+end, {})
+
+
+
 --[Editing]--------------------------------------------------
 --Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)

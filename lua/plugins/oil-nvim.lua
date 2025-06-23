@@ -127,7 +127,7 @@ return
             --vim.cmd("Neotree")
             --vim.cmd("wincmd p")
         end)
-        vim.keymap.set({"i","n","v"}, "<C-o>", "<esc><cmd>Oil --float<CR>")
+        --vim.keymap.set({"i","n","v"}, "<C-o>", "<esc><cmd>Oil --float<CR>")
 
         --Close Neotree in this context
         vim.api.nvim_create_autocmd('BufDelete', {

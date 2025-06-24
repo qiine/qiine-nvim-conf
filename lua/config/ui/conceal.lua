@@ -86,7 +86,7 @@ vim.api.nvim_create_autocmd("FileType", {
 local ns = vim.api.nvim_create_namespace("overlay_lua")
 vim.api.nvim_create_augroup("Overlay_Lua", { clear = true })
 
-vim.api.nvim_create_autocmd({"BufEnter","TextChangedI"}, {
+vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "ModeChanged"}, {
     group = "Overlay_Lua",
     pattern = "*.lua",
     callback = function()

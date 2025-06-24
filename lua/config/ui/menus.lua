@@ -1,5 +1,7 @@
 local v = vim
 
+
+
 -------------------------------------------------------
 --File--
 -------------------------------------------------------
@@ -10,6 +12,7 @@ v.opt.confirm = true --Ask for save before quit
 
 
 --[View]--------------------------------------------------
+--Statusline
 v.opt.laststatus = 3
 --0 → Never show the statusline.
 --1 → Show the statusline only when there are multiple windows.
@@ -18,7 +21,7 @@ v.opt.laststatus = 3
 
 
 
---[Edit]--------------------------------------------------
+--[Editing]--------------------------------------------------
 --Autocomplete
 v.opt.completeopt = "menuone,noinsert,noselect"
 --v.opt.completeopt = "menu,menuone,popup,fuzzy" -- modern completion menu
@@ -52,7 +55,7 @@ vim.o.pumblend = 10 --Transparency for popup-menu
 local contextmenu_items =
 {
     "anoremenu PopUp.Open\\ in\\ browser " .. [[gx]],
-    "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references toggle<CR>]],
+    "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references<CR>]],
     "anoremenu PopUp.🛈Tooltip ".. [[<cmd>lua vim.lsp.buf.hover()<CR>]],
     "anoremenu PopUp.{}Goto\\ definition ".. [[gd]],
     --"aunmenu PopUp.Inspect ",
@@ -119,6 +122,8 @@ vim.api.nvim_create_autocmd('MenuPopup', {
         end
     end,
 })
+
+
 
 -------------------------------------------------------
 -- Dashboard --

@@ -1,12 +1,12 @@
+--------------------------------------------------
+-- Edit --
+--------------------------------------------------
 
--- ed --
-
-local v = vim
-local vap = vim.api
-local vopt = vim.opt
----------------------
+local utils = require("utils.utils")
 
 
+
+--[General]--------------------------------------------------
 --Smart start insert
 vim.g.autostartinsert = true
 
@@ -37,10 +37,48 @@ vim.opt.iskeyword = "@,48-57,192-255,-,_"
 -- 192-255 -> extended Latin chars
 
 --Backspace behaviour
-v.opt.backspace = { "indent", "eol", "start" }
+vim.opt.backspace = { "indent", "eol", "start" }
 --"indent" → Allows Backspace to delete auto-indent.
 --"eol" → Allows Backspace to delete past line breaks.
 --"start" → Allows Backspace at the start of insert mode.
+
+
+--Smart autosave
+vim.g.autosave_enabled = true
+
+-- Save every 5 minutes (300,000 milliseconds)
+local autosave_interval = 300000
+local autosave_timer = nil
+
+-- Function to write all valid buffers
+local function auto_save_buffers()
+    if not _G.auto_save_enabled then return end
+
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            if      vim.api.nvim_buf_is_loaded(buf)
+            and     vim.bo[buf].buftype == ""
+            and     vim.bo[buf].modifiable
+            and not vim.bo[buf].readonly
+            and     vim.fn.expand("#" .. buf .. ":p") ~= ""
+            then
+                vim.api.nvim_buf_call(buf, function() vim.cmd("write") end)
+            end
+        end
+    end
+
+-- Start the repeating timer
+--autosave_timer = vim.loop.new_timer()
+--autosave_timer:start(
+--    autosave_interval,
+--    autosave_interval,
+--    vim.schedule_wrap(auto_save_buffers)
+--)
+
+-- Command to toggle auto-save
+vim.api.nvim_create_user_command("ToggleAutoSave", function()
+    _G.auto_save_enabled = not _G.auto_save_enabled
+    vim.notify("Auto-save: " .. (_G.auto_save_enabled and "Enabled" or "Disabled"))
+end, {})
 
 
 
@@ -99,11 +137,11 @@ vim.opt.autoindent = true
 vim.opt.smartindent = true
 --vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
 
-v.opt.expandtab = true --Use spaces instead of tabs
+vim.opt.expandtab = true --Use spaces instead of tabs
 vim.opt.shiftround = true --always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
-v.opt.shiftwidth = 4 --Number of spaces to use for indentation
-v.opt.tabstop = 4
-v.opt.softtabstop = 4 --Number of spaces to use for pressing TAB in insert mode
+vim.opt.shiftwidth = 4 --Number of spaces to use for indentation
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4 --Number of spaces to use for pressing TAB in insert mode
 
 --##[Text Wrapping]
 --"t" Auto-wrap text using textwidth (for non-comments).
@@ -135,14 +173,16 @@ table.insert(formatopts, "c")
 table.insert(formatopts, "j")
 table.insert(formatopts, "q")
 
---Force selected format options because it can be overwrited by other things
+--Force selected format options because it can be overwriten by other things
 vim.api.nvim_create_autocmd("BufEnter", {
     pattern = "*",
     callback = function()
         local ft = vim.bo.filetype
-        if ft == "text" or ft == "markdown" or ft == "nofile" then
-            table.insert(formatopts, "t")
-            table.insert(formatopts, "w")
+        if ft == "text" or ft == "markdown" or ft == "" then
+            --table.insert(formatopts, "t")
+            --table.insert(formatopts, "w")
+            utils.insert_unique(formatopts, "t")
+            utils.insert_unique(formatopts, "w")
         end
 
         local fopts = table.concat(formatopts)
@@ -151,39 +191,4 @@ vim.api.nvim_create_autocmd("BufEnter", {
     end,
 })
 
-
-
---vim.on_key(function(char)
---    if vim.fn.mode() ~= "n" then return end
-
---    local current_time = now()
---    table.insert(last_keys, current_time)
-
---    -- trim to last N keys
---    while #last_keys > key_limit do
---        table.remove(last_keys, 1)
---    end
-
---    -- check timing
---    if #last_keys == key_limit and (last_keys[#last_keys] - last_keys[1]) < threshold_ms then
---        vim.schedule(function()
---            if vim.fn.mode() == "n" then
---                vim.cmd("startinsert")
---            end
---        end)
---        last_keys = {}
---    end
---end, ns)
-
-
--- Attach key logger only in normal mode
---local function attach_keylogger()
---    vim.on_key(function(char)
---        vim.schedule(function()
---            if vim.fn.keytrans(char) == "<Up>" then
---                vim.cmd("startinsert")
---            end
---        end)
---    end, ns_id)
---end
 

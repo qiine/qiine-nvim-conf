@@ -11,7 +11,8 @@ local vmap = vim.keymap.set
 local M = {}
 
 function M.is_tty()
-    return vim.fn.has("unix") == 1 and vim.fn.getenv("DISPLAY") == nil and vim.fn.getenv("WAYLAND_DISPLAY") == nil
+    local b = vim.fn.has("unix") == 1 and vim.fn.getenv("DISPLAY") == nil and vim.fn.getenv("WAYLAND_DISPLAY") == nil
+    return b
 end
 --if is_tty() then
 --    print("Running in TTY")
@@ -110,6 +111,36 @@ end
 --end
 --,a = 2, b = 3, c = 10,
 
+--Get selected text
+-- -@return table
+function M.get_selectedtext()
+    local mode = vim.fn.mode()
+    --if mode ~= 'v' and mode ~= 'V' and mode ~= '\22' then
+    --    return ""
+    --end
+
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+    local lines = vim.fn.getline(start_pos[2], end_pos[2])
+
+    -- Adjust start and end columns
+    local start_col = start_pos[3]
+    local end_col = end_pos[3]
+
+    --if #lines == 0 then return {""} end
+
+    -- Trim the first and last lines to selection
+    --lines[1] = lines[1]:sub(start_col, #lines[1])
+    --if #lines > 1 then
+    --    lines[#lines] = lines[#lines]:sub(1, end_col)
+    --end
+
+    --return table.concat(lines, "\n")
+    return lines
+end
+
+
 
 --[Tables]--------------------------------------------------
 function M.tables_append(ta, tb)
@@ -130,6 +161,15 @@ function M.table_flatten(t)
     end
 
     return result
+end
+
+--Insert unique value
+---@table
+function M.insert_unique(t, val)
+    for _, v in ipairs(t) do
+        if v == val then return end
+    end
+    table.insert(t, val)
 end
 
 

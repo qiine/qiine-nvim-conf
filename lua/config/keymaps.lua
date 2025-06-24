@@ -29,6 +29,9 @@ local nvmap = vim.api.nvim_set_keymap
 
 --!WARNING! using vim.cmd("Some command") in a setkey will be auto-executed  when the file is sourced !!
 
+--<cmd>
+--doesn't change modes which helps perf
+--`<cmd>` does need <CR>. while ":" triggers "CmdlineEnter" implicitly
 
 --Keys
 --<C-o> allows to execute one normal mode command while staying in insert mode.
@@ -37,10 +40,6 @@ local nvmap = vim.api.nvim_set_keymap
 --<cr> = \n
 --<Tab> = \t
 --<C-BS> = ^H
-
---<cmd>
---doesn't change modes which helps perf
---`<cmd>` does need <CR>. while ":" triggers "CmdlineEnter" implicitly
 
 --modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
@@ -228,7 +227,6 @@ end)
 --to next/prev cursor loc
 kmap({"i","v"}, "<M-PageDown>", "<Esc><C-o>")
 kmap("n",       "<M-PageDown>", "<C-o>")
-
 kmap({"i","v"}, "<M-PageUp>", "<Esc><C-i>")
 kmap("n",       "<M-PageUp>", "<C-i>")
 
@@ -337,6 +335,7 @@ kmap({"n","v"}, "<End>", "G0")
 --kmap({"n","v"}, "<M-Down>", "G0")
 
 
+
 --[Selection]----------------------------------------
 --Select word under cursor
 kmap("i", "<C-S-w>", "<esc>viw")
@@ -344,7 +343,7 @@ kmap("n", "<C-S-w>", "viw")
 kmap("v", "<C-S-w>", "<esc>viw")
 
 --shift+arrows visual select
-kmap("i", "<S-Lefta", "<Esc>hv", {noremap = true})
+kmap("i", "<S-Left>", "<Esc>hv", {noremap = true})
 kmap("n", "<S-Left>", "vh", {noremap = true})
 kmap("v", "<S-Left>", "<Left>")
 
@@ -497,7 +496,7 @@ kmap("v", "î",
 --kmap("i", "<C-i>", "<C-v>") --collide with tab :(
 kmap("n", "<C-i>", "i<C-v>")
 
---Insert chars  n visual mode
+--Insert chars in visual mode
 local chars = utils.table_flatten(
     {
         utils.alphabet_lowercase,
@@ -517,30 +516,34 @@ kmap("v", "<cr>", '"_di<cr>', {noremap=true})
 -- ' "+ ' is the os register
 --Copy
 --Copy whole line in insert
-kmap("i", "<C-c>",
-    function()
-        local cpos = vim.api.nvim_win_get_cursor(0)
+kmap("i", "<C-c>", function()
+    local cpos = vim.api.nvim_win_get_cursor(0)
+    local line = vim.api.nvim_get_current_line()
 
+    if line ~= "" then
         vim.cmd('normal! 0"+y$')
 
         vim.api.nvim_win_set_cursor(0, cpos)
 
         vim.cmd("echo 'copied !'")
-    end,
-{noremap=true} )
+    end
+end, {noremap=true} )
 
-kmap("n", "<C-c>", '"+yl', {noremap = true})
-kmap("v", "<C-c>",
-    function()
-        local cpos = vim.api.nvim_win_get_cursor(0)
+kmap("n", "<C-c>", function()
+    local char = utils.get_char_at_cursorpos()
 
-        vim.cmd('normal! "+y')
+    if  char ~= " " and char ~= "" then
+        vim.cmd('normal! "+yl')
+    end
+end, {noremap = true})
 
-        vim.api.nvim_win_set_cursor(0, cpos)
+kmap("v", "<C-c>", function()
+    local cpos = vim.api.nvim_win_get_cursor(0)
+    vim.cmd('normal! "+y')
+    vim.api.nvim_win_set_cursor(0, cpos)
 
-        vim.cmd("echo 'copied !'")
-    end,
-{noremap=true})
+    vim.cmd("echo 'copied !'")
+end, {noremap=true})
 
 --Copy word
 kmap("i", "<C-S-c>", '<Esc>viw"+yi')
@@ -558,7 +561,7 @@ kmap("n", "<C-S-x>", 'viw"+x')
 
 --Pasting
 kmap("i", "<C-v>", '<esc>"+P`[v`]=li')
-kmap("n", "<C-v>", '"+P`[v`]=gv')
+kmap("n", "<C-v>", '"+P`[v`]=')
 kmap("v", "<C-v>", '"_d"+P`[v`]=gv')
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')

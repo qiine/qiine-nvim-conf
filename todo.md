@@ -8,6 +8,7 @@
 - add an autocmd to format on save for yaml  
 - create a g property for autotrimtrailspace with options like on/off/onsave/which file types etc...
 - integrate grug-far.nvim
+- prevent copy of empty lines
 
 ## code
 - luasnip, friendly-snippets  

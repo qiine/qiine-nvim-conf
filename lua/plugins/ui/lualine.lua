@@ -148,9 +148,21 @@ return
                 lualine_y = {
                     {--curr buftype
                         function()
-                            local buft = vim.bo.buftype
-                            if buft == "" then buft = "regular" end
-                            return ""..buft--.."|"
+                            local buft
+                            if vim.bo.buftype == "" then
+                                buft = "regular"
+                            else
+                                buft = vim.bo.buftype
+                            end
+
+                            local bufmodif
+                            if vim.bo.modifiable then
+                                bufmodif = ""  -- 🪶 🖋
+                            else
+                                bufmodif = "🚫"
+                            end
+
+                            return "" .. buft .. bufmodif
                         end,
                         on_click = function()
                             local output = vim.fn.execute("ls")
@@ -164,12 +176,27 @@ return
 
                 lualine_z =
                 {
-                    {
-                        function() --file name
-                            local ft = vim.bo.filetype
-                            if ft == "" then return ".nofile" end
-                            local fn = vim.fn.expand("%:t")
-                            return fn
+                    {   --file name
+                        function()
+                            local fperm_icon
+                            if vim.bo.readonly then
+                                fperm_icon = "🔒"
+                            else
+                                fperm_icon = ""
+                            end
+
+                            local fname = vim.fn.expand("%:t")
+                            if fname == "" then
+                                fname = "[nofile]"
+                            end
+
+                            local ftype = vim.bo.filetype
+                            local ext = vim.fn.expand("%:e")
+                            if ftype ~= "" and ext == "" then
+                                fname = fname .. "."..ftype
+                            end
+
+                            return fperm_icon .. fname
                         end,
                         color={gui = 'none'},
                         padding={left=0,right=0},

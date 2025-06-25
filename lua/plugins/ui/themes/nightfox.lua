@@ -2,7 +2,8 @@ return
 {
     "EdenEast/nightfox.nvim",
     enabled = true,
-    
+    dependencies = {},
+
     config = function()
 
         local guttercol = "#e8e8e8"
@@ -34,7 +35,7 @@ return
                     visual = false,
                     search = false,
                 },
-                modules = 
+                modules =
                 {             -- List of various plugins and additional options
                 },
             },--options

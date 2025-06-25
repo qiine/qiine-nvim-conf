@@ -46,39 +46,29 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --Smart autosave
 vim.g.autosave_enabled = true
 
--- Save every 5 minutes (300,000 milliseconds)
-local autosave_interval = 300000
-local autosave_timer = nil
-
--- Function to write all valid buffers
-local function auto_save_buffers()
-    if not _G.auto_save_enabled then return end
-
+local function save_buffers()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-            if      vim.api.nvim_buf_is_loaded(buf)
-            and     vim.bo[buf].buftype == ""
-            and     vim.bo[buf].modifiable
-            and not vim.bo[buf].readonly
-            and     vim.fn.expand("#" .. buf .. ":p") ~= ""
-            then
-                vim.api.nvim_buf_call(buf, function() vim.cmd("write") end)
-            end
+        if vim.api.nvim_buf_is_loaded(buf) and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1 then
+            --nvim_buf_call Ensure proper bufs info
+            vim.api.nvim_buf_call(buf, function()
+                if vim.bo.modifiable and not vim.bo.readonly and vim.bo.buftype == "" then
+                    vim.cmd("silent! write") --we can safely write
+
+                end
+            end)
         end
     end
+end
 
--- Start the repeating timer
---autosave_timer = vim.loop.new_timer()
---autosave_timer:start(
---    autosave_interval,
---    autosave_interval,
---    vim.schedule_wrap(auto_save_buffers)
---)
-
--- Command to toggle auto-save
-vim.api.nvim_create_user_command("ToggleAutoSave", function()
-    _G.auto_save_enabled = not _G.auto_save_enabled
-    vim.notify("Auto-save: " .. (_G.auto_save_enabled and "Enabled" or "Disabled"))
-end, {})
+local timer_autosave = vim.loop.new_timer()
+timer_autosave:start(0, 420000, vim.schedule_wrap(function ()
+    if vim.g.autosave_enabled then
+        save_buffers()
+    else
+        timer_autosave:stop()
+        timer_autosave:close()
+    end
+end))
 
 
 
@@ -174,13 +164,12 @@ table.insert(formatopts, "j")
 table.insert(formatopts, "q")
 
 --Force selected format options because it can be overwriten by other things
-vim.api.nvim_create_autocmd("BufEnter", {
+vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {
+    group = "UserAutoCmds",
     pattern = "*",
     callback = function()
         local ft = vim.bo.filetype
         if ft == "text" or ft == "markdown" or ft == "" then
-            --table.insert(formatopts, "t")
-            --table.insert(formatopts, "w")
             utils.insert_unique(formatopts, "t")
             utils.insert_unique(formatopts, "w")
         end

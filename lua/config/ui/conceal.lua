@@ -1,6 +1,6 @@
-
+--------------------------------------------------
 -- Conceal --
-
+--------------------------------------------------
 
 local utils = require("utils.utils")
 
@@ -86,12 +86,10 @@ vim.api.nvim_create_autocmd("FileType", {
 local ns = vim.api.nvim_create_namespace("overlay_lua")
 vim.api.nvim_create_augroup("Overlay_Lua", { clear = true })
 
-vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "ModeChanged"}, {
+vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "TextChanged", "ModeChanged", "InsertCharPre"}, {
     group = "Overlay_Lua",
     pattern = "*.lua",
     callback = function()
-        if vim.bo.buftype ~= "" then return end
-
         local buf = vim.api.nvim_get_current_buf()
         vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 

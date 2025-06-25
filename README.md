@@ -19,6 +19,7 @@ My text editor journey:
 - Auto-pairing via **nvim-autopairs**  
 - Built-in Whitespace trimming on save (+custom command)  
 - Completion via fine tuned **blink.cmp**
+- Auto save on timer
 
 ---
 

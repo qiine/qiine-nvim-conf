@@ -9,6 +9,8 @@
 - create a g property for autotrimtrailspace with options like on/off/onsave/which file types etc...
 - integrate grug-far.nvim
 - prevent copy of empty lines
+- Auto save on timer
+- Allow to go to start/end anchor with <C-S-PageUp>
 
 ## code
 - luasnip, friendly-snippets  
@@ -35,6 +37,8 @@
 - img support  
 - add some padlock icon when buffer is not modifyable
 
+- Make gutter adapt to filetype for ex no line numbers for md or empty files
+
 ## proj
 - proper project management  
 - find a way to smartly save session in project  
@@ -49,6 +53,6 @@
 - use hover to show definition of words like from a dictionary
 
 
-## config refactor
+## refactor
 - Use 'keymaps.lua' only for pure shortcuts, move all logic to dedicated library or 
   modules.

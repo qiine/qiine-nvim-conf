@@ -76,45 +76,42 @@ end)
 kmap(modes, "<C-o>", function() vim.cmd("FilePicker") end)
 
 --ctrl+s save
-kmap(modes, "<C-s>",
-    function()
-        local cbuf = vim.api.nvim_get_current_buf()
-        local path = vim.api.nvim_buf_get_name(0)
+kmap(modes, "<C-s>", function()
+    local cbuf = vim.api.nvim_get_current_buf()
+    local path = vim.api.nvim_buf_get_name(0)
 
-        if vim.fn.filereadable(path) == 1 then   --Check file exist on disk
-            vim.cmd("write")
-        else
-            if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
-                vim.ui.input(
-                    { prompt = "Save as: ", default = path },
-                    function(input)
-                        if input and input ~= "" then
-                            vim.api.nvim_buf_set_name(cbuf, input)
-                            vim.cmd("write")
-                        else
-                            vim.notify("Write cancelled.", vim.log.levels.INFO)
-                        end
+    if vim.fn.filereadable(path) == 1 then   --Check file exist on disk
+        vim.cmd("write")
+    else
+        if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
+            vim.ui.input(
+                { prompt = "Save as: ", default = path },
+                function(input)
+                    if input and input ~= "" then
+                        vim.api.nvim_buf_set_name(cbuf, input)
+                        vim.cmd("write")
+                    else
+                        vim.notify("Write cancelled.", vim.log.levels.INFO)
                     end
-                )
-            end
+                end
+            )
         end
     end
-)
+end)
 
 --Save all buffers
-kmap(modes, "<C-S-s>",
-    function()
-        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-            if vim.api.nvim_buf_is_loaded(buf)
-                and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1
-                and vim.bo[buf].modifiable
-                and not vim.bo[buf].readonly
-            then
-                vim.api.nvim_buf_call(buf, function() vim.cmd("write") end)
-            end
+kmap(modes, "<C-S-s>", function()
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1 then
+            --nvim_buf_call Ensure proper bufs info
+            vim.api.nvim_buf_call(buf, function()
+                if vim.bo.modifiable and not vim.bo.readonly and vim.bo.buftype == "" then
+                    vim.cmd("silent! write") --we can safely write
+                end
+            end)
         end
     end
-)
+end)
 
 
 --Ressource curr file
@@ -560,9 +557,9 @@ kmap("i", "<C-S-x>", '<esc>viw"+xi')
 kmap("n", "<C-S-x>", 'viw"+x')
 
 --Pasting
-kmap("i", "<C-v>", '<esc>"+P`[v`]=li')
-kmap("n", "<C-v>", '"+P`[v`]=')
-kmap("v", "<C-v>", '"_d"+P`[v`]=gv')
+kmap("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
+kmap("n", "<C-v>", '"+P`[v`]=`]')
+kmap("v", "<C-v>", '"_d"+P`[v`]=gv') --keep pasted text selected for quick movement
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
@@ -580,6 +577,9 @@ kmap({"n","v"}, "<C-z>", "u", {noremap = true})
 --redo
 kmap("i", "<C-y>", "<cmd>normal! <C-r><cr>")
 kmap({"n","v"}, "<C-y>", "<C-r>")
+
+kmap("i", "<C-S-z>", "<cmd>normal! <C-r><cr>")
+kmap({"n","v"}, "<C-S-z>", "<C-r>")
 
 
 --#[Deletion]

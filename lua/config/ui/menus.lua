@@ -1,10 +1,9 @@
+
 local v = vim
 
 
 
--------------------------------------------------------
---File--
--------------------------------------------------------
+--[File]--------------------------------------------------
 v.opt.title = true --display file title useful for tabs name
 
 v.opt.confirm = true --Ask for save before quit
@@ -58,16 +57,17 @@ local contextmenu_items =
     "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references<CR>]],
     "anoremenu PopUp.🛈Tooltip ".. [[<cmd>lua vim.lsp.buf.hover()<CR>]],
     "anoremenu PopUp.{}Goto\\ definition ".. [[gd]],
-    --"aunmenu PopUp.Inspect ",
+    --"aunmenu   PopUp.Inspect ".. [[<cmd>lua vim.lsp.buf.()<CR>]],]]
+    "amenu     PopUp.───────────────── <NOP>",
     "anoremenu PopUp.🖋Rename ".. [[<cmd>lua vim.lsp.buf.rename()<CR>]],
     "vnoremenu PopUp.Format\\ selected " .. ":FormatSelected<CR>",
     "anoremenu PopUp.💡CodeAction " .. [[<cmd>lua vim.lsp.buf.code_action()<CR>]],
-    "amenu     PopUp.───────────────── <NOP>",
+    "amenu     PopUp.─────────────────- <NOP>",
     "vnoremenu PopUp.🗐Copy ".. [["+y]],
     "vnoremenu PopUp.✀\\ Cut ".. [["+d]],
     "anoremenu PopUp.🗅Paste ".. [["+p]],
     "vnoremenu PopUp.🗑Delete ".. [["_d]],
-    "amenu     PopUp.-──────────────── <NOP>",
+    "amenu     PopUp.────────────────-- <NOP>",
     "anoremenu PopUp.🔍Telescope " .. [[<cmd>Telescope<CR>]],
 }
 

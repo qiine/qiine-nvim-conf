@@ -106,7 +106,7 @@ kmap(modes, "<C-S-s>", function()
             --nvim_buf_call Ensure proper bufs info
             vim.api.nvim_buf_call(buf, function()
                 if vim.bo.modifiable and not vim.bo.readonly and vim.bo.buftype == "" then
-                    vim.cmd("silent! write") --we can safely write
+                    vim.cmd("write") --we can safely write
                 end
             end)
         end
@@ -178,7 +178,7 @@ kmap(modes, "<C-w>", function() vim.cmd("bd!") end)
 
 --tabs nav
 --next
-kmap(modes, "<C-Tab>", "<cmd>bnext<cr>")
+kmap(modes, "<C-Tab>",  "<cmd>bnext<cr>")
 --prev
 kmap(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
@@ -222,16 +222,16 @@ kmap({"i","v"}, '<C-Left>', function()
 end)
 
 --to next/prev cursor loc
-kmap({"i","v"}, "<M-PageDown>", "<Esc><C-o>")
-kmap("n",       "<M-PageDown>", "<C-o>")
-kmap({"i","v"}, "<M-PageUp>", "<Esc><C-i>")
-kmap("n",       "<M-PageUp>", "<C-i>")
+kmap({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
+kmap("n",       "<M-PageDown>",  "<C-o>")
+kmap({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
+kmap("n",       "<M-PageUp>",    "<C-i>")
 
 
 --#[Fast cursor move]
 --Fast left/right move in normal mode
 kmap('n', '<C-Right>', "5l")
-kmap('n', '<C-Left>', "5h")
+kmap('n', '<C-Left>',  "5h")
 
 --local last_key_time = 0
 --local timeout = 140  -- milliseconds
@@ -312,20 +312,20 @@ kmap("v", "<C-Down>", "3j")
 
 
 --alt+left/right move to start/end of line
-kmap("i", "<M-Left>", "<Esc>0i")
+kmap("i",       "<M-Left>", "<Esc>0i")
 kmap({"n","v"}, "<M-Left>", "0")
 
-kmap("i", "<M-Right>", "<Esc>$a")
+kmap("i",       "<M-Right>", "<Esc>$a")
 kmap({"n","v"}, "<M-Right>", "$")
 
 --Quick home/end
-kmap("i", "<Home>", "<Esc>gg0i")
+kmap("i",       "<Home>", "<Esc>gg0i")
 kmap({"n","v"}, "<Home>", "gg0")
 
---kmap("i", "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
+--kmap("i",        "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
-kmap("i", "<End>", "<Esc>G0i")
+kmap("i",       "<End>", "<esc>G0i")
 kmap({"n","v"}, "<End>", "G0")
 
 --kmap("i", "<M-Down>", "<Esc>G0i")  --collide with <esc><up>
@@ -571,14 +571,14 @@ kmap("v", "<C-d>", '"zy"zP``')
 
 --#[Undo/redo]
 --ctrl+z to undo
-kmap("i", "<C-z>", "<C-o>u", {noremap = true})
-kmap({"n","v"}, "<C-z>", "u", {noremap = true})
+kmap("i",       "<C-z>", "<C-o>u", {noremap = true})
+kmap({"n","v"}, "<C-z>", "u",      {noremap = true})
 
 --redo
-kmap("i", "<C-y>", "<cmd>normal! <C-r><cr>")
+kmap("i",       "<C-y>", "<cmd>normal! <C-r><cr>")
 kmap({"n","v"}, "<C-y>", "<C-r>")
 
-kmap("i", "<C-S-z>", "<cmd>normal! <C-r><cr>")
+kmap("i",       "<C-S-z>", "<cmd>normal! <C-r><cr>")
 kmap({"n","v"}, "<C-S-z>", "<C-r>")
 
 
@@ -591,9 +591,9 @@ kmap("n", "<BS>", 'r ')
 kmap("v", "<BS>", '"_xi')
 
 --Ctrl+BS remove word
-kmap("i", "<S-M-BS>", "<C-w>")
-kmap("n", "<S-M-BS>", '"_db')
-kmap("v", "<S-M-BS>", '"_db"')
+kmap("i", "<M-S-BS>", "<C-w>")
+kmap("n", "<M-S-BS>", '"_db')
+kmap("v", "<M-S-BS>", '"_db"')
 
 --Backspace replace with white spaces, from cursor to line start
 kmap({"i","n"}, "<M-BS>",
@@ -612,10 +612,14 @@ kmap({"i","n"}, "<M-BS>",
     end
 )
 
+--Remove to start of line
+--kmap("i", "<S-M-BS>", '<Esc>"_d0i')
+--kmap("n", "<S-M-BS>", '"_d0')
+
 --Shift+backspace clear line
-kmap("i", "<S-BS>", '<Esc>0"_d$i')
-kmap("n", "<S-BS>", '0"_d$')
-kmap("v", "<S-BS>", '<Esc>"_cc')
+kmap("i", "<S-BS>", '<Esc>"_cc')
+kmap("n", "<S-BS>", '"_cc<esc>')
+kmap("v", "<S-BS>", '<Esc>"_cc<esc>')
 
 
 --##[Delete]
@@ -623,7 +627,7 @@ kmap("n", "<Del>", 'v"_d<esc>')
 kmap("v", "<Del>", '"_di')
 
 --ctrl+Del rem word
-kmap("i",       "<C-Del>", '<C-o>"_dw')
+kmap("i",       "<C-Del>", '<Esc>"_dw')
 kmap({"n","v"}, "<C-Del>", '"_dw')
 
 --dell in word
@@ -668,7 +672,7 @@ kmap("i", "<M-Del>", '<Esc>"_d$i')
 kmap("n", "<M-Del>", '"_d$')
 
 --Delete entire line (Shift + Del)
-kmap("i", "<S-Del>", '<C-o>"_dd')
+kmap("i", "<S-Del>", '<esc>"_dd')
 kmap("n", "<S-Del>", '"_dd')
 kmap("v", "<S-Del>", function()
     if vim.fn.mode() == "V" then
@@ -684,6 +688,8 @@ end)
 --kmap("n", "*", "")
 --kmap("v", "*", "\"zy:%s/<C-r>z//g<Left><Left>")
 
+kmap("i", "<C-S-R>", "<esc>ciw")
+kmap("n", "<C-S-R>", "ciw")
 
 --#[Incrementing]
 --vmap("n", "+", "<C-a>")
@@ -936,6 +942,9 @@ kmap("c", "<Down>", "<C-n>")
 
 --accept
 kmap("c", "<S-Tab>", "<C-n>")
+
+--Clear cmd in insert
+kmap("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd

@@ -1,3 +1,4 @@
+
 # TODO 
 
 ---
@@ -8,14 +9,16 @@
 - add an autocmd to format on save for yaml  
 - create a g property for autotrimtrailspace with options like on/off/onsave/which file types etc...
 - integrate grug-far.nvim
-- prevent copy of empty lines
+- prevent copy of empty lines [v] 
 - Auto save on timer
-- Allow to go to start/end anchor with <C-S-PageUp>
+- Allow to go to start/end anchor with <C-S-PageUp> 
 
 ## code
 - luasnip, friendly-snippets  
 - understand quickfix  
 - understand why blink comp don't suggest words from other part of the project  
+- Open trouble panel on error or warning 
+- understand code actions  
 
 ## ui
 - uderstand how to add rightclick menu items properly  
@@ -39,6 +42,7 @@
 
 - Make gutter adapt to filetype for ex no line numbers for md or empty files
 
+
 ## proj
 - proper project management  
 - find a way to smartly save session in project  
@@ -50,7 +54,8 @@
 - understand spellchecking  
 - use code action to suggest spelling  
     https://www.rockyourcode.com/write-better-in-neovim-with-languagetool/
-- use hover to show definition of words like from a dictionary
+- use hover to show definition of words like from a dictionary only in text 
+  files ?
 
 
 ## refactor

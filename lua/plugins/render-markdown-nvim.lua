@@ -2,14 +2,18 @@ return
 {
     'MeanderingProgrammer/render-markdown.nvim',
     enabled = true,
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+    dependencies = {
+        'nvim-treesitter/nvim-treesitter',
+        --'nvim-tree/nvim-web-devicons'
+        -- if you prefer nvim-web-devicons
+    },
 
     config = function()
         require('render-markdown').setup({
             --preset = "obsidian",
             file_types = {"markdown"},
 
-            render_modes = { "i", 'n', 'v', 'c', 't' },
+            render_modes = { "i", 'n', 'v', "V", 'c', 't' },
             win_options = {
                 concealcursor = {
                     --default = vim.o.concealcursor,
@@ -19,8 +23,12 @@ return
 
             heading = {
                 --icons = { '󰲡 ', '󰲣 ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
-                icons = { '|', '•|>', '•|-', '•|_', '•|.', '•|..' },
-                width = "block"
+                icons = { '|', '## ', '### ', '#### ', '##### ', '###### ' }, --|#|
+                width = "block",
+            },
+            bullet = {
+                --icons = { '●', '○', '◆', '◇' },
+                icons = { '·', '·', '·', '·' },
             },
             indent = {
                 enabled = true,
@@ -35,7 +43,9 @@ return
                 enabled = true,
                 render_modes = false,
                 bullet = true,
-                right_pad = 1,
+                right_pad = 0,
+                position = "inline",
+
                 unchecked = {
                     icon = '󰄱 ',
                     highlight = 'RenderMarkdownUnchecked',
@@ -48,10 +58,14 @@ return
                 },
                 custom = {
                     todo = { raw = '[-]', rendered = '󰥔 ', highlight = 'RenderMarkdownTodo', scope_highlight = nil },
+                    checked_v = { raw = '[v]', rendered = '󰱒 ', highlight = 'RenderMarkdownCheckedV', scope_highlight = nil },
                 },
             },
             code = {
-                width = "block"
+                width = "block",
+                left_pad = 2,
+                right_pad = 2,
+                border = 'thin',  -- none hide thin
             }
         })
     end

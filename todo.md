@@ -5,20 +5,23 @@
 
 ## editing
 - better grow selection
+- Allow to go to start/end anchor with <C-S-PageUp> 
 - understand asdf and install npm and node and prettier properly with it  
 - add an autocmd to format on save for yaml  
 - create a g property for autotrimtrailspace with options like on/off/onsave/which file types etc...
-- integrate grug-far.nvim
-- prevent copy of empty lines [v] 
-- Auto save on timer
-- Allow to go to start/end anchor with <C-S-PageUp> 
+- [ ] integrate grug-far.nvim
+- [x] prevent copy of empty lines
+- [x] Auto save on timer
+
+## Files
+- [ ] change file perms from nvim with user cmds
 
 ## code
-- luasnip, friendly-snippets  
-- understand quickfix  
-- understand why blink comp don't suggest words from other part of the project  
-- Open trouble panel on error or warning 
-- understand code actions  
+- [ ] luasnip, friendly-snippets  
+- [ ] understand quickfix  
+- [ ] understand why blink comp don't suggest words from other part of the project  
+- [ ] Open trouble panel on error or warning 
+- [ ] understand code actions  
 
 ## ui
 - uderstand how to add rightclick menu items properly  
@@ -29,28 +32,26 @@
 - middle click close tab  
 
 - generate some sort of doc  
-- learn how to write test in lua and for nvim  
 
 - learn neogit  
 
 - sync neotreee and oil nvim  
-
 - fix telescope root finding and grep  
 
 - img support  
-- add some padlock icon when buffer is not modifyable
+- [ ] add some padlock icon when buffer is not modifyable
 
 - Make gutter adapt to filetype for ex no line numbers for md or empty files
 
 
 ## proj
-- proper project management  
-- find a way to smartly save session in project  
+- proper project management, idealy with stats
+- [ ] find a way to smartly save session in project  
 
 
 ## writing
-- Install wsywyg markdonw plugin  
-- activate auto wrap on 80+ line for comment and non code text  
+- [x] Install wsywyg markdonw plugin  
+- |v| activate auto wrap on 80+ line for comment and non code text  
 - understand spellchecking  
 - use code action to suggest spelling  
     https://www.rockyourcode.com/write-better-in-neovim-with-languagetool/
@@ -59,5 +60,7 @@
 
 
 ## refactor
-- Use 'keymaps.lua' only for pure shortcuts, move all logic to dedicated library or 
+- Use 'keymaps.lua' only for pure shortcuts def, move all logic to dedicated library or 
   modules.
+- learn how to write test in lua and for nvim  
+

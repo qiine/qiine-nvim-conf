@@ -1,0 +1,2 @@
+--Basicly what if the outline is actually a file explorer for the current
+--buffer?

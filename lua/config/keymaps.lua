@@ -166,17 +166,15 @@ kmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 --[Tabs]--------------------------------------------------
 --create new tab
-kmap( modes,"<C-t>",
-    function()
-        vim.cmd("enew")
-        vim.cmd("Alpha")
-    end
-)
+kmap( modes,"<C-t>", function()
+    vim.cmd("enew")
+    vim.cmd("Alpha")
+end)
 
 --Tabs close
 kmap(modes, "<C-w>", function() vim.cmd("bd!") end)
 
---tabs nav
+--Tabs nav
 --next
 kmap(modes, "<C-Tab>",  "<cmd>bnext<cr>")
 --prev
@@ -188,6 +186,9 @@ kmap(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 kmap("i", "<M-w>", "<esc><C-w>")
 kmap("n", "<M-w>", "<C-w>")
 kmap("v", "<M-w>", "<Esc><C-w>")
+
+kmap("i", "<M-w><C-Left>", "<esc><C-w><")
+kmap("n", "<M-w><C-Left>", "<C-w><")
 
 
 
@@ -331,9 +332,36 @@ kmap({"n","v"}, "<End>", "G0")
 --kmap("i", "<M-Down>", "<Esc>G0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Down>", "G0")
 
+--jump to word
+--function JumpToCharAcrossLines(target)
+--    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+--    local lines = vim.api.nvim_buf_get_lines(0, row - 1, -1, false)
+
+--    -- Adjust first line to start at current column
+--    lines[1] = lines[1]:sub(col + 2)
+
+--    local total_offset = col + 1
+
+--    for i, line in ipairs(lines) do
+--        local index = line:find(target, 1, true)
+--        if index then
+--            local target_row = row + i - 1
+--            local target_col = (i == 1) and col + index or index - 1
+--            vim.api.nvim_win_set_cursor(0, { target_row, target_col })
+--            return
+--        end
+--    end
+--end
+
+kmap("n", "f", function()
+   --JumpToCharAcrossLines()
+end, {remap = true})
 
 
 --[Selection]----------------------------------------
+--Swap selection anchors
+kmap("v", "<M-v>", "o")
+
 --Select word under cursor
 kmap("i", "<C-S-w>", "<esc>viw")
 kmap("n", "<C-S-w>", "viw")
@@ -450,8 +478,8 @@ kmap("v", "<S-PageDown>",
 
 --#[select search]
 kmap("i", "<C-f>", "<Esc>/")
-kmap("n","<C-f>", "/")
-kmap("v", "<C-f>", "<Esc>*<cr>")
+kmap("n", "<C-f>", "/")
+kmap("v", "<C-f>", "<Esc>*")
 
 
 
@@ -522,7 +550,7 @@ kmap("i", "<C-c>", function()
 
         vim.api.nvim_win_set_cursor(0, cpos)
 
-        vim.cmd("echo 'copied !'")
+        vim.cmd("echo 'copied!'")
     end
 end, {noremap=true} )
 
@@ -536,24 +564,42 @@ end, {noremap = true})
 
 kmap("v", "<C-c>", function()
     local cpos = vim.api.nvim_win_get_cursor(0)
+
     vim.cmd('normal! "+y')
+
     vim.api.nvim_win_set_cursor(0, cpos)
 
-    vim.cmd("echo 'copied !'")
+    vim.cmd("echo 'copied!'")
 end, {noremap=true})
 
---Copy word
-kmap("i", "<C-S-c>", '<Esc>viw"+yi')
-kmap("n", "<C-S-c>", 'viw"+y')
+--copy append
+kmap("v", "<M-c>", function()
+    local cpos = vim.api.nvim_win_get_cursor(0)
+    local reg_prev = vim.fn.getreg("+")
+
+    vim.cmd('normal! "+y')
+
+    --apppend
+    vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+"))
+
+    vim.api.nvim_win_set_cursor(0, cpos)
+
+    vim.cmd("echo 'appended to clipboard!'")
+end)
 
 
---Cuting
-kmap("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true})
-kmap("n", "<C-x>", '"+x', { noremap = true})
-kmap("v", "<C-x>", '"+d<Esc>', { noremap = true}) --d both delete and copy so..
+--copy word
+kmap("i", "<c-s-c>", '<esc>viw"+yi')
+kmap("n", "<c-s-c>", 'viw"+y')
+
+
+--cuting
+kmap("i", "<c-x>", '<esc>0"+y$"_ddi', {noremap = true})
+kmap("n", "<c-x>", '"+x', { noremap = true})
+kmap("v", "<c-x>", '"+d<esc>', { noremap = true}) --d both delete and copy so..
 
 --cut word
-kmap("i", "<C-S-x>", '<esc>viw"+xi')
+kmap("i", "<c-s-x>", '<esc>viw"+xi')
 kmap("n", "<C-S-x>", 'viw"+x')
 
 --Pasting
@@ -590,31 +636,32 @@ kmap({"n","v"}, "<C-S-z>", "<C-r>")
 kmap("n", "<BS>", 'r ')
 kmap("v", "<BS>", '"_xi')
 
---Ctrl+BS remove word
-kmap("i", "<M-S-BS>", "<C-w>")
+--remove word left
+--<M-S-BS> instead of <C-BS> because of wezterm
+kmap("i", "<M-S-BS>", '<esc>"_dbi')
 kmap("n", "<M-S-BS>", '"_db')
-kmap("v", "<M-S-BS>", '"_db"')
+kmap("v", "<M-S-BS>", '"_d')
 
 --Backspace replace with white spaces, from cursor to line start
-kmap({"i","n"}, "<M-BS>",
-    function()
-        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-        local line = vim.api.nvim_get_current_line()
+--kmap({"i","n"}, "<M-BS>",
+--    function()
+--        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+--        local line = vim.api.nvim_get_current_line()
 
-        local left = line:sub(1, col)
-        local right = line:sub(col + 1)
+--        local left = line:sub(1, col)
+--        local right = line:sub(col + 1)
 
-        local spaces = left:gsub(".", " ")
-        vim.api.nvim_set_current_line(spaces .. right)
+--        local spaces = left:gsub(".", " ")
+--        vim.api.nvim_set_current_line(spaces .. right)
 
-        -- Keep cursor pos
-        vim.api.nvim_win_set_cursor(0, {row, col})
-    end
-)
+--        -- Keep cursor pos
+--        vim.api.nvim_win_set_cursor(0, {row, col})
+--    end
+--)
 
 --Remove to start of line
---kmap("i", "<S-M-BS>", '<Esc>"_d0i')
---kmap("n", "<S-M-BS>", '"_d0')
+kmap("i", "<M-BS>", '<Esc>"_d0i')
+kmap("n", "<M-BS>", '"_d0')
 
 --Shift+backspace clear line
 kmap("i", "<S-BS>", '<Esc>"_cc')
@@ -626,11 +673,11 @@ kmap("v", "<S-BS>", '<Esc>"_cc<esc>')
 kmap("n", "<Del>", 'v"_d<esc>')
 kmap("v", "<Del>", '"_di')
 
---ctrl+Del rem word
-kmap("i",       "<C-Del>", '<Esc>"_dw')
+--del right word
+kmap("i",       "<C-Del>", '<C-o>"_dw')
 kmap({"n","v"}, "<C-Del>", '"_dw')
 
---dell in word
+--del in word
 kmap("i", "<C-S-Del>", '<esc>"_diwi')
 kmap("n", "<C-S-Del>", '"_diw')
 
@@ -695,8 +742,8 @@ kmap("n", "<C-S-R>", "ciw")
 --vmap("n", "+", "<C-a>")
 kmap("v", "+", "<C-a>gv")
 
---vmap("n", "-", "<C-x>") -- Decrement
-kmap("v", "-", "<C-x>gv") -- Decrement
+--vmap("n", "-", "<C-x>") --Decrement
+kmap("v", "-", "<C-x>gv") --Decrement
 
 --To upper/lower case
 kmap("n", "<M-+>", "vgU<esc>")
@@ -712,6 +759,7 @@ kmap({"n"}, "-", function() utils.smartdecrement() end)
 
 --#[Formating]
 --##[Ident]
+--space bar in normal mode
 kmap("n", "<space>", "i<space><esc>")
 
 --smart tab in insert
@@ -749,6 +797,21 @@ kmap("v", "<M-cr>", "<Esc>o<Esc>vgv")
 --New line above and below
 kmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji")
 kmap("n", "<S-M-cr>", "o<esc>kO<esc>j")
+kmap("v", "<S-M-cr>", function ()
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), "n", false)
+    local anchor_start_pos = vim.fn.getpos("'<")
+
+    if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
+        vim.cmd("normal! o")
+    end
+    vim.cmd("normal! gv")
+
+    --vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), "n", false)
+    --vim.cmd("normal! O")
+
+end)
 
 
 --##[Join]
@@ -774,7 +837,6 @@ kmap("v", "<C-S-Left>", function()
         local cmd = '"zdh"zP<esc>gvhoho' --z reg should be safe
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
 
-        --Set cursor pos at start of selection
         local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
         --Tricks to refresh vim.fn.getpos("'<")
@@ -882,7 +944,6 @@ kmap({"i","n","v"}, "<C-CR>", function()
     local cchar = utils.get_char_at_cursorpos()
     local filetype = vim.bo.filetype
 
-
     if word:match("^https?://") then
         vim.cmd("normal! gx")
     elseif vim.fn.filereadable(word) == 1 then
@@ -948,6 +1009,17 @@ kmap("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
+
+--help
+--Help for selected
+kmap("v", "<F1>", function()
+
+end)
+kmap("v", "<F1>", function()
+    vim.cmd('normal! "zy')
+    local reg = vim.fn.getreg("z")
+    vim.cmd("h " .. reg)
+end)
 
 
 

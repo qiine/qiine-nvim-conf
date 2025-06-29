@@ -71,12 +71,12 @@
         ]
     },
 
-    "get_nvim_filetype": {
+    "get nvim filetype": {
         "prefix": "get_nvim_filetype",
         "body": [ "vim.bo.filetype" ]
     },
 
-    "get_nvim_buffertype": {
+    "get nvim_buffertype": {
         "prefix": "get_nvim_buffertype",
         "body": [ "vim.bo.buftype" ]
     },

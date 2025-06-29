@@ -64,7 +64,7 @@ vim.api.nvim_create_user_command("PlugInstall", function(opts)
 
     local plug_path = plug_dir .. plug_name .. ".lua"
 
-    -- Check if plugin already installed
+    --Check if plugin already installed
     local file_exists = vim.loop.fs_stat(plug_path) ~= nil
     if file_exists then
         print("Plugin '" .. plug_name .. "' already installed.")
@@ -90,13 +90,11 @@ end, { nargs = 1 })
 -- vim.cmd("help "..opts.args)
 -- end, { nargs = "*" })
 
---Easy del files without file browser
-vim.api.nvim_create_user_command("DeleteCurrentFile", function()
-    local filepath = vim.fn.expand('%:p')
-    if vim.fn.confirm("Delete file?\n" .. filepath, "&Yes\n&No", 2) == 1 then
-        vim.fn.delete(filepath)
-        vim.cmd('bdelete!')
-    end
+--insert today
+vim.api.nvim_create_user_command("Today", function()
+    local date = os.date("*t")
+    local today = string.format("%04d/%02d/%02d %02d:%02d", date.year, date.month, date.day, date.hour, date.min)
+    vim.api.nvim_put({ today }, "c", true, true)
 end, {})
 
 
@@ -114,6 +112,77 @@ vim.api.nvim_create_user_command("FilePicker", function()
     end
 end, {})
 
+--File perms
+vim.api.nvim_create_user_command("SetFileReadonly", function()
+    local path = vim.api.nvim_buf_get_name(0)
+    local name = vim.fn.fnamemodify(path, ":t")
+
+    if path == "" then
+        vim.notify("No file for current buffer", vim.log.levels.WARN) return
+    end
+
+    vim.bo.readonly = true  --optional refresh lualine
+    local ok = os.execute("chmod -w " .. vim.fn.shellescape(path))
+
+    if ok == 0 then
+        vim.print(name .. " now readonly")
+    else
+        vim.notify("Failed to set file as readonly", vim.log.levels.ERROR)
+    end
+end, {})
+
+vim.api.nvim_create_user_command("SetFileWritable", function()
+    local path = vim.api.nvim_buf_get_name(0)
+    local name = vim.fn.fnamemodify(path, ":t")
+
+    if path == "" then
+        vim.notify("No file for current buffer", vim.log.levels.ERROR) return
+    end
+
+    vim.bo.readonly = false  --optional refresh lualine
+    local ok = os.execute("chmod +w " .. vim.fn.shellescape(path))
+
+    if ok == 0 then
+        vim.print(name .. " now writable")
+    else
+        vim.notify("Failed to set file as writable", vim.log.levels.ERROR)
+    end
+end, {})
+
+vim.api.nvim_create_user_command("SetFileExecutable", function()
+    local path = vim.api.nvim_buf_get_name(0)
+    local name = vim.fn.fnamemodify(path, ":t")
+
+    if path == "" then
+        vim.notify("No file for current buffer", vim.log.levels.ERROR) return
+    end
+
+    local ok = os.execute("chmod +x " .. vim.fn.shellescape(path))
+
+    if ok == 0 then
+        vim.print(name .. " now executable")
+    else
+        vim.notify("Failed to set file as executable", vim.log.levels.ERROR)
+    end
+end, {})
+
+vim.api.nvim_create_user_command("SetFileNotExecutable", function()
+    local path = vim.api.nvim_buf_get_name(0)
+    local name = vim.fn.fnamemodify(path, ":t")
+
+    if path == "" then
+        vim.notify("No file for current buffer", vim.log.levels.ERROR) return
+    end
+
+    local ok = os.execute("chmod -x " .. vim.fn.shellescape(path))
+
+    if ok == 0 then
+        vim.print(name .. " no longer executable")
+    else
+        vim.notify("Failed to remove executable flag", vim.log.levels.ERROR)
+    end
+end, {})
+
 
 
 --[Editing]--------------------------------------------------
@@ -127,16 +196,6 @@ vim.api.nvim_create_user_command("TrimCurrBufferTrailSpaces", function()
     local curpos = vim.api.nvim_win_get_cursor(0)
     vim.cmd([[keeppatterns %s/\s\+$//e]])
     vim.api.nvim_win_set_cursor(0, curpos)
-end, {})
-
-vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
-    local listchars = vim.opt.listchars:get()
-
-    if listchars.eol == "¶" then
-        vim.opt.listchars:remove("eol")
-    else
-        vim.opt.listchars:append({ eol = "¶" })
-    end
 end, {})
 
 --Append underline unicode character to each selected chars
@@ -166,32 +225,17 @@ vim.api.nvim_create_user_command("ClearAllMarks", function()
     print("-All marks cleared-")
 end, {desc = "Delete all marks in the current buffer"})
 
+vim.api.nvim_create_user_command("CodeAction", function()
+    require("tiny-code-action").code_action()
+end, {})
 
---[Formating]
+
+
+--[Formating]--------------------------------------------------
 --wrap line into paragraph
 vim.api.nvim_create_user_command("WrapSelection", function()
     vim.cmd("normal! gww")
 end, { range = true })
-
-vim.api.nvim_create_user_command("ToggleVirtualLines", function()
-    local diagconf = vim.diagnostic.config()
-    --local virttext = diagconf.virtual_text.enabled
-    local virt = diagconf.virtual_lines
-vim.diagnostic.Opts.
-    vim.diagnostic.config({
-            virtual_lines = {
-                enabled = not virtenabled,
-                current_line = false,
-                severity = { min = "WARN" },
-            },
-            --virtual_text = {
-            --    enabled = if virtenabled then false else true end,
-            --}
-        })
-
-end, {})
-
-
 
 vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     local cmd_output = vim.fn.execute('messages')
@@ -215,7 +259,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     local git_content = vim.fn.systemlist("git show " .. rev .. ":" .. "./" ..filename)
 
     if vim.v.shell_error ~= 0 then
-        vim.notify("Git revision or file not found: " .. rev .. "|" .. "./" .. filename, vim.log.levels.ERROR)
+        vim.notify("Git revision or file not found: " .. rev .. " | " .. "./" .. filename, vim.log.levels.ERROR)
         return
     end
 
@@ -253,5 +297,18 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.wo.foldlevel = 99
 
 end, {nargs = "?"})
+
+
+
+--[View]--------------------------------------------------
+vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
+    local listchars = vim.opt.listchars:get()
+
+    if listchars.eol == "¶" then
+        vim.opt.listchars:remove("eol")
+    else
+        vim.opt.listchars:append({ eol = "¶" })
+    end
+end, {})
 
 

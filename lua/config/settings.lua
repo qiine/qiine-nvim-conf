@@ -1,16 +1,14 @@
+-----------
+--Setings--
+-----------
+
+
+--[System]--------------------------------------------------
+--vim.opt.clipboard = 'unnamedplus'
 
 
 
--------------------------------------------------------
--- System --
--------------------------------------------------------
-vim.opt.clipboard = 'unnamedplus'
-
---opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
-
-------------------------------------------------------------
--- Files --
-------------------------------------------------------------
+--[Files]--------------------------------------------------
 vim.opt.swapfile = false --no swap files
 
 vim.opt.hidden = true --Allows switching buffers without saving

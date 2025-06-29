@@ -81,7 +81,7 @@ local function save_buffers()
             v.api.nvim_buf_call(buf, function()
                 if v.bo.modifiable and not v.bo.readonly and v.bo.buftype == "" then
                     if file_was_saved_manually then
-                        v.cmd("write") --we can safely write
+                        v.cmd("silent! write") --we can safely write
                         --print("autosaved: " .. bufname)
                     end
                 end

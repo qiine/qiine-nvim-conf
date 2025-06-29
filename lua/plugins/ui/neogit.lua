@@ -1,11 +1,11 @@
 return {
     "TimUntersberger/neogit",
-    
+    enabled = false,
     cmd = "Neogit",
 
     config = function()
         require("neogit").setup({
-            kind = "tab", -- opens neogit in a split 
+            kind = "tab", -- opens neogit in a split
             signs = {
                 -- { CLOSED, OPENED }
                 section = { "", "" },

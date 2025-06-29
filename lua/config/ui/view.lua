@@ -158,6 +158,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     end,
 })
 
+--TODO Show eol char when cursor on it
 --vim.api.nvim_create_autocmd({"CursorMoved","ModeChanged"}, {
 --    group = 'UserAutoCmds',
 --    pattern = '*',
@@ -278,6 +279,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end,
 })
 
+--inspect  element example
 --for k, v in pairs(vim.diagnostic.config()) do
 --    print(k, vim.inspect(v))
 --end

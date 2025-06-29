@@ -2,7 +2,7 @@
 {
     "uga-rosa/ccc.nvim",
     --cond = function()
-    --    return vim.fn.getenv("COLORTERM") == "truecolor" 
+    --    return vim.fn.getenv("COLORTERM") == "truecolor"
     --end,
     enabled = false,
 
@@ -29,5 +29,5 @@
 }
 --#450000
 --#705300ff
- --#0000 
+ --#0000
 --#260000

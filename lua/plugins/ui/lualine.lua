@@ -29,7 +29,7 @@ return
                         function () --mode
                             local m = vim.api.nvim_get_mode().mode
                             local mode_alias={
-                                ['no']='O',['nov']='O',['noV']='O',['no\22']='O',
+                                ['no']='O',['nov']='O-v',['noV']='O-Line',['no\22']='O-Block',
                                 ['n']='N',['niI']='Ni',['niR']='N',['niV']='N',['nt']='N',['ntT']='N',
                                 ['v']='V',['vs']='Vs',['V']='V-LINE',['Vs']='V-LINE',['\22']='V-BLOCK',['\22s']='V-BLOCK',
                                 ['s']='S',['S']='S-LINE',['\19']='S-BLOCK',
@@ -178,25 +178,30 @@ return
                 {
                     {   --file name
                         function()
-                            local fperm_icon
-                            if vim.bo.readonly then
-                                fperm_icon = "🔒"
-                            else
-                                fperm_icon = ""
+                            local file_path = vim.api.nvim_buf_get_name(0)
+
+                            local file_name = vim.fn.expand("%:t:r")
+                            if file_name == "" then file_name = "[noname]" end
+
+                            local file_type = "." .. vim.bo.filetype
+                            if file_type == "." then file_type = "[.nofile]" end
+
+                            --file properties
+                            local file_ondisk = vim.fn.filereadable(file_path)
+                            local file_readonly = vim.bo.readonly
+                            local file_exec = vim.fn.executable(file_path) == 1
+
+                            local file_readonly_icon = "🔒"
+                            if not file_readonly then
+                                file_readonly_icon = ""
                             end
 
-                            local fname = vim.fn.expand("%:t")
-                            if fname == "" then
-                                fname = "[nofile]"
+                            local file_exec_icon = "▶"
+                            if not file_exec then
+                                file_exec_icon = ""
                             end
 
-                            local ftype = vim.bo.filetype
-                            local ext = vim.fn.expand("%:e")
-                            if ftype ~= "" and ext == "" then
-                                fname = fname .. "."..ftype
-                            end
-
-                            return fperm_icon .. fname
+                            return file_readonly_icon..file_exec_icon..file_name..file_type
                         end,
                         color={gui = 'none'},
                         padding={left=0,right=0},

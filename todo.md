@@ -42,7 +42,7 @@
 - [ ] add some padlock icon when buffer is not modifyable
 
 - Make gutter adapt to filetype for ex no line numbers for md or empty files
-
+- add search in browser menu item
 
 ## proj
 - proper project management, idealy with stats
@@ -51,7 +51,7 @@
 
 ## writing
 - [x] Install wsywyg markdonw plugin  
-- |v| activate auto wrap on 80+ line for comment and non code text  
+- [x] activate auto wrap on 80+ line for comment and non code text  
 - understand spellchecking  
 - use code action to suggest spelling  
     https://www.rockyourcode.com/write-better-in-neovim-with-languagetool/

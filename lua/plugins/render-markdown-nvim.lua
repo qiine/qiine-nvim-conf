@@ -11,7 +11,7 @@ return
     config = function()
         require('render-markdown').setup({
             --preset = "obsidian",
-            file_types = {"markdown"},
+            file_types = {"markdown", "org", "codecompanion", "quarto"},
 
             render_modes = { "i", 'n', 'v', "V", 'c', 't' },
             win_options = {

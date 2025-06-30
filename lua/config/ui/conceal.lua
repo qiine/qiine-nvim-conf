@@ -95,7 +95,7 @@ vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "TextChanged", "ModeChan
 
         local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
-        -- Overlay ~= on !=
+        -- Overlay ~= for !=
         for row, line in ipairs(lines) do
             local start = 1
             while true do

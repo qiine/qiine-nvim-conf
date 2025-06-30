@@ -138,7 +138,7 @@ kmap({"i", "n", "v"}, "<A-z>",
 )
 
 --Gutter on/off
-kmap("n", "<M-g>", function()
+kmap({"i","n"}, "<M-g>", function()
     local toggle = "yes"
     vim.opt.number = false
     vim.opt.relativenumber = false
@@ -172,7 +172,14 @@ kmap( modes,"<C-t>", function()
 end)
 
 --Tabs close
-kmap(modes, "<C-w>", function() vim.cmd("bd!") end)
+kmap(modes, "<C-w>", function()
+    --try close splits first, in case both splits are same buf
+    --avoid killing the single buffer in this case
+    local ok, _ = pcall(vim.cmd, "close")
+    if not ok then
+        vim.cmd("bd!") --effectively close the tab
+    end
+end)
 
 --Tabs nav
 --next
@@ -477,9 +484,9 @@ kmap("v", "<S-PageDown>",
 
 
 --#[select search]
-kmap("i", "<C-f>", "<Esc>/")
+kmap("i", "<C-f>", "<Esc><C-l>:/")
 kmap("n", "<C-f>", "/")
-kmap("v", "<C-f>", "<Esc>*")
+kmap("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
 
 
 
@@ -609,10 +616,10 @@ kmap("v", "<C-v>", '"_d"+P`[v`]=gv') --keep pasted text selected for quick movem
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
---Dup
-kmap("i", "<C-d>", '<Esc>"zyy"zpi')
-kmap("n", "<C-d>", '"zyy"zp')
-kmap("v", "<C-d>", '"zy"zP``')
+--Duplicate
+kmap("i", "<C-d>", '<Esc>yypi')
+kmap("n", "<C-d>", 'yyp')
+kmap("v", "<C-d>", 'yP')
 
 
 --#[Undo/redo]
@@ -718,14 +725,14 @@ end)
 kmap("i", "<M-Del>", '<Esc>"_d$i')
 kmap("n", "<M-Del>", '"_d$')
 
---Delete entire line (Shift + Del)
-kmap("i", "<S-Del>", '<esc>"_dd')
+--Delete line
+kmap("i", "<S-Del>", '<esc>"_ddi')
 kmap("n", "<S-Del>", '"_dd')
 kmap("v", "<S-Del>", function()
-    if vim.fn.mode() == "V" then
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('"_d', true, false, true), "n", false)
+    if vim.fn.mode() == "V" then  --avoid <S-v> on line select, because it would unselect instead
+        vim.cmd('normal! "_d')
     else
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<S-v>"_d', true, false, true), "n", false)
+        vim.cmd('normal! V"_d')
     end
 end)
 
@@ -815,10 +822,14 @@ end)
 
 
 --##[Join]
-kmap("i", "<C-j>", "<C-o><S-j>") --Join one below
+--Join one below
+kmap("i", "<C-j>", "<C-o><S-j>")
 kmap("n", "<C-j>", "<S-j>")
 kmap("v", "<C-j>", "<S-j>")
 
+--Join to upper
+kmap("i", "<C-S-j>", "<esc>k<S-j>i")
+kmap("n", "<C-S-j>", "k<S-j>")
 
 --##[move text]
 --Move single char
@@ -829,12 +840,12 @@ kmap("n", "<C-S-Left>", "xhP")
 
 --Move selected text
 --left
-kmap("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
+kmap("i", "<C-S-Left>", '<esc>viwdhPgvhoho')
 kmap("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
 
     if vim.fn.mode() == 'v' and col > 0 then
-        local cmd = '"zdh"zP<esc>gvhoho' --z reg should be safe
+        local cmd = 'dhP<esc>gvhoho'
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
 
         local cursor_pos = vim.api.nvim_win_get_cursor(0)
@@ -852,8 +863,8 @@ kmap("v", "<C-S-Left>", function()
 end)
 
 --right
-kmap("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
-kmap("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
+kmap("i", "<C-S-Right>", '<esc>viwdpgvlolo')
+kmap("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
 --TODO improve support for empty lines
 --vertical
@@ -863,11 +874,12 @@ kmap('v', '<C-S-Up>', function()
     local mode = vim.fn.mode()
 
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
+        vim.cmd("silent! m'<-2gv=gv")
+        --vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! "zd')     -- yank and delete selection into register z
+        vim.cmd('normal! d')     -- yank and delete selection into register z
         vim.cmd('normal! k')       -- move cursor up one line
-        vim.cmd('normal! "zP')     -- paste from register z
+        vim.cmd('normal! P')     -- paste from register z
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]
         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
@@ -882,9 +894,9 @@ kmap('v', '<C-S-Down>', function ()
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! "zd')   -- delete selection into register z
+        vim.cmd('normal! d')   -- delete selection into register z
         vim.cmd('normal! j')
-        vim.cmd('normal! "zP')
+        vim.cmd('normal! P')
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]
         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
@@ -899,7 +911,7 @@ kmap("i", "<C-S-Down>", "<Esc>:m .+1<cr>==i")
 kmap("n", "<C-S-Down>", ":m .+1<cr>==")
 
 
---#[Commenting]
+--#[Comments]
 kmap("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
 kmap("n", "<M-a>", "gcc", {remap = true}) --remap needed
 kmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
@@ -1012,12 +1024,10 @@ kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behave
 
 --help
 --Help for selected
+--kmap("v", "<F1>", function() end)
 kmap("v", "<F1>", function()
-
-end)
-kmap("v", "<F1>", function()
-    vim.cmd('normal! "zy')
-    local reg = vim.fn.getreg("z")
+    vim.cmd('normal! y')
+    local reg = vim.fn.getreg('"')
     vim.cmd("h " .. reg)
 end)
 

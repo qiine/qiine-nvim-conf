@@ -112,6 +112,33 @@ vim.api.nvim_create_user_command("FilePicker", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("FileRename", function()
+    local old_filepath = vim.api.nvim_buf_get_name(0)
+    local old_name = vim.fn.fnamemodify(old_filepath, ":t")
+
+    vim.ui.input({ prompt = "New name: ", default = old_name },
+            function(input)
+                if input and input ~= "" then
+                    vim.api.nvim_buf_set_name(cbuf, input)
+                    vim.cmd("write")
+                else
+                    vim.notify("Write cancelled.", vim.log.levels.INFO)
+                end
+            end
+        )
+        vim.fn.system("ls -la")
+
+    local new_name = "newfilename.txt"
+    local cmd = string.format("mv %q %q", old_name, new_name)
+
+    local ok = os.execute(cmd)
+    if ok == 0 then
+        vim.cmd("edit " .. new_name)
+    else
+        print("Failed to rename file")
+    end
+end, {})
+
 --File perms
 vim.api.nvim_create_user_command("SetFileReadonly", function()
     local path = vim.api.nvim_buf_get_name(0)

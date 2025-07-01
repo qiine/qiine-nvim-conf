@@ -561,7 +561,6 @@ kmap("i", "<C-c>", function()
         vim.cmd("echo 'copied!'")
     end
 end, {noremap=true} )
-
 kmap("n", "<C-c>", function()
     local char = utils.get_char_at_cursorpos()
 
@@ -569,7 +568,6 @@ kmap("n", "<C-c>", function()
         vim.cmd('normal! "+yl')
     end
 end, {noremap = true})
-
 kmap("v", "<C-c>", function()
     local cpos = vim.api.nvim_win_get_cursor(0)
 
@@ -577,7 +575,7 @@ kmap("v", "<C-c>", function()
 
     vim.api.nvim_win_set_cursor(0, cpos)
 
-    vim.cmd("echo 'copied!'")
+    vim.cmd("echo 'copied'")
 end, {noremap=true})
 
 --copy append
@@ -595,19 +593,25 @@ kmap("v", "<M-c>", function()
     vim.cmd("echo 'appended to clipboard!'")
 end)
 
+--Copy word
+kmap({"i","n"}, "<C-S-c>", function()
+    local cpos = vim.api.nvim_win_get_cursor(0)
 
---copy word
-kmap("i", "<c-s-c>", '<esc>viw"+yi')
-kmap("n", "<c-s-c>", 'viw"+y')
+    vim.cmd('normal! viw"+y')
+
+    vim.api.nvim_win_set_cursor(0, cpos)
+
+    print("Word Copied")
+end)
 
 
 --cuting
-kmap("i", "<c-x>", '<esc>0"+y$"_ddi', {noremap = true})
-kmap("n", "<c-x>", '"+x', { noremap = true})
-kmap("v", "<c-x>", '"+d<esc>', { noremap = true}) --d both delete and copy so..
+kmap("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true})
+kmap("n", "<C-x>", '"+x', { noremap = true})
+kmap("v", "<C-x>", '"+d<esc>', { noremap = true}) --d both delete and copy so..
 
 --cut word
-kmap("i", "<c-s-x>", '<esc>viw"+xi')
+kmap("i", "<C-S-x>", '<esc>viw"+xi')
 kmap("n", "<C-S-x>", 'viw"+x')
 
 --Pasting
@@ -681,15 +685,15 @@ kmap("v", "<S-BS>", '<Esc>"_cc<esc>')
 kmap("n", "<Del>", 'v"_d<esc>')
 kmap("v", "<Del>", '"_di')
 
---del right word
+--Delete right word
 kmap("i",       "<C-Del>", '<C-o>"_dw')
 kmap({"n","v"}, "<C-Del>", '"_dw')
 
---del in word
+--Delete in word
 kmap("i", "<C-S-Del>", '<esc>"_diwi')
 kmap("n", "<C-S-Del>", '"_diw')
 
---smart delete in
+--Smart delete in
 kmap({"i","n"}, "<C-M-Del>", function()
     local delete_commands = {
         ["("] = '"_di(', [")"] = '"_di(',

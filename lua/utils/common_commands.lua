@@ -100,6 +100,48 @@ end, {})
 
 
 --[Files]--------------------------------------------------
+vim.api.nvim_create_user_command("CopyFileAbsolutePath", function()
+    vim.cmd("let @+ = expand('%:p')")
+    local apath = vim.fn.getreg("+")
+    print("Copied path: " .. apath)
+end, {})
+
+vim.api.nvim_create_user_command("FileMove", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+
+    if vim.fn.filereadable(fpath) == 0 then
+        vim.notify("No file to move", vim.log.levels.ERROR) return
+    end
+
+    local fname      = vim.fn.fnamemodify(fpath, ":t")
+    local fdir       = vim.fn.fnamemodify(fpath, ":h")
+    local fbufnumber = vim.api.nvim_get_current_buf()
+
+    vim.ui.input(
+        {
+            prompt     = "Move to dir: ",
+            default    = fdir,
+            completion = "dir"
+        },
+        function(input)
+            if not input or input == "" or input == fpath then
+                vim.notify("Move cancelled.", vim.log.levels.INFO) return
+            end
+
+            local target_path = input .. "/" .. fname
+            local ok, err = vim.loop.fs_rename(fpath, target_path)
+
+            if not ok then
+                vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
+            end
+
+            --Reload buffer with new file
+            vim.cmd('edit ' .. vim.fn.fnameescape(target_path))
+            vim.cmd("bd ".. fbufnumber)
+            vim.notify("Moved to: " .. input, vim.log.levels.INFO)
+        end)
+end, {})
+
 vim.api.nvim_create_user_command("FilePicker", function()
     local handle = io.popen('kdialog --getopenfilename')
     if handle then
@@ -112,6 +154,7 @@ vim.api.nvim_create_user_command("FilePicker", function()
     end
 end, {})
 
+--File perms
 vim.api.nvim_create_user_command("FileRename", function()
     local old_filepath = vim.api.nvim_buf_get_name(0)
 
@@ -121,26 +164,33 @@ vim.api.nvim_create_user_command("FileRename", function()
 
     local old_dir = vim.fn.fnamemodify(old_filepath, ":h")
     local old_name = vim.fn.fnamemodify(old_filepath, ":t")
+    local old_bufnumber = vim.api.nvim_get_current_buf()
 
-    vim.ui.input({ prompt = "New name: ", default = old_name }, function(input)
-        if not input or input == "" then
-            vim.notify("Rename cancelled.", vim.log.levels.INFO) return
-        end
+    vim.ui.input(
+        {
+            prompt = "New name: ",
+            default = old_name,
+            completion = "file"
+        },
+        function(input)
+            if not input or input == "" or input == old_name then
+                vim.notify("Rename cancelled", vim.log.levels.INFO) return
+            end
 
-        local new_filepath = old_dir .. "/" .. input
-        local result = vim.fn.system(string.format('mv %q %q', old_filepath, new_filepath))
+            local new_filepath = old_dir .. "/" .. input
+            local ok, err = vim.loop.fs_rename(old_filepath, new_filepath)
 
-        if vim.v.shell_error ~= 0 then
-            vim.notify("Rename failed: " .. result, vim.log.levels.ERROR) return
-        end
+            if not ok then
+                vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
+            end
 
-        -- Reload buffer with new file
-        vim.cmd('edit ' .. vim.fn.fnameescape(new_filepath))
-        vim.notify("Renamed to " .. input, vim.log.levels.INFO)
-    end)
+            -- Reload buffer with new file
+            vim.cmd('edit ' .. vim.fn.fnameescape(new_filepath))
+            vim.cmd("bd ".. old_bufnumber)
+            vim.notify("Renamed to " .. input, vim.log.levels.INFO)
+        end)
 end, {})
 
---File perms
 vim.api.nvim_create_user_command("SetFileReadonly", function()
     local path = vim.api.nvim_buf_get_name(0)
     local name = vim.fn.fnamemodify(path, ":t")
@@ -211,9 +261,6 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     end
 end, {})
 
-vim.api.nvim_create_user_command("FileDelete", function()
-    --cmd
-end, {})
 
 --Easy del files without file browser
 vim.api.nvim_create_user_command("DeleteCurrentFile", function()
@@ -223,6 +270,7 @@ vim.api.nvim_create_user_command("DeleteCurrentFile", function()
         vim.cmd('bdelete!')
     end
 end, {})
+
 
 
 --[Editing]--------------------------------------------------

@@ -35,8 +35,7 @@ return
                 called = true
 
                 if result.status ~= "ok" then
-                    print("SnipRun error: " .. result.message)
-                    return
+                    print("SnipRun error: " .. result.message) return
                 end
 
                 local lines = vim.split(result.message, "\n", { plain = true })
@@ -77,8 +76,7 @@ return
                 called = true
 
                 if result.status ~= "ok" then
-                    print("SnipRun error: " .. result.message)
-                    return
+                    print("SnipRun error: " .. result.message) return
                 end
 
                 local lines = vim.split(result.message, "\n", { plain = true })
@@ -99,7 +97,6 @@ return
         end, {})
 
         vim.api.nvim_create_user_command("SnipRunToLineInsertResult", function()
-
             local row = vim.api.nvim_win_get_cursor(0)[1]
 
             local called = false

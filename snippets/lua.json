@@ -81,6 +81,11 @@
         "body": [ "vim.bo.buftype" ]
     },
 
+    "get buffer filepath": {
+        "prefix": "get buffer filepath",
+        "body": [ "vim.api.nvim_buf_get_name(0)" ]
+    },
+
     "vim cmd": {
         "prefix": "vim.cmd",
         "body": [ "vim.cmd(\"\")" ]

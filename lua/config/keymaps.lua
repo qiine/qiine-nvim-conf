@@ -90,6 +90,7 @@ kmap(modes, "<C-s>", function()
                     if input and input ~= "" then
                         vim.api.nvim_buf_set_name(cbuf, input)
                         vim.cmd("write")
+                        vim.cmd("edit!") --refresh name
                     else
                         vim.notify("Write cancelled.", vim.log.levels.INFO)
                     end
@@ -612,7 +613,7 @@ kmap("n", "<C-S-x>", 'viw"+x')
 --Pasting
 kmap("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
 kmap("n", "<C-v>", '"+P`[v`]=`]')
-kmap("v", "<C-v>", '"_d"+P`[v`]=gv') --keep pasted text selected for quick movement
+kmap("v", "<C-v>", '"_d"+P`[v`]=') --keep pasted text selected for quick movement
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
@@ -867,18 +868,17 @@ kmap("i", "<C-S-Right>", '<esc>viwdpgvlolo')
 kmap("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
 --TODO improve support for empty lines
---vertical
+--move line verticaly
 kmap('v', '<C-S-Up>', function()
     local l1 = vim.fn.line("v")
     local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
 
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
-        vim.cmd("silent! m'<-2gv=gv")
-        --vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
         vim.cmd('normal! d')     -- yank and delete selection into register z
-        vim.cmd('normal! k')       -- move cursor up one line
+        vim.cmd('normal! k')     -- move cursor up one line
         vim.cmd('normal! P')     -- paste from register z
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]

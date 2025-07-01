@@ -114,29 +114,30 @@ end, {})
 
 vim.api.nvim_create_user_command("FileRename", function()
     local old_filepath = vim.api.nvim_buf_get_name(0)
+
+    if vim.fn.filereadable(old_filepath) == 0 then
+        vim.notify("No file to rename", vim.log.levels.ERROR) return
+    end
+
+    local old_dir = vim.fn.fnamemodify(old_filepath, ":h")
     local old_name = vim.fn.fnamemodify(old_filepath, ":t")
 
-    vim.ui.input({ prompt = "New name: ", default = old_name },
-            function(input)
-                if input and input ~= "" then
-                    vim.api.nvim_buf_set_name(cbuf, input)
-                    vim.cmd("write")
-                else
-                    vim.notify("Write cancelled.", vim.log.levels.INFO)
-                end
-            end
-        )
-        vim.fn.system("ls -la")
+    vim.ui.input({ prompt = "New name: ", default = old_name }, function(input)
+        if not input or input == "" then
+            vim.notify("Rename cancelled.", vim.log.levels.INFO) return
+        end
 
-    local new_name = "newfilename.txt"
-    local cmd = string.format("mv %q %q", old_name, new_name)
+        local new_filepath = old_dir .. "/" .. input
+        local result = vim.fn.system(string.format('mv %q %q', old_filepath, new_filepath))
 
-    local ok = os.execute(cmd)
-    if ok == 0 then
-        vim.cmd("edit " .. new_name)
-    else
-        print("Failed to rename file")
-    end
+        if vim.v.shell_error ~= 0 then
+            vim.notify("Rename failed: " .. result, vim.log.levels.ERROR) return
+        end
+
+        -- Reload buffer with new file
+        vim.cmd('edit ' .. vim.fn.fnameescape(new_filepath))
+        vim.notify("Renamed to " .. input, vim.log.levels.INFO)
+    end)
 end, {})
 
 --File perms
@@ -210,6 +211,18 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("FileDelete", function()
+    --cmd
+end, {})
+
+--Easy del files without file browser
+vim.api.nvim_create_user_command("DeleteCurrentFile", function()
+    local filepath = vim.fn.expand('%:p')
+    if vim.fn.confirm("Delete file?\n" .. filepath, "&Yes\n&No", 2) == 1 then
+        vim.fn.delete(filepath)
+        vim.cmd('bdelete!')
+    end
+end, {})
 
 
 --[Editing]--------------------------------------------------
@@ -272,43 +285,60 @@ vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
 
+
 --diff curr file with given rev
 vim.api.nvim_create_user_command("DiffRevision", function(opts)
+    --Process arg
     local rev = opts.args ~= "" and opts.args or "HEAD"
 
-    local prev_wd = vim.fn.getcwd()
-    local cftype = vim.bo.filetype
+    local prev_workdir = vim.fn.getcwd()
 
+    local filepath = vim.api.nvim_buf_get_name(0)
     local filename = vim.fn.expand("%:t")
-    vim.fn.chdir(vim.fn.fnamemodify(vim.fn.expand("%:p"), ":h"))
+    local filetype = vim.bo.filetype
 
-    local git_meta = vim.fn.systemlist("git log -1 " .. filename)
-    local git_content = vim.fn.systemlist("git show " .. rev .. ":" .. "./" ..filename)
+    --pulling git data
+    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    vim.fn.chdir(git_root)
+    local filepath_rootrelative = vim.fn.fnamemodify(filepath, ":.")
+
+    local log_level = "-1"
+    if rev:match("^HEAD~%d+$") then
+        log_level = rev:match("%d+")
+    end
+    --local git_metadata = vim.fn.systemlist("git log -1 " .. filepath_rootrelative)
+    local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, filepath_rootrelative))
+    local git_content = vim.fn.systemlist(string.format("git show '%s':%s", rev, filepath_rootrelative))
+
+    print("shell_error after git show:", vim.v.shell_error)
 
     if vim.v.shell_error ~= 0 then
-        vim.notify("Git revision or file not found: " .. rev .. " | " .. "./" .. filename, vim.log.levels.ERROR)
+        vim.notify("Git revision or file not found: " .. rev .. ":" .. filepath_rootrelative, vim.log.levels.ERROR)
         return
     end
 
     --We can go back to prev wd
-    vim.fn.chdir(prev_wd)
+    vim.fn.chdir(prev_workdir)
+
 
     --Create new empty buffer
     vim.cmd("vsplit")
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_win_set_buf(0, buf)
     vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
-    vim.api.nvim_set_option_value("filetype", cftype, { buf = buf })
+    vim.api.nvim_set_option_value("filetype", filetype, { buf = buf })
     vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
+    vim.api.nvim_set_option_value("buflisted", true, { buf = buf })
     vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
 
-    --Write content of commit to buffer
-    vim.api.nvim_buf_set_lines(buf, 0, 0, false, git_meta)
+    --Write content of commit to said buffer
+    vim.api.nvim_buf_set_lines(buf, 0, 0, false, git_metadata)
     vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"============================================================"})
     vim.api.nvim_buf_set_lines(buf, -1, -1, false, git_content)
 
 
     --Enable diff mode in both windows
+    --rev buffer
     vim.cmd("diffthis")
     vim.wo.scrollbind = true
     vim.wo.cursorbind = true
@@ -317,11 +347,14 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
 
     vim.cmd("wincmd p") --back to og buf
 
+    --og buffer
     vim.cmd("diffthis")
     vim.wo.scrollbind = true
     vim.wo.cursorbind = true
     vim.wo.foldmethod = "diff"
     vim.wo.foldlevel = 99
+
+    vim.cmd("wincmd p") --to rev buffer again
 
 end, {nargs = "?"})
 

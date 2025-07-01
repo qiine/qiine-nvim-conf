@@ -19,6 +19,9 @@ return
                     statusline = {},
                     winbar = {},
                 },
+                disabled_buftypes = {
+                    winbar = {"terminal"},
+                },
                 ignore_focus = {"neo-tree", "trouble", "help"},
             },
 

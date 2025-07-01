@@ -13,7 +13,7 @@ return
             --preset = "obsidian",
             file_types = {"markdown", "org", "codecompanion", "quarto"},
 
-            render_modes = { "i", 'n', 'v', "V", 'c', 't' },
+            render_modes = { "i", 'n', 'v', "V", "\22", 'c', 't' },
             win_options = {
                 concealcursor = {
                     --default = vim.o.concealcursor,
@@ -23,10 +23,11 @@ return
 
             heading = {
                 --icons = { '󰲡 ', '󰲣 ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
-                icons = { '|', '## ', '### ', '#### ', '##### ', '###### ' }, --|#|
+                icons = { '|', '|## ', '|### ', '|#### ', '|##### ', '|###### ' }, --|#|
                 width = "block",
             },
             bullet = {
+                render_modes = { "i", 'n', 'v', "V", 'c', 't' },
                 --icons = { '●', '○', '◆', '◇' },
                 icons = { '·', '·', '·', '·' },
             },
@@ -61,11 +62,21 @@ return
                     checked_v = { raw = '[v]', rendered = '󰱒 ', highlight = 'RenderMarkdownCheckedV', scope_highlight = nil },
                 },
             },
+            quote = {
+                --highlight = {
+                --    'RenderMarkdownQuote1',
+                --    'RenderMarkdownQuote2',
+                --    'RenderMarkdownQuote3',
+                --    'RenderMarkdownQuote4',
+                --    'RenderMarkdownQuote5',
+                --    'RenderMarkdownQuote6',
+                --},
+            },
             code = {
                 width = "block",
                 left_pad = 2,
                 right_pad = 2,
-                border = 'thin',  -- none hide thin
+                border = 'thin',  -- none hide thin thick
             }
         })
     end

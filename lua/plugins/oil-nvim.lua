@@ -102,31 +102,31 @@ return
         })
 
         --Quick open
-        vim.keymap.set({ "i", "n", "v" }, "*-", function()
-            if vim.bo.filetype == "oil" then return end
+        --vim.keymap.set({ "i", "n", "v" }, "*-", function()
+        --    if vim.bo.filetype == "oil" then return end
 
-            vim.cmd("stopinsert")
+        --    vim.cmd("stopinsert")
 
-            local fp = vim.fn.expand("%:p")
-            local fd = fp:match("^(.*)/")
-            if not fd then fd = vim.fn.expand("~") end --fallback
-            vim.cmd('cd ' .. fd) --ensure proper path
+        --    local fp = vim.fn.expand("%:p")
+        --    local fd = fp:match("^(.*)/")
+        --    if not fd then fd = vim.fn.expand("~") end --fallback
+        --    vim.cmd('cd ' .. fd) --ensure proper path
 
-            local oil = require("oil")
-            local util = require("oil.util")
-            oil.open()
-            util.run_after_load(0, function()
-                vim.cmd("stopinsert")
-                --oil.open_preview()
-            end)
+        --    local oil = require("oil")
+        --    local util = require("oil.util")
+        --    oil.open()
+        --    util.run_after_load(0, function()
+        --        vim.cmd("stopinsert")
+        --        --oil.open_preview()
+        --    end)
 
-            --if vim.bo.filetype ~= "" then
-            vim.cmd("bp")
-            vim.cmd("bd")
+        --    --if vim.bo.filetype ~= "" then
+        --    vim.cmd("bp")
+        --    vim.cmd("bd")
 
-            --vim.cmd("Neotree")
-            --vim.cmd("wincmd p")
-        end)
+        --    --vim.cmd("Neotree")
+        --    --vim.cmd("wincmd p")
+        --end)
         --vim.keymap.set({"i","n","v"}, "<C-o>", "<esc><cmd>Oil --float<CR>")
 
         --Close Neotree in this context

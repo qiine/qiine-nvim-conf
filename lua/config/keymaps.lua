@@ -471,9 +471,10 @@ kmap("i", "<S-PageUp>", "<Esc><S-v>k")
 kmap("n", "<S-PageUp>", "<S-v>k")
 kmap("v", "<S-PageUp>",
     function ()
-        local m = vim.api.nvim_get_mode().mode
-        if m == "V" then vim.cmd("normal! k")
-        else             vim.cmd("normal! <S-v>k")
+        if vim.fn.mode() == "V" then
+            vim.cmd("normal! k")
+        else
+            vim.cmd("normal! Vk")
         end
     end
 )
@@ -483,8 +484,10 @@ kmap("n", "<S-PageDown>", "<S-v>j")
 kmap("v", "<S-PageDown>",
     function ()
         local m = vim.api.nvim_get_mode().mode
-        if m == "V" then vim.cmd("normal! j")
-        else             vim.cmd("normal! <S-v>j")
+        if vim.fn.mode() == "V" then
+            vim.cmd("normal! j")
+        else
+            vim.cmd("normal! Vj")
         end
     end
 )

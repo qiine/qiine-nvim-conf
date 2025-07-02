@@ -59,8 +59,8 @@
         ]
     },
 
-    "get home": {
-        "prefix": "get home",
+    "get home dir": {
+        "prefix": "get home dir",
         "body": "os.getenv(\"HOME\")"
     },
 
@@ -99,6 +99,11 @@
     "get nvim cursor position": {
         "prefix": "get_nvim_cursor_position",
         "body": [ "vim.api.nvim_win_get_cursor(0)" ]
+    },
+
+    "set nvim cursor position": {
+        "prefix": "set_nvim_cursor_position",
+        "body": [ "vim.api.nvim_win_set_cursor(0, cpos)" ]
     },
 
     "get nvim working directorie": {

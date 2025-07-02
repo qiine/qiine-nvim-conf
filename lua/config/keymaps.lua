@@ -58,7 +58,7 @@ kmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force qui
 --Quick restart nvim
 kmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
---F5 refresh buffer
+--F5reload buffer
 kmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
 
 
@@ -165,7 +165,8 @@ kmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 
 
---[Tabs]--------------------------------------------------
+--## [Tabs]
+----------------------------------------------------------------------
 --create new tab
 kmap( modes,"<C-t>", function()
     vim.cmd("enew")
@@ -190,7 +191,8 @@ kmap(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
---[Windows]----------------------------------------
+--## [Windows]
+----------------------------------------------------------------------
 kmap("i", "<M-w>", "<esc><C-w>")
 kmap("n", "<M-w>", "<C-w>")
 kmap("v", "<M-w>", "<Esc><C-w>")
@@ -200,7 +202,11 @@ kmap("n", "<M-w><C-Left>", "<C-w><")
 
 
 
---[Navigation]----------------------------------------
+--## [Navigation]
+----------------------------------------------------------------------
+kmap("n", "<Left>", "<Left>", { noremap = true })  --avoid opening folds
+kmap("n", "<Right>", "<Right>", { noremap = true })
+
 --Jump to next word
 kmap({"i","v"}, '<C-Right>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]

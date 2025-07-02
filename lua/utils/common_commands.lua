@@ -99,12 +99,26 @@ end, {})
 
 
 
---[Files]--------------------------------------------------
+--## [Files]
+----------------------------------------------------------------------
 vim.api.nvim_create_user_command("CopyFileAbsolutePath", function()
     vim.cmd("let @+ = expand('%:p')")
     local apath = vim.fn.getreg("+")
     print("Copied path: " .. apath)
 end, {})
+
+vim.api.nvim_create_user_command("FilePicker", function()
+    local handle = io.popen('kdialog --getopenfilename')
+    if handle then
+        local result = handle:read("*a")
+        handle:close()
+        local filepath = vim.fn.trim(result)
+        if filepath ~= "" then
+            vim.cmd("edit " .. vim.fn.fnameescape(filepath))
+        end
+    end
+end, {})
+
 
 vim.api.nvim_create_user_command("FileMove", function()
     local fpath = vim.api.nvim_buf_get_name(0)
@@ -115,7 +129,6 @@ vim.api.nvim_create_user_command("FileMove", function()
 
     local fname      = vim.fn.fnamemodify(fpath, ":t")
     local fdir       = vim.fn.fnamemodify(fpath, ":h")
-    local fbufnumber = vim.api.nvim_get_current_buf()
 
     vim.ui.input(
         {
@@ -136,25 +149,12 @@ vim.api.nvim_create_user_command("FileMove", function()
             end
 
             --Reload buffer with new file
-            vim.cmd('edit ' .. vim.fn.fnameescape(target_path))
-            vim.cmd("bd ".. fbufnumber)
+            vim.api.nvim_buf_set_name(0, target_path)
+            vim.cmd("e!")
             vim.notify("Moved to: " .. input, vim.log.levels.INFO)
         end)
 end, {})
 
-vim.api.nvim_create_user_command("FilePicker", function()
-    local handle = io.popen('kdialog --getopenfilename')
-    if handle then
-        local result = handle:read("*a")
-        handle:close()
-        local filepath = vim.fn.trim(result)
-        if filepath ~= "" then
-            vim.cmd("edit " .. vim.fn.fnameescape(filepath))
-        end
-    end
-end, {})
-
---File perms
 vim.api.nvim_create_user_command("FileRename", function()
     local old_filepath = vim.api.nvim_buf_get_name(0)
 
@@ -185,12 +185,14 @@ vim.api.nvim_create_user_command("FileRename", function()
             end
 
             -- Reload buffer with new file
-            vim.cmd('edit ' .. vim.fn.fnameescape(new_filepath))
-            vim.cmd("bd ".. old_bufnumber)
+            vim.api.nvim_buf_set_name(0, new_filepath)
+            vim.cmd("e!")
             vim.notify("Renamed to " .. input, vim.log.levels.INFO)
         end)
 end, {})
 
+
+--### File perms
 vim.api.nvim_create_user_command("SetFileReadonly", function()
     local path = vim.api.nvim_buf_get_name(0)
     local name = vim.fn.fnamemodify(path, ":t")
@@ -263,17 +265,32 @@ end, {})
 
 
 --Easy del files without file browser
-vim.api.nvim_create_user_command("DeleteCurrentFile", function()
-    local filepath = vim.fn.expand('%:p')
-    if vim.fn.confirm("Delete file?\n" .. filepath, "&Yes\n&No", 2) == 1 then
-        vim.fn.delete(filepath)
-        vim.cmd('bdelete!')
+vim.api.nvim_create_user_command("FileDelete", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+
+    if fpath == "" or vim.fn.filereadable(fpath) == 0 then
+        vim.notify("No file to delete", vim.log.levels.ERROR) return
     end
+
+    vim.loop.fs_unlink(fpath, function(err)
+        if err then
+            vim.schedule(function()
+                vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
+            end)
+            return
+        end
+
+        vim.schedule(function()
+            vim.cmd('bdelete!')
+            vim.notify("Deleted: " .. fpath, vim.log.levels.INFO)
+        end)
+    end)
 end, {})
 
 
 
---[Editing]--------------------------------------------------
+--## [Editing]
+--------------------------------------------------
 --Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)
     vim.cmd(string.format("s/\\s//g"))
@@ -318,22 +335,6 @@ vim.api.nvim_create_user_command("CodeAction", function()
 end, {})
 
 
-
---[Formating]--------------------------------------------------
---wrap line into paragraph
-vim.api.nvim_create_user_command("WrapSelection", function()
-    vim.cmd("normal! gww")
-end, { range = true })
-
-vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
-    local cmd_output = vim.fn.execute('messages')
-
-    vim.cmd("enew")
-
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
-end, {})
-
-
 --diff curr file with given rev
 vim.api.nvim_create_user_command("DiffRevision", function(opts)
     --Process arg
@@ -354,7 +355,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     if rev:match("^HEAD~%d+$") then
         log_level = rev:match("%d+")
     end
-    --local git_metadata = vim.fn.systemlist("git log -1 " .. filepath_rootrelative)
+
     local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, filepath_rootrelative))
     local git_content = vim.fn.systemlist(string.format("git show '%s':%s", rev, filepath_rootrelative))
 
@@ -365,14 +366,17 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
         return
     end
 
-    --We can go back to prev wd
+    --We can go back to prev wrkdir
     vim.fn.chdir(prev_workdir)
 
 
     --Create new empty buffer
+    local curso_pos = vim.api.nvim_win_get_cursor(0)
+
     vim.cmd("vsplit")
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_win_set_buf(0, buf)
+
     vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
     vim.api.nvim_set_option_value("filetype", filetype, { buf = buf })
     vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
@@ -402,13 +406,32 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.wo.foldmethod = "diff"
     vim.wo.foldlevel = 99
 
-    vim.cmd("wincmd p") --to rev buffer again
+    vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
+    --vim.cmd("wincmd p") --to rev buffer again
 
 end, {nargs = "?"})
 
 
 
---[View]--------------------------------------------------
+--## [Formating]
+--------------------------------------------------
+--wrap line into paragraph
+vim.api.nvim_create_user_command("WrapSelection", function()
+    vim.cmd("normal! gww")
+end, { range = true })
+
+vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
+    local cmd_output = vim.fn.execute('messages')
+
+    vim.cmd("enew")
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+end, {})
+
+
+
+--## [View]
+--------------------------------------------------
 vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
     local listchars = vim.opt.listchars:get()
 
@@ -418,5 +441,6 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
         vim.opt.listchars:append({ eol = "¶" })
     end
 end, {})
+
 
 

@@ -87,13 +87,13 @@ kmap(modes, "<C-s>", function()
             vim.ui.input(
                 { prompt = "Save as: ", default = path },
                 function(input)
-                    if input and input ~= "" then
-                        vim.api.nvim_buf_set_name(cbuf, input)
-                        vim.cmd("write")
-                        vim.cmd("edit!") --refresh name
-                    else
-                        vim.notify("Write cancelled.", vim.log.levels.INFO)
+                    if input == nil or input == "" then
+                        vim.notify("Creation cancelled.", vim.log.levels.INFO) return
                     end
+
+                    vim.api.nvim_buf_set_name(cbuf, input)
+                    vim.cmd("write")
+                    vim.cmd("edit!") --refresh name
                 end
             )
         end
@@ -1015,6 +1015,7 @@ kmap("t", "œ", "<Esc> <C-\\><C-n>")
 kmap("i", "<S-Œ>", "<esc>:!")
 kmap("n", "<S-Œ>", ":!")
 kmap("v", "<S-Œ>", ":!")
+kmap("c", "<S-Œ>", "<esc>:!")
 
 --cmd completion menu
 --vmap("c", "<C-d>", "<C-d>")

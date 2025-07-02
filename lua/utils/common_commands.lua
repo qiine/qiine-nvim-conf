@@ -127,32 +127,41 @@ vim.api.nvim_create_user_command("FileMove", function()
         vim.notify("No file to move", vim.log.levels.ERROR) return
     end
 
-    local fname      = vim.fn.fnamemodify(fpath, ":t")
-    local fdir       = vim.fn.fnamemodify(fpath, ":h")
+    local fname = vim.fn.fnamemodify(fpath, ":t")
+    local fdir  = vim.fn.fnamemodify(fpath, ":h")
 
     vim.ui.input(
         {
             prompt     = "Move to dir: ",
             default    = fdir,
-            completion = "dir"
+            completion = "shellcmd"
         },
         function(input)
-            if not input or input == "" or input == fpath then
+            vim.api.nvim_command("redraw") --Hide prompt
+
+            if input == nil or input == "" or input == fpath then
                 vim.notify("Move cancelled.", vim.log.levels.INFO) return
             end
 
+            --assemble path
             local target_path = input .. "/" .. fname
-            local ok, err = vim.loop.fs_rename(fpath, target_path)
 
+            local stat = vim.loop.fs_stat(target_path)
+            if stat then
+                vim.notify("Move failed: target file already exists", vim.log.levels.ERROR) return
+            end
+
+            local ok, err = vim.loop.fs_rename(fpath, target_path)
             if not ok then
                 vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
             end
 
             --Reload buffer with new file
             vim.api.nvim_buf_set_name(0, target_path)
-            vim.cmd("e!")
+            vim.cmd("e!") --refresh buf to new path
             vim.notify("Moved to: " .. input, vim.log.levels.INFO)
-        end)
+        end
+    )
 end, {})
 
 vim.api.nvim_create_user_command("FileRename", function()
@@ -164,7 +173,6 @@ vim.api.nvim_create_user_command("FileRename", function()
 
     local old_dir = vim.fn.fnamemodify(old_filepath, ":h")
     local old_name = vim.fn.fnamemodify(old_filepath, ":t")
-    local old_bufnumber = vim.api.nvim_get_current_buf()
 
     vim.ui.input(
         {
@@ -173,7 +181,8 @@ vim.api.nvim_create_user_command("FileRename", function()
             completion = "file"
         },
         function(input)
-            if not input or input == "" or input == old_name then
+            vim.api.nvim_command("redraw") --Hide prompt
+            if input == nil or input == "" or input == old_name then
                 vim.notify("Rename cancelled", vim.log.levels.INFO) return
             end
 
@@ -186,9 +195,10 @@ vim.api.nvim_create_user_command("FileRename", function()
 
             -- Reload buffer with new file
             vim.api.nvim_buf_set_name(0, new_filepath)
-            vim.cmd("e!")
+            vim.cmd("e!") --refresh buf to new name
             vim.notify("Renamed to " .. input, vim.log.levels.INFO)
-        end)
+        end
+    )
 end, {})
 
 

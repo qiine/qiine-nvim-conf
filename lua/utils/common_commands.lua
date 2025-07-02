@@ -134,7 +134,7 @@ vim.api.nvim_create_user_command("FileMove", function()
         {
             prompt     = "Move to dir: ",
             default    = fdir,
-            completion = "shellcmd"
+            completion = "command"
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt

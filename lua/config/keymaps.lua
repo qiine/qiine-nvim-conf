@@ -130,7 +130,8 @@ kmap(modes, "ç", --"<altgr-r>"
 
 
 
---[View]--------------------------------------------------
+--## [View]
+----------------------------------------------------------------------
 --alt-z toggle line wrap
 kmap({"i", "n", "v"}, "<A-z>",
     function()
@@ -337,7 +338,7 @@ kmap({"n","v"}, "<M-Right>", "$")
 kmap("i",       "<Home>", "<Esc>gg0i")
 kmap({"n","v"}, "<Home>", "gg0")
 
---kmap("i",        "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
+--kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
 kmap("i",       "<End>", "<esc>G0i")
@@ -368,11 +369,12 @@ kmap({"n","v"}, "<End>", "G0")
 --end
 
 kmap("n", "f", function()
-   --JumpToCharAcrossLines()
+    --JumpToCharAcrossLines()
 end, {remap = true})
 
 
---[Selection]----------------------------------------
+--## [Selection]
+----------------------------------------------------------------------
 --Swap selection anchors
 kmap("v", "<M-v>", "o")
 
@@ -456,7 +458,7 @@ kmap("v", "<S-M-Down>",
 )
 
 
---#[Grow select]
+--### [Grow select]
 --grow horizontally TODO proper anchor logic
 kmap("i", "<C-S-PageDown>", "<Esc>vl")
 kmap("n", "<C-S-PageDown>", "vl")
@@ -500,17 +502,8 @@ kmap("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
 
 
 
---[Editing]--------------------------------------------------
---Insert some chars in normal mode
---kmap("n", "F", "iF<Esc>")
---kmap("n", "J", "iJ<Esc>")
---kmap("n", "K", "iK<Esc>")
---kmap("n", "o", "io<Esc>")
---kmap("n", "q", "iq<Esc>")
---kmap("n", "z", "iz<Esc>")
-kmap("n", ".", "i.<Esc>")
-
-
+--## [Editing]
+----------------------------------------------------------------------
 --toggle insert/normal with insert key
 kmap("i", "<Ins>", "<Esc>")
 kmap("n", "<Ins>", "i")
@@ -599,7 +592,7 @@ kmap("v", "<M-c>", function()
 
     vim.api.nvim_win_set_cursor(0, cpos)
 
-    vim.cmd("echo 'appended to clipboard!'")
+    print("appended to clipboard!")
 end)
 
 --Copy word
@@ -615,9 +608,9 @@ end)
 
 
 --cuting
-kmap("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true})
-kmap("n", "<C-x>", '"+x', { noremap = true})
-kmap("v", "<C-x>", '"+d<esc>', { noremap = true}) --d both delete and copy so..
+kmap("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true})
+kmap("n", "<C-x>", '"+x',             { noremap = true})
+kmap("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and copy so..
 
 --cut word
 kmap("i", "<C-S-x>", '<esc>viw"+xi')

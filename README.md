@@ -18,8 +18,8 @@ My text editor journey:
 - and Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
 - Built-in Whitespace trimming on save (+custom command)  
-- Completion via fine tuned **blink.cmp**
-- Auto save on timer
+- Completion via **blink.cmp**, with extensive config 
+- Built-in timer to auto save every 7min
 
 ---
 
@@ -30,6 +30,7 @@ My text editor journey:
 - Markdown  
 - YAML  
 - TOML
+- bash
 
 **Tools**:
 - Treesitter highlighting  
@@ -46,12 +47,13 @@ My text editor journey:
 - **neo-tree**  
 - **oil.nvim**  
 - **telescope.nvim**
+- custom files user commands like delete current file, set readonly, move etc...
 
 ---
 
 ## 🖼 UI
 
-- **lualine** with many custom components  
+- **lualine** with **many** custom components  
 - **barbar.nvim** for tabs  
 - **trouble.nvim**  
 - **indent-blankline.nvim**

@@ -17,11 +17,15 @@
 - [ ] change file perms from nvim with user cmds
 
 ## code
-- [ ] luasnip, friendly-snippets  
-- [ ] understand quickfix  
-- [ ] understand why blink comp don't suggest words from other part of the project  
-- [ ] Open trouble panel on error or warning 
-- [ ] understand code actions  
+* [ ] luasnip, friendly-snippets  
+* [ ] understand quickfix  
+* [ ] understand why blink comp don't suggest words from other part of the project  
+* [ ] Open trouble panel on error or warning 
+* [ ] understand code actions  
+
+## File management
+* [ ] Trash files instead of deleting them in FileDelete user command
+
 
 ## ui
 - uderstand how to add rightclick menu items properly  

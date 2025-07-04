@@ -13,7 +13,8 @@ return
             --preset = "obsidian",
             file_types = {"markdown", "org", "codecompanion", "quarto"},
 
-            render_modes = { "i", 'n', 'v', "V", "\22", 'c', 't' },
+            --render_modes = { "i", 'n', 'v', "V", "\22", 'c', 't' },
+            render_modes = true,
             win_options = {
                 concealcursor = {
                     --default = vim.o.concealcursor,
@@ -27,9 +28,8 @@ return
                 width = "block",
             },
             bullet = {
-                render_modes = { "i", 'n', 'v', "V", 'c', 't' },
                 --icons = { '●', '○', '◆', '◇' },
-                icons = { '·', '·', '·', '·' },
+                icons = { '•', '•', '•', '•' },
             },
             indent = {
                 enabled = true,
@@ -73,10 +73,32 @@ return
                 --},
             },
             code = {
-                width = "block",
+                width = "block", -- full
+                min_width = 80,  -- used when width is 'block'.
                 left_pad = 2,
                 right_pad = 2,
                 border = 'thin',  -- none hide thin thick
+            },
+            pipe_table = {
+                -- Pre configured settings largely for setting table border easier.
+                -- | heavy  | use thicker border characters     |
+                -- | double | use double line border characters |
+                -- | round  | use round border corners          |
+                -- | none   | does nothing                      |
+                preset = 'round',
+                -- Determines how the table as a whole is rendered.
+                -- | none   | disables all rendering                                                  |
+                -- | normal | applies the 'cell' style rendering to each row of the table             |
+                -- | full   | normal + a top & bottom line that fill out the table when lengths match |
+                style = 'normal',
+                -- Determines how individual cells of a table are rendered.
+                -- | overlay | writes completely over the table, removing conceal behavior and highlights |
+                -- | raw     | replaces only the '|' characters in each row, leaving the cells unmodified |
+                 --| padded  | raw + cells are padded to maximum visual width for each column             |
+                -- | trimmed | padded except empty space is subtracted from visual width calculation      |
+                cell = 'padded',
+                padding = 0,
+                border_virtual = true,
             }
         })
     end

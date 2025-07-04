@@ -1,4 +1,6 @@
 
+-- Menus --
+
 local v = vim
 
 
@@ -6,21 +8,12 @@ local v = vim
 --[File]--------------------------------------------------
 v.opt.title = true --display file title useful for tabs name
 
-v.opt.confirm = true --Ask for save before quit
+v.opt.confirm = true --Ask for save before quit (:q, ZZ...)
 
 
 
---[View]--------------------------------------------------
---Statusline
-v.opt.laststatus = 3
---0 → Never show the statusline.
---1 → Show the statusline only when there are multiple windows.
---2 → Always show the statusline in evry window.
---3 → (Global Statusline) A single statusline is displayed at the bottom, shared across all windows.
-
-
-
---[Editing]--------------------------------------------------
+--## [Editing]
+----------------------------------------------------------------------
 --Autocomplete
 v.opt.completeopt = "menuone,noinsert,noselect"
 --v.opt.completeopt = "menu,menuone,popup,fuzzy" -- modern completion menu

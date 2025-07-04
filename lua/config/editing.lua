@@ -25,9 +25,9 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     pattern = "*:*",
     callback = function()
         local mode = vim.fn.mode()
-        if mode == "n"                then vim.opt.virtualedit = "all"     end
-        if mode == "i"                then vim.opt.virtualedit = "block"   end
-        if mode == "v" or mode == "V" then vim.opt.virtualedit = "onemore" end
+        if mode == "n" or mode == "\22" then vim.opt.virtualedit = "all"     end
+        if mode == "i"                  then vim.opt.virtualedit = "block"   end
+        if mode == "v" or mode == "V"   then vim.opt.virtualedit = "onemore" end
     end,
 })
 
@@ -128,7 +128,8 @@ vim.opt.undodir = undodir
 
 
 
---[Spellcheck]--------------------------------------------------
+--## [Spellcheck]
+----------------------------------------------------------------------
 vim.opt.spell = false
 --vim.api.nvim_create_autocmd({ "FileType" }, {
 --    pattern = { "markdown", "plaintext" },
@@ -145,22 +146,31 @@ vim.opt.spell = false
 
 
 
---[Formating]--------------------------------------------------
+--## [Formating]
+----------------------------------------------------------------------
 local formatopts = {} --will hold all users formats opts
-
 --View the current formatoptions with:
 -- :set verbose=1 formatoptions?
 
 
---##[Identation]
-vim.opt.autoindent = true
+--### Identation
+vim.opt.autoindent  = true
 vim.opt.smartindent = true
 --vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
+--A list of keys that, when typed in Insert mode, cause reindenting of
+--the current line. Only happens if 'indentexpr' isn't empty.
 
-vim.opt.expandtab = true --Use spaces instead of tabs
-vim.opt.shiftround = true --always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
-vim.opt.shiftwidth = 4 --Number of spaces to use for indentation
-vim.opt.tabstop = 4
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = {"text", "markdown"},
+    callback = function()
+        vim.opt_local.indentexpr = ""
+    end,
+})
+
+vim.opt.expandtab   = true --Use spaces instead of tabs
+vim.opt.shiftround  = true --always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
+vim.opt.shiftwidth  = 4 --Number of spaces to use for indentation
+vim.opt.tabstop     = 4
 vim.opt.softtabstop = 4 --Number of spaces to use for pressing TAB in insert mode
 
 --##[Text Wrapping]
@@ -172,7 +182,7 @@ vim.opt.softtabstop = 4 --Number of spaces to use for pressing TAB in insert mod
 vim.opt.textwidth = 80
 
 --Visual only wraping
-vim.opt.wrap = false --word wrap off by default
+vim.opt.wrap        = false --word wrap off by default
 vim.opt.breakindent = true --wrapped lines conserve whole block identation
 
 --##[Paragraph & Line Formatting]

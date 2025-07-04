@@ -13,21 +13,21 @@ return
     {
         --the main options
         completion={
-            list = {
-                selection = { preselect = true, auto_insert = true },
-                cycle = { from_bottom = true, from_top = true, },
-            },
-            keyword = { range = "prefix" },
-            ghost_text = {enabled = false},
             trigger = {
                 show_on_keyword = true,
                 show_on_trigger_character = false,
                 show_on_insert_on_trigger_character = false,
             },
+            keyword = { range = "prefix" },
+
+            list = {
+                selection = { preselect = true, auto_insert = true },
+                cycle = { from_bottom = true, from_top = true, },
+            },
             menu = {
-            auto_show = true,
-            winblend = 5,  --opacity
-            direction_priority = { 's', "n" },
+                auto_show = true,
+                winblend = 5,  --opacity
+                direction_priority = { 's', "n" },
                 draw = {
                     columns = {
                         { "label", "label_description", gap = 1 },
@@ -35,6 +35,8 @@ return
                     }
                 },
             },
+
+            ghost_text = {enabled = false},
             documentation = { auto_show = false, },
         },
 
@@ -68,13 +70,12 @@ return
                 show_documentation = false, --show signature but not the doc
             },
         },
-
         cmdline = {
-            enabled = true,
-            -- use 'inherit' to inherit mappings from top level `keymap` config
             keymap = {
+                -- use 'inherit' to inherit mappings from top level `keymap` config
                 preset = 'inherit',
                 ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
+                ['<Tab>'] = { 'show', 'select_and_accept', 'fallback' },
                 ["<ESC>"] = {
                     --https://github.com/Saghen/blink.cmp/issues/547
                     --Neovim behaves as if <Esc> was mapped to <CR>
@@ -98,19 +99,20 @@ return
                 },
                 list = {
                     selection = {
-                        -- When `true`, will automatically select the first item in the completion list
+                        --auto select first item in completion list
                         preselect = true,
-                        -- When `true`, inserts the completion item automatically when selecting it
+                        --Auto inserts completion item when selecting it
                         auto_insert = true,
                     },
                 },
-                -- Whether to automatically show the window when new completion items are available
+                --auto show comp win when new completion items are available
                 menu = {
-                    auto_show = function(ctx)
-                        return vim.fn.getcmdtype() == ':'
-                        -- enable for inputs as well, with:
-                        -- or vim.fn.getcmdtype() == '@'
-                    end,
+                    auto_show = true,
+                    --auto_show = function(ctx)
+                    --    return vim.fn.getcmdtype() == ':'
+                    --    -- enable for inputs as well, with:
+                    --    -- or vim.fn.getcmdtype() == '@'
+                    --end,
                 },
                 -- Displays a preview of the selected item on the current line
                 ghost_text = { enabled = true }
@@ -150,18 +152,21 @@ return
 
             preset = 'none', --or default
 
+            ['<C-space>'] = { 'show', "fallback" },
             ['<CR>'] = { 'accept', 'fallback' },
+
             ['<Tab>'] = {
                 function(cmp)
-                if cmp.snippet_active() then return cmp.accept()
+                    if cmp.snippet_active() then return cmp.accept()
                     else return cmp.select_and_accept() end
                 end,
                 "snippet_forward",
                 'fallback'
             },
+            ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
+
             ["<Esc>"] = {"cancel", 'fallback'},
 
-            ['<C-space>'] = { 'show', "fallback" },
             ['<C-d>'] = { 'show_documentation', 'hide_documentation', "fallback" },
             ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
 
@@ -172,9 +177,6 @@ return
 
             ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
             ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
-
-            --['<Tab>'] = { 'snippet_forward' },
-            ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
         },
 
     },--opts

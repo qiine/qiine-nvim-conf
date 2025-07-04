@@ -134,7 +134,7 @@ vim.api.nvim_create_user_command("FileMove", function()
         {
             prompt     = "Move to dir: ",
             default    = fdir,
-            completion = "command"
+            completion = "dir",
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
@@ -182,6 +182,7 @@ vim.api.nvim_create_user_command("FileRename", function()
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
+
             if input == nil or input == "" or input == old_name then
                 vim.notify("Rename cancelled", vim.log.levels.INFO) return
             end
@@ -277,24 +278,30 @@ end, {})
 --Easy del files without file browser
 vim.api.nvim_create_user_command("FileDelete", function()
     local fpath = vim.api.nvim_buf_get_name(0)
+    local fname = vim.fn.fnamemodify(fpath, ":t")
 
     if fpath == "" or vim.fn.filereadable(fpath) == 0 then
         vim.notify("No file to delete", vim.log.levels.ERROR) return
     end
 
-    vim.loop.fs_unlink(fpath, function(err)
-        if err then
-            vim.schedule(function()
-                vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
-            end)
-            return
-        end
+    local choice = vim.fn.confirm('Delete "' .. fname .. '" ?', "&Yes\n&No", 1)
 
-        vim.schedule(function()
-            vim.cmd('bdelete!')
-            vim.notify("Deleted: " .. fpath, vim.log.levels.INFO)
+    if choice == 0 or choice == 2 then vim.notify("Deletion canceled", vim.log.levels.INFO) return end
+    if choice == 1 then
+        vim.loop.fs_unlink(fpath, function(err)
+            if err then
+                vim.schedule(function()
+                    vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
+                end)
+                return
+            end
+
+            vim.schedule(function()
+                vim.cmd('bdelete!')
+                vim.notify("Deleted: " .. fpath, vim.log.levels.INFO)
+            end)
         end)
-    end)
+    end
 end, {})
 
 
@@ -340,6 +347,7 @@ vim.api.nvim_create_user_command("ClearAllMarks", function()
     print("-All marks cleared-")
 end, {desc = "Delete all marks in the current buffer"})
 
+--Open code action floating win
 vim.api.nvim_create_user_command("CodeAction", function()
     require("tiny-code-action").code_action()
 end, {})

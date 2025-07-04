@@ -23,17 +23,18 @@ v.opt.shortmess:append("si")
 -- "c"	Don't show completion messages (-- XXX completion (YYY) etc.)
 -- "a"	Abbreviation: combine c, s, and w (used in some plugin defaults)
 
+
+
+--## [Windows]
+----------------------------------------------------------------------
 --Splits
 vim.opt.splitbelow = true -- Open new split windows below the current window
 vim.opt.splitright = true -- Open new split windows to the right of the current window
 
-v.opt.showmode = false --show curr mode in cmd
-
--- vim.opt.showcmd = false
---displaying selection info. It also shows incomplete commands in the bottom-right corner.
 
 
---#[Cursor]
+--## [Cursor]
+----------------------------------------------------------------------
 --{modes}:{shape}-{blinking options}
 local cursor_styles = {
     "n:block",
@@ -56,10 +57,12 @@ vim.opt.cursorline = true
 
 --#[Search]
 vim.opt.ignorecase = true
-vim.opt.smartcase = true --case-sensitive only if uppercase letters are typed
-vim.opt.hlsearch = true --Highlight all matches
-vim.opt.incsearch = true --Highlight as you type
+vim.opt.smartcase  = true --case-sensitive only if uppercase letters are typed
+vim.opt.hlsearch   = true --Highlight all matches
+vim.opt.incsearch  = true --Highlight as you type
 
+
+--[colorcolumn]
 --vim.opt.colorcolumn="80"
 
 
@@ -67,15 +70,16 @@ vim.opt.incsearch = true --Highlight as you type
 --[Rendering]--------------------------------------------------
 vim.opt.updatetime = 200 --screen redraw speed in ms
 
---v.opt.lazyredraw = true  -- will scroll the view when moving the cursor
+--v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
 -- Allow scrolling beyond the end of the file
-v.opt.scrolloff = 2
+v.opt.scrolloff     = 2
 v.opt.sidescrolloff = 5
---v.opt.sidescroll=1
+--v.opt.sidescroll = 1
 
 
 
---[Gutter]--------------------------------------------------
+--## [Gutter]
+----------------------------------------------------------------------
 --vim.opt.statuscolumn = "%s%l %C"
 --%l	line number column for currently drawn line
 --%s	sign column for currently drawn line
@@ -84,17 +88,18 @@ v.opt.sidescrolloff = 5
 
 
 v.opt.signcolumn = "yes" --show letters for error/warning/hint
---"yes" → Always keeps the sign column visible (prevents text movement).
---"no" → Disables the sign column.
---"auto" → Only shows the sign column when needed.
+--"yes"    → Always keeps the sign column visible (prevents text movement).
+--"no"     → Disables the sign column.
+--"auto"   → Only shows the sign column when needed.
 --"auto:X" → Keeps the column visible when up to X signs are present
 --"number" → Merges the sign column with the number column.
 
 --Numbers
-v.opt.number = true
+v.opt.number         = true
 v.opt.relativenumber = false
 
---#[Folding]
+
+--### [Folds]
 v.opt.foldenable = true
 
 v.opt.foldcolumn = "1"
@@ -102,21 +107,21 @@ v.opt.foldcolumn = "1"
 --"1" Show dedicated fold column and numbers in the gutter
 
 v.opt.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
-v.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+v.opt.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
 
-v.opt.foldlevel = 99 --hack to Keep folds open by default
+v.opt.foldlevel      = 99 --hack to Keep folds open by default
 v.opt.foldlevelstart = 99
-vim.opt.foldnestmax = 7
+vim.opt.foldnestmax  = 7
 
 vim.opt.fillchars:append({
-    fold = ".", --in place of the folded text
-    foldopen = "", -- 
+    fold      = ".", --in place of the folded text
+    foldopen  = "", -- 
     foldclose = ">", --
-    foldsep = " ", -- │  --separate folds (for open folds)
+    foldsep   = " ", -- │  --separate folds (for open folds)
 
-    diff = "╱",
+    diff      = "╱",
 
-    eob="~",
+    eob       = "~",
 })
 
 
@@ -237,10 +242,10 @@ vim.diagnostic.config({
     severity_sort = true,
     float = {
         focusable = false,
-        style = "minimal",
-        border = "rounded",
-        source = true,
-        header = "4",
+        style     = "minimal",
+        border    = "rounded",
+        source    = true,
+        header    = "4",
     },
 })
 
@@ -254,6 +259,7 @@ vim.api.nvim_create_user_command("DiagnosticHide", function()
     vim.diagnostic.hide(nil,0)
 end, {})
 
+--Auto show
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = "UserAutoCmds",
     pattern = "*",
@@ -279,10 +285,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end,
 })
 
---inspect  element example
---for k, v in pairs(vim.diagnostic.config()) do
---    print(k, vim.inspect(v))
---end
 
 --Inlay hint for type
 --vim.api.nvim_create_autocmd("LspAttach", {
@@ -298,7 +300,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 
 --[Commandline]--------------------------------------------------
-vim.opt.cmdheight=1
+vim.opt.cmdheight = 1
+v.opt.showmode    = false --show curr mode in cmd
+
+-- vim.opt.showcmd = false
+--displaying selection info. It also shows incomplete commands in the bottom-right corner.
 
 --vim.api.nvim_create_autocmd("CmdlineEnter", {
 --    callback = function()
@@ -318,9 +324,9 @@ vim.opt.cmdheight=1
 --    end,
 --})
 
---Auto complete menu for cmd
-vim.opt.wildmenu = false --we use blink.cmp instead
-vim.opt.wildmode = "longest:full,full"
+--Auto complete entry menu for excmd
+vim.opt.wildmenu    = true --we use blink.cmp instead
+vim.opt.wildmode    = "longest:full,full"
 vim.opt.wildoptions = "pum"
 
 
@@ -333,4 +339,16 @@ vim.opt.wildoptions = "pum"
 --        end, 100000)
 --    end,
 --})
+
+
+
+--## [Statusline]
+----------------------------------------------------------------------
+v.opt.laststatus = 3
+--0 → Never show the statusline.
+--1 → Show the statusline only when there are multiple windows.
+--2 → Always show the statusline in evry window.
+--3 → (Global Statusline) A single statusline is displayed at the bottom, shared across all windows.
+
+
 

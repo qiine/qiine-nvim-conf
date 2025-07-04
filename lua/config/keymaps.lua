@@ -46,12 +46,14 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 
 
---[Settings]--------------------------------------------------
+--## [Settings]
+----------------------------------------------------------------------
 vim.opt.timeoutlen = 300 --delay between key press to register shortcuts
 
 
 
---[Internal]--------------------------------------------------
+--## [Internal]
+----------------------------------------------------------------------
 --Ctrl+q to quit
 kmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
 
@@ -63,9 +65,10 @@ kmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloade
 
 
 
---[File]----------------------------------------
+--## [File]
+----------------------------------------------------------------------
 --Create new file
-kmap(modes, "<C-n>", function()
+kmap({"i","n","v"}, "<C-n>", function()
     local buff_count = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
     v.cmd("enew")
@@ -85,8 +88,10 @@ kmap(modes, "<C-s>", function()
     else
         if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
             vim.ui.input(
-                { prompt = "Save as: ", default = path },
+                { prompt = "Save as: ", default = path, completion = "dir" },
                 function(input)
+                    vim.api.nvim_command("redraw") --Hide prompt
+
                     if input == nil or input == "" then
                         vim.notify("Creation cancelled.", vim.log.levels.INFO) return
                     end
@@ -102,7 +107,8 @@ end)
 
 --Save all buffers
 kmap(modes, "<C-S-s>", function()
-    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local bufs = vim.api.nvim_list_bufs()
+    for _, buf in ipairs(bufs) do
         if vim.api.nvim_buf_is_loaded(buf) and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1 then
             --nvim_buf_call Ensure proper bufs info
             vim.api.nvim_buf_call(buf, function()
@@ -112,6 +118,27 @@ kmap(modes, "<C-S-s>", function()
             end)
         end
     end
+end)
+
+--save as
+kmap(modes, "<M-C-S>", function()
+    local cbuf = vim.api.nvim_get_current_buf()
+    local path = vim.api.nvim_buf_get_name(0)
+
+    vim.ui.input(
+        { prompt = "Save as: ", default = path, completion = "dir"},
+        function(input)
+            vim.api.nvim_command("redraw") --Hide prompt
+
+            if input == nil or input == "" then
+                vim.notify("Save cancelled.", vim.log.levels.INFO) return
+            end
+
+            vim.api.nvim_buf_set_name(cbuf, input)
+            vim.cmd("write")
+            vim.cmd("edit!") --refresh name
+        end
+    )
 end)
 
 
@@ -176,8 +203,14 @@ end)
 
 --Tabs close
 kmap(modes, "<C-w>", function()
+    local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
+    if bufmodif then
+        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
+        if choice == 2 or choice == 0 then return end
+    end
+
     --try close splits first, in case both splits are same buf
-    --avoid killing the single buffer in this case
+    --avoid killing the shared buffer in this case
     local ok, _ = pcall(vim.cmd, "close")
     if not ok then
         vim.cmd("bd!") --effectively close the tab
@@ -197,6 +230,11 @@ kmap(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 kmap("i", "<M-w>", "<esc><C-w>")
 kmap("n", "<M-w>", "<C-w>")
 kmap("v", "<M-w>", "<Esc><C-w>")
+
+--To next window
+kmap({"i","n","v","c"}, "<M-Tab>", function()
+    vim.cmd("normal! w")
+end)
 
 kmap("i", "<M-w><C-Left>", "<esc><C-w><")
 kmap("n", "<M-w><C-Left>", "<C-w><")
@@ -403,10 +441,12 @@ kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
 --Select to home
 kmap("i", "<S-Home>", "<Esc>vgg0i")
 kmap("n", "<S-Home>", "vgg0")
+kmap("v", "<S-Home>", "g0")
 
 --select to end
 kmap("i", "<S-End>", "<Esc>vGi")
 kmap("n", "<S-End>", "vG")
+kmap("v", "<S-End>", "G")
 
 --ctrl+a select all
 kmap(modes, "<C-a>", "<Esc>ggVG")
@@ -419,7 +459,7 @@ kmap("v", "<S-M-Left>",
         if vim.fn.mode() == '\22' then  --"\22" is vis block mode
             vim.cmd("normal! h")
         else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>h", true, false, true), "n", false)
+            vim.cmd("normal! h")
         end
     end
 )
@@ -430,7 +470,7 @@ kmap("v", "<S-M-Right>",
         if vim.fn.mode() == '\22' then
             vim.cmd("normal! l")
         else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>l", true, false, true), "n", false)
+            vim.cmd("normal! l")
         end
     end
 )
@@ -441,7 +481,7 @@ kmap("v", "<S-M-Up>",
         if vim.fn.mode() == '\22' then
             vim.cmd("normal! k")
         else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>k", true, false, true), "n", false)
+            vim.cmd("normal! k")
         end
     end
 )
@@ -452,7 +492,7 @@ kmap("v", "<S-M-Down>",
         if vim.fn.mode() == '\22' then
             vim.cmd("normal! j")
         else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>j", true, false, true), "n", false)
+            vim.cmd("normal! j")
         end
     end
 )
@@ -619,7 +659,7 @@ kmap("n", "<C-S-x>", 'viw"+x')
 --Pasting
 kmap("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
 kmap("n", "<C-v>", '"+P`[v`]=`]')
-kmap("v", "<C-v>", '"_d"+P`[v`]=') --keep pasted text selected for quick movement
+kmap("v", "<C-v>", '"_d"+P`[v`]=')
 kmap("c", "<C-v>", '<C-R>+')
 kmap("t", "<C-v>", '<C-o>"+P')
 
@@ -928,7 +968,8 @@ kmap("n", "<M-r>", "q", {remap = true})
 
 
 
----[Text comprehension]--------------------------------------------------
+--## [Text comprehension]
+----------------------------------------------------------------------
 --Goto deffinition
 kmap("i", "<F12>", "<Esc>gdi")
 kmap("n", "<F12>", "gd")
@@ -952,6 +993,7 @@ kmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 --lsp rename
 kmap({"i","n"}, "<F2>",
     function()
+        --live-rename is a plugin for fancy in buffer rename preview
         require("live-rename").rename({ insert = true })
     end
 )
@@ -1008,7 +1050,7 @@ kmap("v", "œ", ":")
 kmap("t", "œ", "<Esc> <C-\\><C-n>")
 
 --Open command line in term mode
-kmap("i", "<S-Œ>", "<esc>:!")
+kmap("i", "<S-Œ>", ":!")
 kmap("n", "<S-Œ>", ":!")
 kmap("v", "<S-Œ>", ":!")
 kmap("c", "<S-Œ>", "<esc>:!")
@@ -1031,7 +1073,6 @@ kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behave
 
 --help
 --Help for selected
---kmap("v", "<F1>", function() end)
 kmap("v", "<F1>", function()
     vim.cmd('normal! y')
     local reg = vim.fn.getreg('"')

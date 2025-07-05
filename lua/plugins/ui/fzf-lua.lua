@@ -9,9 +9,9 @@ return
                 title_pos    = "center",
                 border       = "rounded",  --single
                 height       = 0.75,            -- window height
-                width        = 0.97,            -- window width
+                width        = 0.98,            -- window width
                 row          = 0.50,            -- window row position (0=top, 1=bottom)
-                col          = 0.50,            -- window col position (0=left, 1=right)
+                col          = 0.51,            -- window col position (0=left, 1=right)
                 backdrop     = 100, --opacity
                 preview = {
                     --hidden = "hidden",
@@ -23,6 +23,9 @@ return
             fzf_opts = {
                 ["--layout"] = "default",  --reverse
             },
+            keymap = {
+                --f4 toggle prev
+            }
         })
 
         --find files

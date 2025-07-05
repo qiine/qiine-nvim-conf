@@ -73,11 +73,9 @@ return
 
         cmdline = {
             keymap = {
-                preset = 'cmdline',  --inherit
-                ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
+                preset = 'inherit',  --inherit
                 ['<Tab>'] = { 'show', 'select_and_accept', 'fallback' },
-                ['<Up>'] = { 'select_prev', 'fallback' },
-                ['<Down>'] = { 'select_next', 'fallback' },
+                ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
                 ["<ESC>"] = {
                     --https://github.com/Saghen/blink.cmp/issues/547
                     --Neovim behaves as if <Esc> was mapped to <CR>
@@ -110,9 +108,9 @@ return
                 menu = {
                     --auto_show = true,
                     auto_show = function(ctx)
-                        return vim.fn.getcmdtype() == ':'
-                        -- enable for inputs as well, with:
-                        -- or vim.fn.getcmdtype() == '@'
+                        --show comp menu fo ":" and vim.ui.input but not "/"
+                        local t = vim.fn.getcmdtype()
+                        return t == ':' or t == '@'
                     end,
                 },
             },
@@ -134,13 +132,6 @@ return
                         end
                     }
                 },
-                cmdline = {
-                    min_keyword_length = function(ctx)
-                        -- when typing a command, only show when the keyword is 2 characters or longer
-                        if ctx.mode == 'cmdline' and string.find(ctx.line, ' ') == nil then return 2 end
-                        return 0
-                    end
-                }
             },
         },
 

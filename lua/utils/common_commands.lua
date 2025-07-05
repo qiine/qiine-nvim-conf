@@ -108,7 +108,9 @@ vim.api.nvim_create_user_command("CopyFileAbsolutePath", function()
 end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()
-    local handle = io.popen('kdialog --getopenfilename')
+    local curfdir = vim.fn.expand("%:p")
+    local cmd = string.format('kdialog --getopenfilename "%s"', curfdir)
+    local handle = io.popen(cmd)
     if handle then
         local result = handle:read("*a")
         handle:close()

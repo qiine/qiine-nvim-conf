@@ -70,12 +70,14 @@ return
                 show_documentation = false, --show signature but not the doc
             },
         },
+
         cmdline = {
             keymap = {
-                -- use 'inherit' to inherit mappings from top level `keymap` config
-                preset = 'inherit',
+                preset = 'cmdline',  --inherit
                 ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
                 ['<Tab>'] = { 'show', 'select_and_accept', 'fallback' },
+                ['<Up>'] = { 'select_prev', 'fallback' },
+                ['<Down>'] = { 'select_next', 'fallback' },
                 ["<ESC>"] = {
                     --https://github.com/Saghen/blink.cmp/issues/547
                     --Neovim behaves as if <Esc> was mapped to <CR>
@@ -105,7 +107,6 @@ return
                         auto_insert = true,
                     },
                 },
-                --auto show comp win when new completion items are available
                 menu = {
                     --auto_show = true,
                     auto_show = function(ctx)
@@ -114,8 +115,6 @@ return
                         -- or vim.fn.getcmdtype() == '@'
                     end,
                 },
-                -- Displays a preview of the selected item on the current line
-                ghost_text = { enabled = true }
             },
         },
 

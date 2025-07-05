@@ -1,18 +1,18 @@
 return
 {
     'nvim-telescope/telescope.nvim',
-    enabled = true,
+    branch = '0.1.x',
+    enabled = false,
     dependencies = {
         "nvim-lua/popup.nvim",
         "nvim-lua/plenary.nvim",
         --"nvim-telescope/telescope-ui-select.nvim",
-        "nvim-telescope/telescope-media-files.nvim", "jvgrootveld/telescope-zoxide",
+        "nvim-telescope/telescope-media-files.nvim",
     },
 
     config = function()
         local builtin = require('telescope.builtin')
         local act = require("telescope.actions")
-        local z_utils = require("telescope._extensions.zoxide.utils")
 
         vim.api.nvim_set_hl(0, "TelescopeNormal", {bg = "none"})
 
@@ -47,17 +47,17 @@ return
                         height = 0.8,
                     },
                 },
-                find_files = {
-                    previewer = true,
-                    hidden = true,
-                    find_command = {
-                        'fdfind',
-                        '--type', 'f',
-                        '--no-follow',
-                        '--max-depth', '30',
-                        '--max-results', '100000'
-                    },
-                },
+                --find_files = {
+                --    previewer = true,
+                --    hidden = true,
+                --    find_command = {
+                --        'fdfind',
+                --        '--type', 'f',
+                --        '--no-follow',
+                --        '--max-depth', '30',
+                --        '--max-results', '100000'
+                --    },
+                --},
                 live_grep = {
                     previewer = true,
                     hidden = true,
@@ -91,6 +91,7 @@ return
 
         vim.keymap.set({"i","n","v"}, '<M-f>b', builtin.builtin, {desc = 'Telescope search builtins'})
 
+        --find files in proj
         vim.keymap.set(
             {"i","n","v"},
             '<C-S-f>',
@@ -109,26 +110,40 @@ return
             '<M-f>',
             function()
                 local p = vim.fn.expand("~")
+                --builtin.find_files({
+                --    cwd = p,
+                --    prompt_title = 'Find Files in: ' .. p,
+                --})
                 builtin.find_files({
-                    cwd = p,
                     prompt_title = 'Find Files in: ' .. p,
+                    find_command = {
+                        'rg',
+                        '--files',
+                        --'--hidden',
+                        --"-g", '!Trash',
+                        --"-g", '!node_modules',
+                        --"-g", "!.git",
+                        p
+                    },
                 })
             end,
             {desc = 'Telescope find files in home'}
         )
 
+        --grep in proj
         vim.keymap.set({"i","n","v"}, '<M-f>g',
             function()
+                local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
                 local p = vim.fn.getcwd()
                 builtin.live_grep({
-                    cwd = p,
-                    prompt_title = 'Grep in: ' .. p,
+                    cwd = git_root,
+                    prompt_title = 'Grep in: ' .. git_root,
                 })
             end,
             {desc='Telescope live grep'}
         )
 
-        --vim.keymap.set({"i","n","v"}, '<leader>fb', builtin.buffers, {desc='Telescope buffers'})
+        vim.keymap.set({"i","n","v"}, '<M-b>', builtin.buffers, {desc='Telescope buffers'})
         vim.keymap.set({"i","n","v"}, '<M-f>o', builtin.vim_options, {desc='Telescope vim opts'})
 
     end,--config

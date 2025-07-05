@@ -119,7 +119,6 @@ vim.api.nvim_create_user_command("FilePicker", function()
     end
 end, {})
 
-
 vim.api.nvim_create_user_command("FileMove", function()
     local fpath = vim.api.nvim_buf_get_name(0)
 
@@ -352,6 +351,12 @@ vim.api.nvim_create_user_command("CodeAction", function()
     require("tiny-code-action").code_action()
 end, {})
 
+
+--version control
+--Handy Show git rit
+vim.api.nvim_create_user_command("PrintGitRoot", function()
+    print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
+end, {})
 
 --diff curr file with given rev
 vim.api.nvim_create_user_command("DiffRevision", function(opts)

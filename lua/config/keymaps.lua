@@ -211,7 +211,7 @@ kmap(modes, "<C-w>", function()
 
     --try close splits first, in case both splits are same buf
     --avoid killing the shared buffer in this case
-    local ok, _ = pcall(vim.cmd, "close")
+    local ok, err = pcall(vim.cmd, "close")
     if not ok then
         vim.cmd("bd!") --effectively close the tab
     end
@@ -600,12 +600,12 @@ kmap("v", "<C-d>", 'yP')
 
 --#[Undo/redo]
 --ctrl+z to undo
-kmap("i",       "<C-z>", "<C-o>u", {noremap = true})
-kmap({"n","v"}, "<C-z>", "u",      {noremap = true})
+kmap("i",       "<C-z>",   "<C-o>u", {noremap = true})
+kmap({"n","v"}, "<C-z>",   "u",      {noremap = true})
 
 --redo
-kmap("i",       "<C-y>", "<cmd>normal! <C-r><cr>")
-kmap({"n","v"}, "<C-y>", "<C-r>")
+kmap("i",       "<C-y>",   "<cmd>normal! <C-r><cr>")
+kmap({"n","v"}, "<C-y>",   "<C-r>")
 
 kmap("i",       "<C-S-z>", "<cmd>normal! <C-r><cr>")
 kmap({"n","v"}, "<C-S-z>", "<C-r>")
@@ -643,13 +643,13 @@ kmap("v", "<M-S-BS>", '"_d')
 --)
 
 --Remove to start of line
-kmap("i", "<M-BS>", '<Esc>"_d0i')
+kmap("i", "<M-BS>", '<esc>"_d0i')
 kmap("n", "<M-BS>", '"_d0')
 
 --Shift+backspace clear line
-kmap("i", "<S-BS>", '<Esc>"_cc')
+kmap("i", "<S-BS>", '<esc>"_cc')
 kmap("n", "<S-BS>", '"_cc<esc>')
-kmap("v", "<S-BS>", '<Esc>"_cc<esc>')
+kmap("v", "<S-BS>", '<esc>"_cc<esc>')
 
 
 --##[Delete]
@@ -746,15 +746,14 @@ kmap({"n"}, "-", function() utils.smartdecrement() end)
 kmap("n", "<space>", "i<space><esc>")
 
 --smart tab in insert
-vim.keymap.set("i", "<Tab>",
-    function()
-        local inword = utils.is_cursor_inside_word()
+vim.keymap.set("i", "<Tab>", function()
+    local inword = utils.is_cursor_inside_word()
 
-        if inword then vim.cmd("normal! v>") vim.cmd("normal! 4l")
-            else vim.cmd("normal! i\t") --don't care about softab here
-        end
+    if inword then vim.cmd("normal! v>") vim.cmd("normal! 4l")
+        else vim.cmd("normal! i\t") --don't care about softab here
     end
-)
+end)
+
 kmap("n", "<Tab>", "v>")
 kmap("v", "<Tab>", ">gv")
 
@@ -767,14 +766,14 @@ kmap("v", "<S-Tab>", "<gv")
 kmap("n", "<cr>", "i<cr><esc>")
 
 --breakline above
-kmap("i", "<S-cr>", "<Esc>O")
-kmap("n", "<S-cr>", "O<esc>")
-kmap("v", "<S-cr>", "<esc>O<esc>vgv")
+kmap("i", "<S-CR>", "<Esc>O")
+kmap("n", "<S-CR>", "O<esc>")
+kmap("v", "<S-CR>", "<esc>O<esc>vgv")
 
 --breakline below
-kmap("i", "<M-cr>", "<Esc>o")
-kmap("n", "<M-cr>", 'o<Esc>')
-kmap("v", "<M-cr>", "<Esc>o<Esc>vgv")
+kmap("i", "<M-CR>", "<Esc>o")
+kmap("n", "<M-CR>", 'o<Esc>')
+kmap("v", "<M-CR>", "<Esc>o<Esc>vgv")
 
 --New line above and below
 kmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji")
@@ -797,10 +796,9 @@ end)
 
 
 --##[Join]
---Join one below
-kmap("i", "<C-j>", "<C-o><S-j>")
-kmap("n", "<C-j>", "<S-j>")
-kmap("v", "<C-j>", "<S-j>")
+--Join below
+kmap("i",       "<C-j>", "<C-o><S-j>")
+kmap({"n","v"}, "<C-j>", "<S-j>")
 
 --Join to upper
 kmap("i", "<C-S-j>", "<esc>k<S-j>i")
@@ -809,7 +807,7 @@ kmap("n", "<C-S-j>", "k<S-j>")
 --##[move text]
 --Move single char
 kmap("n", "<C-S-Right>", "xp")
-kmap("n", "<C-S-Left>", "xhP")
+kmap("n", "<C-S-Left>",  "xhP")
 --vmap("n", "<C-S-Up>", "xkp")
 --vmap("n", "<C-S-Down>", "xjp")
 
@@ -971,10 +969,10 @@ kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
 
 --[vim cmd]--------------------------------------------------
 --Open command line
-kmap("i", "œ", "<esc>:")
-kmap("n", "œ", ":")
-kmap("v", "œ", ":")
-kmap("t", "œ", "<Esc> <C-\\><C-n>")
+kmap("i",  "œ",    "<esc>:")
+kmap("n",  "œ",    ":")
+kmap("v",  "œ",    ":")
+kmap("t",  "œ",    "<Esc> <C-\\><C-n>")
 
 --Open command line in term mode
 kmap("i", "<S-Œ>", ":!")

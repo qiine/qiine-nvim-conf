@@ -107,12 +107,12 @@ return
                 },
                 --auto show comp win when new completion items are available
                 menu = {
-                    auto_show = true,
-                    --auto_show = function(ctx)
-                    --    return vim.fn.getcmdtype() == ':'
-                    --    -- enable for inputs as well, with:
-                    --    -- or vim.fn.getcmdtype() == '@'
-                    --end,
+                    --auto_show = true,
+                    auto_show = function(ctx)
+                        return vim.fn.getcmdtype() == ':'
+                        -- enable for inputs as well, with:
+                        -- or vim.fn.getcmdtype() == '@'
+                    end,
                 },
                 -- Displays a preview of the selected item on the current line
                 ghost_text = { enabled = true }

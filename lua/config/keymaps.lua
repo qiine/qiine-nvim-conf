@@ -243,7 +243,7 @@ kmap("n", "<M-w><C-Left>", "<C-w><")
 
 --## [Navigation]
 ----------------------------------------------------------------------
-kmap("n", "<Left>", "<Left>", { noremap = true })  --avoid opening folds
+kmap("n", "<Left>",  "<Left>",  { noremap = true })  --avoid opening folds
 kmap("n", "<Right>", "<Right>", { noremap = true })
 
 --Jump to next word
@@ -255,11 +255,8 @@ kmap({"i","v"}, '<C-Right>', function()
     if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
         vim.cmd("normal! b")
 
-        if vim.fn.mode() == "v" then
-            vim.cmd("normal! $")
-        else
-            vim.cmd("normal! A")
-        end
+        if vim.fn.mode() == "v" then vim.cmd("normal! $")
+        else                         vim.cmd("normal! A") end
     end
 end)
 
@@ -286,74 +283,6 @@ kmap("n",       "<M-PageUp>",    "<C-i>")
 --Fast left/right move in normal mode
 kmap('n', '<C-Right>', "5l")
 kmap('n', '<C-Left>',  "5h")
-
---local last_key_time = 0
---local timeout = 140  -- milliseconds
-
---vim.keymap.set("n", "<C-Right>", function()
---    local now = vim.loop.hrtime() / 1e6  -- get current time in ms
-
---    if now - last_key_time < timeout then
---        vim.api.nvim_feedkeys("$", "n", true)  -- go to line start
---    else
---        vim.api.nvim_feedkeys("5l", "n", true)  -- word left
---    end
---    last_key_time = now
---end)
-
---local last_press_time = 0
---local waiting_for_second = false
---local timeout = 120  -- milliseconds
-
---vim.keymap.set("n", "<C-Left>", function()
---    local now = vim.loop.hrtime() / 1e6  -- ms
-
---    if waiting_for_second and (now - last_press_time < timeout) then
---        -- Double press confirmed
---        vim.api.nvim_feedkeys("0", "n", true)
---        waiting_for_second = false
---    else
---        -- First press, start waiting
---        waiting_for_second = true
---        last_press_time = now
-
---        -- fallback behavior after timeout
---        vim.defer_fn(function()
---            if waiting_for_second then
---                vim.api.nvim_feedkeys("5h", "n", true)
---                waiting_for_second = false
---            end
---        end, timeout)
---    end
---end)
-
--- Function to get the current time in milliseconds
---local function get_time_ms()
---    return vim.loop.hrtime() / 1e6 -- Convert nanoseconds to milliseconds
---end
-
----- Function to handle key press
---local function on_key_press(keypress_time)
---    local current_time = get_time_ms() -- Get the current time in milliseconds
-
---    if keypress_time == nil then
---        keypress_time = current_time
---    else
---        local delay = current_time - keypress_time
-
---        if delay < 125 then
---            vim.cmd("normal! $")
---        else
---            vim.cmd("normal! 5l")
---        end
-
---        keypress_time = nil
---    end
---end
-
---vim.keymap.set('n', '<C-Right>',  function() local press_time = nil on_key_press(press_time) end)
-
-
 
 --ctrl+up/down to move fast
 kmap("i", "<C-Up>", "<Esc>3ki")
@@ -824,7 +753,6 @@ vim.keymap.set("i", "<Tab>",
         if inword then vim.cmd("normal! v>") vim.cmd("normal! 4l")
             else vim.cmd("normal! i\t") --don't care about softab here
         end
-        print(inword)
     end
 )
 kmap("n", "<Tab>", "v>")
@@ -913,7 +841,6 @@ end)
 kmap("i", "<C-S-Right>", '<esc>viwdpgvlolo')
 kmap("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
---TODO improve support for empty lines
 --move line verticaly
 kmap('v', '<C-S-Up>', function()
     local l1 = vim.fn.line("v")
@@ -968,7 +895,7 @@ kmap("n", "<M-r>", "q", {remap = true})
 
 
 
---## [Text comprehension]
+--## [Text inteligence]
 ----------------------------------------------------------------------
 --Goto deffinition
 kmap("i", "<F12>", "<Esc>gdi")

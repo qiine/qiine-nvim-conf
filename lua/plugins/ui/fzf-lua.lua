@@ -5,6 +5,12 @@ return
 
     config = function()
         require("fzf-lua").setup({
+            defaults = {
+                actions = {
+                    ["esc"] = ""  --restore esc to normal mode (now quit with C-w)
+                },
+            },
+
             winopts = {
                 title_pos    = "center",
                 border       = "rounded",  --single
@@ -23,6 +29,7 @@ return
             fzf_opts = {
                 ["--layout"] = "default",  --reverse
             },
+
             keymap = {
                 --f4 toggle prev
             }

@@ -17,8 +17,8 @@
 
 ## Files
 ----
-* [ ] change file perms from nvim with user cmds
-
+* [x] change file perms from nvim with user cmds
+* [ ] watch for file change on disk and propose relocate 
 
 
 ## code
@@ -60,6 +60,9 @@
 * [ ] add search in browser menu item
 
 
+
+## window manager
+* [ ] add focus curr win bind
 
 ## proj
 ----

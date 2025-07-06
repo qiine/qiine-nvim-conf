@@ -140,24 +140,35 @@ vim.api.nvim_create_user_command("FileMove", function()
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil or input == "" or input == fpath then
+            if input == nil or input == fpath then
                 vim.notify("Move cancelled.", vim.log.levels.INFO) return
             end
 
             --assemble path
             local target_path = input .. "/" .. fname
 
+            --check target
             local stat = vim.loop.fs_stat(target_path)
             if stat then
-                vim.notify("Move failed: target file already exists", vim.log.levels.ERROR) return
+                local choice = vim.fn.confirm(
+                    "Target file already exists. Overwrite?",
+                    "&Yes\n&No",
+                    1
+                )
+
+                if choice ~= 1 then
+                    vim.notify("Move cancelled.", vim.log.levels.INFO)
+                    return
+                end
             end
 
+            --now rename
             local ok, err = vim.loop.fs_rename(fpath, target_path)
             if not ok then
                 vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
             end
 
-            --Reload buffer with new file
+            --Update buffer
             vim.api.nvim_buf_set_name(0, target_path)
             vim.cmd("e!") --refresh buf to new path
             vim.notify("Moved to: " .. input, vim.log.levels.INFO)

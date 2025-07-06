@@ -120,7 +120,7 @@ vim.opt.fillchars:append({
     foldsep   = " ", -- │  --separate folds (for open folds)
 
     diff      = "╱",
-
+    --vert      = "|",
     eob       = "~",
 })
 

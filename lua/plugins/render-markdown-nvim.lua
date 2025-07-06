@@ -4,14 +4,14 @@ return
     enabled = true,
     dependencies = {
         'nvim-treesitter/nvim-treesitter',
-        --'nvim-tree/nvim-web-devicons'
+        'nvim-tree/nvim-web-devicons'
         -- if you prefer nvim-web-devicons
     },
 
     config = function()
         require('render-markdown').setup({
             --preset = "obsidian",
-            file_types = {"markdown", "org", "codecompanion", "quarto"},
+            file_types = {"markdown", "org", "norg", "codecompanion", "quarto", "rmd"},
 
             --render_modes = { "i", 'n', 'v', "V", "\22", 'c', 't' },
             render_modes = true,

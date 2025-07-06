@@ -236,8 +236,15 @@ kmap({"i","n","v","c"}, "<M-Tab>", function()
     vim.cmd("normal! w")
 end)
 
-kmap("i", "<M-w><C-Left>", "<esc><C-w><")
-kmap("n", "<M-w><C-Left>", "<C-w><")
+kmap("n", "<M-w>H", "<C-w>t<C-w>H",{noremap=true})
+kmap("n", "<M-w>V", "<C-w>t<C-w>K",{noremap=true})
+
+--resize vert
+kmap("n", "<M-w><Left>", ":vertical resize -8<CR>", {noremap = true})
+kmap("n", "<M-w><Right>", ":vertical resize +8<CR>", {noremap = true})
+--resize hor
+kmap("n", "<M-w><Up>", ":resize +8<CR>", {noremap = true})
+kmap("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
 
 
 
@@ -623,7 +630,7 @@ kmap("v", "<BS>", '"_xi')
 --<M-S-BS> instead of <C-BS> because of wezterm
 kmap("i", "<M-S-BS>", '<esc>"_dbi')
 kmap("n", "<M-S-BS>", '"_db')
-kmap("v", "<M-S-BS>", '"_d')
+kmap("v", "<M-S-BS>", 'r ') --clear selected char
 
 --Backspace replace with white spaces, from cursor to line start
 --kmap({"i","n"}, "<M-BS>",
@@ -720,6 +727,9 @@ end)
 
 kmap("i", "<C-S-R>", "<esc>ciw")
 kmap("n", "<C-S-R>", "ciw")
+
+--replace visual selection with char
+kmap("v", "<S-r>", "r")
 
 --#[Incrementing]
 --vmap("n", "+", "<C-a>")

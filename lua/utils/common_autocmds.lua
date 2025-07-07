@@ -125,17 +125,29 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 
---Auto disable any search highlight on enter insert
+---[---Auto disable any search highlight on enter insert
+----vim.api.nvim_create_autocmd('InsertEnter', {
+----    group = "UserAutoCmds",
+----    pattern = '*.*',
+----    callback = function()
+----        vim.defer_fn(function()
+----            vim.cmd('nohlsearch')
+----        end, 1) --slight dealay otherwise won't work? (milliseconds)
+----    end,
+----]})
+
 vim.api.nvim_create_autocmd('InsertEnter', {
     group = "UserAutoCmds",
-    pattern = '*.*',
+    pattern = '*',
     callback = function()
         vim.defer_fn(function()
-            vim.cmd('nohlsearch')
-        end, 1) --slight dealay otherwise won't work? (milliseconds)
+            local last_cmd = vim.fn.getreg('/')
+            if last_cmd ~= '' then
+                vim.cmd('nohlsearch')
+            end
+        end, 1)
     end,
 })
-
 
 
 --[Buffers]--------------------------------------------------

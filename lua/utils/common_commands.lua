@@ -147,6 +147,8 @@ vim.api.nvim_create_user_command("FileMove", function()
             --assemble path
             local target_path = input .. "/" .. fname
 
+            --TODO add create relevant dir prompt
+
             --check target
             local stat = vim.loop.fs_stat(target_path)
             if stat then

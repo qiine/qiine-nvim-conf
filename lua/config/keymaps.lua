@@ -592,7 +592,7 @@ kmap("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and cop
 kmap("i", "<C-S-x>", '<esc>viw"+xi')
 kmap("n", "<C-S-x>", 'viw"+x')
 
---Pasting
+--Paste
 kmap("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
 kmap("n", "<C-v>", '"+P`[v`]=`]')
 kmap("v", "<C-v>", '"_d"+P`[v`]=')
@@ -1022,5 +1022,6 @@ kmap({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
 
 --exit
 kmap("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+
 
 

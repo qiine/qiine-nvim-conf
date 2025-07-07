@@ -4,6 +4,7 @@ return
     dependencies = { "nvim-tree/nvim-web-devicons" },
 
     config = function()
+        require('fzf-lua').register_ui_select()
         require("fzf-lua").setup({
             defaults = {
                 actions = {
@@ -28,6 +29,28 @@ return
             },
             fzf_opts = {
                 ["--layout"] = "default",  --reverse
+
+            },
+
+            files = {
+                cmd = [[
+                    rg --files --hidden \
+                    -g 'Downloads/**' \
+                    -g '/**' \
+                    -g '!.git/**' \
+                    -g '!.npm/**' \
+                    -g '!.local/share/**' \
+                    -g '!.local/share/Trash/**' \
+                    -g '!.local/share/nvim/undo/**' \
+                    -g '!cache/**' \
+                    -g '!.var/**' \
+                    -g '!.cache/**' \
+                    -g '!node_modules/**' \
+                    -g '!.mozilla/**' \
+                    -g '!.cargo/**' \
+                    -g '!*/steam-runtime-sniper/**' \
+                    -g '!**/containers/**'
+                ]]
             },
 
             keymap = {
@@ -39,33 +62,50 @@ return
         vim.keymap.set({"i","n","v"}, "<M-f>", function()
             require("fzf-lua").files({
                 cwd="~",
-                winopts = { preview = { hidden = false } }
             })
         end, { silent = true, desc = "Fuzzy find file" })
 
+        --find files in project
         vim.keymap.set({"i","n","v"}, "<C-S-f>", function()
             local path = require("fzf-lua.path")
             require("fzf-lua").files({
                 cwd = path.git_root({}),
-                winopts = { preview = {} }
+            })
+        end, { silent = true, desc = "Fuzzy find file" })
+
+        --find files in project
+        vim.keymap.set({"i","n","v"}, "<C-S-f>", function()
+            local path = require("fzf-lua.path")
+            require("fzf-lua").files({
+                cwd = path.git_root({}),
             })
         end, { silent = true, desc = "Fuzzy find file" })
 
 
-        --grep
-        vim.keymap.set({"i","n","v"}, "<M-f>g", function()
+        --grep curr dir
+        vim.keymap.set({"i","n","v"}, "<M-f><S-g>", function()
+            --local path = require("fzf-lua.path")
+
             require("fzf-lua").live_grep({
-                cwd="~",
-                winopts = { preview = {} }
+                --cwd = path.git_cwd({}),
             })
         end, { silent = true, desc = "Live grep" })
 
+        --grep curr project
         vim.keymap.set({"i","n","v"}, "<C-S-g>", function()
+            local path = require("fzf-lua.path")
             require("fzf-lua").live_grep({
-                --cmd = "git grep -i --line-number --column --color=always",
-                winopts = { preview = {} }
+                cwd = path.git_root({}),
             })
         end, { noremap = true, silent = true, desc = "Live grep" })
+
+        --grep root
+        vim.keymap.set({"i","n","v"}, "<M-f>g", function()
+            require("fzf-lua").live_grep({
+                --cmd = "git grep -i --line-number --column --color=always",
+                cwd = "~"
+            })
+        end, { silent = true, desc = "Live grep" })
 
 
         --search builtins

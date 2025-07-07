@@ -17,13 +17,13 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 
 
---[File]--------------------------------------------------
---TODO Auto save all buff if manually saved at least once
---vim.api.nvim_create_autocmd('TabLeave', {
+--## [File]
+----------------------------------------------------------------------
 
 
 
---[Editing]--------------------------------------------------
+--## [Editing]
+----------------------------------------------------------------------
 --Prevent cursor left offseting when going from insert to normal mode
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = "UserAutoCmds",
@@ -131,7 +131,7 @@ vim.api.nvim_create_autocmd('InsertEnter', {
     pattern = '*.*',
     callback = function()
         vim.defer_fn(function()
-        vim.cmd('nohlsearch')
+            vim.cmd('nohlsearch')
         end, 1) --slight dealay otherwise won't work? (milliseconds)
     end,
 })

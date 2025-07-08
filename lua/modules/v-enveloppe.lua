@@ -56,14 +56,15 @@ function M.setup(opts)
     vim.keymap.set("v", "<C-(>", "di(<esc>P`]a)" )
 
     --vim.keymap.set("v", "<C-[>", "di[<esc>P`]a]" )
-
     vim.keymap.set("v", "<C-{>", "di{<esc>P`]a}" )
 
     vim.keymap.set({"i","n"}, '<C-<>', M.enveloppe_word_angledbracket, { desc = "enveloppe word angled brackets" })
-    vim.keymap.set("v", "<C-<>", "di<<esc>P`]a>")
+    vim.keymap.set("v",       "<C-<>", "di<<esc>P`]a>")
 
     vim.keymap.set("v", '<C-">', M.envelope_selected_doublequote, { desc = "Surround visual selection with char" })
     vim.keymap.set("v", "<C-'>", M.envelope_selected_singlequote, { desc = "Surround visual selection with char" })
+
+    vim.keymap.set("v", "<C-*>", "di*<esc>P`]a*" )
 
 end
 

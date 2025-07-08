@@ -6,7 +6,8 @@ local utils = require("utils.utils")
 local v = vim
 
 
---[General]--------------------------------------------------
+--## [General]
+----------------------------------------------------------------------
 --Smart start insert
 vim.g.autostartinsert = true
 
@@ -102,7 +103,7 @@ end))
 
 
 
---[Undo]--------------------------------------------------
+--[Undo]
 vim.opt.undolevels = 2000
 
 --Persistent undo

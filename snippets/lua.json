@@ -1,6 +1,6 @@
 {
-    "create vscode snippet": {
-        "prefix": "create_vscode_snippet",
+    "vscode snippet": {
+        "prefix": "vscode_snippet",
         "description": "Create a new VSCode snippet",
         "body": [
             "\"new snippet\": {",
@@ -13,8 +13,8 @@
         ]
     },
 
-    "create vim user command": {
-        "prefix": "create vim user command",
+    "nvim user command": {
+        "prefix": "nvim user command",
         "body": [
             "vim.api.nvim_create_user_command(\"NewUserCmd\", function()",
                 "\t--cmd",
@@ -22,8 +22,8 @@
         ]
     },
 
-    "create vim autocommand": {
-        "prefix": "create vim autocommand",
+    "nvim autocommand": {
+        "prefix": "nvim autocommand",
         "description": "Create a new nvim auto command",
         "body": [
             "vim.api.nvim_create_autocmd('BufEnter', {",
@@ -36,8 +36,8 @@
         ]
     },
 
-    "create_user_autocmd_group": {
-        "prefix": "create_user_autocmd_group",
+    "nvim_user_autocmd_group": {
+        "prefix": "nvim_user_autocmd_group",
         "body": [
             "vim.api.nvim_create_augroup('NewUserAutoCmdGroup', { clear = true })"
         ]

@@ -113,11 +113,52 @@ return
                     {--select count
                         function()
                             local m = vim.fn.mode()
-                            if m == "v" or m == "V" then return'<>' else return "" end
+                            local icon = ""
+                            local function selectioncount()
+                                local mode = vim.fn.mode()
+                                local pos1 = vim.fn.getpos("v")
+                                local pos2 = vim.fn.getpos(".")
+
+                                local l1, c1 = pos1[2], pos1[3]
+                                local l2, c2 = pos2[2], pos2[3]
+
+                                -- Normalize positions
+                                if l2 < l1 or (l1 == l2 and c2 < c1) then
+                                    l1, l2 = l2, l1
+                                    c1, c2 = c2, c1
+                                end
+
+                                if mode == "v" then
+                                    if l1 == l2 then
+                                        return c2 - c1 + 1
+                                    else
+                                        local lines = vim.api.nvim_buf_get_lines(0, l1 - 1, l2, false)
+                                        local count = #lines[1] - c1 + 1
+                                        for i = 2, #lines - 1 do
+                                            count = count + #lines[i]
+                                        end
+                                        count = count + c2
+                                        return count
+                                    end
+                                elseif mode == "V" then
+                                    return math.abs(l2 - l1) + 1
+                                elseif mode == "" then -- blockwise visual
+                                    return string.format('%dx%d', math.abs(l2 - l1) + 1, math.abs(c2 - c1) + 1)
+                                else
+                                    return ''
+                                end
+                            end
+
+                            if m == "v" or m == "V" or m == "\22" then
+                                icon = '<>'
+                                return icon  .. selectioncount()
+                            else
+                                return icon
+                            end
                         end,
-                        padding=0,
+                        padding={left=0,right=1},
                     },
-                    {"selectioncount", left_padding=1, right_padding=0},
+                    --{"selectioncount", left_padding=1, right_padding=0},
                     {'location', padding=0},
                     {--line count
                         function()

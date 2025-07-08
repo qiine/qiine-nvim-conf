@@ -10,7 +10,7 @@ local utils = require("utils.utils")
 
 
 
-vim.api.nvim_create_user_command("WorkDirToCurrent", function()
+vim.api.nvim_create_user_command("CDFileDir", function()
     vim.cmd("cd %:p:h") -- ":h" rem file name
 end, {})
 
@@ -477,6 +477,16 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
         vim.opt.listchars:remove("eol")
     else
         vim.opt.listchars:append({ eol = "¶" })
+    end
+end, {})
+
+vim.api.nvim_create_user_command("ToggleColorcolumn", function()
+    local col = vim.opt.colorcolumn:get()
+
+    if #col > 0 then
+        vim.opt_local.colorcolumn = {}
+    else
+        vim.opt_local.colorcolumn = { vim.opt.textwidth:get() }
     end
 end, {})
 

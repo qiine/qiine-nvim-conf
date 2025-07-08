@@ -200,7 +200,8 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 
 
 
---[Diagnostic]--------------------------------------------------
+--## [Diagnostic]
+----------------------------------------------------------------------
 vim.diagnostic.config({
     underline = true,
     update_in_insert = false, --false so diags update on InsertLeave

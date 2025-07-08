@@ -476,6 +476,20 @@ kmap("i", "<C-f>", "<Esc><C-l>:/")
 kmap("n", "<C-f>", "/")
 kmap("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
 
+--search Help for selection
+kmap("v", "<F1>", function()
+    vim.cmd('normal! y')
+    local reg = vim.fn.getreg('"')
+    vim.cmd("h " .. reg)
+end)
+
+--Search in notes
+kmap({"i","n"}, "<F49>", function()   --<M-F1>
+    require("fzf-lua").live_grep({
+        cwd = "~/Personal/KnowledgeBase/Notes/"
+    })
+end)
+
 
 
 --## [Editing]
@@ -493,7 +507,7 @@ end)
 kmap("v", "<M-i>", "I")
 
 --Insert literal
-kmap("i", "<C-i>", "<C-v>") --collide with tab :(
+--kmap("i", "<C-i>", "<C-v>") --collide with tab :(
 kmap("n", "<C-i>", "i<C-v>")
 
 --Insert snipet
@@ -540,9 +554,9 @@ kmap("i", "<C-c>", function()
     if line ~= "" then
         vim.cmd('normal! 0"+y$')
 
-        vim.api.nvim_win_set_cursor(0, cpos)
+        --vim.api.nvim_win_set_cursor(0, cpos)
 
-        vim.cmd("echo 'copied!'")
+        vim.cmd("echo 'line copied!'")
     end
 end, {noremap=true} )
 kmap("n", "<C-c>", function()
@@ -911,9 +925,9 @@ kmap("n", "<M-r>", "q", {remap = true})
 
 --## [Text inteligence]
 ----------------------------------------------------------------------
---Goto deffinition
+--Goto definition
 kmap("i", "<F12>", "<Esc>gdi")
-kmap("n", "<F12>", "gd")
+kmap("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 kmap("v", "<F12>", "<Esc>gd")
 
 --show hover window
@@ -958,7 +972,8 @@ end)
 
 
 
---[code runner]--------------------------------------------------
+--## [code runner]
+----------------------------------------------------------------------
 --run code at cursor with sniprun
 --run curr line only and insert res below
 kmap({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
@@ -1012,21 +1027,6 @@ kmap("i", "<C-l>", "<C-o><C-l>")
 --Cmd close
 kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 
---help
---Help for selected
-kmap("v", "<F1>", function()
-    vim.cmd('normal! y')
-    local reg = vim.fn.getreg('"')
-    vim.cmd("h " .. reg)
-end)
-
---Search selected in notes
-kmap({"i","n"}, "<F49>", function()   --<M-F1>
-    require("fzf-lua").live_grep({
-        cwd = "~/Personal/KnowledgeBase/Notes/"
-    })
-end)
-
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     callback = function()
@@ -1041,6 +1041,4 @@ kmap({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
 
 --exit
 kmap("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
-
-
 

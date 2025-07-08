@@ -44,10 +44,10 @@ return
         combo("i", "<S-Right><S-Left>", "<Esc>V")
         combo("i", "<S-Left><S-Right>", "<Esc>V")
 
-        combo("n", "<S-Right><S-Left>", function () vim.cmd("normal! V") end)
-        combo("n", "<S-Left><S-Right>", function () vim.cmd("normal! V") end)
+        combo("n", "<S-Right><S-Left>", function() vim.cmd("normal! V") end)
+        combo("n", "<S-Left><S-Right>", function() vim.cmd("normal! V") end)
 
-        combo("v", "<S-Right><S-Left>", function () vim.cmd("normal! V") end)
-        combo("v", "<S-Left><S-Right>", function () vim.cmd("normal! V") end)
+        combo("v", "<S-Right><S-Left>", function() vim.cmd("normal! V") end)
+        combo("v", "<S-Left><S-Right>", function() vim.cmd("normal! V") end)
     end
 }

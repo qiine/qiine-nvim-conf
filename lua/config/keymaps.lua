@@ -12,7 +12,7 @@ local utils = require("utils.utils")
 local v     = vim
 local vapi  = vim.api
 local vcmd  = vim.cmd
-local kmap  = vim.keymap.set
+local map  = vim.keymap.set
 local nvmap = vim.api.nvim_set_keymap
 ----------------------------------------
 
@@ -55,20 +55,20 @@ vim.opt.timeoutlen = 300 --delay between key press to register shortcuts
 --## [Internal]
 ----------------------------------------------------------------------
 --Ctrl+q to quit
-kmap(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
+map(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
 
 --Quick restart nvim
-kmap(modes, "<C-M-r>", "<cmd>Restart<cr>")
+map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
 --F5reload buffer
-kmap({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
+map({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
 
 
 
 --## [File]
 ----------------------------------------------------------------------
 --Create new file
-kmap({"i","n","v"}, "<C-n>", function()
+map({"i","n","v"}, "<C-n>", function()
     local buff_count = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
     v.cmd("enew")
@@ -76,10 +76,10 @@ kmap({"i","n","v"}, "<C-n>", function()
 end)
 
 --Open file picker
-kmap(modes, "<C-o>", function() vim.cmd("FilePicker") end)
+map(modes, "<C-o>", function() vim.cmd("FilePicker") end)
 
 --ctrl+s save
-kmap(modes, "<C-s>", function()
+map(modes, "<C-s>", function()
     local cbuf = vim.api.nvim_get_current_buf()
     local path = vim.api.nvim_buf_get_name(0)
 
@@ -106,7 +106,7 @@ kmap(modes, "<C-s>", function()
 end)
 
 --Save all buffers
-kmap(modes, "<C-S-s>", function()
+map(modes, "<C-S-s>", function()
     local bufs = vim.api.nvim_list_bufs()
     for _, buf in ipairs(bufs) do
         if vim.api.nvim_buf_is_loaded(buf) and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1 then
@@ -121,7 +121,7 @@ kmap(modes, "<C-S-s>", function()
 end)
 
 --save as
-kmap(modes, "<M-C-S>", function()
+map(modes, "<M-C-S>", function()
     local cbuf = vim.api.nvim_get_current_buf()
     local path = vim.api.nvim_buf_get_name(0)
 
@@ -143,7 +143,7 @@ end)
 
 
 --Ressource curr file
-kmap(modes, "ç", --"<altgr-r>"
+map(modes, "ç", --"<altgr-r>"
     function()
         local cf = vim.fn.expand("%:p")
 
@@ -160,14 +160,14 @@ kmap(modes, "ç", --"<altgr-r>"
 --## [View]
 ----------------------------------------------------------------------
 --alt-z toggle line wrap
-kmap({"i", "n", "v"}, "<A-z>",
+map({"i", "n", "v"}, "<A-z>",
     function()
         vim.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
     end
 )
 
 --Gutter on/off
-kmap({"i","n"}, "<M-g>", function()
+map({"i","n"}, "<M-g>", function()
     local toggle = "yes"
     vim.opt.number = false
     vim.opt.relativenumber = false
@@ -189,20 +189,20 @@ end, {desc = "Toggle Gutter" })
 -- )
 
 --virt lines
-kmap("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
+map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 
 
 --## [Tabs]
 ----------------------------------------------------------------------
 --create new tab
-kmap( modes,"<C-t>", function()
+map( modes,"<C-t>", function()
     vim.cmd("enew")
     vim.cmd("Alpha")
 end)
 
 --Tabs close
-kmap(modes, "<C-w>", function()
+map(modes, "<C-w>", function()
     local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
     if bufmodif then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
@@ -219,42 +219,42 @@ end)
 
 --Tabs nav
 --next
-kmap(modes, "<C-Tab>",  "<cmd>bnext<cr>")
+map(modes, "<C-Tab>",  "<cmd>bnext<cr>")
 --prev
-kmap(modes, "<C-S-Tab>", "<cmd>bp<cr>")
+map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
 --## [Windows]
 ----------------------------------------------------------------------
-kmap("i", "<M-w>", "<esc><C-w>")
-kmap("n", "<M-w>", "<C-w>")
-kmap("v", "<M-w>", "<Esc><C-w>")
+map("i", "<M-w>", "<esc><C-w>")
+map("n", "<M-w>", "<C-w>")
+map("v", "<M-w>", "<Esc><C-w>")
 
 --To next window
-kmap({"i","n","v","c"}, "<M-Tab>", function()
+map({"i","n","v","c"}, "<M-Tab>", function()
     vim.cmd("normal! w")
 end)
 
-kmap("n", "<M-w>H", "<C-w>t<C-w>H",{noremap=true})
-kmap("n", "<M-w>V", "<C-w>t<C-w>K",{noremap=true})
+map("n", "<M-w>H", "<C-w>t<C-w>H",{noremap=true})
+map("n", "<M-w>V", "<C-w>t<C-w>K",{noremap=true})
 
 --resize vert
-kmap("n", "<M-w><Left>", ":vertical resize -8<CR>", {noremap = true})
-kmap("n", "<M-w><Right>", ":vertical resize +8<CR>", {noremap = true})
+map("n", "<M-w><Left>", ":vertical resize -8<CR>", {noremap = true})
+map("n", "<M-w><Right>", ":vertical resize +8<CR>", {noremap = true})
 --resize hor
-kmap("n", "<M-w><Up>", ":resize +8<CR>", {noremap = true})
-kmap("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
+map("n", "<M-w><Up>", ":resize +8<CR>", {noremap = true})
+map("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
 
 
 
 --## [Navigation]
 ----------------------------------------------------------------------
-kmap("n", "<Left>",  "<Left>",  { noremap = true })  --avoid opening folds
-kmap("n", "<Right>", "<Right>", { noremap = true })
+map("n", "<Left>",  "<Left>",  { noremap = true })  --avoid opening folds
+map("n", "<Right>", "<Right>", { noremap = true })
 
 --Jump to next word
-kmap({"i","v"}, '<C-Right>', function()
+map({"i","v"}, '<C-Right>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
     vim.cmd("normal! w")
@@ -268,7 +268,7 @@ kmap({"i","v"}, '<C-Right>', function()
 end)
 
 --Jump to previous word
-kmap({"i","v"}, '<C-Left>', function()
+map({"i","v"}, '<C-Left>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
     vim.cmd("normal! b")
@@ -280,43 +280,43 @@ kmap({"i","v"}, '<C-Left>', function()
 end)
 
 --to next/prev cursor loc
-kmap({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
-kmap("n",       "<M-PageDown>",  "<C-o>")
-kmap({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
-kmap("n",       "<M-PageUp>",    "<C-i>")
+map({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
+map("n",       "<M-PageDown>",  "<C-o>")
+map({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
+map("n",       "<M-PageUp>",    "<C-i>")
 
 
 --#[Fast cursor move]
 --Fast left/right move in normal mode
-kmap('n', '<C-Right>', "5l")
-kmap('n', '<C-Left>',  "5h")
+map('n', '<C-Right>', "5l")
+map('n', '<C-Left>',  "5h")
 
 --ctrl+up/down to move fast
-kmap("i", "<C-Up>", "<Esc>3ki")
-kmap("n", "<C-Up>", "4k")
-kmap("v", "<C-Up>", "3k")
+map("i", "<C-Up>", "<Esc>3ki")
+map("n", "<C-Up>", "4k")
+map("v", "<C-Up>", "3k")
 
-kmap("i", "<C-Down>", "<Esc>3ji")
-kmap("n", "<C-Down>", "4j")
-kmap("v", "<C-Down>", "3j")
+map("i", "<C-Down>", "<Esc>3ji")
+map("n", "<C-Down>", "4j")
+map("v", "<C-Down>", "3j")
 
 
 --alt+left/right move to start/end of line
-kmap("i",       "<M-Left>", "<Esc>0i")
-kmap({"n","v"}, "<M-Left>", "0")
+map("i",       "<M-Left>", "<Esc>0i")
+map({"n","v"}, "<M-Left>", "0")
 
-kmap("i",       "<M-Right>", "<Esc>$a")
-kmap({"n","v"}, "<M-Right>", "$")
+map("i",       "<M-Right>", "<Esc>$a")
+map({"n","v"}, "<M-Right>", "$")
 
 --Quick home/end
-kmap("i",       "<Home>", "<Esc>gg0i")
-kmap({"n","v"}, "<Home>", "gg0")
+map("i",       "<Home>", "<Esc>gg0i")
+map({"n","v"}, "<Home>", "gg0")
 
 --kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
-kmap("i",       "<End>", "<esc>G0i")
-kmap({"n","v"}, "<End>", "G0")
+map("i",       "<End>", "<esc>G0i")
+map({"n","v"}, "<End>", "G0")
 
 --kmap("i", "<M-Down>", "<Esc>G0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Down>", "G0")
@@ -342,7 +342,7 @@ kmap({"n","v"}, "<End>", "G0")
 --    end
 --end
 
-kmap("n", "f", function()
+map("n", "f", function()
     --JumpToCharAcrossLines()
 end, {remap = true})
 
@@ -350,47 +350,47 @@ end, {remap = true})
 --## [Selection]
 ----------------------------------------------------------------------
 --Swap selection anchors
-kmap("v", "<M-v>", "o")
+map("v", "<M-v>", "o")
 
 --Select word under cursor
-kmap("i", "<C-S-w>", "<esc>viw")
-kmap("n", "<C-S-w>", "viw")
-kmap("v", "<C-S-w>", "<esc>viw")
+map("i", "<C-S-w>", "<esc>viw")
+map("n", "<C-S-w>", "viw")
+map("v", "<C-S-w>", "<esc>viw")
 
 --shift+arrows visual select
-kmap("i", "<S-Left>", "<Esc>hv", {noremap = true})
-kmap("n", "<S-Left>", "vh", {noremap = true})
-kmap("v", "<S-Left>", "<Left>")
+map("i", "<S-Left>", "<Esc>hv", {noremap = true})
+map("n", "<S-Left>", "vh", {noremap = true})
+map("v", "<S-Left>", "<Left>")
 
-kmap("i", "<S-Right>", "<Esc>v", {noremap = true})
-kmap("n", "<S-Right>", "vl", {noremap = true})
-kmap("v", "<S-Right>", "<Right>")
+map("i", "<S-Right>", "<Esc>v", {noremap = true})
+map("n", "<S-Right>", "vl", {noremap = true})
+map("v", "<S-Right>", "<Right>")
 
-kmap("i", "<S-Up>", "<Esc>vk", {noremap=true})
-kmap("n", "<S-Up>", "vk", {noremap=true})
-kmap("v", "<S-Up>", "k", {noremap=true}) --avoid fast scrolling around
+map("i", "<S-Up>", "<Esc>vk", {noremap=true})
+map("n", "<S-Up>", "vk", {noremap=true})
+map("v", "<S-Up>", "k", {noremap=true}) --avoid fast scrolling around
 
-kmap("i", "<S-Down>", "<Esc>vh", {noremap=true})
-kmap("n", "<S-Down>", "vj", {noremap=true})
-kmap("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
+map("i", "<S-Down>", "<Esc>vh", {noremap=true})
+map("n", "<S-Down>", "vj", {noremap=true})
+map("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
 
 --Select to home
-kmap("i", "<S-Home>", "<Esc>vgg0i")
-kmap("n", "<S-Home>", "vgg0")
-kmap("v", "<S-Home>", "g0")
+map("i", "<S-Home>", "<Esc>vgg0i")
+map("n", "<S-Home>", "vgg0")
+map("v", "<S-Home>", "g0")
 
 --select to end
-kmap("i", "<S-End>", "<Esc>vGi")
-kmap("n", "<S-End>", "vG")
-kmap("v", "<S-End>", "G")
+map("i", "<S-End>", "<Esc>vGi")
+map("n", "<S-End>", "vG")
+map("v", "<S-End>", "G")
 
 --ctrl+a select all
-kmap(modes, "<C-a>", "<Esc>ggVG")
+map(modes, "<C-a>", "<Esc>ggVG")
 
 
 --Visual block selection
-kmap({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
-kmap("v", "<S-M-Left>",
+map({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
+map("v", "<S-M-Left>",
     function()
         if vim.fn.mode() == '\22' then  --"\22" is vis block mode
             vim.cmd("normal! h")
@@ -400,8 +400,8 @@ kmap("v", "<S-M-Left>",
     end
 )
 
-kmap({"i","n"}, "<S-M-Right>", "<Esc><C-v>l")
-kmap("v", "<S-M-Right>",
+map({"i","n"}, "<S-M-Right>", "<Esc><C-v>l")
+map("v", "<S-M-Right>",
     function()
         if vim.fn.mode() == '\22' then
             vim.cmd("normal! l")
@@ -411,8 +411,8 @@ kmap("v", "<S-M-Right>",
     end
 )
 
-kmap({"i","n"}, "<S-M-Up>", "<Esc><C-v>k")
-kmap("v", "<S-M-Up>",
+map({"i","n"}, "<S-M-Up>", "<Esc><C-v>k")
+map("v", "<S-M-Up>",
     function()
         if vim.fn.mode() == '\22' then
             vim.cmd("normal! k")
@@ -422,8 +422,8 @@ kmap("v", "<S-M-Up>",
     end
 )
 
-kmap({"i","n"}, "<S-M-Down>", "<Esc><C-v>j")
-kmap("v", "<S-M-Down>",
+map({"i","n"}, "<S-M-Down>", "<Esc><C-v>j")
+map("v", "<S-M-Down>",
     function()
         if vim.fn.mode() == '\22' then
             vim.cmd("normal! j")
@@ -436,18 +436,18 @@ kmap("v", "<S-M-Down>",
 
 --### [Grow select]
 --grow horizontally TODO proper anchor logic
-kmap("i", "<C-S-PageDown>", "<Esc>vl")
-kmap("n", "<C-S-PageDown>", "vl")
-kmap("v", "<C-S-PageDown>", "l")
+map("i", "<C-S-PageDown>", "<Esc>vl")
+map("n", "<C-S-PageDown>", "vl")
+map("v", "<C-S-PageDown>", "l")
 
-kmap("i", "<C-S-PageUp>", "<Esc>vh")
-kmap("n", "<C-S-PageUp>", "vh")
-kmap("v", "<C-S-PageUp>", "oho")
+map("i", "<C-S-PageUp>", "<Esc>vh")
+map("n", "<C-S-PageUp>", "vh")
+map("v", "<C-S-PageUp>", "oho")
 
 --grow do end/start of line
-kmap("i", "<S-PageUp>", "<Esc><S-v>k")
-kmap("n", "<S-PageUp>", "<S-v>k")
-kmap("v", "<S-PageUp>",
+map("i", "<S-PageUp>", "<Esc><S-v>k")
+map("n", "<S-PageUp>", "<S-v>k")
+map("v", "<S-PageUp>",
     function ()
         if vim.fn.mode() == "V" then
             vim.cmd("normal! k")
@@ -457,9 +457,9 @@ kmap("v", "<S-PageUp>",
     end
 )
 
-kmap("i", "<S-PageDown>", "<Esc><S-v>j")
-kmap("n", "<S-PageDown>", "<S-v>j")
-kmap("v", "<S-PageDown>",
+map("i", "<S-PageDown>", "<Esc><S-v>j")
+map("n", "<S-PageDown>", "<S-v>j")
+map("v", "<S-PageDown>",
     function ()
         local m = vim.api.nvim_get_mode().mode
         if vim.fn.mode() == "V" then
@@ -472,19 +472,19 @@ kmap("v", "<S-PageDown>",
 
 
 --#[select search]
-kmap("i", "<C-f>", "<Esc><C-l>:/")
-kmap("n", "<C-f>", "/")
-kmap("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
+map("i", "<C-f>", "<Esc><C-l>:/")
+map("n", "<C-f>", "/")
+map("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
 
 --search Help for selection
-kmap("v", "<F1>", function()
+map("v", "<F1>", function()
     vim.cmd('normal! y')
     local reg = vim.fn.getreg('"')
     vim.cmd("h " .. reg)
 end)
 
 --Search in notes
-kmap({"i","n"}, "<F49>", function()   --<M-F1>
+map({"i","n"}, "<F49>", function()   --<M-F1>
     require("fzf-lua").live_grep({
         cwd = "~/Personal/KnowledgeBase/Notes/"
     })
@@ -495,26 +495,26 @@ end)
 --## [Editing]
 ----------------------------------------------------------------------
 --toggle insert/normal with insert key
-kmap("i", "<Ins>", "<Esc>")
-kmap("n", "<Ins>", "i")
-kmap("v", "<Ins>", function ()
+map("i", "<Ins>", "<Esc>")
+map("n", "<Ins>", "i")
+map("v", "<Ins>", function ()
     --seems to be more relyable
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>i", true, false, true), "n", false)
 end)
 
 
 --To Visual insert mode
-kmap("v", "<M-i>", "I")
+map("v", "<M-i>", "I")
 
 --Insert literal
 --kmap("i", "<C-i>", "<C-v>") --collide with tab :(
-kmap("n", "<C-i>", "i<C-v>")
+map("n", "<C-i>", "i<C-v>")
 
 --Insert snipet
 --insert function()
 --kmap("i", "<C-S-i>")
 
-kmap("v", "î",
+map("v", "î",
     function()
         if vim.fn.mode() == '\22' then  --"\22" is vis block mode
             --"$A" insert at end of each lines from vis block mode
@@ -537,17 +537,17 @@ local chars = utils.table_flatten(
     }
 )
 for _, char in ipairs(chars) do
-    kmap('v', char, '"_d<esc>i'..char, {noremap=true})
+    map('v', char, '"_d<esc>i'..char, {noremap=true})
 end
-kmap("v", "<space>", '"_di<space>', {noremap=true})
-kmap("v", "<cr>", '"_di<cr>', {noremap=true})
+map("v", "<space>", '"_di<space>', {noremap=true})
+map("v", "<cr>", '"_di<cr>', {noremap=true})
 
 
 --#[Copy / Paste]
 -- ' "+ ' is the os register
 --Copy
 --Copy whole line in insert
-kmap("i", "<C-c>", function()
+map("i", "<C-c>", function()
     local cpos = vim.api.nvim_win_get_cursor(0)
     local line = vim.api.nvim_get_current_line()
 
@@ -559,14 +559,14 @@ kmap("i", "<C-c>", function()
         vim.cmd("echo 'line copied!'")
     end
 end, {noremap=true} )
-kmap("n", "<C-c>", function()
+map("n", "<C-c>", function()
     local char = utils.get_char_at_cursorpos()
 
     if  char ~= " " and char ~= "" then
         vim.cmd('normal! "+yl')
     end
 end, {noremap = true})
-kmap("v", "<C-c>", function()
+map("v", "<C-c>", function()
     local cpos = vim.api.nvim_win_get_cursor(0)
 
     vim.cmd('normal! "+y')
@@ -577,7 +577,7 @@ kmap("v", "<C-c>", function()
 end, {noremap=true})
 
 --copy append
-kmap("v", "<M-c>", function()
+map("v", "<M-c>", function()
     local cpos = vim.api.nvim_win_get_cursor(0)
     local reg_prev = vim.fn.getreg("+")
 
@@ -592,7 +592,7 @@ kmap("v", "<M-c>", function()
 end)
 
 --Copy word
-kmap({"i","n"}, "<C-S-c>", function()
+map({"i","n"}, "<C-S-c>", function()
     local cpos = vim.api.nvim_win_get_cursor(0)
 
     vim.cmd('normal! viw"+y')
@@ -604,38 +604,38 @@ end)
 
 
 --cuting
-kmap("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true})
-kmap("n", "<C-x>", '"+x',             { noremap = true})
-kmap("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and copy so..
+map("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true})
+map("n", "<C-x>", '"+x',             { noremap = true})
+map("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and copy so..
 
 --cut word
-kmap("i", "<C-S-x>", '<esc>viw"+xi')
-kmap("n", "<C-S-x>", 'viw"+x')
+map("i", "<C-S-x>", '<esc>viw"+xi')
+map("n", "<C-S-x>", 'viw"+x')
 
 --Paste
-kmap("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
-kmap("n", "<C-v>", '"+P`[v`]=`]')
-kmap("v", "<C-v>", '"_d"+P`[v`]=')
-kmap("c", "<C-v>", '<C-R>+')
-kmap("t", "<C-v>", '<C-o>"+P')
+map("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
+map("n", "<C-v>", '"+P`[v`]=`]')
+map("v", "<C-v>", '"_d"+P`[v`]=')
+map("c", "<C-v>", '<C-R>+')
+map("t", "<C-v>", '<C-o>"+P')
 
 --Duplicate
-kmap("i", "<C-d>", '<Esc>yypi')
-kmap("n", "<C-d>", 'yyp')
-kmap("v", "<C-d>", 'yP')
+map("i", "<C-d>", '<Esc>yypi')
+map("n", "<C-d>", 'yyp')
+map("v", "<C-d>", 'yP')
 
 
 --#[Undo/redo]
 --ctrl+z to undo
-kmap("i",       "<C-z>",   "<C-o>u", {noremap = true})
-kmap({"n","v"}, "<C-z>",   "u",      {noremap = true})
+map("i",       "<C-z>",   "<C-o>u", {noremap = true})
+map({"n","v"}, "<C-z>",   "u",      {noremap = true})
 
 --redo
-kmap("i",       "<C-y>",   "<cmd>normal! <C-r><cr>")
-kmap({"n","v"}, "<C-y>",   "<C-r>")
+map("i",       "<C-y>",   "<cmd>normal! <C-r><cr>")
+map({"n","v"}, "<C-y>",   "<C-r>")
 
-kmap("i",       "<C-S-z>", "<cmd>normal! <C-r><cr>")
-kmap({"n","v"}, "<C-S-z>", "<C-r>")
+map("i",       "<C-S-z>", "<cmd>normal! <C-r><cr>")
+map({"n","v"}, "<C-S-z>", "<C-r>")
 
 
 --#[Deletion]
@@ -643,14 +643,14 @@ kmap({"n","v"}, "<C-S-z>", "<C-r>")
 --BS remove char
 --kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 --kmap("n", "<BS>", '<Esc>"_X<Esc>')
-kmap("n", "<BS>", 'r ')
-kmap("v", "<BS>", '"_xi')
+map("n", "<BS>", 'r ')
+map("v", "<BS>", '"_xi')
 
 --remove word left
 --<M-S-BS> instead of <C-BS> because of wezterm
-kmap("i", "<M-S-BS>", '<esc>"_dbi')
-kmap("n", "<M-S-BS>", '"_db')
-kmap("v", "<M-S-BS>", 'r ') --clear selected char
+map("i", "<M-S-BS>", '<esc>"_dbi')
+map("n", "<M-S-BS>", '"_db')
+map("v", "<M-S-BS>", 'r ') --clear selected char
 
 --Backspace replace with white spaces, from cursor to line start
 --kmap({"i","n"}, "<M-BS>",
@@ -670,29 +670,29 @@ kmap("v", "<M-S-BS>", 'r ') --clear selected char
 --)
 
 --Remove to start of line
-kmap("i", "<M-BS>", '<esc>"_d0i')
-kmap("n", "<M-BS>", '"_d0')
+map("i", "<M-BS>", '<esc>"_d0i')
+map("n", "<M-BS>", '"_d0')
 
 --Shift+backspace clear line
-kmap("i", "<S-BS>", '<esc>"_cc')
-kmap("n", "<S-BS>", '"_cc<esc>')
-kmap("v", "<S-BS>", '<esc>"_cc<esc>')
+map("i", "<S-BS>", '<esc>"_cc')
+map("n", "<S-BS>", '"_cc<esc>')
+map("v", "<S-BS>", '<esc>"_cc<esc>')
 
 
 --##[Delete]
-kmap("n", "<Del>", 'v"_d<esc>')
-kmap("v", "<Del>", '"_di')
+map("n", "<Del>", 'v"_d<esc>')
+map("v", "<Del>", '"_di')
 
 --Delete right word
-kmap("i",       "<C-Del>", '<C-o>"_dw')
-kmap({"n","v"}, "<C-Del>", '"_dw')
+map("i",       "<C-Del>", '<C-o>"_dw')
+map({"n","v"}, "<C-Del>", '"_dw')
 
 --Delete in word
-kmap("i", "<C-S-Del>", '<esc>"_diwi')
-kmap("n", "<C-S-Del>", '"_diw')
+map("i", "<C-S-Del>", '<esc>"_diwi')
+map("n", "<C-S-Del>", '"_diw')
 
 --Smart delete in
-kmap({"i","n"}, "<C-M-Del>", function()
+map({"i","n"}, "<C-M-Del>", function()
     local delete_commands = {
         ["("] = '"_di(', [")"] = '"_di(',
         ["["] = '"_di[', ["]"] = '"_di[',
@@ -725,13 +725,13 @@ kmap({"i","n"}, "<C-M-Del>", function()
 end)
 
 --del to end of line
-kmap("i", "<M-Del>", '<Esc>"_d$i')
-kmap("n", "<M-Del>", '"_d$')
+map("i", "<M-Del>", '<Esc>"_d$i')
+map("n", "<M-Del>", '"_d$')
 
 --Delete line
-kmap("i", "<S-Del>", '<esc>"_ddi')
-kmap("n", "<S-Del>", '"_dd')
-kmap("v", "<S-Del>", function()
+map("i", "<S-Del>", '<esc>"_ddi')
+map("n", "<S-Del>", '"_dd')
+map("v", "<S-Del>", function()
     if vim.fn.mode() == "V" then  --avoid <S-v> on line select, because it would unselect instead
         vim.cmd('normal! "_d')
     else
@@ -745,35 +745,42 @@ end)
 --kmap("n", "*", "")
 --kmap("v", "*", "\"zy:%s/<C-r>z//g<Left><Left>")
 
-kmap("i", "<C-S-R>", "<esc>ciw")
-kmap("n", "<C-S-R>", "ciw")
+map("i", "<C-S-R>", "<esc>ciw")
+map("n", "<C-S-R>", "ciw")
 
 --replace visual selection with char
-kmap("v", "<S-r>", "r")
+map("v", "©", "r")
+
+--substitue word
+map({"i","n"}, "<M-r>",
+[[<esc>:%s/\<<C-r><C-w>\>//g<Left><Left>]],
+{desc = "substitue word under cursor" })
+
+
 
 --#[Incrementing]
 --vmap("n", "+", "<C-a>")
-kmap("v", "+", "<C-a>gv")
+map("v", "+", "<C-a>gv")
 
 --vmap("n", "-", "<C-x>") --Decrement
-kmap("v", "-", "<C-x>gv") --Decrement
+map("v", "-", "<C-x>gv") --Decrement
 
 --To upper/lower case
-kmap("n", "<M-+>", "vgU<esc>")
-kmap("v", "<M-+>", "gUgv")
+map("n", "<M-+>", "vgU<esc>")
+map("v", "<M-+>", "gUgv")
 
-kmap("n", "<M-->", "vgu<esc>")
-kmap("v", "<M-->", "gugv")
+map("n", "<M-->", "vgu<esc>")
+map("v", "<M-->", "gugv")
 
 --Smart increment/decrement
-kmap({"n"}, "+", function() utils.smartincrement() end)
-kmap({"n"}, "-", function() utils.smartdecrement() end)
+map({"n"}, "+", function() utils.smartincrement() end)
+map({"n"}, "-", function() utils.smartdecrement() end)
 
 
 --#[Formating]
 --##[Ident]
 --space bar in normal mode
-kmap("n", "<space>", "i<space><esc>")
+map("n", "<space>", "i<space><esc>")
 
 --smart tab in insert
 vim.keymap.set("i", "<Tab>", function()
@@ -784,31 +791,31 @@ vim.keymap.set("i", "<Tab>", function()
     end
 end)
 
-kmap("n", "<Tab>", "v>")
-kmap("v", "<Tab>", ">gv")
+map("n", "<Tab>", "v>")
+map("v", "<Tab>", ">gv")
 
-kmap("i", "<S-Tab>", "<C-d>")
-kmap("n", "<S-Tab>", "v<")
-kmap("v", "<S-Tab>", "<gv")
+map("i", "<S-Tab>", "<C-d>")
+map("n", "<S-Tab>", "v<")
+map("v", "<S-Tab>", "<gv")
 
 
 --##[Line break]
-kmap("n", "<cr>", "i<cr><esc>")
+map("n", "<cr>", "i<cr><esc>")
 
 --breakline above
-kmap("i", "<S-CR>", "<Esc>O")
-kmap("n", "<S-CR>", "O<esc>")
-kmap("v", "<S-CR>", "<esc>O<esc>vgv")
+map("i", "<S-CR>", "<Esc>O")
+map("n", "<S-CR>", "O<esc>")
+map("v", "<S-CR>", "<esc>O<esc>vgv")
 
 --breakline below
-kmap("i", "<M-CR>", "<Esc>o")
-kmap("n", "<M-CR>", 'o<Esc>')
-kmap("v", "<M-CR>", "<Esc>o<Esc>vgv")
+map("i", "<M-CR>", "<Esc>o")
+map("n", "<M-CR>", 'o<Esc>')
+map("v", "<M-CR>", "<Esc>o<Esc>vgv")
 
 --New line above and below
-kmap("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji")
-kmap("n", "<S-M-cr>", "o<esc>kO<esc>j")
-kmap("v", "<S-M-cr>", function ()
+map("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji")
+map("n", "<S-M-cr>", "o<esc>kO<esc>j")
+map("v", "<S-M-cr>", function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), "n", false)
@@ -827,24 +834,24 @@ end)
 
 --##[Join]
 --Join below
-kmap("i",       "<C-j>", "<C-o><S-j>")
-kmap({"n","v"}, "<C-j>", "<S-j>")
+map("i",       "<C-j>", "<C-o><S-j>")
+map({"n","v"}, "<C-j>", "<S-j>")
 
 --Join to upper
-kmap("i", "<C-S-j>", "<esc>k<S-j>i")
-kmap("n", "<C-S-j>", "k<S-j>")
+map("i", "<C-S-j>", "<esc>k<S-j>i")
+map("n", "<C-S-j>", "k<S-j>")
 
 --##[move text]
 --Move single char
-kmap("n", "<C-S-Right>", "xp")
-kmap("n", "<C-S-Left>",  "xhP")
+map("n", "<C-S-Right>", "xp")
+map("n", "<C-S-Left>",  "xhP")
 --vmap("n", "<C-S-Up>", "xkp")
 --vmap("n", "<C-S-Down>", "xjp")
 
 --Move selected text
 --left
-kmap("i", "<C-S-Left>", '<esc>viwdhPgvhoho')
-kmap("v", "<C-S-Left>", function()
+map("i", "<C-S-Left>", '<esc>viwdhPgvhoho')
+map("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
 
     if vim.fn.mode() == 'v' and col > 0 then
@@ -866,11 +873,11 @@ kmap("v", "<C-S-Left>", function()
 end)
 
 --right
-kmap("i", "<C-S-Right>", '<esc>viwdpgvlolo')
-kmap("v", "<C-S-Right>", 'dp<esc>gvlolo')
+map("i", "<C-S-Right>", '<esc>viwdpgvlolo')
+map("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
 --move line verticaly
-kmap('v', '<C-S-Up>', function()
+map('v', '<C-S-Up>', function()
     local l1 = vim.fn.line("v")
     local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
@@ -887,7 +894,7 @@ kmap('v', '<C-S-Up>', function()
     end
 end)
 
-kmap('v', '<C-S-Down>', function ()
+map('v', '<C-S-Down>', function ()
     local l1 = vim.fn.line("v")
     local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
@@ -905,33 +912,33 @@ kmap('v', '<C-S-Down>', function ()
 end)
 
 --Move whole line
-kmap("i", "<C-S-Up>", "<Esc>:m .-2<CR>==i")
-kmap("n", "<C-S-Up>", ":m .-2<CR>==")
+map("i", "<C-S-Up>", "<Esc>:m .-2<CR>==i")
+map("n", "<C-S-Up>", ":m .-2<CR>==")
 
-kmap("i", "<C-S-Down>", "<Esc>:m .+1<cr>==i")
-kmap("n", "<C-S-Down>", ":m .+1<cr>==")
+map("i", "<C-S-Down>", "<Esc>:m .+1<cr>==i")
+map("n", "<C-S-Down>", ":m .+1<cr>==")
 
 
 --#[Comments]
-kmap("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
-kmap("n", "<M-a>", "gcc", {remap = true}) --remap needed
-kmap("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
+map("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
+map("n", "<M-a>", "gcc", {remap = true}) --remap needed
+map("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
 
 
---#[record]
-kmap("n", "<M-r>", "q", {remap = true})
+--#[Macro]
+map("n", "<C-r>", "q", {remap = true})
 
 
 
 --## [Text inteligence]
 ----------------------------------------------------------------------
 --Goto definition
-kmap("i", "<F12>", "<Esc>gdi")
-kmap("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
-kmap("v", "<F12>", "<Esc>gd")
+map("i", "<F12>", "<Esc>gdi")
+map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
+map("v", "<F12>", "<Esc>gd")
 
 --show hover window
-kmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
+map({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 
 --rename symbol
 --vmap({"i","n"}, "<F2>", function()
@@ -946,7 +953,7 @@ kmap({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 --end)
 
 --lsp rename
-kmap({"i","n"}, "<F2>",
+map({"i","n"}, "<F2>",
     function()
         --live-rename is a plugin for fancy in buffer rename preview
         require("live-rename").rename({ insert = true })
@@ -954,7 +961,7 @@ kmap({"i","n"}, "<F2>",
 )
 
 --smart contextual action
-kmap({"i","n","v"}, "<C-CR>", function()
+map({"i","n","v"}, "<C-CR>", function()
     local word = vim.fn.expand("<cfile>")
     local cchar = utils.get_char_at_cursorpos()
     local filetype = vim.bo.filetype
@@ -976,18 +983,18 @@ end)
 ----------------------------------------------------------------------
 --run code at cursor with sniprun
 --run curr line only and insert res below
-kmap({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
+map({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 
 --<F20> equivalent to <S-F8>
 --run selected code in visual mode
-kmap("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
+map("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
 
 --run whole file until curr line and insert
-kmap({"i","n"}, "<F20>","<cmd>SnipRunToLineInsertResult<CR>")
+map({"i","n"}, "<F20>","<cmd>SnipRunToLineInsertResult<CR>")
 
 
 --exec curr line as ex command
-kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
+map({"i","n"}, "<F56>", --equivalent to <M-F8>
     function()
         vim.cmd("stopinsert")
         local row = vim.api.nvim_win_get_cursor(0)[1]  -- Get the current line number
@@ -1000,32 +1007,32 @@ kmap({"i","n"}, "<F56>", --equivalent to <M-F8>
 
 --[vim cmd]--------------------------------------------------
 --Open command line
-kmap("i",  "œ",    "<esc>:")
-kmap("n",  "œ",    ":")
-kmap("v",  "œ",    ":")
-kmap("t",  "œ",    "<Esc> <C-\\><C-n>")
+map("i",  "œ",    "<esc>:")
+map("n",  "œ",    ":")
+map("v",  "œ",    ":")
+map("t",  "œ",    "<Esc> <C-\\><C-n>")
 
 --Open command line in term mode
-kmap("i", "<S-Œ>", ":!")
-kmap("n", "<S-Œ>", ":!")
-kmap("v", "<S-Œ>", ":!")
-kmap("c", "<S-Œ>", "<esc>:!")
+map("i", "<S-Œ>", ":!")
+map("n", "<S-Œ>", ":!")
+map("v", "<S-Œ>", ":!")
+map("c", "<S-Œ>", "<esc>:!")
 
 --cmd completion menu
 --vmap("c", "<C-d>", "<C-d>")
 
 --Cmd menu nav
-kmap("c", "<Up>", "<C-p>")
-kmap("c", "<Down>", "<C-n>")
+map("c", "<Up>", "<C-p>")
+map("c", "<Down>", "<C-n>")
 
 --accept
-kmap("c", "<S-Tab>", "<C-n>")
+map("c", "<S-Tab>", "<C-n>")
 
 --Clear cmd in insert
-kmap("i", "<C-l>", "<C-o><C-l>")
+map("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
-kmap("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
+map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
@@ -1037,8 +1044,8 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 
 --[Terminal]----------------------------------------
 --Open term
-kmap({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
+map({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
 
 --exit
-kmap("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
 

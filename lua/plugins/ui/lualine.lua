@@ -158,7 +158,6 @@ return
                         end,
                         padding={left=0,right=1},
                     },
-                    --{"selectioncount", left_padding=1, right_padding=0},
                     {'location', padding=0},
                     {--line count
                         function()

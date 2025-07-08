@@ -174,12 +174,13 @@ vim.api.nvim_create_autocmd({"BufEnter", "BufRead", "BufNewFile"}, {
     end,
 })
 
-
-vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
-    callback = function()
-        vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
-    end,
-})
-
+--TODO unlist if for a split maybe ?
+--vim.api.nvim_create_autocmd("TermOpen", {
+--    pattern = "*",
+--    callback = function()
+--        --vim.opt_local.bufhidden = "wipe"
+--        vim.api.nvim_set_option_value("buflisted", false, { buf = 0 })
+--    end,
+--})
 
 

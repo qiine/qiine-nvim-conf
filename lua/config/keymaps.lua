@@ -491,6 +491,15 @@ end)
 
 --To Visual insert mode
 kmap("v", "<M-i>", "I")
+
+--Insert literal
+kmap("i", "<C-i>", "<C-v>") --collide with tab :(
+kmap("n", "<C-i>", "i<C-v>")
+
+--Insert snipet
+--insert function()
+--kmap("i", "<C-S-i>")
+
 kmap("v", "î",
     function()
         if vim.fn.mode() == '\22' then  --"\22" is vis block mode
@@ -503,9 +512,6 @@ kmap("v", "î",
     end
 )
 
---Insert literal
---kmap("i", "<C-i>", "<C-v>") --collide with tab :(
-kmap("n", "<C-i>", "i<C-v>")
 
 --Insert chars in visual mode
 local chars = utils.table_flatten(
@@ -1014,6 +1020,19 @@ kmap("v", "<F1>", function()
     vim.cmd("h " .. reg)
 end)
 
+--Search selected in notes
+kmap({"i","n"}, "<F49>", function()   --<M-F1>
+    require("fzf-lua").live_grep({
+        cwd = "~/Personal/KnowledgeBase/Notes/"
+    })
+end)
+
+--Easy exit command line window
+vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
+    callback = function()
+        vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
+    end,
+})
 
 
 --[Terminal]----------------------------------------

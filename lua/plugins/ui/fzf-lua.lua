@@ -69,7 +69,7 @@ return
 
         --find files in currdir
         vim.keymap.set({"i","n","v"}, "<M-f>d", function()
-            require("fzf-lua").files({ })
+            require("fzf-lua").files({})
         end, { silent = true, desc = "Fuzzy find dir in cwd" })
 
         --find files in project
@@ -109,20 +109,23 @@ return
         end, { silent = true, desc = "Live grep" })
 
 
-        --fuzzy cd
-        vim.keymap.set({ "i", "n", "v" }, "<M-f>c", function()
-            require("fzf-lua").fzf_exec(
-                "fd --type d",
-                {
-                    prompt = "Change dir > ",
-                    actions = {
-                        ["default"] = function(selected)
-                            vim.cmd("cd " .. selected[1])
-                        end
-                    },
-            })
-        end, { silent = true, desc = "Fuzzy cd to dir under ~" })
 
+        --fuzzy cd]
+        vim.keymap.set({"i","n","v"}, "<M-f>c", function()
+            require("fzf-lua").files({
+                cmd = "fdfind --type d",
+            })
+            --require("fzf-lua").fzf_exec(
+        --    "fd --type d",
+        --    {
+            --    prompt = "Change dir > ",
+            --        actions = {
+                --         ["default"] = function(selected)
+                    --                vim.cmd("cd " .. selected[1])
+                    --            end
+                    --        },
+                    --})]
+        end, { silent = true, desc = "Fuzzy cd to dir under ~" })
 
         --search ft
         vim.keymap.set({"i","n","v"}, "<M-f>t", function()

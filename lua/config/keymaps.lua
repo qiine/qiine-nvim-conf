@@ -752,10 +752,9 @@ map("n", "<C-S-R>", "ciw")
 map("v", "©", "r")
 
 --substitue word
-map({"i","n"}, "<M-r>",
-[[<esc>:%s/\<<C-r><C-w>\>//g<Left><Left>]],
+map("v", "<M-r>",
+[[y<esc>:%s/\<<C-r>"\>//g<Left><Left>]],
 {desc = "substitue word under cursor" })
-
 
 
 --#[Incrementing]
@@ -1033,6 +1032,7 @@ map("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
+map("c", "<esc>", "<C-c>")
 
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {

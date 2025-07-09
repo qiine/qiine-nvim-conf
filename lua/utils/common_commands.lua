@@ -10,10 +10,6 @@ local utils = require("utils.utils")
 
 
 
-vim.api.nvim_create_user_command("CDFileDir", function()
-    vim.cmd("cd %:p:h") -- ":h" rem file name
-end, {})
-
 --Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
@@ -105,6 +101,10 @@ vim.api.nvim_create_user_command("CopyFileAbsolutePath", function()
     vim.cmd("let @+ = expand('%:p')")
     local apath = vim.fn.getreg("+")
     print("Copied path: " .. apath)
+end, {})
+
+vim.api.nvim_create_user_command("CDFileDir", function()
+    vim.cmd("cd %:p:h") -- ":h" rem file name
 end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()

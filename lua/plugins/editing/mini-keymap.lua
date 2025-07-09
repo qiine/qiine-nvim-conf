@@ -17,8 +17,8 @@ return
         --combo({"n", "v"}, '<C-Left><Left>', '0', { delay = delay_fastline })
 
         --quick insert
-        combo("n", "<Left><Right>", function() vim.cmd("startinsert") end, { delay = 25 })
-        combo("n", "<Right><Left>", function() vim.cmd("startinsert") end, { delay = 25 })
+        --combo("n", "<Left><Right>", function() vim.cmd("startinsert") end, { delay = 25 })
+        --combo("n", "<Right><Left>", function() vim.cmd("startinsert") end, { delay = 25 })
 
         --quick normal
         combo("i", "<Left><Right>", "<Esc>", { delay = 25 })
@@ -44,10 +44,10 @@ return
         combo("i", "<S-Right><S-Left>", "<Esc>V")
         combo("i", "<S-Left><S-Right>", "<Esc>V")
 
-        combo("n", "<S-Right><S-Left>", function() vim.cmd("normal! V") end)
-        combo("n", "<S-Left><S-Right>", function() vim.cmd("normal! V") end)
+        combo("n", "<S-Right><S-Left>", function() vim.cmd("norm! V") end) --need function otherwise will insert V, weird...
+        combo("n", "<S-Left><S-Right>", function() vim.cmd("norm! V") end)
 
-        combo("v", "<S-Right><S-Left>", function() vim.cmd("normal! V") end)
-        combo("v", "<S-Left><S-Right>", function() vim.cmd("normal! V") end)
+        combo("v", "<S-Right><S-Left>", function() vim.cmd("norm! V") end)
+        combo("v", "<S-Left><S-Right>", function() vim.cmd("norm! V") end)
     end
 }

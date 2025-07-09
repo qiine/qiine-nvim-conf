@@ -38,46 +38,6 @@ vim.api.nvim_create_user_command("RestartSafeMode", function()
     vim.cmd("qa!")
 end, {})
 
---Easy lazy plug install
-vim.api.nvim_create_user_command("PlugInstall", function(opts)
-    local plug_dir = vim.fn.stdpath("config") .. "/lua/plugins/"
-
-    local plug_url = opts.args
-    plug_url = plug_url:gsub(",", "")
-    plug_url = plug_url:gsub('"', "")
-    plug_url = plug_url:gsub("'", "")
-
-    --Check URL empty or malformed
-    if plug_url == "" or not plug_url:match(".+/.+") then
-        print("Invalid URL. Usage: :PlugInstall user/repo")
-        return
-    end
-
-    --Extracting plug name
-    local last_slash = plug_url:find("/[^/]*$")
-    local plug_name = last_slash and plug_url:sub(last_slash + 1)
-    --plug_name=plug_name:gsub('.', "-", 1)
-
-    local plug_path = plug_dir .. plug_name .. ".lua"
-
-    --Check if plugin already installed
-    local file_exists = vim.loop.fs_stat(plug_path) ~= nil
-    if file_exists then
-        print("Plugin '" .. plug_name .. "' already installed.")
-        return
-    end
-
-    --Creating the file
-    local plug_content = 'return{ "' .. plug_url .. '", }'
-    local file = io.open(plug_path, "w")
-    if file then
-        file:write(plug_content)
-        file:close()
-        print("Installing " .. plug_name .. " in " .. plug_path)
-    else
-        print("Failed to install" .. plug_name .. " hint: " .. plug_path)
-    end
-end, { nargs = 1 })
 
 --TODO open help in separate tab
 -- vim.api.nvim_create_user_command("H", function(opts)
@@ -109,6 +69,7 @@ end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()
     local curfdir = vim.fn.expand("%:p")
+
     local cmd = string.format('kdialog --getopenfilename "%s"', curfdir)
     local handle = io.popen(cmd)
     if handle then
@@ -358,7 +319,7 @@ end, { range = true })
 
 vim.api.nvim_create_user_command("ClearAllMarks", function()
     vim.cmd([[delmarks a-zA-Z0-9"<>'[].]])
-    print("-All marks cleared-")
+    print("[All marks cleared]")
 end, {desc = "Delete all marks in the current buffer"})
 
 --Open code action floating win

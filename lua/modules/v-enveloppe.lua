@@ -48,23 +48,27 @@ function M.setup(opts)
 
 
 
-    vim.keymap.set({"i","n"}, "<C-'>", M.enveloppe_word_singlequote, { desc = "enveloppe word singlequote" })
-    vim.keymap.set({"i","n"}, '<C-">', M.enveloppe_word_doublequote, { desc = "enveloppe word doublequote" })
+    --paren
+    vim.keymap.set("i", "<C-(>", "<esc>mzdiwi(<esc>P`]a)`z" )
+    vim.keymap.set("n", "<C-(>", "mzdiwi(<esc>P`]a)`z" )
+    vim.keymap.set("v", "<C-(>", "mzdi(<esc>P`]a)`z" )
 
-    vim.keymap.set("i", "<C-(>", "<esc>diwi(<esc>P`]a)<esc>gv" )
-    vim.keymap.set("n", "<C-(>", "diwi(<esc>P`]a)<esc><C-O>" )
-    vim.keymap.set("v", "<C-(>", "di(<esc>P`]a)" )
+    --vim.keymap.set("v", "<C-[>", "mzdi[<esc>P`]`z" )
+    vim.keymap.set("v", "<C-{>", "mzdi{<esc>P`]a}`z" )
 
-    --vim.keymap.set("v", "<C-[>", "di[<esc>P`]a]" )
-    vim.keymap.set("v", "<C-{>", "di{<esc>P`]a}" )
+    --chevron
+    vim.keymap.set("i", '<C-<>', "<esc>mzdiwi<<esc>P`]a><esc>`zli", { desc = "enveloppe word angled brackets" })
+    vim.keymap.set("n", '<C-<>', "mzdiwi<<esc>P`]a><esc>`zl",            { desc = "enveloppe word angled brackets" })
+    vim.keymap.set("v", "<C-<>", "mzdi<<esc>P`]a><esc>`zl",              { desc = "enveloppe word angled brackets" })
 
-    vim.keymap.set({"i","n"}, '<C-<>', M.enveloppe_word_angledbracket, { desc = "enveloppe word angled brackets" })
-    vim.keymap.set("v",       "<C-<>", "di<<esc>P`]a>")
+    --quotes
+    vim.keymap.set("i", '<C-">', '<esc>mzdiwi"<esc>P`]a"<esc>`zli', { desc = "Surround visual selection with char" })
+    vim.keymap.set("n", '<C-">', 'mzdiw"<esc>P`]a"<esc>`zl', { desc = "Surround visual selection with char" })
+    vim.keymap.set("v", '<C-">', 'mzdi"<esc>P`]a"<esc>`zl', { desc = "Surround visual selection with char" })
 
-    vim.keymap.set("v", '<C-">', M.envelope_selected_doublequote, { desc = "Surround visual selection with char" })
-    vim.keymap.set("v", "<C-'>", M.envelope_selected_singlequote, { desc = "Surround visual selection with char" })
+    vim.keymap.set("v", "<C-'>", "mzdi'<esc>P`]a'<esc>`zl", { desc = "Surround visual selection with char" })
 
-    vim.keymap.set("v", "<C-*>", "di*<esc>P`]a*" )
+    vim.keymap.set("v", "<C-*>", "mzdi*<esc>P`]a*<esc>`z" )
 
 end
 

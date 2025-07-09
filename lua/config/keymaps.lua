@@ -12,7 +12,7 @@ local utils = require("utils.utils")
 local v     = vim
 local vapi  = vim.api
 local vcmd  = vim.cmd
-local map  = vim.keymap.set
+local map   = vim.keymap.set
 local nvmap = vim.api.nvim_set_keymap
 ----------------------------------------
 
@@ -548,14 +548,10 @@ map("v", "<cr>", '"_di<cr>', {noremap=true})
 --Copy
 --Copy whole line in insert
 map("i", "<C-c>", function()
-    local cpos = vim.api.nvim_win_get_cursor(0)
     local line = vim.api.nvim_get_current_line()
 
     if line ~= "" then
-        vim.cmd('normal! 0"+y$')
-
-        --vim.api.nvim_win_set_cursor(0, cpos)
-
+        vim.cmd('norm! mz0"+y$`z')
         vim.cmd("echo 'line copied!'")
     end
 end, {noremap=true} )
@@ -563,16 +559,11 @@ map("n", "<C-c>", function()
     local char = utils.get_char_at_cursorpos()
 
     if  char ~= " " and char ~= "" then
-        vim.cmd('normal! "+yl')
+        vim.cmd('norm! "+yl')
     end
 end, {noremap = true})
 map("v", "<C-c>", function()
-    local cpos = vim.api.nvim_win_get_cursor(0)
-
-    vim.cmd('normal! "+y')
-
-    vim.api.nvim_win_set_cursor(0, cpos)
-
+    vim.cmd('norm! mz"+y`z')
     vim.cmd("echo 'copied'")
 end, {noremap=true})
 
@@ -752,7 +743,7 @@ map("n", "<C-S-R>", "ciw")
 map("v", "©", "r")
 
 --substitue word
-map("v", "<M-r>",
+map("v", "<M-s>",
 [[y<esc>:%s/\<<C-r>"\>//g<Left><Left>]],
 {desc = "substitue word under cursor" })
 
@@ -781,15 +772,18 @@ map({"n"}, "-", function() utils.smartdecrement() end)
 --space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
---smart tab in insert
+--tab ident
 vim.keymap.set("i", "<Tab>", function()
-    local inword = utils.is_cursor_inside_word()
-
-    if inword then vim.cmd("normal! v>") vim.cmd("normal! 4l")
-        else vim.cmd("normal! i\t") --don't care about softab here
-    end
+    local width = vim.opt.shiftwidth:get()
+    vim.cmd("norm! v>")
+    vim.cmd("norm! ".. width .. "l")
 end)
 
+map("i", "<Tab>", function()
+    local width = vim.opt.shiftwidth:get()
+    vim.cmd("norm! v>")
+    vim.cmd("norm! ".. width .. "l")
+end)
 map("n", "<Tab>", "v>")
 map("v", "<Tab>", ">gv")
 
@@ -933,7 +927,8 @@ map("n", "<C-r>", "q", {remap = true})
 ----------------------------------------------------------------------
 --Goto definition
 map("i", "<F12>", "<Esc>gdi")
-map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
+map("n", "<F12>", "<Esc>gd")
+--map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 map("v", "<F12>", "<Esc>gd")
 
 --show hover window

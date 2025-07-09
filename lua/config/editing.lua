@@ -156,17 +156,10 @@ local formatopts = {} --will hold all users formats opts
 
 --### Identation
 vim.opt.autoindent  = true
-vim.opt.smartindent = true
+vim.opt.smartindent = true  --Do smart autoindenting when starting a new line
 --vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
 --A list of keys that, when typed in Insert mode, cause reindenting of
 --the current line. Only happens if 'indentexpr' isn't empty.
-
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = {"text", "markdown"},
-    callback = function()
-        vim.opt_local.indentexpr = ""
-    end,
-})
 
 vim.opt.expandtab   = true --Use spaces instead of tabs
 vim.opt.shiftround  = true --always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.

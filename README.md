@@ -18,8 +18,9 @@ My text editor journey:
 - and Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
 - Built-in Whitespace trimming on save (+custom command)  
-- Completion via **blink.cmp**, with extensive config 
-- Built-in timer to auto save every 7min
+- Completion via **blink.cmp**, with extensive config including cmdline 
+  completion
+- Built-in auto save with a timer every 7min
 
 ---
 

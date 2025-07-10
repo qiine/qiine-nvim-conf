@@ -489,6 +489,12 @@ map({"i","n"}, "<F49>", function()   --<M-F1>
         cwd = "~/Personal/KnowledgeBase/Notes/"
     })
 end)
+map("v", "<F49>", function()   --<M-F1>
+    require("fzf-lua").grep_visual({
+        cwd = "~/Personal/KnowledgeBase/Notes/"
+    })
+end)
+
 
 
 
@@ -551,7 +557,7 @@ map("i", "<C-c>", function()
     local line = vim.api.nvim_get_current_line()
 
     if line ~= "" then
-        vim.cmd('norm! mz0"+y$`z')
+        vim.cmd('norm! mz0"+y$`z') vim.cmd('delm z')
         vim.cmd("echo 'line copied!'")
     end
 end, {noremap=true} )
@@ -569,33 +575,24 @@ end, {noremap=true})
 
 --copy append
 map("v", "<M-c>", function()
-    local cpos = vim.api.nvim_win_get_cursor(0)
     local reg_prev = vim.fn.getreg("+")
 
-    vim.cmd('normal! "+y')
+    vim.cmd('normal! mz"+y`z')
 
-    --apppend
-    vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+"))
-
-    vim.api.nvim_win_set_cursor(0, cpos)
+    vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+")) --apppend
 
     print("appended to clipboard!")
 end)
 
 --Copy word
 map({"i","n"}, "<C-S-c>", function()
-    local cpos = vim.api.nvim_win_get_cursor(0)
-
-    vim.cmd('normal! viw"+y')
-
-    vim.api.nvim_win_set_cursor(0, cpos)
-
+    vim.cmd('normal! mzviw"+y`z')
     print("Word Copied")
 end)
 
 
---cuting
-map("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true})
+--cut
+map("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true}) --cut line
 map("n", "<C-x>", '"+x',             { noremap = true})
 map("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and copy so..
 
@@ -645,6 +642,9 @@ map("v", "<M-S-BS>", 'r ') --clear selected char
 
 --Backspace replace with white spaces, from cursor to line start
 --kmap({"i","n"}, "<M-BS>",
+    --better?
+    --vim.cmd("norm! v0R ")
+
 --    function()
 --        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 --        local line = vim.api.nvim_get_current_line()
@@ -740,7 +740,7 @@ map("i", "<C-S-R>", "<esc>ciw")
 map("n", "<C-S-R>", "ciw")
 
 --replace visual selection with char
-map("v", "©", "r")
+map("v", "<M-r>", "r")
 
 --substitue word
 map("v", "<M-s>",

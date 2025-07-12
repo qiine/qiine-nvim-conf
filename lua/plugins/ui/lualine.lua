@@ -219,32 +219,38 @@ return
 
                 lualine_z =
                 {
-                    {   --file name
+                    {   --filename
                         function()
                             local file_path = vim.api.nvim_buf_get_name(0)
 
-                            local file_name = vim.fn.expand("%:t:r")
-                            if file_name == "" then file_name = "[noname]" end
+                            --local file_name = vim.fn.expand("%:t")
+                            local file_name = vim.fn.fnamemodify(file_path, ":t")
 
-                            local file_type = "." .. vim.bo.filetype
-                            if file_type == "." then file_type = "[.nofile]" end
+                            --local file_type = "." .. vim.bo.filetype
+                            --local file_type = "." .. vim.fn.expand("%:e")
+                            --if file_type == "." then file_type = "[.notype]" end
 
                             --file properties
-                            local file_ondisk = vim.fn.filereadable(file_path)
+                            local file_ondisk   = vim.fn.filereadable(file_path) == 1
                             local file_readonly = vim.bo.readonly
-                            local file_exec = vim.fn.executable(file_path) == 1
+                            local file_exec     = vim.fn.executable(file_path) == 1
+
+                            if file_name == "" then file_name = "[noname]" end
+
+                            local file_ondisk_symbol = ""
+                            if file_ondisk then
+                                file_ondisk_symbol = ""
+                            else
+                                file_ondisk_symbol = '[nofile]'
+                            end
 
                             local file_readonly_icon = "🔒"
-                            if not file_readonly then
-                                file_readonly_icon = ""
-                            end
+                            if not file_readonly then file_readonly_icon = "" end
 
                             local file_exec_icon = "▶"
-                            if not file_exec then
-                                file_exec_icon = ""
-                            end
+                            if not file_exec then file_exec_icon = "" end
 
-                            return file_readonly_icon..file_exec_icon..file_name..file_type
+                            return file_readonly_icon..file_exec_icon..file_name..file_ondisk_symbol
                         end,
                         color={gui = 'none'},
                         padding={left=0,right=0},

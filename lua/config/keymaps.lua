@@ -13,28 +13,7 @@ local v     = vim
 local vapi  = vim.api
 local vcmd  = vim.cmd
 local map   = vim.keymap.set
-local nvmap = vim.api.nvim_set_keymap
 ----------------------------------------
-
-
-
---[Doc]--------------------------------------------------
---Setting key example:
---vim.keymap.set("i", "<C-d>", "dd",{noremap = true, silent = true, desc ="ctrl+d delete line"})
---noremap = true,  Ignore any existing remappings will act as if there is no custom mapping.
---silent = true Prevents displaying command in the command-line when executing the mapping.
-
---to unmap a key use <Nop>
---vim.keymap.set("i", "<C-d>", "<Nop>",{noremap = true"})
-
---!WARNING! using vim.cmd("Some command") in a setkey will be auto-executed  when the file is sourced !!
-
---<cmd>
---doesn't change modes which helps perf
---`<cmd>` does need <CR>. while ":" triggers "CmdlineEnter" implicitly
-
---Keys
---<C-o> allows to execute one normal mode command while staying in insert mode.
 
 --<esc> = \27
 --<cr> = \n
@@ -157,7 +136,7 @@ map(modes, "ç", --"<altgr-r>"
 
 
 
---## [View]
+--## [View]
 ----------------------------------------------------------------------
 --alt-z toggle line wrap
 map({"i", "n", "v"}, "<A-z>",
@@ -197,7 +176,6 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 ----------------------------------------------------------------------
 --create new tab
 map( modes,"<C-t>", function()
-    vim.cmd("enew")
     vim.cmd("Alpha")
 end)
 
@@ -225,7 +203,7 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
---## [Windows]
+--## [Windows]
 ----------------------------------------------------------------------
 map("i", "<M-w>", "<esc><C-w>")
 map("n", "<M-w>", "<C-w>")
@@ -279,7 +257,7 @@ map({"i","v"}, '<C-Left>', function()
     end
 end)
 
---to next/prev cursor loc
+--to next/prev cursor jump loc
 map({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
 map("n",       "<M-PageDown>",  "<C-o>")
 map({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
@@ -293,11 +271,11 @@ map('n', '<C-Left>',  "5h")
 
 --ctrl+up/down to move fast
 map("i", "<C-Up>", "<Esc>3ki")
-map("n", "<C-Up>", "4k")
+map("n", "<C-Up>", "3k")
 map("v", "<C-Up>", "3k")
 
 map("i", "<C-Down>", "<Esc>3ji")
-map("n", "<C-Down>", "4j")
+map("n", "<C-Down>", "3j")
 map("v", "<C-Down>", "3j")
 
 
@@ -347,7 +325,7 @@ map("n", "f", function()
 end, {remap = true})
 
 
---## [Selection]
+--## [Selection]
 ----------------------------------------------------------------------
 --Swap selection anchors
 map("v", "<M-v>", "o")
@@ -477,11 +455,7 @@ map("n", "<C-f>", "/")
 map("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
 
 --search Help for selection
-map("v", "<F1>", function()
-    vim.cmd('normal! y')
-    local reg = vim.fn.getreg('"')
-    vim.cmd("h " .. reg)
-end)
+map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 --Search in notes
 map({"i","n"}, "<F49>", function()   --<M-F1>
@@ -498,7 +472,7 @@ end)
 
 
 
---## [Editing]
+--## [Editing]
 ----------------------------------------------------------------------
 --toggle insert/normal with insert key
 map("i", "<Ins>", "<Esc>")
@@ -550,8 +524,6 @@ map("v", "<cr>", '"_di<cr>', {noremap=true})
 
 
 --#[Copy / Paste]
--- ' "+ ' is the os register
---Copy
 --Copy whole line in insert
 map("i", "<C-c>", function()
     local line = vim.api.nvim_get_current_line()
@@ -561,6 +533,7 @@ map("i", "<C-c>", function()
         vim.cmd("echo 'line copied!'")
     end
 end, {noremap=true} )
+
 map("n", "<C-c>", function()
     local char = utils.get_char_at_cursorpos()
 
@@ -568,12 +541,14 @@ map("n", "<C-c>", function()
         vim.cmd('norm! "+yl')
     end
 end, {noremap = true})
+
 map("v", "<C-c>", function()
     vim.cmd('norm! mz"+y`z')
     vim.cmd("echo 'copied'")
 end, {noremap=true})
 
---copy append
+
+--copy append selection
 map("v", "<M-c>", function()
     local reg_prev = vim.fn.getreg("+")
 
@@ -581,15 +556,15 @@ map("v", "<M-c>", function()
 
     vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+")) --apppend
 
-    print("appended to clipboard!")
+    print("appended to clipboard")
 end)
+
 
 --Copy word
 map({"i","n"}, "<C-S-c>", function()
-    vim.cmd('normal! mzviw"+y`z')
-    print("Word Copied")
+    vim.cmd('normal! mzviw"+y`z') print("Word Copied")
 end)
-
+map("v", "<C-S-c>", '<esc>mzviw"+y`z:echo"Word Copied"<CR>')
 
 --cut
 map("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true}) --cut line
@@ -599,13 +574,18 @@ map("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and copy
 --cut word
 map("i", "<C-S-x>", '<esc>viw"+xi')
 map("n", "<C-S-x>", 'viw"+x')
+map("v", "<C-S-x>", '<esc>mzviw"+x`z:echo"Word Cut"<CR>')
 
 --Paste
-map("i", "<C-v>", '<esc>"+P`[v`]=`]a') --format and place curso at the end
-map("n", "<C-v>", '"+P`[v`]=`]')
-map("v", "<C-v>", '"_d"+P`[v`]=')
+map("i", "<C-v>", '<esc>"+P`]a') --`[v`]= format and place curso at the end
+map("n", "<C-v>", '"+P`]')
+map("v", "<C-v>", '"_d"+P`]')
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<C-o>"+P')
+
+--paste replace word
+map("i", "<C-S-v>", '<esc>ciw"+Pa')
+map("n", "<C-S-v>", '<esc>ciw"+P')
 
 --Duplicate
 map("i", "<C-d>", '<Esc>yypi')
@@ -677,6 +657,7 @@ map("v", "<Del>", '"_di')
 --Delete right word
 map("i",       "<C-Del>", '<C-o>"_dw')
 map({"n","v"}, "<C-Del>", '"_dw')
+--map("c",       "<C-Del>", '"_dw') does not work in cmd
 
 --Delete in word
 map("i", "<C-S-Del>", '<esc>"_diwi')
@@ -742,9 +723,15 @@ map("n", "<C-S-R>", "ciw")
 --replace visual selection with char
 map("v", "<M-r>", "r")
 
---substitue word
+
+--substitue mode
+map({"i","n"}, "<M-s>",
+[[<esc>:%s/\v//<Left><Left><Left><Left>]],
+{desc = "Enter substitue mode" })
+
+--sub word
 map("v", "<M-s>",
-[[y<esc>:%s/\<<C-r>"\>//g<Left><Left>]],
+[[y<esc>:%s/\v<C-r>"//g<Left><Left>]],
 {desc = "substitue word under cursor" })
 
 
@@ -811,7 +798,7 @@ map("n", "<S-M-cr>", "o<esc>kO<esc>j")
 map("v", "<S-M-cr>", function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), "n", false)
+    vim.api.nvim_feedkeys("\27", "n", false)
     local anchor_start_pos = vim.fn.getpos("'<")
 
     if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
@@ -819,7 +806,6 @@ map("v", "<S-M-cr>", function ()
     end
     vim.cmd("normal! gv")
 
-    --vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>', true, false, true), "n", false)
     --vim.cmd("normal! O")
 
 end)
@@ -871,16 +857,13 @@ map("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
 --move line verticaly
 map('v', '<C-S-Up>', function()
-    local l1 = vim.fn.line("v")
-    local l2 = vim.fn.line(".")
+    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
 
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! d')     -- yank and delete selection into register z
-        vim.cmd('normal! k')     -- move cursor up one line
-        vim.cmd('normal! P')     -- paste from register z
+        vim.cmd('normal! dkP')
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]
         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
@@ -888,16 +871,13 @@ map('v', '<C-S-Up>', function()
 end)
 
 map('v', '<C-S-Down>', function ()
-    local l1 = vim.fn.line("v")
-    local l2 = vim.fn.line(".")
+    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
 
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! d')   -- delete selection into register z
-        vim.cmd('normal! j')
-        vim.cmd('normal! P')
+        vim.cmd('normal! djP')
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]
         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
@@ -988,18 +968,12 @@ map({"i","n"}, "<F20>","<cmd>SnipRunToLineInsertResult<CR>")
 
 
 --exec curr line as ex command
-map({"i","n"}, "<F56>", --equivalent to <M-F8>
-    function()
-        vim.cmd("stopinsert")
-        local row = vim.api.nvim_win_get_cursor(0)[1]  -- Get the current line number
-        local line = vim.fn.getline(row)  -- Get the content of the current line
-        vim.cmd(line)
-    end
-)
+map({"i","n"}, "<F56>", '<esc>0y$:<C-r>"<CR>')
 
 
 
---[vim cmd]--------------------------------------------------
+--## [vim cmd]
+----------------------------------------------------------------------
 --Open command line
 map("i",  "œ",    "<esc>:")
 map("n",  "œ",    ":")
@@ -1007,7 +981,7 @@ map("v",  "œ",    ":")
 map("t",  "œ",    "<Esc> <C-\\><C-n>")
 
 --Open command line in term mode
-map("i", "<S-Œ>", ":!")
+map("i", "<S-Œ>", "<esc>:!")
 map("n", "<S-Œ>", ":!")
 map("v", "<S-Œ>", ":!")
 map("c", "<S-Œ>", "<esc>:!")
@@ -1027,7 +1001,7 @@ map("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
-map("c", "<esc>", "<C-c>")
+map("c", "<esc>", "<C-c>", {noremap=true})
 
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
@@ -1037,10 +1011,14 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 })
 
 
---[Terminal]----------------------------------------
+
+--## [Terminal]
+----------------------------------------------------------------------
 --Open term
 map({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+
+
 

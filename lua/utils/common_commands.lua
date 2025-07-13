@@ -2,8 +2,6 @@
 -- User commands --
 -------------------------
 local v = vim
-local vapi = vim.api
-local vcmd = vim.cmd
 
 local utils = require("utils.utils")
 -------------------------
@@ -57,14 +55,22 @@ end, {})
 
 --## [Files]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("CopyFileAbsolutePath", function()
-    vim.cmd("let @+ = expand('%:p')")
+vim.api.nvim_create_user_command("CopyFilePath", function()
+    vim.cmd("let @+ = expand('%')")
     local apath = vim.fn.getreg("+")
+
+    print("Copied path: " .. apath)
+end, {})
+
+vim.api.nvim_create_user_command("CopyFileDirPath", function()
+    vim.cmd("let @+ = expand('%:h')")
+    local apath = vim.fn.getreg("+")
+
     print("Copied path: " .. apath)
 end, {})
 
 vim.api.nvim_create_user_command("CDFileDir", function()
-    vim.cmd("cd %:p:h") -- ":h" rem file name
+    vim.cmd("cd %:p:h")
 end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()
@@ -84,26 +90,28 @@ end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
     local fpath = vim.api.nvim_buf_get_name(0)
-
-    if vim.fn.filereadable(fpath) == 0 then
-        vim.notify("No file to move", vim.log.levels.ERROR) return
-    end
-
     local fname = vim.fn.fnamemodify(fpath, ":t")
     local fdir  = vim.fn.fnamemodify(fpath, ":h")
 
+    if vim.fn.filereadable(fpath) == 0 then
+        vim.notify("No file on disk to move", vim.log.levels.ERROR) return
+    end
+
     vim.ui.input(
         {
-            prompt     = "Move to dir: ",
+            prompt     = "Move to: ",
             default    = fdir,
             completion = "dir",
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil or input == fpath then
-                vim.notify("Move cancelled.", vim.log.levels.INFO) return
+            if input == nil then
+                vim.notify("Invalid input, move cancelled.", vim.log.levels.INFO) return
             end
+            --if input == fpath then
+            --    vim.notify("Same path, move cancelled.", vim.log.levels.INFO) return
+            --end
 
             --assemble path
             local target_path = input .. "/" .. fname
@@ -125,7 +133,7 @@ vim.api.nvim_create_user_command("FileMove", function()
                 end
             end
 
-            --now rename
+            --now move
             local ok, err = vim.loop.fs_rename(fpath, target_path)
             if not ok then
                 vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
@@ -158,9 +166,13 @@ vim.api.nvim_create_user_command("FileRename", function()
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil or input == "" or input == old_name then
-                vim.notify("Rename cancelled", vim.log.levels.INFO) return
+            if input == nil or input == "" then
+                vim.notify("No name, rename cancelled", vim.log.levels.INFO) return
             end
+            if input == old_name then
+                vim.notify("Same name, rename cancelled.", vim.log.levels.INFO) return
+            end
+
 
             local new_filepath = old_dir .. "/" .. input
             local ok, err = vim.loop.fs_rename(old_filepath, new_filepath)
@@ -286,7 +298,7 @@ end, {})
 --Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)
     vim.cmd(string.format("s/\\s//g"))
-    vim.cmd("normal! <esc>")
+    --vim.cmd("normal! <esc>")
 end, { range = true })
 
 vim.api.nvim_create_user_command("TrimCurrBufferTrailSpaces", function()
@@ -386,6 +398,8 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.api.nvim_buf_set_lines(buf, 0, 0, false, git_metadata)
     vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"============================================================"})
     vim.api.nvim_buf_set_lines(buf, -1, -1, false, git_content)
+
+    vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 
 
     --Enable diff mode in both windows

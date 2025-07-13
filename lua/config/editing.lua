@@ -23,7 +23,7 @@ vim.opt.virtualedit = "onemore" --allow to Snap cursor to closest char at eol
 --Smart virt edit
 vim.api.nvim_create_autocmd("ModeChanged", {
     group = "UserAutoCmds",
-    pattern = "*:*",
+    pattern = "*",
     callback = function()
         local mode = vim.fn.mode()
         if mode == "n" or mode == "\22" then vim.opt.virtualedit = "all"     end
@@ -43,8 +43,8 @@ vim.opt.iskeyword = "@,48-57,192-255,-,_"
 --Backspace behaviour
 vim.opt.backspace = { "indent", "eol", "start" }
 --"indent" → Allows Backspace to delete auto-indent.
---"eol" → Allows Backspace to delete past line breaks.
---"start" → Allows Backspace at the start of insert mode.
+--"eol   " → Allows Backspace to delete past line breaks.
+--"start"  → Allows Backspace at the start of insert mode.
 
 
 --Smart autosave
@@ -61,7 +61,7 @@ local function file_was_saved_manually(path)
 
         if stat then
             local mtime = os.date("*t", stat.mtime.sec)
-            local now = os.date("*t")
+            local now   = os.date("*t")
 
             local was_saved_manually = mtime.year  == now.year  and
                                        mtime.month == now.month and
@@ -157,6 +157,7 @@ local formatopts = {} --will hold all users formats opts
 --### Identation
 vim.opt.autoindent  = true
 vim.opt.smartindent = true  --Do smart autoindenting when starting a new line
+--vim.opt.copyindent = true
 --vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
 --A list of keys that, when typed in Insert mode, cause reindenting of
 --the current line. Only happens if 'indentexpr' isn't empty.
@@ -203,9 +204,21 @@ vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {
     pattern = "*",
     callback = function()
         local ft = vim.bo.filetype
-        if ft == "text" or ft == "markdown" or ft == "" then
+        if ft == "text" or ft == "markdown" then
             utils.insert_unique(formatopts, "t")
             utils.insert_unique(formatopts, "w")
+        else
+            for i = #formatopts, 1, -1 do
+                if formatopts[i] == "t" then
+                    table.remove(formatopts, i)
+                end
+            end
+            for i = #formatopts, 1, -1 do
+                if formatopts[i] == "w" then
+                    table.remove(formatopts, i)
+                end
+            end
+
         end
 
         local fopts = table.concat(formatopts)

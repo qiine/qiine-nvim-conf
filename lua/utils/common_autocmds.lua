@@ -4,10 +4,7 @@
 
 local utils = require("utils.utils")
 
-local v    = vim
-local vcmd = vim.cmd
-local vap  = vim.api
-local vfn  = vim.fn
+local v = vim
 -----------------------------------
 
 --Why use augroup?
@@ -42,48 +39,15 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
         if
             vim.bo.buftype == "" and
-            vim.bo.modifiable and
+            vim.bo.modifiable    and
             not vim.bo.readonly
         then
-            vim.cmd("TrimCurrBufferTrailSpaces")
+            local ok, err = pcall(vim.cmd, "TrimCurrBufferTrailSpaces")
+            if not ok then vim.notify(err, vim.log.levels.WARN) end
         end
     end
 })
 
-
---TODO prevent closing tab if unsaved buffs
-local function check_unsaved_buffers()
-    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-        local bufnr = vim.api.nvim_win_get_buf(win)
-        if vim.api.nvim_buf_get_option(bufnr, 'modified') then
-            return true
-        end
-    end
-    return false
-end
-vim.api.nvim_create_autocmd('TabLeave', {
-    group = 'UserAutoCmds',
-    pattern = '*',
-    callback = function ()
-        --print(check_unsaved_buffers)
-        --if check_unsaved_buffers() then
-        --    local choice = vim.fn.confirm("unsaved changes, save before closing?", "&Yes\n&No\n&Cancel", 3)
-        --    if choice == 1 then
-        --        vim.cmd('wall') --save all buffs
-        --        vim.cmd('tabclose')
-        --        return
-        --    elseif choice == 2 then
-        --        vim.cmd('tabclose!')
-        --        return
-        --    else
-        --        print("Tab close cancelled")
-        --        return
-        --    end
-        --else
-        --    vim.cmd('tabclose') --No unsaved buffs closing
-        --end
-    end,
-})
 
 --local conf = vim.fn.stdpath('config')
 ---- TODO Autocommand to reload the configuration when any file in the config directory is saved
@@ -112,37 +76,27 @@ vim.api.nvim_create_autocmd('TabLeave', {
 
 
 
---[View]--------------------------------------------------
+--## [View]
+----------------------------------------------------------------------
 --highlight yanked text
-vim.api.nvim_create_augroup("highlight_yank", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
-    group = "highlight_yank",
+    group = "UserAutoCmds",
     pattern = "*",
     callback = function()
         --TODO IncSearch confilct with C-f
         --vim.highlight.on_yank({higroup='IncSearch', timeout = 200 })
-        (vim.hl or vim.highlight).on_yank()
+        --vim.highlight.on_yank({higroup='Visual', timeout = 200 })
+        vim.hl.on_yank({higroup = "IncSearch", timeout = 100})
     end,
 })
 
----[---Auto disable any search highlight on enter insert
-----vim.api.nvim_create_autocmd('InsertEnter', {
-----    group = "UserAutoCmds",
-----    pattern = '*.*',
-----    callback = function()
-----        vim.defer_fn(function()
-----            vim.cmd('nohlsearch')
-----        end, 1) --slight dealay otherwise won't work? (milliseconds)
-----    end,
-----]})
-
+--revert search highlight
 vim.api.nvim_create_autocmd('InsertEnter', {
     group = "UserAutoCmds",
     pattern = '*',
     callback = function()
         vim.defer_fn(function()
-            local last_cmd = vim.fn.getreg('/')
-            if last_cmd ~= '' then
+            if vim.v.hlsearch == 1 then
                 vim.cmd('nohlsearch')
             end
         end, 1)
@@ -150,27 +104,29 @@ vim.api.nvim_create_autocmd('InsertEnter', {
 })
 
 
---[Buffers]--------------------------------------------------
+--## [Buffers]
+----------------------------------------------------------------------
 --Smart enter Auto Insert when appropriate
-vim.api.nvim_create_autocmd({"BufEnter", "BufRead", "BufNewFile"}, {
+vim.api.nvim_create_autocmd({"BufEnter"}, {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
         if not vim.g.autostartinsert then return end
 
-        local buftype = vim.bo.buftype
+        local bufnr = vim.api.nvim_get_current_buf()
         local ft = vim.bo.filetype
-        ft = string.lower(ft)
 
         if
-            ft == "oil" or
-            utils.string_contains(ft, "dashboard") or
-            utils.string_contains(ft, "alpha") or
-            utils.string_contains(ft, "neo") or
-            utils.string_contains(ft, "trouble")
-        then vim.cmd("stopinsert") return end
-
-        if buftype == "" then vim.cmd("startinsert") end
+            vim.bo[bufnr].buftype   == ""  and
+            vim.bo[bufnr].modifiable       and
+            vim.fn.buflisted(bufnr) == 1   and
+            not ft:match("help")           and
+            not ft:match("oil")
+        then
+            vim.cmd("startinsert")
+        else
+            vim.cmd("stopinsert")
+        end
     end,
 })
 

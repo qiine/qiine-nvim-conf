@@ -94,12 +94,20 @@ return
         end, { silent = true, desc = "" })
 
         --grep curr project
-        vim.keymap.set({"i","n","v"}, "<C-S-g>", function()
+        vim.keymap.set({"i","n"}, "<C-S-g>", function()
             local path = require("fzf-lua.path")
             require("fzf-lua").live_grep({
                 cwd = path.git_root({}),
             })
         end, { noremap = true, silent = true, desc = "live grep project" })
+
+        --grep curr project for selected
+        vim.keymap.set("v", "<C-S-g>", function()
+            local path = require("fzf-lua.path")
+            require("fzf-lua").grep_visual({
+                cwd = path.git_root({}),
+            })
+        end, { noremap = true, silent = true, desc = "live grep selected in project" })
 
         --grep
         vim.keymap.set({"i","n","v"}, "<M-f>g", function()

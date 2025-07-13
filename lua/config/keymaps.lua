@@ -325,6 +325,7 @@ map("n", "f", function()
 end, {remap = true})
 
 
+
 --## [Selection]
 ----------------------------------------------------------------------
 --Swap selection anchors
@@ -577,15 +578,15 @@ map("n", "<C-S-x>", 'viw"+x')
 map("v", "<C-S-x>", '<esc>mzviw"+x`z:echo"Word Cut"<CR>')
 
 --Paste
-map("i", "<C-v>", '<esc>"+P`]a') --`[v`]= format and place curso at the end
+map("i", "<C-v>", '<esc>"+P`]a')
 map("n", "<C-v>", '"+P`]')
 map("v", "<C-v>", '"_d"+P`]')
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<C-o>"+P')
 
 --paste replace word
-map("i", "<C-S-v>", '<esc>ciw"+Pa')
-map("n", "<C-S-v>", '<esc>ciw"+P')
+map("i", "<C-S-v>", '<esc>diw"+Pa')
+map("n", "<C-S-v>", '<esc>diw"+P')
 
 --Duplicate
 map("i", "<C-d>", '<Esc>yypi')
@@ -596,7 +597,7 @@ map("v", "<C-d>", 'yP')
 --#[Undo/redo]
 --ctrl+z to undo
 map("i",       "<C-z>",   "<C-o>u", {noremap = true})
-map({"n","v"}, "<C-z>",   "u",      {noremap = true})
+map({"n","v"}, "<C-z>",   "<esc>u", {noremap = true})
 
 --redo
 map("i",       "<C-y>",   "<cmd>normal! <C-r><cr>")
@@ -783,18 +784,18 @@ map("v", "<S-Tab>", "<gv")
 map("n", "<cr>", "i<cr><esc>")
 
 --breakline above
-map("i", "<S-CR>", "<Esc>O")
+map("i", "<S-CR>", "<C-o>O")
 map("n", "<S-CR>", "O<esc>")
 map("v", "<S-CR>", "<esc>O<esc>vgv")
 
 --breakline below
-map("i", "<M-CR>", "<Esc>o")
+map("i", "<M-CR>", "<C-o>o")
 map("n", "<M-CR>", 'o<Esc>')
 map("v", "<M-CR>", "<Esc>o<Esc>vgv")
 
 --New line above and below
-map("i", "<S-M-cr>", "<esc>o<esc>kO<esc>ji")
-map("n", "<S-M-cr>", "o<esc>kO<esc>j")
+map("i", "<S-M-cr>", "<esc>mzo<esc>kO<esc>`zi")
+map("n", "<S-M-cr>", "mzo<esc>kO<esc>`z")
 map("v", "<S-M-cr>", function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
 

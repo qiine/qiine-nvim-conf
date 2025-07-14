@@ -52,6 +52,23 @@ vim.api.nvim_create_user_command("Today", function()
 end, {})
 
 
+--## [Buffers]
+----------------------------------------------------------------------
+vim.api.nvim_create_user_command("BufferInfo", function()
+    local infos = {}
+    table.insert(infos, "Name:       " .. vim.api.nvim_buf_get_name(0))
+    table.insert(infos, "Id:         " .. vim.api.nvim_get_current_buf())
+    table.insert(infos, "Buftype:    " .. vim.api.nvim_get_option_value("buftype", {buf = 0}))
+    table.insert(infos, "Loaded:     " .. tostring(vim.api.nvim_buf_is_loaded(0)))
+    table.insert(infos, "Listed:     " .. tostring(vim.api.nvim_get_option_value("buflisted", {buf = 0})))
+    table.insert(infos, "Modifiable: " .. tostring(vim.api.nvim_get_option_value("modifiable", {buf = 0})))
+    table.insert(infos, "filetype:   " .. vim.api.nvim_get_option_value("filetype", { buf = 0 }))
+    table.insert(infos, "FileOnDisk: " .. tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(0))==1))
+    table.insert(infos, "linecount:  " .. vim.api.nvim_buf_line_count(0))
+
+    vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
+end, {})
+
 
 --## [Files]
 ----------------------------------------------------------------------

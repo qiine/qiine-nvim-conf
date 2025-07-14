@@ -38,12 +38,13 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         if vim.bo.filetype == "markdown" then return end
 
         if
-            vim.bo.buftype == "" and
-            vim.bo.modifiable    and
+            vim.bo.modifiable         and
+            vim.bo.buftype      == "" and
+            vim.fn.buflisted(0) == 1  and
             not vim.bo.readonly
         then
             local ok, err = pcall(vim.cmd, "TrimCurrBufferTrailSpaces")
-            if not ok then vim.notify(err, vim.log.levels.WARN) end
+            if not ok then vim.notify("Trim failed: " .. err, vim.log.levels.WARN) end
         end
     end
 })
@@ -73,6 +74,10 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --    end,
 --})
 
+
+vim.api.nvim_create_user_command("ReindentPasted", function()
+    vim.cmd("norm! `[v`]=")
+end, {})
 
 
 
@@ -107,7 +112,7 @@ vim.api.nvim_create_autocmd('InsertEnter', {
 --## [Buffers]
 ----------------------------------------------------------------------
 --Smart enter Auto Insert when appropriate
-vim.api.nvim_create_autocmd({"BufEnter"}, {
+vim.api.nvim_create_autocmd({"BufEnter", "BufModifiedSet"}, {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()

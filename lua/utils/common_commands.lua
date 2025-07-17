@@ -3,6 +3,7 @@
 -------------------------
 local v = vim
 
+
 local utils = require("utils.utils")
 -------------------------
 
@@ -36,13 +37,22 @@ vim.api.nvim_create_user_command("RestartSafeMode", function()
     vim.cmd("qa!")
 end, {})
 
+vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
+    local cmd_output = vim.fn.execute('messages')
 
---TODO open help in separate tab
--- vim.api.nvim_create_user_command("H", function(opts)
--- vim.cmd("enew")
--- vim.cmd("setlocal buftype=help")
--- vim.cmd("help "..opts.args)
--- end, { nargs = "*" })
+    vim.cmd("enew")
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+end, {})
+
+--TODO
+--vim.api.nvim_create_user_command("HelpTab", function(opts)
+--    local cmdout = vim.fn.execute("h "..opts.args)
+
+--    vim.cmd("enew")
+
+--    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmdout, '\n'))
+--end, { nargs = "*" })
 
 --insert today
 vim.api.nvim_create_user_command("Today", function()
@@ -54,20 +64,28 @@ end, {})
 
 --## [Buffers]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("BufferInfo", function()
-    local infos = {}
-    table.insert(infos, "Name:       " .. vim.api.nvim_buf_get_name(0))
-    table.insert(infos, "Id:         " .. vim.api.nvim_get_current_buf())
-    table.insert(infos, "Buftype:    " .. vim.api.nvim_get_option_value("buftype", {buf = 0}))
-    table.insert(infos, "Loaded:     " .. tostring(vim.api.nvim_buf_is_loaded(0)))
-    table.insert(infos, "Listed:     " .. tostring(vim.api.nvim_get_option_value("buflisted", {buf = 0})))
-    table.insert(infos, "Modifiable: " .. tostring(vim.api.nvim_get_option_value("modifiable", {buf = 0})))
-    table.insert(infos, "filetype:   " .. vim.api.nvim_get_option_value("filetype", { buf = 0 }))
-    table.insert(infos, "FileOnDisk: " .. tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(0))==1))
-    table.insert(infos, "linecount:  " .. vim.api.nvim_buf_line_count(0))
+vim.api.nvim_create_user_command("BufferInfo", function(opts)
+    local inbuf = tonumber(opts.args) or vim.api.nvim_get_current_buf()
+
+    local infos = {
+        "Name:       "..vim.api.nvim_buf_get_name(inbuf),
+        "Id:         "..inbuf,
+        "Buftype:    "..vim.api.nvim_get_option_value("buftype", {buf = inbuf}),
+        "Loaded:     "..tostring(vim.api.nvim_buf_is_loaded(inbuf)),
+        "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = inbuf})),
+        "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", {buf = inbuf})),
+        "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", {buf = inbuf})),
+        "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = inbuf }),
+        "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(inbuf))==1),
+        "linecount:  "..vim.api.nvim_buf_line_count(inbuf),
+        "PrevBuf:    "..vim.api.nvim_buf_get_name(vim.fn.bufnr("#")),
+        "PrevBufId:  "..vim.fn.bufnr("#"),
+        "windowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(inbuf)), ", "),
+    }
 
     vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
-end, {})
+end, {nargs= "?"})
+
 
 
 --## [Files]
@@ -313,9 +331,9 @@ end, {})
 --## [Editing]
 --------------------------------------------------
 --Trim select, include tab and break lines
-vim.api.nvim_create_user_command("TrimSelectedWhitespaces", function(opts)
-    vim.cmd(string.format("s/\\s//g"))
-    --vim.cmd("normal! <esc>")
+vim.api.nvim_create_user_command("TrimWhitespacesLine", function(opts)
+    vim.cmd("s/\\s//g")
+    --vim.cmd("normal! ")
 end, { range = true })
 
 vim.api.nvim_create_user_command("TrimCurrBufferTrailSpaces", function()
@@ -450,12 +468,8 @@ vim.api.nvim_create_user_command("WrapSelection", function()
     vim.cmd("normal! gww")
 end, { range = true })
 
-vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
-    local cmd_output = vim.fn.execute('messages')
-
-    vim.cmd("enew")
-
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+vim.api.nvim_create_user_command("ReindentPasted", function()
+    vim.cmd("norm! `[v`]=")
 end, {})
 
 
@@ -482,5 +496,78 @@ vim.api.nvim_create_user_command("ToggleColorcolumn", function()
     end
 end, {})
 
+--vim.api.nvim_create_user_command("FacingPages", function()
+--    --vim.wo.scrollbind = true
+--    local init_crow = vim.api.nvim_win_get_cursor(0)[1]
+--    vim.cmd("vsplit")
 
+--    local secpage_row = init_crow + --number of row to scroll to get to sec page
+--    vim.api.nvim_win_set_cursor(0, secpage_row)
+
+--    vim.api.nvim_create_autocmd("WinScrolled", {
+--        group = vim.api.nvim_create_augroup("Scroll", {clear=true}),
+--        pattern = "*",
+--        callback = function()
+--            --get scroll dir
+--            vim.cmd("norm! <C-S-e>")
+--            --or
+--            vim.cmd("norm! <C-S-y>")
+--        end,
+--    })
+--end, {})
+
+vim.api.nvim_create_user_command("FacingPages", function()
+    local win_left = vim.api.nvim_get_current_win()
+
+    local curr_line = vim.fn.getpos(".")[2]
+    local win_height = vim.api.nvim_win_get_height(win_left)
+
+    local target_line = curr_line + win_height
+
+    local linecount = vim.api.nvim_buf_line_count(0)
+    target_line = math.min(target_line, linecount)
+
+    vim.cmd("vsplit")
+    local win_right = vim.api.nvim_get_current_win()
+
+    vim.cmd("norm! "..target_line.."G")
+    vim.cmd("norm! zt")
+
+    vim.api.nvim_set_current_win(win_left)
+
+
+    local group = vim.api.nvim_create_augroup("ScrollSync", { clear = true })
+    local syncing = false
+    vim.api.nvim_create_autocmd("WinScrolled", {
+        group = group,
+        callback = function(args)
+            if syncing then return end
+
+            local from = args.win
+            local to = nil
+
+            if from == win_left then
+                to = win_right
+            elseif from == win_right then
+                to = win_left
+            else
+                return
+            end
+
+            if not (vim.api.nvim_win_is_valid(from) and vim.api.nvim_win_is_valid(to)) then
+                vim.api.nvim_del_augroup_by_name("ScrollSync")
+                return
+            end
+
+            syncing = true
+            local top = vim.fn.line("w0", from)
+            vim.api.nvim_win_call(to, function()
+                vim.cmd(tostring(top))
+                vim.cmd("normal! zt")
+            end)
+            syncing = false
+        end,
+    })
+
+end, {})
 

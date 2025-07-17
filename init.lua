@@ -28,7 +28,7 @@ vim.opt.encoding = "UTF-8"
 
 -------------------------------
 
---avoid breaking everything when a lua modules have errors
+--this avoid breaking everything when a lua modules has errors
 local function safe_require(module_name)
     local status, module = pcall(require, module_name)
     if not status then
@@ -38,10 +38,11 @@ local function safe_require(module_name)
         )
         return nil
     end
+
     return module
 end
 
-local module   --will hold local modules
+local module   --will hold special local modules
 
 module = safe_require("modules.v-enveloppe") if module then module.setup() end
 module = safe_require("modules.dialeur.dialeur") if module then module.setup() end

@@ -52,7 +52,7 @@ return
                   sidebar = "global",   --"global", "tab"
                   current = "cwd"
                 },
-                hijack_netrw = true,
+                hijack_netrw = false,
 
                 filtered_items = {
                     visible = true, -- when true, they will just be displayed differently than normal items

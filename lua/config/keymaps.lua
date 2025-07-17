@@ -182,17 +182,18 @@ end)
 --Tabs close
 map(modes, "<C-w>", function()
     local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
-    if bufmodif then
+    --check splits point to same buffer no need to prompt in this case
+    local bufwindows = vim.fn.win_findbuf(0)
+
+    if bufmodif and #bufwindows <= 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
         if choice == 2 or choice == 0 then return end
     end
 
     --try close splits first, in case both splits are same buf
-    --avoid killing the shared buffer in this case
+    --that avoids killing the shared buffer in this case
     local ok, err = pcall(vim.cmd, "close")
-    if not ok then
-        vim.cmd("bd!") --effectively close the tab
-    end
+    if not ok then vim.cmd("bd!") end --effectively close the tab
 end)
 
 --Tabs nav
@@ -200,7 +201,6 @@ end)
 map(modes, "<C-Tab>",  "<cmd>bnext<cr>")
 --prev
 map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
-
 
 
 --## [Windows]
@@ -460,7 +460,7 @@ map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 --Search in notes
 map({"i","n"}, "<F49>", function()   --<M-F1>
-    require("fzf-lua").live_grep({
+    require("fzf-lua").files({
         cwd = "~/Personal/KnowledgeBase/Notes/"
     })
 end)
@@ -530,10 +530,10 @@ map("i", "<C-c>", function()
     local line = vim.api.nvim_get_current_line()
 
     if line ~= "" then
-        vim.cmd('norm! mz0"+y$`z') vim.cmd('delm z')
+        vim.cmd([[norm! m'0"+y$`']])
         vim.cmd("echo 'line copied!'")
     end
-end, {noremap=true} )
+end, {noremap=true})
 
 map("n", "<C-c>", function()
     local char = utils.get_char_at_cursorpos()
@@ -544,8 +544,7 @@ map("n", "<C-c>", function()
 end, {noremap = true})
 
 map("v", "<C-c>", function()
-    vim.cmd('norm! mz"+y`z')
-    vim.cmd("echo 'copied'")
+    vim.cmd([[norm! m'"+y`']]) print("copied")
 end, {noremap=true})
 
 
@@ -563,24 +562,43 @@ end)
 
 --Copy word
 map({"i","n"}, "<C-S-c>", function()
-    vim.cmd('normal! mzviw"+y`z') print("Word Copied")
+    vim.cmd('norm! mzviw"+y`z') print("Word Copied")
 end)
 map("v", "<C-S-c>", '<esc>mzviw"+y`z:echo"Word Copied"<CR>')
 
 --cut
-map("i", "<C-x>", '<esc>0"+y$"_ddi', { noremap = true}) --cut line
-map("n", "<C-x>", '"+x',             { noremap = true})
-map("v", "<C-x>", '"+d<esc>',        { noremap = true}) --d both delete and copy so..
+map("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true}) --cut line
+map("n", "<C-x>", '"+x',             {noremap = true})
+map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy so..
 
 --cut word
 map("i", "<C-S-x>", '<esc>viw"+xi')
 map("n", "<C-S-x>", 'viw"+x')
 map("v", "<C-S-x>", '<esc>mzviw"+x`z:echo"Word Cut"<CR>')
 
+
 --Paste
-map("i", "<C-v>", '<esc>"+P`]a')
-map("n", "<C-v>", '"+P`]')
-map("v", "<C-v>", '"_d"+P`]')
+map({"i","n","v"}, "<C-v>", function()
+    local mode = vim.fn.mode()
+    if mode == "v" or mode == "V" or mode == "" then
+        vim.cmd('norm! "_d')
+    end
+
+    vim.cmd('norm! "+P')
+
+    --format after paste
+    local ft = vim.bo.filetype
+    if ft == "markdown" or ft == "text" then
+        vim.cmd("norm! `[v`]gww")
+    else
+        vim.cmd("norm! `[v`]=") --auto fix ident
+    end
+
+    --proper cursor placement 
+    vim.cmd("norm! `]") 
+    if mode == "i" then vim.cmd("norm! a") end
+end)
+
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<C-o>"+P')
 
@@ -600,11 +618,10 @@ map("i",       "<C-z>",   "<C-o>u", {noremap = true})
 map({"n","v"}, "<C-z>",   "<esc>u", {noremap = true})
 
 --redo
-map("i",       "<C-y>",   "<cmd>normal! <C-r><cr>")
-map({"n","v"}, "<C-y>",   "<C-r>")
-
-map("i",       "<C-S-z>", "<cmd>normal! <C-r><cr>")
-map({"n","v"}, "<C-S-z>", "<C-r>")
+map("i",       "<C-y>",   "<C-o><C-r>")
+map({"n","v"}, "<C-y>",   "<esc><C-r>")
+map("i",       "<C-S-z>", "<C-o><C-r>")
+map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 
 --#[Deletion]
@@ -795,7 +812,7 @@ map("v", "<M-CR>", "<Esc>o<Esc>vgv")
 
 --New line above and below
 map("i", "<S-M-cr>", "<esc>mzo<esc>kO<esc>`zi")
-map("n", "<S-M-cr>", "mzo<esc>kO<esc>`z")
+map("n", "<S-M-cr>", "m'o<esc>kO<esc>`'")
 map("v", "<S-M-cr>", function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
@@ -965,11 +982,15 @@ map({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 map("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
 
 --run whole file until curr line and insert
-map({"i","n"}, "<F20>","<cmd>SnipRunToLineInsertResult<CR>")
+map({"i","n"},"<F20>","<cmd>SnipRunToLineInsertResult<CR>")
 
 
 --exec curr line as ex command
-map({"i","n"}, "<F56>", '<esc>0y$:<C-r>"<CR>')
+--map({"i","n"}, "<F56>", '<esc>0y$:<C-r>"<CR>')
+map({"i","n","v"}, "<F56>", function()
+    vim.cmd("norm! 0y$")
+    vim.cmd('@"')
+end)
 
 
 

@@ -27,18 +27,14 @@ return
         combo("v", "<Left><Right>", "<Esc>")
         combo("v", "<Right><Left>", "<Esc>")
 
-        --fast move + quick normal
+        --quick normal while fast move
+        --only for right side
         combo("i", '<C-Down><C-Right>', '<Esc><Down><Right>', { delay = 300 })
         combo("i", '<C-Right><C-Down>', '<Esc><Down><Right>', { delay = 300 })
-
-        combo("i", '<C-Down><C-Left>', '<Esc><Down><Left>', { delay = 300 })
-        combo("i", '<C-Left><C-Down>', '<Esc><Down><Left>', { delay = 300 })
 
         combo("i", '<C-Up><C-Right>', '<Esc><Up><Right>', { delay = 300 })
         combo("i", '<C-Right><C-Up>', '<Esc><Up><Right>', { delay = 300 })
 
-        combo("i", '<C-Up><C-Left>', '<Esc><Up><Left>', { delay = 300 })
-        combo("i", '<C-Left><C-Up>', '<Esc><Up><Left>', { delay = 300 })
 
         --to line select
         combo("i", "<S-Right><S-Left>", "<Esc>V")

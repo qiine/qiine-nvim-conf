@@ -139,11 +139,9 @@ map(modes, "ç", --"<altgr-r>"
 --## [View]
 ----------------------------------------------------------------------
 --alt-z toggle line wrap
-map({"i", "n", "v"}, "<A-z>",
-    function()
-        vim.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
-    end
-)
+map({"i","n","v"}, "<A-z>", function()
+    vim.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
+end)
 
 --Gutter on/off
 map({"i","n"}, "<M-g>", function()
@@ -175,19 +173,17 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 --## [Tabs]
 ----------------------------------------------------------------------
 --create new tab
-map( modes,"<C-t>", function()
-    vim.cmd("Alpha")
-end)
+map( modes,"<C-t>", function() vim.cmd("Alpha") end)
 
 --Tabs close
 map(modes, "<C-w>", function()
     local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
-    --check splits point to same buffer no need to prompt in this case
-    local bufwindows = vim.fn.win_findbuf(0)
+    --check if splits point to same buf, no need to prompt in this case!
+    local bufwindows = vim.fn.win_findbuf(vim.api.nvim_get_current_buf())
 
     if bufmodif and #bufwindows <= 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
-        if choice == 2 or choice == 0 then return end
+        if choice ~= 1 then return end
     end
 
     --try close splits first, in case both splits are same buf
@@ -198,7 +194,7 @@ end)
 
 --Tabs nav
 --next
-map(modes, "<C-Tab>",  "<cmd>bnext<cr>")
+map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
 --prev
 map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
@@ -211,17 +207,17 @@ map("v", "<M-w>", "<Esc><C-w>")
 
 --To next window
 map({"i","n","v","c"}, "<M-Tab>", function()
-    vim.cmd("normal! w")
+    vim.cmd("norm! w")
 end)
 
 map("n", "<M-w>H", "<C-w>t<C-w>H",{noremap=true})
 map("n", "<M-w>V", "<C-w>t<C-w>K",{noremap=true})
 
 --resize vert
-map("n", "<M-w><Left>", ":vertical resize -8<CR>", {noremap = true})
+map("n", "<M-w><Left>",  ":vertical resize -8<CR>", {noremap = true})
 map("n", "<M-w><Right>", ":vertical resize +8<CR>", {noremap = true})
 --resize hor
-map("n", "<M-w><Up>", ":resize +8<CR>", {noremap = true})
+map("n", "<M-w><Up>",   ":resize +8<CR>", {noremap = true})
 map("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
 
 
@@ -270,11 +266,11 @@ map('n', '<C-Right>', "5l")
 map('n', '<C-Left>',  "5h")
 
 --ctrl+up/down to move fast
-map("i", "<C-Up>", "<Esc>3ki")
+map("i", "<C-Up>", "<C-o>3k")
 map("n", "<C-Up>", "3k")
 map("v", "<C-Up>", "3k")
 
-map("i", "<C-Down>", "<Esc>3ji")
+map("i", "<C-Down>", "<C-o>3j")
 map("n", "<C-Down>", "3j")
 map("v", "<C-Down>", "3j")
 
@@ -332,26 +328,24 @@ end, {remap = true})
 map("v", "<M-v>", "o")
 
 --Select word under cursor
-map("i", "<C-S-w>", "<esc>viw")
-map("n", "<C-S-w>", "viw")
-map("v", "<C-S-w>", "<esc>viw")
+map({"i","n","v"}, "<C-S-w>", "<esc>viw")
 
 --shift+arrows visual select
-map("i", "<S-Left>", "<Esc>hv", {noremap = true})
-map("n", "<S-Left>", "vh", {noremap = true})
+map("i", "<S-Left>", "<Esc>hv",  {noremap = true})
+map("n", "<S-Left>", "vh",       {noremap = true})
 map("v", "<S-Left>", "<Left>")
 
-map("i", "<S-Right>", "<Esc>v", {noremap = true})
-map("n", "<S-Right>", "vl", {noremap = true})
+map("i", "<S-Right>", "<Esc>v",  {noremap = true})
+map("n", "<S-Right>", "vl",      {noremap = true})
 map("v", "<S-Right>", "<Right>")
 
-map("i", "<S-Up>", "<Esc>vk", {noremap=true})
-map("n", "<S-Up>", "vk", {noremap=true})
-map("v", "<S-Up>", "k", {noremap=true}) --avoid fast scrolling around
+map("i", "<S-Up>",    "<Esc>vk", {noremap=true})
+map("n", "<S-Up>",    "vk",      {noremap=true})
+map("v", "<S-Up>",    "k",       {noremap=true}) --avoid fast scrolling around
 
-map("i", "<S-Down>", "<Esc>vh", {noremap=true})
-map("n", "<S-Down>", "vj", {noremap=true})
-map("v", "<S-Down>", "j", {noremap=true}) --avoid fast scrolling around
+map("i", "<S-Down>", "<Esc>vh",  {noremap=true})
+map("n", "<S-Down>", "vj",       {noremap=true})
+map("v", "<S-Down>", "j",        {noremap=true}) --avoid fast scrolling around
 
 --Select to home
 map("i", "<S-Home>", "<Esc>vgg0i")
@@ -544,7 +538,7 @@ map("n", "<C-c>", function()
 end, {noremap = true})
 
 map("v", "<C-c>", function()
-    vim.cmd([[norm! m'"+y`']]) print("copied")
+    vim.cmd([[norm! m'"+y`']]); print("copied")
 end, {noremap=true})
 
 
@@ -562,7 +556,7 @@ end)
 
 --Copy word
 map({"i","n"}, "<C-S-c>", function()
-    vim.cmd('norm! mzviw"+y`z') print("Word Copied")
+    vim.cmd('norm! mzviw"+y`z'); print("Word Copied")
 end)
 map("v", "<C-S-c>", '<esc>mzviw"+y`z:echo"Word Copied"<CR>')
 
@@ -580,13 +574,11 @@ map("v", "<C-S-x>", '<esc>mzviw"+x`z:echo"Word Cut"<CR>')
 --Paste
 map({"i","n","v"}, "<C-v>", function()
     local mode = vim.fn.mode()
-    if mode == "v" or mode == "V" or mode == "" then
-        vim.cmd('norm! "_d')
-    end
+    if mode == "v" or mode == "V" or mode == "" then vim.cmd('norm! "_d') end
 
     vim.cmd('norm! "+P')
 
-    --format after paste
+    --Format after paste
     local ft = vim.bo.filetype
     if ft == "markdown" or ft == "text" then
         vim.cmd("norm! `[v`]gww")
@@ -594,8 +586,8 @@ map({"i","n","v"}, "<C-v>", function()
         vim.cmd("norm! `[v`]=") --auto fix ident
     end
 
-    --proper cursor placement 
-    vim.cmd("norm! `]") 
+    --proper cursor placement
+    vim.cmd("norm! `]")
     if mode == "i" then vim.cmd("norm! a") end
 end)
 

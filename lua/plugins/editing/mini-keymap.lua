@@ -35,6 +35,9 @@ return
         combo("i", '<C-Up><C-Right>', '<Esc><Up><Right>', { delay = 300 })
         combo("i", '<C-Right><C-Up>', '<Esc><Up><Right>', { delay = 300 })
 
+        combo("i", '<C-Right><C-Left>', '<Esc>', { delay = 100 })
+        combo("i", '<C-Left><C-Right>', '<Esc>', { delay = 100 })
+
 
         --to line select
         combo("i", "<S-Right><S-Left>", "<Esc>V")

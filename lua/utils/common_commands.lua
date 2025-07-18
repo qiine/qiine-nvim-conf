@@ -1,4 +1,4 @@
--------------------------
+------------------------
 -- User commands --
 -------------------------
 local v = vim
@@ -12,13 +12,13 @@ local utils = require("utils.utils")
 --Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
-    vim.cmd("source " .. currf)
+    vim.cmd("source " ..currf)
 end, {})
 
 --Restart nvim
 vim.api.nvim_create_user_command("Restart", function()
     local curfile = vim.fn.expand("%:p") --Get curr file location
-    local curdir = vim.fn.fnamemodify(curfile, ':p:h')
+    local curdir  = vim.fn.fnamemodify(curfile, ':p:h')
 
     vim.cmd("SaveGlobalSession")
 
@@ -75,11 +75,14 @@ vim.api.nvim_create_user_command("BufferInfo", function(opts)
         "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = inbuf})),
         "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", {buf = inbuf})),
         "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", {buf = inbuf})),
+
         "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = inbuf }),
         "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(inbuf))==1),
         "linecount:  "..vim.api.nvim_buf_line_count(inbuf),
+
         "PrevBuf:    "..vim.api.nvim_buf_get_name(vim.fn.bufnr("#")),
         "PrevBufId:  "..vim.fn.bufnr("#"),
+
         "windowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(inbuf)), ", "),
     }
 
@@ -465,12 +468,8 @@ end, {nargs = "?"})
 --------------------------------------------------
 --wrap line into paragraph
 vim.api.nvim_create_user_command("WrapSelection", function()
-    vim.cmd("normal! gww")
+    vim.cmd("norm! gww")
 end, { range = true })
-
-vim.api.nvim_create_user_command("ReindentPasted", function()
-    vim.cmd("norm! `[v`]=")
-end, {})
 
 
 
@@ -519,20 +518,16 @@ end, {})
 vim.api.nvim_create_user_command("FacingPages", function()
     local win_left = vim.api.nvim_get_current_win()
 
-    local curr_line = vim.fn.getpos(".")[2]
-    local win_height = vim.api.nvim_win_get_height(win_left)
-
-    local target_line = curr_line + win_height
-
-    local linecount = vim.api.nvim_buf_line_count(0)
-    target_line = math.min(target_line, linecount)
+    --calc target row for right pane
+    --local target_row = vim.fn.getpos(".")[2] + vim.api.nvim_win_get_height(win_left)
+    --target_row = math.min(target_row, vim.api.nvim_buf_line_count(0))
 
     vim.cmd("vsplit")
     local win_right = vim.api.nvim_get_current_win()
 
-    vim.cmd("norm! "..target_line.."G")
-    vim.cmd("norm! zt")
+    --vim.cmd("norm! "..target_row.."G"); vim.cmd("norm! zt")
 
+    --back to og win
     vim.api.nvim_set_current_win(win_left)
 
 
@@ -541,33 +536,26 @@ vim.api.nvim_create_user_command("FacingPages", function()
     vim.api.nvim_create_autocmd("WinScrolled", {
         group = group,
         callback = function(args)
-            if syncing then return end
+            if syncing then return end; syncing = true
 
-            local from = args.win
-            local to = nil
+            local curr_win = vim.api.nvim_get_current_win()
 
-            if from == win_left then
-                to = win_right
-            elseif from == win_right then
-                to = win_left
-            else
-                return
-            end
+            local other_win = curr_win == win_left and win_right or win_left
 
-            if not (vim.api.nvim_win_is_valid(from) and vim.api.nvim_win_is_valid(to)) then
-                vim.api.nvim_del_augroup_by_name("ScrollSync")
-                return
-            end
+            if not vim.api.nvim_win_is_valid(other_win) then return end
 
-            syncing = true
-            local top = vim.fn.line("w0", from)
-            vim.api.nvim_win_call(to, function()
-                vim.cmd(tostring(top))
-                vim.cmd("normal! zt")
+            --local topline = vim.fn.line('w0', curr_win) +30
+            local target_row = vim.fn.getpos(".")[2] + vim.api.nvim_win_get_height(win_left)
+            target_row = math.min(target_row, vim.api.nvim_buf_line_count(0))
+
+            vim.api.nvim_win_call(other_win, function()
+                --vim.cmd("norm! ")
+                vim.cmd("norm! ".. target_row .."G")
+                vim.cmd("norm! zt")
             end)
+
             syncing = false
         end,
     })
-
 end, {})
 

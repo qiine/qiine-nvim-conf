@@ -37,9 +37,9 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     callback = function()
         if vim.bo.filetype == "markdown" then return end
         if
-            vim.bo.modifiable       and
-            vim.bo.buftype    == "" and
-            vim.bo.buflisted        and
+            vim.bo.modifiable         and
+            vim.bo.buftype      == "" and
+            vim.bo.buflisted          and
             not vim.bo.readonly
         then
             local ok, err = pcall(vim.cmd, "TrimCurrBufferTrailSpaces")
@@ -117,14 +117,15 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
         if not vim.g.autostartinsert then return end
 
         vim.defer_fn(function() --delay to ensure correct buf properties detect
-            local bufnr = vim.api.nvim_get_current_buf()
-            local ft = vim.bo.filetype
+            local vbuf = vim.bo[vim.api.nvim_get_current_buf()]
+            local ft   = vbuf.filetype
+            local bt   = vbuf.buftype
 
             if
-                vim.bo[bufnr].buftype   == ""  and
-                vim.bo[bufnr].modifiable       and
-                vim.fn.buflisted(bufnr) == 1   and
-                not ft:match("help")           and
+                ((bt == "" and vbuf.buflisted and vbuf.modifiable)
+                or bt == "terminal") and
+
+                not ft:match("help") and
                 not ft:match("oil")
             then
                 vim.cmd("startinsert")

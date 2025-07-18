@@ -36,11 +36,10 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*",
     callback = function()
         if vim.bo.filetype == "markdown" then return end
-
         if
-            vim.bo.modifiable         and
-            vim.bo.buftype      == "" and
-            vim.fn.buflisted(0) == 1  and
+            vim.bo.modifiable       and
+            vim.bo.buftype    == "" and
+            vim.bo.buflisted        and
             not vim.bo.readonly
         then
             local ok, err = pcall(vim.cmd, "TrimCurrBufferTrailSpaces")
@@ -75,10 +74,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --})
 
 
-vim.api.nvim_create_user_command("ReindentPasted", function()
-    vim.cmd("norm! `[v`]=")
-end, {})
-
 
 
 --## [View]
@@ -103,45 +98,41 @@ vim.api.nvim_create_autocmd('InsertEnter', {
         vim.defer_fn(function()
             if vim.v.hlsearch == 1 then
                 vim.cmd('nohlsearch')
+                --vim.api.nvim_feedkeys("\27", "n", false)
+                --vim.cmd('startinsert')
             end
         end, 1)
     end,
 })
 
 
+
 --## [Buffers]
 ----------------------------------------------------------------------
 --Smart enter Auto Insert when appropriate
-vim.api.nvim_create_autocmd({"BufEnter", "BufModifiedSet"}, {
+vim.api.nvim_create_autocmd({"BufEnter"}, {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
         if not vim.g.autostartinsert then return end
 
-        local bufnr = vim.api.nvim_get_current_buf()
-        local ft = vim.bo.filetype
+        vim.defer_fn(function() --delay to ensure correct buf properties detect
+            local bufnr = vim.api.nvim_get_current_buf()
+            local ft = vim.bo.filetype
 
-        if
-            vim.bo[bufnr].buftype   == ""  and
-            vim.bo[bufnr].modifiable       and
-            vim.fn.buflisted(bufnr) == 1   and
-            not ft:match("help")           and
-            not ft:match("oil")
-        then
-            vim.cmd("startinsert")
-        else
-            vim.cmd("stopinsert")
-        end
+            if
+                vim.bo[bufnr].buftype   == ""  and
+                vim.bo[bufnr].modifiable       and
+                vim.fn.buflisted(bufnr) == 1   and
+                not ft:match("help")           and
+                not ft:match("oil")
+            then
+                vim.cmd("startinsert")
+            else
+                vim.cmd("stopinsert")
+            end
+        end, 10)
     end,
 })
-
---TODO unlist if for a split maybe ?
---vim.api.nvim_create_autocmd("TermOpen", {
---    pattern = "*",
---    callback = function()
---        --vim.opt_local.bufhidden = "wipe"
---        vim.api.nvim_set_option_value("buflisted", false, { buf = 0 })
---    end,
---})
 
 

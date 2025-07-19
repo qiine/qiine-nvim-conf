@@ -136,14 +136,15 @@ vim.api.nvim_create_user_command("FileMove", function()
 
     vim.ui.input(
         {
-            prompt     = "Move to: ",
-            default    = fdir,
-            completion = "dir",
+            prompt       = "Move to: ",
+            default      = fdir,
+            completion   = "dir",
+            cancelreturn = "canceled"
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil then
+            if input == nil or input == "canceled" then
                 vim.notify("Move cancelled. ", vim.log.levels.INFO) return
             end
 
@@ -340,10 +341,10 @@ end, {})
 --Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimWhitespacesLine", function(opts)
     vim.cmd("s/\\s//g")
-    --vim.cmd("normal! ")
-end, { range = true })
+    vim.cmd("norm! i")
+end, {range=true})
 
-vim.api.nvim_create_user_command("TrimCurrBufferTrailSpaces", function()
+vim.api.nvim_create_user_command("TrimTrailSpacesBuffer", function()
     local curpos = vim.api.nvim_win_get_cursor(0)
     vim.cmd([[keeppatterns %s/\s\+$//e]])
     vim.api.nvim_win_set_cursor(0, curpos)
@@ -382,10 +383,49 @@ vim.api.nvim_create_user_command("CodeAction", function()
 end, {})
 
 
---version control
+--## [version control]
+----------------------------------------------------------------------
 --Handy Show git root
 vim.api.nvim_create_user_command("PrintGitRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
+end, {})
+
+vim.api.nvim_create_user_command("GitCommitFile", function()
+    local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
+
+    --fetch git root
+    local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
+    if git_res.code ~= 0 then
+        vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
+    end
+    local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
+
+    --calc path local to git root
+    local root     = vim.fs.normalize(git_root)
+    local abs_path = vim.fs.normalize(fpath)
+    local rel_path = abs_path:sub(#root + 2)
+
+    --stage curr file
+    local stage_res = vim.system({ "git", "add", "--", rel_path }, {text=true}):wait()
+    if stage_res.code ~= 0 then
+        vim.notify("File staging  failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
+    end
+
+    vim.ui.input({
+        prompt = "Commit message: ", default = "", --completion = "dir",
+        cancelreturn = "canceled"
+    },
+    function(input)
+        if input == nil or input == "canceled" then
+            vim.notify("Commit cancelled. ", vim.log.levels.INFO) return
+        end
+
+        local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}, function(commit_res)
+            if commit_res.code == 0 then vim.notify("Commit succeeded: " .. rel_path)
+            else                         vim.notify("Commit failed: " .. commit_res.stderr, vim.log.levels.ERROR)
+            end
+        end)
+    end)
 end, {})
 
 --diff curr file with given rev
@@ -395,7 +435,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
 
     local prev_workdir = vim.fn.getcwd()
 
-    local fpath = vim.api.nvim_buf_get_name(0)
+    local fpath    = vim.api.nvim_buf_get_name(0)
     local filename = vim.fn.expand("%:t")
     local filetype = vim.bo.filetype
 

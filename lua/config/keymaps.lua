@@ -739,8 +739,8 @@ map("v", "<M-r>", "r")
 
 --substitue mode
 map({"i","n"}, "<M-s>",
-"<Esc>:%s/\\v//g<Left><Left<Left>>",
-{desc = "Enter substitue mode" })
+"<Esc>:%s/\\v//g<Left><Left><Left>",
+{desc = "Enter substitue mode"})
 
 --sub word
 map("v", "<M-s>",

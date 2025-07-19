@@ -28,8 +28,8 @@ v.opt.shortmess:append("si")
 --## [Windows]
 ----------------------------------------------------------------------
 --Splits
-vim.opt.splitbelow = true -- Open new split windows below the current window
-vim.opt.splitright = true -- Open new split windows to the right of the current window
+v.opt.splitbelow = true -- Open new split windows below the current window
+v.opt.splitright = true -- Open new split windows to the right of the current window
 
 
 
@@ -47,13 +47,15 @@ local cursor_styles = {
     --blinkoff400 -> Cursor is off for 400ms while blinking.
     --blinkon250 -> Cursor is on for 250ms while blinking.
 }
-vim.opt.guicursor = table.concat(cursor_styles, ",")
-vim.opt.cursorline = true
+v.opt.guicursor = table.concat(cursor_styles, ",")
+
+v.opt.cursorline = true
+v.opt.cursorlineopt = "both" --highlight numbers as well
+v.opt.cursorcolumn = false
 
 --stopsel: Stop selection when leaving visual mode.
 --v.opt.keymodel=startsel
 --startsel: Start selection when entering visual mode.
-
 
 --#[Search]
 vim.opt.ignorecase = true
@@ -67,7 +69,8 @@ vim.opt.incsearch  = true --Highlight as you type
 
 
 
---[Rendering]--------------------------------------------------
+--## [Rendering]
+----------------------------------------------------------------------
 vim.opt.updatetime = 200 --screen redraw speed in ms
 
 --v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
@@ -126,10 +129,11 @@ vim.opt.fillchars:append({
 
 
 
---[Whitespace symbols]--------------------------------------------------
+--## [Whitespace symbols]
+----------------------------------------------------------------------
 v.opt.list = true
 vim.opt.listchars:append({
-    tab="  ",
+    tab="» ",
     eol=" ",
     nbsp="␣",
     precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯

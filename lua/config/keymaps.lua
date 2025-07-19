@@ -175,23 +175,6 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 --create new tab
 map( modes,"<C-t>", function() vim.cmd("Alpha") end)
 
---Tabs close
-map(modes, "<C-w>", function()
-    local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
-    --check if splits point to same buf, no need to prompt in this case!
-    local bufwindows = vim.fn.win_findbuf(vim.api.nvim_get_current_buf())
-
-    if bufmodif and #bufwindows <= 1 then
-        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
-        if choice ~= 1 then return end
-    end
-
-    --try close splits first, in case both splits are same buf
-    --that avoids killing the shared buffer in this case
-    local ok, err = pcall(vim.cmd, "close")
-    if not ok then vim.cmd("bd!") end --effectively close the tab
-end)
-
 --Tabs nav
 --next
 map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
@@ -219,6 +202,23 @@ map("n", "<M-w><Right>", ":vertical resize +8<CR>", {noremap = true})
 --resize hor
 map("n", "<M-w><Up>",   ":resize +8<CR>", {noremap = true})
 map("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
+
+--Omni close
+map(modes, "<C-w>", function()
+    local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
+    --check if splits point to same buf, no need to prompt in this case!
+    local bufwindows = vim.fn.win_findbuf(vim.api.nvim_get_current_buf())
+
+    if bufmodif and #bufwindows <= 1 then
+        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
+        if choice ~= 1 then return end
+    end
+
+    --try close splits first, in case both splits are same buf
+    --that avoids killing the shared buffer in this case
+    local ok, err = pcall(vim.cmd, "close")
+    if not ok then vim.cmd("bd!") end --effectively close the tab
+end)
 
 
 

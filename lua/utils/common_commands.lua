@@ -424,7 +424,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
         if commit_res.code == 0 then
             --vim.notify("Commit succeeded: " .. rel_path)
 
-            local summary_res = vim.system({"git", "log", "-1", "--pretty=format:%d %h] %s"}, {text=true}):wait()
+            local summary_res = vim.system({"git", "log", "-1", "--pretty=format:%d %h %s"}, {text=true}):wait()
             if summary_res.code == 0 then
                 vim.notify(summary_res.stdout)
             else

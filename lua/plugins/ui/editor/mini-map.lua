@@ -4,8 +4,10 @@ return {
     enabled = false,
 
     config = function()
-        require("mini.map").setup({
-             integrations = nil,
+        local map = require('mini.map')
+             require("mini.map").setup({
+                 integration = nil,
+
 
             -- Symbols used to display data
             symbols = {

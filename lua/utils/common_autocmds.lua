@@ -42,7 +42,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
             vim.bo.buflisted          and
             not vim.bo.readonly
         then
-            local ok, err = pcall(vim.cmd, "TrimCurrBufferTrailSpaces")
+            local ok, err = pcall(vim.cmd, "TrimTrailSpacesBuffer")
             if not ok then vim.notify("Trim failed: " .. err, vim.log.levels.WARN) end
         end
     end

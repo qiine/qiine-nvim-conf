@@ -274,7 +274,8 @@ end
 
 
 
---[Keys]--------------------------------------------------
+--## [Keys]
+----------------------------------------------------------------------
 function M.send_keystroke(key, mode, immediate)
     if immediate == nil then immediate = true end   --default val
 
@@ -283,6 +284,17 @@ function M.send_keystroke(key, mode, immediate)
 
     return keystroke
 end
+
+
+
+--## [Files]
+----------------------------------------------------------------------
+function M.make_relative_path_to_root(root_path, path)
+    local root = vim.fs.normalize(root_path)
+    local abs_path = vim.fs.normalize(path)
+    return abs_path:sub(#root + 2)  -- +2 to remove root + "/" or "\"
+end
+
 
 
 

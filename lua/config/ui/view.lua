@@ -133,7 +133,7 @@ vim.opt.fillchars:append({
 ----------------------------------------------------------------------
 v.opt.list = true
 vim.opt.listchars:append({
-    tab="» ",
+    tab="  ",
     eol=" ",
     nbsp="␣",
     precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯

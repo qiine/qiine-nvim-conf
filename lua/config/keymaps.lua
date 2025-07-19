@@ -39,8 +39,12 @@ map(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit
 --Quick restart nvim
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
---F5reload buffer
-map({"i","n","v"}, '<F5>', function() vim.cmd("e!") vim.cmd("echo'-File reloaded-'") end, {noremap = true})
+--F5 reload buffer
+map({"i","n","v"}, '<F5>', function() vim.cmd("e!") print("'-File reloaded-'") end, {noremap = true})
+
+
+--g
+map({"n","v"}, '<C-g>', "g", {noremap=true})
 
 
 
@@ -180,6 +184,7 @@ map( modes,"<C-t>", function() vim.cmd("Alpha") end)
 map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
 --prev
 map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
+
 
 
 --## [Windows]

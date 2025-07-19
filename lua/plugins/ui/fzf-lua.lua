@@ -62,7 +62,7 @@ return
                             --preview = {hidden = true}
                         }
                     }) end,
-
+                    --["<F5>"] = 
                 }
             }
         })

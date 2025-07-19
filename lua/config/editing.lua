@@ -13,22 +13,30 @@ vim.g.autostartinsert = true
 
 
 --#[Virtual Edit]
-vim.opt.virtualedit = "onemore" --allow to Snap cursor to closest char at eol
+vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
+--"none" → Default, disables virtual editing.
+--"onemore" → Allows the cursor to move one character past the end of a line.
 --"block" → Allows cursor to move where there is no actual text in visual block mode.
 --"insert" → Allows inserting in positions where there is no actual text.
 --"all" → Enables virtual editing in all modes.
---"onemore" → Allows the cursor to move one character past the end of a line.
---"none" → Default, disables virtual editing.
 
 --Smart virt edit
 vim.api.nvim_create_autocmd("ModeChanged", {
     group = "UserAutoCmds",
     pattern = "*",
-    callback = function()
-        local mode = vim.fn.mode()
-        if mode == "n" or mode == "\22" then vim.opt.virtualedit = "all"     end
-        if mode == "i"                  then vim.opt.virtualedit = "block"   end
-        if mode == "v" or mode == "V"   then vim.opt.virtualedit = "onemore" end
+    callback = function(args)
+        local to = args.match:match(":%s*(.*)")
+        if to == "n" then
+            vim.opt.virtualedit = "all"
+        elseif to == "" then  -- vis block
+            vim.opt.virtualedit = "block"
+        elseif to == "v" or to == "V" then
+            vim.opt.virtualedit = "none"
+        elseif to == "i" then
+            vim.opt.virtualedit = "none"
+        else
+            vim.opt.virtualedit = "none"
+        end
     end,
 })
 

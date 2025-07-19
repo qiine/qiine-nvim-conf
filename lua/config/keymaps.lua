@@ -9,10 +9,8 @@
 
 local utils = require("utils.utils")
 
-local v     = vim
-local vapi  = vim.api
-local vcmd  = vim.cmd
-local map   = vim.keymap.set
+local v   = vim
+local map = vim.keymap.set
 ----------------------------------------
 
 --<esc> = \27
@@ -44,8 +42,8 @@ map({"i","n","v"}, '<F5>', function() vim.cmd("e!") print("'-File reloaded-'") e
 
 
 --g
-map({"n","v"}, '<C-g>', "g", {noremap=true})
-
+map("i",       '<C-g>', "<esc>g", {noremap=true})
+map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 
 --## [File]
@@ -741,7 +739,7 @@ map("v", "<M-r>", "r")
 
 --substitue mode
 map({"i","n"}, "<M-s>",
-[[<esc>:%s/\v//<Left><Left><Left><Left>]],
+"<Esc>:%s/\\v//g<Left><Left<Left>>",
 {desc = "Enter substitue mode" })
 
 --sub word

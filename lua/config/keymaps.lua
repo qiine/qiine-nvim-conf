@@ -586,7 +586,7 @@ map({"i","n","v"}, "<C-v>", function()
     --Format after paste
     local ft = vim.bo.filetype
     if ft == "markdown" or ft == "text" then
-        vim.cmd("norm! `[v`]gww")
+        vim.cmd("norm! `[v`]gqw")
     else
         vim.cmd("norm! `[v`]=") --auto fix ident
     end
@@ -793,6 +793,10 @@ map("i", "<S-Tab>", "<C-d>")
 map("n", "<S-Tab>", "v<")
 map("v", "<S-Tab>", "<gv")
 
+--trigger Auto ident
+map("i", "<C-=>", "<C-o>==")
+map("v", "<C-=>", "=")
+
 
 --##[Line break]
 map("n", "<cr>", "i<cr><esc>")
@@ -822,7 +826,6 @@ map("v", "<S-M-cr>", function ()
     vim.cmd("normal! gv")
 
     --vim.cmd("normal! O")
-
 end)
 
 
@@ -843,7 +846,7 @@ map("n", "<C-S-Left>",  "xhP")
 --vmap("n", "<C-S-Down>", "xjp")
 
 --Move selected text
---left
+--Move left
 map("i", "<C-S-Left>", '<esc>viwdhPgvhoho')
 map("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
@@ -866,7 +869,7 @@ map("v", "<C-S-Left>", function()
     end
 end)
 
---right
+--Move right
 map("i", "<C-S-Right>", '<esc>viwdpgvlolo')
 map("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
@@ -909,7 +912,7 @@ map("n", "<C-S-Down>", ":m .+1<cr>==")
 
 --#[Comments]
 map("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
-map("n", "<M-a>", "gcc", {remap = true}) --remap needed
+map("n", "<M-a>", "gcc",   {remap = true}) --remap needed
 map("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
 
 

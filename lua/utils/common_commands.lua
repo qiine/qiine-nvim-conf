@@ -136,9 +136,7 @@ vim.api.nvim_create_user_command("FileMove", function()
 
     vim.ui.input(
         {
-            prompt       = "Move to: ",
-            default      = fdir,
-            completion   = "dir",
+            prompt = "Move to: ", default = fdir, completion = "dir",
             cancelreturn = "canceled"
         },
         function(input)
@@ -416,6 +414,8 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
         cancelreturn = "canceled"
     },
     function(input)
+        vim.api.nvim_command("redraw") --Hide prompt
+
         if input == nil or input == "canceled" then
             vim.notify("Commit cancelled. ", vim.log.levels.INFO) return
         end

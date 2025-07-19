@@ -421,8 +421,17 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
         end
 
         local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
-        if commit_res.code == 0 then vim.notify("Commit succeeded: " .. rel_path)
-        else                         vim.notify("Commit failed: " .. commit_res.stderr, vim.log.levels.ERROR)
+        if commit_res.code == 0 then
+            --vim.notify("Commit succeeded: " .. rel_path)
+
+            local summary_res = vim.system({"git", "log", "-1", "--pretty=format:%d %h] %s"}, {text=true}):wait()
+            if summary_res.code == 0 then
+                vim.notify(summary_res.stdout)
+            else
+                vim.notify("Failed to get commit summary: " .. summary_res.stderr, vim.log.levels.ERROR)
+            end
+        else
+            vim.notify("Commit failed: " .. commit_res.stderr, vim.log.levels.ERROR)
         end
     end)
 end, {})

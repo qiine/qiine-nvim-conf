@@ -420,11 +420,10 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
             vim.notify("Commit cancelled. ", vim.log.levels.INFO) return
         end
 
-        local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}, function(commit_res)
-            if commit_res.code == 0 then vim.notify("Commit succeeded: " .. rel_path)
-            else                         vim.notify("Commit failed: " .. commit_res.stderr, vim.log.levels.ERROR)
-            end
-        end)
+        local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
+        if commit_res.code == 0 then vim.notify("Commit succeeded: " .. rel_path)
+        else                         vim.notify("Commit failed: " .. commit_res.stderr, vim.log.levels.ERROR)
+        end
     end)
 end, {})
 

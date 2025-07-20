@@ -208,9 +208,12 @@ map("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
 
 --Omni close
 map(modes, "<C-w>", function()
-    local bufmodif = vim.api.nvim_get_option_value("modified", { buf = 0 })
+
+    local bufid = vim.api.nvim_get_current_buf()
+    local bufmodif = vim.api.nvim_get_option_value("modified", { buf = bufid })
+
     --check if splits point to same buf, no need to prompt in this case!
-    local bufwindows = vim.fn.win_findbuf(vim.api.nvim_get_current_buf())
+    local bufwindows = vim.fn.win_findbuf(bufid)
 
     if bufmodif and #bufwindows <= 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
@@ -922,6 +925,10 @@ map("n", "<C-r>", "q", {remap = true})
 --## [Text inteligence]
 ----------------------------------------------------------------------
 --Goto definition
+map("i", "<F11>", "<esc><cmd>Trouble lsp_references toggle<cr>i")
+map("n", "<F11>", "<cmd>Trouble lsp_references toggle<cr>")
+map("v", "<F11>", "<esc><cmd>Trouble lsp_references toggle<cr>")
+
 map("i", "<F12>", "<Esc>gdi")
 map("n", "<F12>", "<Esc>gd")
 --map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")

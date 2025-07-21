@@ -13,6 +13,7 @@ local v   = vim
 local map = vim.keymap.set
 ----------------------------------------
 
+
 --<esc> = \27
 --<cr> = \n
 --<Tab> = \t
@@ -200,11 +201,11 @@ map("n", "<M-w>H", "<C-w>t<C-w>H",{noremap=true})
 map("n", "<M-w>V", "<C-w>t<C-w>K",{noremap=true})
 
 --resize vert
-map("n", "<M-w><Left>",  ":vertical resize -8<CR>", {noremap = true})
-map("n", "<M-w><Right>", ":vertical resize +8<CR>", {noremap = true})
+map("n", "<M-w><Left>",  ":vertical resize -5<CR>", {noremap = true})
+map("n", "<M-w><Right>", ":vertical resize +5<CR>", {noremap = true})
 --resize hor
-map("n", "<M-w><Up>",   ":resize +8<CR>", {noremap = true})
-map("n", "<M-w><Down>", ":resize -8<CR>", {noremap = true})
+map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
+map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
 
 --Omni close
 map(modes, "<C-w>", function()
@@ -341,17 +342,15 @@ map("i", "<S-Left>", "<Esc>hv",  {noremap = true})
 map("n", "<S-Left>", "vh",       {noremap = true})
 map("v", "<S-Left>", "<Left>")
 
-map("i", "<S-Right>", "<Esc>v",  {noremap = true})
+map("i", "<S-Right>", "<Esc>v",  {noremap = true}) --note the v without l for insert only
 map("n", "<S-Right>", "vl",      {noremap = true})
 map("v", "<S-Right>", "<Right>")
 
-map("i", "<S-Up>",    "<Esc>vk", {noremap=true})
-map("n", "<S-Up>",    "vk",      {noremap=true})
-map("v", "<S-Up>",    "k",       {noremap=true}) --avoid fast scrolling around
+map({"i","n"}, "<S-Up>",    "<Esc>vk", {noremap=true})
+map("v",       "<S-Up>",    "k",       {noremap=true}) --avoid fast scrolling around
 
-map("i", "<S-Down>", "<Esc>vh",  {noremap=true})
-map("n", "<S-Down>", "vj",       {noremap=true})
-map("v", "<S-Down>", "j",        {noremap=true}) --avoid fast scrolling around
+map({"i","n"}, "<S-Down>", "<Esc>vj",  {noremap=true})
+map("v",       "<S-Down>", "j",        {noremap=true}) --avoid fast scrolling around
 
 --Select to home
 map("i", "<S-Home>", "<Esc>vgg0i")
@@ -363,8 +362,11 @@ map("i", "<S-End>", "<Esc>vGi")
 map("n", "<S-End>", "vG")
 map("v", "<S-End>", "G")
 
+--sel in paragraph
+map({"i","n","v"}, "<C-S-p>", "<esc>vip")
+
 --ctrl+a select all
-map(modes, "<C-a>", "<Esc>ggVG")
+map(modes, "<C-a>", "<Esc>GGVgg")
 
 
 --Visual block selection
@@ -544,7 +546,7 @@ map("n", "<C-c>", function()
 end, {noremap = true})
 
 map("v", "<C-c>", function()
-    vim.cmd([[norm! m'"+y`']]); print("copied")
+    vim.cmd('norm! m`"+y``'); print("copied")
 end, {noremap=true})
 
 
@@ -561,10 +563,9 @@ end)
 
 
 --Copy word
-map({"i","n"}, "<C-S-c>", function()
-    vim.cmd('norm! mzviw"+y`z'); print("Word Copied")
-end)
-map("v", "<C-S-c>", '<esc>mzviw"+y`z:echo"Word Copied"<CR>')
+map({"i","n","v"}, "<C-S-c>", function()
+    vim.cmd('norm! m`viw"+y``'); print("Word Copied")
+end, {noremap=true})
 
 --cut
 map("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true}) --cut line
@@ -574,8 +575,10 @@ map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy 
 --cut word
 map("i", "<C-S-x>", '<esc>viw"+xi')
 map("n", "<C-S-x>", 'viw"+x')
-map("v", "<C-S-x>", '<esc>mzviw"+x`z:echo"Word Cut"<CR>')
+map("v", "<C-S-x>", '<esc>m`viw"+x``:echo"Word Cut"<CR>')
 
+--cut line with x
+--map("n", "xx", 'dd')
 
 --Paste
 map({"i","n","v"}, "<C-v>", function()
@@ -601,13 +604,13 @@ map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<C-o>"+P')
 
 --paste replace word
-map("i", "<C-S-v>", '<esc>diw"+Pa')
-map("n", "<C-S-v>", '<esc>diw"+P')
+map("i", "<C-S-v>", '<esc>"_diw"+Pa')
+map("n", "<C-S-v>", '<esc>"_diw"+P')
 
 --Duplicate
-map("i", "<C-d>", '<Esc>yypi')
-map("n", "<C-d>", 'yyp')
-map("v", "<C-d>", 'yP')
+map("i", "<C-d>", '<esc>""yy""pi')
+map("n", "<C-d>", '""yy""p')
+map("v", "<C-d>", '""y""P')
 
 
 --#[Undo/redo]
@@ -874,7 +877,7 @@ end)
 map("i", "<C-S-Right>", '<esc>viwdpgvlolo')
 map("v", "<C-S-Right>", 'dp<esc>gvlolo')
 
---move line verticaly
+--move selected line verticaly
 map('v', '<C-S-Up>', function()
     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
@@ -912,7 +915,7 @@ map("n", "<C-S-Down>", ":m .+1<cr>==")
 
 
 --#[Comments]
-map("i", "<M-a>", "<cmd>normal gcc<cr>", {remap = true}) --remap needed
+map("i", "<M-a>", "<cmd>norm gcc<cr>", {remap = true}) --remap needed
 map("n", "<M-a>", "gcc",   {remap = true}) --remap needed
 map("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
 
@@ -925,9 +928,9 @@ map("n", "<C-r>", "q", {remap = true})
 --## [Text inteligence]
 ----------------------------------------------------------------------
 --Goto definition
-map("i", "<F11>", "<esc><cmd>Trouble lsp_references toggle<cr>i")
-map("n", "<F11>", "<cmd>Trouble lsp_references toggle<cr>")
-map("v", "<F11>", "<esc><cmd>Trouble lsp_references toggle<cr>")
+map({"i","n","v"}, "<F10>", "<esc><cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
+
+map({"i","n","v"}, "<F11>", "<esc><cmd>Trouble lsp_references toggle focus=true<cr>")
 
 map("i", "<F12>", "<Esc>gdi")
 map("n", "<F12>", "<Esc>gd")
@@ -950,12 +953,10 @@ map({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
 --end)
 
 --lsp rename
-map({"i","n"}, "<F2>",
-    function()
-        --live-rename is a plugin for fancy in buffer rename preview
-        require("live-rename").rename({ insert = true })
-    end
-)
+map({"i","n"}, "<F2>", function()
+    --live-rename is a plugin for fancy in buffer rename preview
+    require("live-rename").rename({ insert = true })
+end)
 
 --smart contextual action
 map({"i","n","v"}, "<C-CR>", function()
@@ -974,6 +975,8 @@ map({"i","n","v"}, "<C-CR>", function()
     --<C-]>
 end)
 
+map({"i","n","v","c"}, "<M-C-PageUp>", function() vim.cmd("norm! [c") end)
+map({"i","n","v","c"}, "<M-C-PageDown>", function() vim.cmd("norm! ]c") end)
 
 
 --## [code runner]
@@ -1002,16 +1005,13 @@ end)
 --## [vim cmd]
 ----------------------------------------------------------------------
 --Open command line
-map("i",  "œ",    "<esc>:")
-map("n",  "œ",    ":")
-map("v",  "œ",    ":")
-map("t",  "œ",    "<Esc> <C-\\><C-n>")
+map("i",       "œ", "<esc>:")
+map({"n","v"}, "œ", ":")
+map("t",       "œ", "<Esc> <C-\\><C-n>")
 
 --Open command line in term mode
-map("i", "<S-Œ>", "<esc>:!")
-map("n", "<S-Œ>", ":!")
-map("v", "<S-Œ>", ":!")
-map("c", "<S-Œ>", "<esc>:!")
+map({"i","c"}, "<S-Œ>", "<esc>:!")
+map({"n","v"}, "<S-Œ>", ":!")
 
 --cmd completion menu
 --vmap("c", "<C-d>", "<C-d>")
@@ -1033,7 +1033,7 @@ map("c", "<esc>", "<C-c>", {noremap=true})
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     callback = function()
-        vim.keymap.set("n", "<esc>", ":quit<CR>", { buffer = true })
+        vim.keymap.set("n", "<esc>", ":quit<CR>", {buffer=true})
     end,
 })
 
@@ -1042,7 +1042,15 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 --## [Terminal]
 ----------------------------------------------------------------------
 --Open term
-map({"i","n","v"}, "<M-t>", function() v.cmd("term") end, {noremap=true})
+map({"i","n","v"}, "<M-t>",  function() v.cmd("term") end, {noremap=true})
+
+--quick split term
+map({"i","n","v"}, "<M-w>t", function()
+    vim.cmd("vsp|term")
+    local bufid = vim.api.nvim_get_current_buf()
+    vim.api.nvim_set_option_value("buflisted", true,   { buf = bufid })
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufid })
+end, {noremap=true})
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})

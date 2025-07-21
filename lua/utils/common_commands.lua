@@ -189,45 +189,38 @@ vim.api.nvim_create_user_command("FileMove", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileRename", function()
-    local old_filepath = vim.api.nvim_buf_get_name(0)
+    local old_fpath = vim.api.nvim_buf_get_name(0)
 
-    if vim.fn.filereadable(old_filepath) == 0 then
+    if vim.fn.filereadable(old_fpath) == 0 then
         vim.notify("No file to rename", vim.log.levels.ERROR) return
     end
 
-    local old_dir  = vim.fn.fnamemodify(old_filepath, ":h")
-    local old_name = vim.fn.fnamemodify(old_filepath, ":t")
+    local old_dir  = vim.fn.fnamemodify(old_fpath, ":h")
+    local old_name = vim.fn.fnamemodify(old_fpath, ":t")
 
-    vim.ui.input(
-        {
-            prompt     = "New name: ",
-            default    = old_name,
-            completion = "file"
-        },
-        function(input)
-            vim.api.nvim_command("redraw") --Hide prompt
+    vim.ui.input( {
+        prompt = "New name: ", default = old_name, completion = "file",
+        cancelreturn = "canceled"
+    },
+    function(input)
+        vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil or input == "" then
-                vim.notify("No name, rename cancelled", vim.log.levels.INFO) return
-            end
-            if input == old_name then
-                vim.notify("Same name, rename cancelled.", vim.log.levels.INFO) return
-            end
-
-
-            local new_filepath = old_dir .. "/" .. input
-            local ok, err = vim.loop.fs_rename(old_filepath, new_filepath)
-
-            if not ok then
-                vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
-            end
-
-            --Reload buffer with new file
-            vim.api.nvim_buf_set_name(0, new_filepath)
-            vim.cmd("e!") --refresh buf to new name
-            vim.notify("Renamed to " .. input, vim.log.levels.INFO)
+        if input == nil or input == "" or input == "canceled" then
+            vim.notify("Rename cancelled", vim.log.levels.INFO) return
         end
-    )
+
+        local new_fpath = old_dir .. "/" .. input
+        local ok, err = vim.uv.fs_rename(old_fpath, new_fpath)
+
+        if not ok then
+            vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
+        end
+
+        --Reload buffer with new file
+        vim.api.nvim_buf_set_name(0, new_fpath)
+        vim.cmd("e!") --refresh buf to new name
+        vim.notify("Renamed to " .. input, vim.log.levels.INFO)
+    end)
 end, {})
 
 
@@ -332,6 +325,29 @@ vim.api.nvim_create_user_command("FileDelete", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("SymlinkToFile", function()
+    local bufid = vim.api.nvim_get_current_buf()
+    local fpath = vim.api.nvim_buf_get_name(bufid)
+
+    vim.ui.input({
+        prompt = "Symlink path: ", default = vim.fn.expand("~").."/", completion = "dir",
+        cancelreturn = "canceled"
+    },
+    function(input)
+        vim.api.nvim_command("redraw") --Hide prompt
+
+        if input == nil or input == "" or input == "canceled" then
+            vim.notify("linking cancelled. ", vim.log.levels.INFO) return
+        end
+
+        local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
+        if res.code ~= 0 then
+            vim.notify("Linking failed!\n" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR) return
+        end
+
+        vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
+    end)
+end, {})
 
 
 --## [Editing]
@@ -441,7 +457,8 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
 
     local prev_workdir = vim.fn.getcwd()
 
-    local fpath    = vim.api.nvim_buf_get_name(0)
+    local bufid    = vim.api.nvim_get_current_buf()
+    local fpath    = vim.api.nvim_buf_get_name(bufid)
     local filename = vim.fn.expand("%:t")
     local filetype = vim.bo.filetype
 
@@ -468,21 +485,21 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     local curso_pos = vim.api.nvim_win_get_cursor(0)
 
     vim.cmd("vsplit")
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_win_set_buf(0, buf)
+    local difbuf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_win_set_buf(0, difbuf)
 
-    vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
-    vim.api.nvim_set_option_value("filetype", filetype, { buf = buf })
-    vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
-    vim.api.nvim_set_option_value("buflisted", true, { buf = buf })
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+    vim.api.nvim_set_option_value("buftype",   "nofile",  { buf = difbuf })
+    vim.api.nvim_set_option_value("filetype",   filetype, { buf = difbuf })
+    vim.api.nvim_set_option_value("modifiable", true,     { buf = difbuf })
+    vim.api.nvim_set_option_value("buflisted",  true,     { buf = difbuf })
+    vim.api.nvim_set_option_value("bufhidden",  "wipe",   { buf = difbuf })
 
     --Write content of commit to said buffer
-    vim.api.nvim_buf_set_lines(buf, 0, 0, false, git_metadata)
-    vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"============================================================"})
-    vim.api.nvim_buf_set_lines(buf, -1, -1, false, git_content)
+    vim.api.nvim_buf_set_lines(difbuf, 0, 0, false, git_metadata)
+    vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, {"============================================================"})
+    vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, git_content)
 
-    vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+    vim.api.nvim_set_option_value("modifiable", false, { buf = difbuf })
 
 
     --Enable diff mode in both windows

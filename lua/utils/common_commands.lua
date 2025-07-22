@@ -90,7 +90,20 @@ vim.api.nvim_create_user_command("BufferInfo", function(opts)
     vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
 end, {nargs= "?"})
 
+vim.api.nvim_create_user_command("WipeHiddenBuffers", function()
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if not vim.api.nvim_buf_is_loaded(buf) then
+            vim.api.nvim_buf_delete(buf, {force=true})
+            print("wipeing buffer")
+        end
+   end
+end, {})
 
+vim.api.nvim_create_user_command("DeleteAllBuffers", function()
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        vim.api.nvim_buf_delete(buf, {force=true})
+    end
+end, {})
 
 --## [Files]
 ----------------------------------------------------------------------
@@ -419,12 +432,6 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
     local abs_path = vim.fs.normalize(fpath)
     local rel_path = abs_path:sub(#root + 2)
 
-    --stage curr file
-    local stage_res = vim.system({ "git", "add", "--", rel_path }, {text=true}):wait()
-    if stage_res.code ~= 0 then
-        vim.notify("File staging  failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
-    end
-
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
         cancelreturn = "canceled"
@@ -434,6 +441,12 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 
         if input == nil or input == "canceled" then
             vim.notify("Commit cancelled. ", vim.log.levels.INFO) return
+        end
+
+        --stage curr file
+        local stage_res = vim.system({ "git", "add", "--", rel_path }, {text=true}):wait()
+        if stage_res.code ~= 0 then
+            vim.notify("File staging  failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
         end
 
         local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
@@ -468,18 +481,16 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     local fpath_rootrelative = vim.fn.fnamemodify(fpath, ":.")
 
     local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrelative))
-    local git_content  = vim.fn.systemlist(string.format("git show '%s':%s", rev, fpath_rootrelative))
+    local git_content  = vim.fn.systemlist(string.format("git show %q:%q", rev, fpath_rootrelative))
 
     if vim.v.shell_error ~= 0 then
         vim.notify(
-            "git show: '" .. rev .. "', revision or file not found for '" .. fpath_rootrelative .. "'",
+            "error for rev: '" .. rev .. "', revision or file not found'" .. fpath_rootrelative .. "'",
             vim.log.levels.ERROR)
         return
     end
 
-    --We can go back to prev wrkdir
-    vim.fn.chdir(prev_workdir)
-
+    vim.fn.chdir(prev_workdir) --We can go back to prev wrkdir
 
     --Create new empty buffer
     local curso_pos = vim.api.nvim_win_get_cursor(0)

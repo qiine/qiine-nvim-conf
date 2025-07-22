@@ -23,7 +23,7 @@ vim.api.nvim_create_user_command("Restart", function()
     vim.cmd("SaveGlobalSession")
 
     local sess = GLOBAL_SESSION
-    vim.uv.spawn("wezterm", {
+    vim.loop.spawn("wezterm", {
         --args = { "-e", "nvim", "+cd " .. curdir, curfile },
 
         --cwd = curdir,
@@ -417,6 +417,13 @@ vim.api.nvim_create_user_command("PrintGitRoot", function()
 end, {})
 
 vim.api.nvim_create_user_command("GitCommitFile", function()
+    --fetch git root
+    local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
+    if git_res.code ~= 0 then
+        vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
+    end
+    local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
+
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
         cancelreturn = "canceled"
@@ -428,19 +435,9 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
             vim.notify("Commit canceled. ", vim.log.levels.INFO) return
         end
 
-        --fetch git root
-        local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
-        if git_res.code ~= 0 then
-            vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
-        end
-        local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
-
         --calc path local to git root
         local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
 
-        --local root     = vim.fs.normalize(git_root)
-        --local abs_path = vim.fs.normalize(fpath)
-        --local rel_path = abs_path:sub(#root + 2)
         local rel_path = vim.fs.relpath(git_root, fpath)
 
         --stage curr file

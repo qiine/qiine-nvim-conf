@@ -26,7 +26,7 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 --## [Settings]
 ----------------------------------------------------------------------
-vim.opt.timeoutlen = 300 --delay between key press to register shortcuts
+vim.opt.timeoutlen = 325 --delay between key press to register shortcuts
 
 
 
@@ -45,6 +45,39 @@ map({"i","n","v"}, '<F5>', function() vim.cmd("e!") print("'-File reloaded-'") e
 --g
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
+
+
+
+--## [Buffers]
+----------------------------------------------------------------------
+map(modes, "<C-S-t>", "<cmd>e #<cr>")
+
+--Omni close
+map(modes, "<C-w>", function()
+    local bufid      = vim.api.nvim_get_current_buf()
+    local buftype    = vim.api.nvim_get_option_value("buftype", {buf=bufid})
+    local bufmodif   = vim.api.nvim_get_option_value("modified", {buf=bufid})
+    local bufwindows = vim.fn.win_findbuf(bufid)
+
+    --check if modfi and splits point to same buf, no need to prompt in this case!
+    if bufmodif and #bufwindows <= 1 then
+        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
+        if choice ~= 1 then return end
+    end
+
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("<C-L>", "n", false) end
+    --try close splits first, in case both splits are same buf
+    --that avoids killing the shared buffer in this case
+    local ret, err = pcall(vim.cmd, "close")
+    if not ret then
+        if buftype == "terminal" then
+            vim.cmd("bwipeout!")
+        else
+            vim.cmd("bd!")  --can also close tabs, bypass save warnings
+        end
+    end
+end, {noremap=true})
+
 
 
 --## [File]
@@ -70,11 +103,14 @@ map(modes, "<C-s>", function()
     else
         if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
             vim.ui.input(
-                { prompt = "Save as: ", default = path, completion = "dir" },
+                {
+                    prompt = "Save as: ", default = path, completion = "dir",
+                    cancelreturn = "canceled"
+                },
                 function(input)
                     vim.api.nvim_command("redraw") --Hide prompt
 
-                    if input == nil or input == "" then
+                    if input == nil or input == "" or input == "canceled" then
                         vim.notify("Creation cancelled.", vim.log.levels.INFO) return
                     end
 
@@ -188,17 +224,17 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 --## [Windows]
 ----------------------------------------------------------------------
-map("i", "<M-w>", "<esc><C-w>")
-map("n", "<M-w>", "<C-w>")
-map("v", "<M-w>", "<Esc><C-w>")
+map("i", "<M-w>", "<esc><C-w>", {noremap=true})
+map("n", "<M-w>", "<C-w>",      {noremap=true})
+map("v", "<M-w>", "<Esc><C-w>", {noremap=true})
+
+map(modes, "<M-w>h", "<cmd>new<cr>")
 
 --To next window
-map({"i","n","v","c"}, "<M-Tab>", function()
-    vim.cmd("norm! w")
-end)
+map(modes, "<M-Tab>", "<cmd>norm! w<cr>")
 
-map("n", "<M-w>H", "<C-w>t<C-w>H",{noremap=true})
-map("n", "<M-w>V", "<C-w>t<C-w>K",{noremap=true})
+--map("n", "<M-w>H", "<C-w>t<C-w>H", {noremap=true})
+--map("n", "<M-w>V", "<C-w>t<C-w>K", {noremap=true})
 
 --resize vert
 map("n", "<M-w><Left>",  ":vertical resize -5<CR>", {noremap = true})
@@ -206,26 +242,6 @@ map("n", "<M-w><Right>", ":vertical resize +5<CR>", {noremap = true})
 --resize hor
 map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
 map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
-
---Omni close
-map(modes, "<C-w>", function()
-
-    local bufid = vim.api.nvim_get_current_buf()
-    local bufmodif = vim.api.nvim_get_option_value("modified", { buf = bufid })
-
-    --check if splits point to same buf, no need to prompt in this case!
-    local bufwindows = vim.fn.win_findbuf(bufid)
-
-    if bufmodif and #bufwindows <= 1 then
-        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
-        if choice ~= 1 then return end
-    end
-
-    --try close splits first, in case both splits are same buf
-    --that avoids killing the shared buffer in this case
-    local ok, err = pcall(vim.cmd, "close")
-    if not ok then vim.cmd("bd!") end --effectively close the tab
-end)
 
 
 
@@ -238,13 +254,14 @@ map("n", "<Right>", "<Right>", { noremap = true })
 map({"i","v"}, '<C-Right>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
-    vim.cmd("normal! w")
+    if vim.fn.mode() == "" then vim.cmd("norm! 5l")
+    else                          vim.cmd("normal! w") end
 
     if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
         vim.cmd("normal! b")
-
-        if vim.fn.mode() == "v" then vim.cmd("normal! $")
-        else                         vim.cmd("normal! A") end
+        local m = vim.fn.mode()
+        if   m == "v" or m == "V" then vim.cmd("norm! $")
+        else                           vim.cmd("norm! A") end
     end
 end)
 
@@ -252,7 +269,10 @@ end)
 map({"i","v"}, '<C-Left>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
-    vim.cmd("normal! b")
+    if vim.fn.mode() == "" then vim.cmd("norm! 5h")
+    else
+        vim.cmd("normal! b")
+    end
 
     if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
         vim.cmd("normal! w")
@@ -460,18 +480,6 @@ map("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
 --search Help for selection
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
---Search in notes
-map({"i","n"}, "<F49>", function()   --<M-F1>
-    require("fzf-lua").files({
-        cwd = "~/Personal/KnowledgeBase/Notes/"
-    })
-end)
-map("v", "<F49>", function()   --<M-F1>
-    require("fzf-lua").grep_visual({
-        cwd = "~/Personal/KnowledgeBase/Notes/"
-    })
-end)
-
 
 
 
@@ -523,7 +531,7 @@ for _, char in ipairs(chars) do
     map('v', char, '"_d<esc>i'..char, {noremap=true})
 end
 map("v", "<space>", '"_di<space>', {noremap=true})
-map("v", "<cr>", '"_di<cr>', {noremap=true})
+map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
 
 --#[Copy / Paste]
@@ -608,9 +616,9 @@ map("i", "<C-S-v>", '<esc>"_diw"+Pa')
 map("n", "<C-S-v>", '<esc>"_diw"+P')
 
 --Duplicate
-map("i", "<C-d>", '<esc>""yy""pi')
-map("n", "<C-d>", '""yy""p')
-map("v", "<C-d>", '""y""P')
+map("i", "<C-d>", '<esc>"zyy"zpi', {desc="dup"})
+map("n", "<C-d>", '"zyy"zp', {desc="dup"})
+map("v", "<C-d>", '"zy"zP',  {desc="dup"})
 
 
 --#[Undo/redo]
@@ -907,11 +915,11 @@ map('v', '<C-S-Down>', function ()
 end)
 
 --Move whole line
-map("i", "<C-S-Up>", "<Esc>:m .-2<CR>==i")
-map("n", "<C-S-Up>", ":m .-2<CR>==")
+map("i", "<C-S-Up>", "<cmd>m .-2|norm!==<cr>")
+map("n", "<C-S-Up>", "<cmd>m .-2<CR>==")
 
-map("i", "<C-S-Down>", "<Esc>:m .+1<cr>==i")
-map("n", "<C-S-Down>", ":m .+1<cr>==")
+map("i", "<C-S-Down>", "<cmd>m .+1|norm!==<cr>")
+map("n", "<C-S-Down>", "<cmd>m .+1<cr>==")
 
 
 --#[Comments]
@@ -979,6 +987,13 @@ map({"i","n","v","c"}, "<M-C-PageUp>", function() vim.cmd("norm! [c") end)
 map({"i","n","v","c"}, "<M-C-PageDown>", function() vim.cmd("norm! ]c") end)
 
 
+
+--## [Version control]
+----------------------------------------------------------------------
+map({"i","n","v"}, "<C-g>m", "<cmd>GitCommitFile<cr>", {remap=true})
+
+
+
 --## [code runner]
 ----------------------------------------------------------------------
 --run code at cursor with sniprun
@@ -1007,7 +1022,7 @@ end)
 --Open command line
 map("i",       "œ", "<esc>:")
 map({"n","v"}, "œ", ":")
-map("t",       "œ", "<Esc> <C-\\><C-n>")
+map("t",       "œ", "<Esc><C-\\><C-n>:")
 
 --Open command line in term mode
 map({"i","c"}, "<S-Œ>", "<esc>:!")
@@ -1020,7 +1035,6 @@ map({"n","v"}, "<S-Œ>", ":!")
 map("c", "<Up>", "<C-p>")
 map("c", "<Down>", "<C-n>")
 
---accept
 map("c", "<S-Tab>", "<C-n>")
 
 --Clear cmd in insert
@@ -1028,7 +1042,7 @@ map("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
-map("c", "<esc>", "<C-c>", {noremap=true})
+--map("c", "<esc>", "<C-c>", {norem=true})
 
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
@@ -1048,9 +1062,10 @@ map({"i","n","v"}, "<M-t>",  function() v.cmd("term") end, {noremap=true})
 map({"i","n","v"}, "<M-w>t", function()
     vim.cmd("vsp|term")
     local bufid = vim.api.nvim_get_current_buf()
-    vim.api.nvim_set_option_value("buflisted", true,   { buf = bufid })
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufid })
-end, {noremap=true})
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=bufid})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=bufid})
+end, {remap=true})
+--end)
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})

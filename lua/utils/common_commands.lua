@@ -18,14 +18,15 @@ end, {})
 --Restart nvim
 vim.api.nvim_create_user_command("Restart", function()
     local curfile = vim.fn.expand("%:p") --Get curr file location
-    local curdir  = vim.fn.fnamemodify(curfile, ':p:h')
+    local curdir  = vim.fn.fnamemodify(curfile, ':h')
 
     vim.cmd("SaveGlobalSession")
 
     local sess = GLOBAL_SESSION
-    vim.loop.spawn("wezterm", {
-        --args = { "-e", "nvim", "--cmd", "cd " .. curdir, curfile },
-        --cwd = curdir
+    vim.uv.spawn("wezterm", {
+        --args = { "-e", "nvim", "+cd " .. curdir, curfile },
+
+        --cwd = curdir,
 
         args = { "-e", "nvim", "-S", GLOBAL_SESSION },
     })
@@ -211,7 +212,7 @@ vim.api.nvim_create_user_command("FileRename", function()
     local old_dir  = vim.fn.fnamemodify(old_fpath, ":h")
     local old_name = vim.fn.fnamemodify(old_fpath, ":t")
 
-    vim.ui.input( {
+    vim.ui.input({
         prompt = "New name: ", default = old_name, completion = "file",
         cancelreturn = "canceled"
     },
@@ -219,19 +220,18 @@ vim.api.nvim_create_user_command("FileRename", function()
         vim.api.nvim_command("redraw") --Hide prompt
 
         if input == nil or input == "" or input == "canceled" then
-            vim.notify("Rename cancelled", vim.log.levels.INFO) return
+            vim.notify("Rename canceled", vim.log.levels.INFO) return
         end
 
         local new_fpath = old_dir .. "/" .. input
-        local ok, err = vim.uv.fs_rename(old_fpath, new_fpath)
+        local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
 
-        if not ok then
+        if not ret then
             vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
         end
 
         --Reload buffer with new file
-        vim.api.nvim_buf_set_name(0, new_fpath)
-        vim.cmd("e!") --refresh buf to new name
+        vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
         vim.notify("Renamed to " .. input, vim.log.levels.INFO)
     end)
 end, {})
@@ -283,7 +283,6 @@ vim.api.nvim_create_user_command("SetFileExecutable", function()
     end
 
     local ok = os.execute("chmod +x " .. vim.fn.shellescape(path))
-
     if ok == 0 then
         vim.print(name .. " now executable")
     else
@@ -300,7 +299,6 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     end
 
     local ok = os.execute("chmod -x " .. vim.fn.shellescape(path))
-
     if ok == 0 then
         vim.print(name .. " no longer executable")
     else
@@ -320,7 +318,7 @@ vim.api.nvim_create_user_command("FileDelete", function()
 
     local choice = vim.fn.confirm('Delete "' .. fname .. '" ?', "&Yes\n&No", 1)
     if choice == 1 then
-        vim.loop.fs_unlink(fpath, function(err)
+        vim.uv.fs_unlink(fpath, function(err)
             if err then
                 vim.schedule(function()
                     vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
@@ -380,7 +378,7 @@ end, {})
 --Append underline unicode character to each selected chars
 vim.api.nvim_create_user_command("UnderlineSelected", function(opts)
     local start_line = opts.line1 - 1
-    local end_line = opts.line2
+    local end_line   = opts.line2
 
     local lines = vim.api.nvim_buf_get_lines(0, start_line, end_line, false)
 
@@ -410,6 +408,7 @@ vim.api.nvim_create_user_command("CodeAction", function()
 end, {})
 
 
+
 --## [version control]
 ----------------------------------------------------------------------
 --Handy Show git root
@@ -418,20 +417,6 @@ vim.api.nvim_create_user_command("PrintGitRoot", function()
 end, {})
 
 vim.api.nvim_create_user_command("GitCommitFile", function()
-    local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
-
-    --fetch git root
-    local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
-    if git_res.code ~= 0 then
-        vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
-    end
-    local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
-
-    --calc path local to git root
-    local root     = vim.fs.normalize(git_root)
-    local abs_path = vim.fs.normalize(fpath)
-    local rel_path = abs_path:sub(#root + 2)
-
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
         cancelreturn = "canceled"
@@ -440,13 +425,28 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
         vim.api.nvim_command("redraw") --Hide prompt
 
         if input == nil or input == "canceled" then
-            vim.notify("Commit cancelled. ", vim.log.levels.INFO) return
+            vim.notify("Commit canceled. ", vim.log.levels.INFO) return
         end
 
+        --fetch git root
+        local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
+        if git_res.code ~= 0 then
+            vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
+        end
+        local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
+
+        --calc path local to git root
+        local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
+
+        --local root     = vim.fs.normalize(git_root)
+        --local abs_path = vim.fs.normalize(fpath)
+        --local rel_path = abs_path:sub(#root + 2)
+        local rel_path = vim.fs.relpath(git_root, fpath)
+
         --stage curr file
-        local stage_res = vim.system({ "git", "add", "--", rel_path }, {text=true}):wait()
+        local stage_res = vim.system({"git", "add", "--", rel_path}, {text=true}):wait()
         if stage_res.code ~= 0 then
-            vim.notify("File staging  failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
+            vim.notify("File staging failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
         end
 
         local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
@@ -631,4 +631,5 @@ vim.api.nvim_create_user_command("FacingPages", function()
         end,
     })
 end, {})
+
 

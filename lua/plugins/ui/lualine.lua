@@ -22,7 +22,7 @@ return
                 disabled_buftypes = {
                     winbar = {"terminal"},
                 },
-                ignore_focus = {"neo-tree", "trouble", "help"},
+                ignore_focus = {"neo-tree", "trouble", "help", ""},
             },
 
             sections =

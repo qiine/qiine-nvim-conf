@@ -540,7 +540,7 @@ map("i", "<C-c>", function()
     local line = vim.api.nvim_get_current_line()
 
     if line ~= "" then
-        vim.cmd([[norm! m'0"+y$`']])
+        vim.cmd([[norm! m`0"+y$``]])
         vim.cmd("echo 'line copied!'")
     end
 end, {noremap=true})
@@ -562,11 +562,11 @@ end, {noremap=true})
 map("v", "<M-c>", function()
     local reg_prev = vim.fn.getreg("+")
 
-    vim.cmd('normal! mz"+y`z')
+    vim.cmd('norm! mz"+y`z')
 
     vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+")) --apppend
 
-    print("appended to clipboard")
+    print("Appended to clipboard")
 end)
 
 
@@ -732,21 +732,14 @@ map("i", "<S-Del>", '<esc>"_ddi')
 map("n", "<S-Del>", '"_dd')
 map("v", "<S-Del>", function()
     if vim.fn.mode() == "V" then  --avoid <S-v> on line select, because it would unselect instead
-        vim.cmd('normal! "_d')
+        vim.cmd('norm! "_d')
     else
-        vim.cmd('normal! V"_d')
+        vim.cmd('norm! V"_d')
     end
 end)
 
 
 --#[Replace]
---replace selection with char
---kmap("n", "*", "")
---kmap("v", "*", "\"zy:%s/<C-r>z//g<Left><Left>")
-
-map("i", "<C-S-R>", "<esc>ciw")
-map("n", "<C-S-R>", "ciw")
-
 --replace visual selection with char
 map("v", "<M-r>", "r")
 
@@ -852,19 +845,19 @@ map("n", "<C-S-j>", "k<S-j>")
 
 --##[move text]
 --Move single char
-map("n", "<C-S-Right>", "xp")
-map("n", "<C-S-Left>",  "xhP")
---vmap("n", "<C-S-Up>", "xkp")
---vmap("n", "<C-S-Down>", "xjp")
+map("n", "<C-S-Right>", '"zx"zp')
+map("n", "<C-S-Left>",  '"zxh"zP')
+--vmap("n", "<C-S-Up>", '"zxk"zp')
+--vmap("n", "<C-S-Down>", '"zxj"zp')
 
 --Move selected text
 --Move left
-map("i", "<C-S-Left>", '<esc>viwdhPgvhoho')
+map("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
 map("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
 
     if vim.fn.mode() == 'v' and col > 0 then
-        local cmd = 'dhP<esc>gvhoho'
+        local cmd = '"zdh"zP<esc>gvhoho'
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
 
         local cursor_pos = vim.api.nvim_win_get_cursor(0)
@@ -882,8 +875,8 @@ map("v", "<C-S-Left>", function()
 end)
 
 --Move right
-map("i", "<C-S-Right>", '<esc>viwdpgvlolo')
-map("v", "<C-S-Right>", 'dp<esc>gvlolo')
+map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
+map("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
 
 --move selected line verticaly
 map('v', '<C-S-Up>', function()
@@ -893,7 +886,7 @@ map('v', '<C-S-Up>', function()
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! dkP')
+        vim.cmd('normal! "zdk"zP')
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]
         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
@@ -907,7 +900,7 @@ map('v', '<C-S-Down>', function ()
     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! djP')
+        vim.cmd('normal! "zdj"zP')
 
         local anchor_start_pos = vim.fn.getpos("'<")[3]
         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
@@ -975,14 +968,15 @@ map({"i","n","v"}, "<C-CR>", function()
     if word:match("^https?://") then
         vim.cmd("normal! gx")
     elseif vim.fn.filereadable(word) == 1 then
-        vim.cmd("normal! gf")
+        vim.cmd("norm! gf")
     else
-        vim.cmd("normal! %")
+        vim.cmd("norm! %")
     end
     --to tag
     --<C-]>
 end)
 
+--next/prev diff
 map({"i","n","v","c"}, "<M-C-PageUp>", function() vim.cmd("norm! [c") end)
 map({"i","n","v","c"}, "<M-C-PageDown>", function() vim.cmd("norm! ]c") end)
 
@@ -1011,8 +1005,8 @@ map({"i","n"},"<F20>","<cmd>SnipRunToLineInsertResult<CR>")
 --exec curr line as ex command
 --map({"i","n"}, "<F56>", '<esc>0y$:<C-r>"<CR>')
 map({"i","n","v"}, "<F56>", function()
-    vim.cmd("norm! 0y$")
-    vim.cmd('@"')
+    vim.cmd('norm! 0"zy$')
+    vim.cmd('@z')
 end)
 
 
@@ -1061,11 +1055,9 @@ map({"i","n","v"}, "<M-t>",  function() v.cmd("term") end, {noremap=true})
 --quick split term
 map({"i","n","v"}, "<M-w>t", function()
     vim.cmd("vsp|term")
-    local bufid = vim.api.nvim_get_current_buf()
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=bufid})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=bufid})
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {remap=true})
---end)
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})

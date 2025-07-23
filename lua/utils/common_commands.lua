@@ -457,8 +457,8 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
         if stage_res.code ~= 0 then
             vim.notify("File staging failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
         end
-
-        local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
+        local onelinemessage  = input:gsub("[\r\n]+", " ")
+        local commit_res = vim.system({"git", "commit", "-m", onelinemessage, "--", rel_path}, {text=true}):wait()
         if commit_res.code == 0 then
             local message_res = vim.system({"git", "log", "-1", '--pretty=format:%d [%h] "%s"'}, {text=true}):wait()
             if message_res.code == 0 then

@@ -62,13 +62,13 @@ return
                             --preview = {hidden = true}
                         }
                     }) end,
-                    --["<F5>"] = 
+                    --["<F5>"] =
                 }
             }
         })
 
         --find files in currdir
-        vim.keymap.set({"i","n","v"}, "<M-f>d", function()
+        vim.keymap.set({"i","n","v"}, "<M-f>c", function()
             require("fzf-lua").files({})
         end, { silent = true, desc = "Fuzzy find dir in cwd" })
 
@@ -80,12 +80,19 @@ return
             })
         end, { silent = true, desc = "Fuzzy find file" })
 
-        --find files
+        --find files in home
         vim.keymap.set({"i","n","v"}, "<M-f>", function()
             require("fzf-lua").files({
                 cwd="~",
             })
         end, { silent = true, desc = "Fuzzy find file" })
+
+        --find files in notes
+        vim.keymap.set({"i","n"}, "<F49>", function()   --<M-F1>
+            require("fzf-lua").files({
+                cwd = "~/Personal/KnowledgeBase/Notes/"
+            })
+        end)
 
 
         --grep curr dir
@@ -107,51 +114,49 @@ return
             require("fzf-lua").grep_visual({
                 cwd = path.git_root({}),
             })
-        end, { noremap = true, silent = true, desc = "live grep selected in project" })
+        end, {noremap=true, silent = true, desc = "live grep selected in project" })
 
-        --grep
+        --grep in home
         vim.keymap.set({"i","n","v"}, "<M-f>g", function()
             require("fzf-lua").live_grep({
                 cwd = "~"
             })
-        end, { silent = true, desc = "Live grep" })
+        end, { silent = true, desc = "Live grep in home" })
 
-
-
-        --fuzzy cd]
-        vim.keymap.set({"i","n","v"}, "<M-f>c", function()
-            require("fzf-lua").files({
-                cmd = "fdfind --type d",
+        --grep in help for selected
+        vim.keymap.set({"i","n","v"}, "<F49>", function()   --<M-F1>
+            require("fzf-lua").grep_visual({ --fzf-lua is smart and auto use selected text in vis mode
+                cwd = "~/Personal/KnowledgeBase/Notes/"
             })
-            --require("fzf-lua").fzf_exec(
-        --    "fd --type d",
-        --    {
-            --    prompt = "Change dir > ",
-            --        actions = {
-                --         ["default"] = function(selected)
-                    --                vim.cmd("cd " .. selected[1])
-                    --            end
-                    --        },
-                    --})]
-        end, { silent = true, desc = "Fuzzy cd to dir under ~" })
+        end)
+
+
+        --fuzzy cd
+        vim.keymap.set({"i","n","v"}, "<M-f>d", function()
+            require("fzf-lua").fzf_exec("fdfind . --type d", { --or fd
+                prompt = "~/",
+                cwd = "~",
+                actions = {
+                    ["default"] = function(selected)
+                        if selected and #selected > 0 then
+                            local root = vim.fn.expand("~").."/"
+                            vim.cmd("cd " .. root .. selected[1])
+                        end
+                    end,
+                },
+            })
+        end, {silent=true, desc="Fuzzy cd to dir under ~"})
+
 
         --search ft
         vim.keymap.set({"i","n","v"}, "<M-f>t", function()
             require("fzf-lua").filetypes({})
-        end, { silent = true, desc = "search and set filetypes" })
-
-
-        --search buffers
-        vim.keymap.set({"i","n","v"}, "<M-f>b", function()
-            require("fzf-lua").buffers({})
-        end, { silent = true, desc = "" })
-
+        end, {silent = true, desc = "search and set filetypes" })
 
         --search builtins
-        vim.keymap.set({"i","n","v"}, "<M-f>f", function()
+        vim.keymap.set({"i","n","v"}, "<M-f>b", function()
             require("fzf-lua").builtin({})
-        end, { silent = true, desc = "Search builtins" })
+        end, {silent = true, desc = "Search builtins" })
 
-
-    end
+    end --config
 }

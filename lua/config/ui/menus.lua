@@ -46,7 +46,6 @@ vim.o.pumblend = 10 --Transparency for popup-menu
 
 local contextmenu_items =
 {
-    "anoremenu PopUp.Open\\ in\\ browser " .. [[gx]],
     "anoremenu PopUp.{}References ".. [[<cmd>Trouble lsp_references<CR>]],
     "anoremenu PopUp.🛈Tooltip ".. [[<cmd>lua vim.lsp.buf.hover()<CR>]],
     "anoremenu PopUp.{}Goto\\ definition ".. [[gd]],
@@ -62,7 +61,8 @@ local contextmenu_items =
     "anoremenu PopUp.🗅Paste ".. [["+p]],
     "vnoremenu PopUp.🗑Delete ".. [["_d]],
     "amenu     PopUp.────────────────-- <NOP>",
-    "anoremenu PopUp.🔍Telescope " .. [[<cmd>Telescope<CR>]],
+    "anoremenu PopUp.🔍FuzzySearch " .. [[<cmd>FzfLua grep_visual<CR>]],
+    "anoremenu PopUp.🌐WebSearch " .. [[<cmd>WebSearch<cr>]],
 }
 
 vim.api.nvim_create_autocmd("VimEnter", {
@@ -100,22 +100,22 @@ vim.api.nvim_create_autocmd("VimEnter", {
     end,
 })
 
-vim.api.nvim_create_autocmd('MenuPopup', {
-    group = 'UserAutoCmds',
-    pattern = '*',
-    callback = function()
-        vim.cmd[[
-            amenu disable PopUp.Open\ in\ browser
-        ]]
+--vim.api.nvim_create_autocmd('MenuPopup', {
+--    group = 'UserAutoCmds',
+--    pattern = '*',
+--    callback = function()
+--        vim.cmd[[
+--            amenu disable PopUp.Open\ in\ browser
+--        ]]
 
-        local urls = require("vim.ui")._get_urls()
-        if urls and #urls > 0 and vim.startswith(urls[1], "http") then
-            vim.cmd([[
-                amenu enable PopUp.Open\ in\ browser
-            ]])
-        end
-    end,
-})
+--        local urls = require("vim.ui")._get_urls()
+--        if urls and #urls > 0 and vim.startswith(urls[1], "http") then
+--            vim.cmd([[
+--                amenu enable PopUp.Open\ in\ browser
+--            ]])
+--        end
+--    end,
+--})
 
 
 

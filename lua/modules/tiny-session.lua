@@ -88,7 +88,7 @@ end
 function M.globalsession_save()
     if vim.fn.win_gettype() == "command" then return end  --mksession not allowed in cmdline
     vim.cmd("mksession! " .. GLOBAL_SESSION)
-    M.session_clear_hiddenbufs(GLOBAL_SESSION)
+    --M.session_clear_hiddenbufs(GLOBAL_SESSION)
 end
 
 --create/save session

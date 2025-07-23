@@ -9,6 +9,8 @@ local utils = require("utils.utils")
 
 
 
+--## [Common]
+----------------------------------------------------------------------
 --Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
@@ -62,6 +64,14 @@ vim.api.nvim_create_user_command("Today", function()
     vim.api.nvim_put({ today }, "c", true, true)
 end, {})
 
+vim.api.nvim_create_user_command("WebSearch", function()
+    vim.cmd('norm! gv"+y')
+    local text = vim.fn.getreg('+')
+    vim.ui.open(text, {cmd={"firefox"}})
+    vim.system(
+        {"firefox", "https://duckduckgo.com/?q=" .. text}, {detach = true}
+    )
+end, {range=true})
 
 
 --## [Buffers]
@@ -105,6 +115,8 @@ vim.api.nvim_create_user_command("DeleteAllBuffers", function()
         vim.api.nvim_buf_delete(buf, {force=true})
     end
 end, {})
+
+
 
 --## [Files]
 ----------------------------------------------------------------------
@@ -232,7 +244,7 @@ vim.api.nvim_create_user_command("FileRename", function()
 
         --Reload buffer with new file
         vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
-        vim.notify("Renamed to " .. input, vim.log.levels.INFO)
+        vim.notify('Renamed to:  "'..input..'"', vim.log.levels.INFO)
     end)
 end, {})
 
@@ -395,7 +407,7 @@ vim.api.nvim_create_user_command("UnderlineSelected", function(opts)
     end
 
     vim.api.nvim_buf_set_lines(0, start_line, end_line, false, lines)
-end, { range = true })
+end, {range=true})
 
 vim.api.nvim_create_user_command("ClearAllMarks", function()
     vim.cmd([[delmarks a-zA-Z0-9"<>'[].]])

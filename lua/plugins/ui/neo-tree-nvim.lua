@@ -1,7 +1,7 @@
 return
 {
     "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
+    --branch = "v3.x",
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-tree/nvim-web-devicons",
@@ -11,24 +11,25 @@ return
 
     config = function()
         require("neo-tree").setup({
-
-            --source_selector = {
-            --  winbar = true,
-            --  statusline = true,
-            --  show_scrolled_off_parent_node = false,
-            --  sources = {
-            --    { source = "filesystem" },
-            --    { source = "buffers" },
-            --    { source = "git_status" },
-            --  },
-            --},
+            source_selector = {
+                winbar = false,
+                show_scrolled_off_parent_node = true,
+                --padding = { left = 1, right = 0 },
+                sources = {
+                    { source = 'filesystem', display_name = '  Files' }, --      
+                    { source = 'buffers', display_name = '  Buffers' }, --      
+                    { source = 'git_status', display_name = ' 󰊢 Git' }, -- 󰊢      
+                    { source = 'document_symbols', display_name = 'Outliner' }, -- 󰊢      
+                },
+            },
+            sources = { "filesystem", "buffers", "git_status", "document_symbols" },
 
             default_component_configs = {
                 container = {
-                  enable_character_fade = false,
-                  width = "100%",
-                  right_padding = 0,
-                 },
+                    enable_character_fade = false,
+                    width = "100%",
+                    right_padding = 0,
+                },
             },
 
             window = {
@@ -65,6 +66,16 @@ return
                         --"node_modules",
                     },
                 },
+                document_symbols = {
+                    follow_cursor = true,
+                    window = {
+                        mappings = {
+                            ['/'] = 'noop',
+                            ['F'] = 'filter',
+                        },
+                    },
+                },
+
 
                 window = {
                     --Detect project root using LSP or common markers (.git)
@@ -91,6 +102,7 @@ return
                             show_path = "none", --"none", "relative", "absolute"
                             }
                         },
+                        ["<C-b>"] = {"close"},
                     },
                 },
             }
@@ -101,11 +113,8 @@ return
         --:Neotree toggle current reveal_force_cwd<cr>
         --:Neotree reveal<cr>
         --:Neotree float reveal_file=<cfile> reveal_force_cwd<cr>
-        vim.keymap.set(
-            {"i","n","v"},
-            "<C-b>",
-            "<esc><cmd>Neotree toggle <cr>",
-            {noremap = true}
-        )
+        vim.keymap.set({"i","n","v"}, "<C-b>",
+            "<cmd>Neotree toggle<cr>",
+        {noremap=true})
     end,
 }

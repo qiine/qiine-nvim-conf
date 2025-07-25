@@ -36,30 +36,19 @@ vim.api.nvim_create_user_command("Restart", function()
 end, {})
 
 vim.api.nvim_create_user_command("RestartSafeMode", function()
-    vim.fn.jobstart({ "nvim -u NONE" }, { detach = true })
+    vim.fn.jobstart({ "nvim -u NONE" }, {detach=true})
     vim.cmd("qa!")
 end, {})
 
 vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     local cmd_output = vim.fn.execute('messages')
-
     vim.cmd("enew")
-
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
 
---TODO
---vim.api.nvim_create_user_command("HelpTab", function(opts)
---    local cmdout = vim.fn.execute("h "..opts.args)
-
---    vim.cmd("enew")
-
---    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmdout, '\n'))
---end, { nargs = "*" })
-
 --insert today
 vim.api.nvim_create_user_command("Today", function()
-    local date = os.date("*t")
+    local date  = os.date("*t")
     local today = string.format("%04d/%02d/%02d %02d:%02d", date.year, date.month, date.day, date.hour, date.min)
     vim.api.nvim_put({ today }, "c", true, true)
 end, {})
@@ -69,9 +58,10 @@ vim.api.nvim_create_user_command("WebSearch", function()
     local text = vim.fn.getreg('+')
     vim.ui.open(text, {cmd={"firefox"}})
     vim.system(
-        {"firefox", "https://duckduckgo.com/?q=" .. text}, {detach = true}
+        {"firefox", "https://duckduckgo.com/?q=" .. text}, {detach=true}
     )
 end, {range=true})
+
 
 
 --## [Buffers]
@@ -122,13 +112,11 @@ end, {})
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("CopyFilePath", function()
     vim.cmd("let @+ = expand('%')")
-
     print("Copied path: " .. vim.fn.getreg("+"))
 end, {})
 
 vim.api.nvim_create_user_command("CopyFileDirPath", function()
     vim.cmd("let @+ = expand('%:h')")
-
     print("Copied path: " .. vim.fn.getreg("+"))
 end, {})
 
@@ -160,58 +148,59 @@ vim.api.nvim_create_user_command("FileMove", function()
         vim.notify("No file on disk to move", vim.log.levels.ERROR) return
     end
 
-    vim.ui.input(
-        {
-            prompt = "Move to: ", default = fdir, completion = "dir",
-            cancelreturn = "canceled"
+    local function prompt_user()
+        vim.ui.input({
+            prompt="Move to: ", default=fdir, completion="dir",
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil or input == "canceled" then
+            if input == nil then
                 vim.notify("Move cancelled. ", vim.log.levels.INFO) return
+            end
+            if input == "" then
+                vim.notify("Input cannot be empty!", vim.log.levels.WARN)
+                return prompt_user()
             end
 
             --assemble path
-            local target_path = input .. "/" .. fname
+            local target_path = vim.fs.joinpath(input, fname)
 
             --check target dirs
-            local dir_stat = vim.uv.fs_stat(input)
-            if not dir_stat then
+            if not vim.uv.fs_stat(input) then
                 local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
                 if choice == 1 then
-                    local ok, err = vim.uv.fs_mkdir(input, 493) --755 rw-rw-rw-
-                    if not ok then
-                        vim.notify("Directory creation failed! : " .. err, vim.log.levels.ERROR)
-                        return
+                    local ret, err = vim.uv.fs_mkdir(input, 666) -- rw-rw-rw
+                    if not ret then
+                        vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
                     end
                 else
-                    vim.notify("Creation cancelled.", vim.log.levels.INFO) return
+                    vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
+                    return prompt_user()
                 end
             end
 
             --check target for file
-            local stat = vim.uv.fs_stat(target_path)
-            if stat then
+            if vim.uv.fs_stat(target_path) then
                 local choice = vim.fn.confirm("Target file already exists. Overwrite?", "&Yes\n&No", 1)
-
                 if choice ~= 1 then
-                    vim.notify("Move cancelled.", vim.log.levels.INFO) return
+                    vim.notify("Overwriting cancelled.", vim.log.levels.INFO)
+                    return prompt_user()
                 end
             end
 
             --now lets movein'
-            local ok, err = vim.uv.fs_rename(fpath, target_path)
-            if not ok then
+            local ret, err = vim.uv.fs_rename(fpath, target_path)
+            if not ret then
                 vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
             end
 
             --Update buffer
-            vim.api.nvim_buf_set_name(0, target_path)
-            vim.cmd("e!") --refresh buf to new path
+            vim.api.nvim_buf_set_name(0, target_path); vim.cmd("e!") --refresh buf to new path
             vim.notify("Moved to: " .. input, vim.log.levels.INFO)
-        end
-    )
+        end)
+    end
+    prompt_user()
 end, {})
 
 vim.api.nvim_create_user_command("FileRename", function()
@@ -224,28 +213,34 @@ vim.api.nvim_create_user_command("FileRename", function()
     local old_dir  = vim.fn.fnamemodify(old_fpath, ":h")
     local old_name = vim.fn.fnamemodify(old_fpath, ":t")
 
-    vim.ui.input({
-        prompt = "New name: ", default = old_name, completion = "file",
-        cancelreturn = "canceled"
-    },
-    function(input)
-        vim.api.nvim_command("redraw") --Hide prompt
+    local function prompt_user()
+        vim.ui.input({
+            prompt="New name = ", default=old_name, completion="file",
+        },
+        function(input)
+            vim.api.nvim_command("redraw") --Hide init prompt
 
-        if input == nil or input == "" or input == "canceled" then
-            vim.notify("Rename canceled", vim.log.levels.INFO) return
-        end
+            if input == nil then
+                vim.notify("Rename canceled", vim.log.levels.INFO) return
+            end
+            if input == "" then
+                vim.notify("Input cannot be empty!", vim.log.levels.WARN)
+                return prompt_user()
+            end
 
-        local new_fpath = old_dir .. "/" .. input
-        local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
+            local new_fpath = vim.fs.joinpath(old_dir,input)
 
-        if not ret then
-            vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
-        end
+            local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
+            if not ret then
+                vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
+            end
 
-        --Reload buffer with new file
-        vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
-        vim.notify('Renamed to:  "'..input..'"', vim.log.levels.INFO)
-    end)
+            --Reload buffer with new file
+            vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
+            vim.notify('Renamed to: "'..input..'"', vim.log.levels.INFO)
+        end)
+    end
+    prompt_user()
 end, {})
 
 
@@ -259,10 +254,9 @@ vim.api.nvim_create_user_command("SetFileReadonly", function()
     end
 
     vim.bo.readonly = true  --optional refresh lualine
-    local ok = os.execute("chmod -w " .. vim.fn.shellescape(path))
-
-    if ok == 0 then
-        vim.print(name .. " now readonly")
+    local ret = os.execute("chmod -w " .. vim.fn.shellescape(path))
+    if ret == 0 then
+        vim.print(name .. ", now readonly")
     else
         vim.notify("Failed to set file as readonly", vim.log.levels.ERROR)
     end
@@ -280,7 +274,7 @@ vim.api.nvim_create_user_command("SetFileWritable", function()
     local ok = os.execute("chmod +w " .. vim.fn.shellescape(path))
 
     if ok == 0 then
-        vim.print(name .. " now writable")
+        vim.print(name .. ", now writable")
     else
         vim.notify("Failed to set file as writable", vim.log.levels.ERROR)
     end
@@ -296,7 +290,7 @@ vim.api.nvim_create_user_command("SetFileExecutable", function()
 
     local ok = os.execute("chmod +x " .. vim.fn.shellescape(path))
     if ok == 0 then
-        vim.print(name .. " now executable")
+        vim.print(name .. ", now executable")
     else
         vim.notify("Failed to set file as executable", vim.log.levels.ERROR)
     end
@@ -312,7 +306,7 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
 
     local ok = os.execute("chmod -x " .. vim.fn.shellescape(path))
     if ok == 0 then
-        vim.print(name .. " no longer executable")
+        vim.print(name .. ", no longer executable")
     else
         vim.notify("Failed to remove executable flag", vim.log.levels.ERROR)
     end
@@ -354,14 +348,14 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
 
     vim.ui.input({
         prompt = "Symlink path: ", default = vim.fn.expand("~").."/", completion = "dir",
-        cancelreturn = "canceled"
     },
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
 
-        if input == nil or input == "" or input == "canceled" then
+        if input == nil then
             vim.notify("linking cancelled. ", vim.log.levels.INFO) return
         end
+        --if input == "" then
 
         local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
         if res.code ~= 0 then
@@ -371,6 +365,7 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
         vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
     end)
 end, {})
+
 
 
 --## [Editing]
@@ -421,7 +416,7 @@ end, {})
 
 
 
---## [version control]
+--## [Version control]
 ----------------------------------------------------------------------
 --Handy Show git root
 vim.api.nvim_create_user_command("PrintGitRoot", function()
@@ -438,12 +433,11 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
-        cancelreturn = "canceled"
     },
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
 
-        if input == nil or input == "canceled" then
+        if input == nil then
             vim.notify("Commit canceled. ", vim.log.levels.INFO) return
         end
 
@@ -457,8 +451,9 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
         if stage_res.code ~= 0 then
             vim.notify("File staging failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
         end
-        local onelinemessage  = input:gsub("[\r\n]+", " ")
-        local commit_res = vim.system({"git", "commit", "-m", onelinemessage, "--", rel_path}, {text=true}):wait()
+
+        --local onelinemessage = input:gsub("[\r\n]+", " ")
+        local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
         if commit_res.code == 0 then
             local message_res = vim.system({"git", "log", "-1", '--pretty=format:%d [%h] "%s"'}, {text=true}):wait()
             if message_res.code == 0 then
@@ -541,17 +536,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
 
     vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
     --vim.cmd("wincmd p") --to rev buffer again
-
 end, {nargs = "?"})
-
-
-
---## [Formating]
---------------------------------------------------
---wrap line into paragraph
-vim.api.nvim_create_user_command("WrapSelection", function()
-    vim.cmd("norm! gww")
-end, { range = true })
 
 
 
@@ -577,26 +562,6 @@ vim.api.nvim_create_user_command("ToggleColorcolumn", function()
     end
 end, {})
 
---vim.api.nvim_create_user_command("FacingPages", function()
---    --vim.wo.scrollbind = true
---    local init_crow = vim.api.nvim_win_get_cursor(0)[1]
---    vim.cmd("vsplit")
-
---    local secpage_row = init_crow + --number of row to scroll to get to sec page
---    vim.api.nvim_win_set_cursor(0, secpage_row)
-
---    vim.api.nvim_create_autocmd("WinScrolled", {
---        group = vim.api.nvim_create_augroup("Scroll", {clear=true}),
---        pattern = "*",
---        callback = function()
---            --get scroll dir
---            vim.cmd("norm! <C-S-e>")
---            --or
---            vim.cmd("norm! <C-S-y>")
---        end,
---    })
---end, {})
-
 vim.api.nvim_create_user_command("FacingPages", function()
     local win_left = vim.api.nvim_get_current_win()
 
@@ -611,7 +576,6 @@ vim.api.nvim_create_user_command("FacingPages", function()
 
     --back to og win
     vim.api.nvim_set_current_win(win_left)
-
 
     local group = vim.api.nvim_create_augroup("ScrollSync", { clear = true })
     local syncing = false

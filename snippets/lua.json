@@ -17,7 +17,7 @@
         "prefix": "nvim user command",
         "body": [
             "vim.api.nvim_create_user_command(\"NewUserCmd\", function()",
-                "\t--cmd",
+            "\t",
             "end, {})"
         ]
     },
@@ -76,6 +76,11 @@
         "body": [ "vim.bo.filetype" ]
     },
 
+    "get nvim current buffer": {
+        "prefix": "get_nvim_current_buffer",
+        "body": [ "vim.api.nvim_get_current_buf()" ]
+    },
+
     "get nvim_buffertype": {
         "prefix": "get_nvim_buffertype",
         "body": [ "vim.bo.buftype" ]
@@ -109,6 +114,27 @@
     "get nvim working directorie": {
         "prefix": "get_nvim_working_directorie",
         "body": [ "vim.fn.getcwd()" ]
+    },
+
+    "vim ui input": {
+        "prefix": "vim_ui_input",
+        "body": [
+            "vim.ui.input({",
+            "    prompt=\"${1:Input}:\" default=\"${2:default}\" completion=\"file\",",
+            "},",
+            "function(input)",
+            "    vim.api.nvim_command(\"redraw\") -- Hide prompt",
+            "    if input == nil then",
+            "        vim.notify(\"Canceled\", vim.log.levels.INFO) return",
+            "    end",
+            "    if input == \"\" then",
+            "        print(\"input empty!\") return",
+            "    end",
+            "",
+            "    ${0}",
+            "end)"
+        ]
     }
+
 }
 

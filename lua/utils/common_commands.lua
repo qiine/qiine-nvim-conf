@@ -439,6 +439,14 @@ vim.api.nvim_create_user_command("DiffPutAll", function()
 end, {})
 
 vim.api.nvim_create_user_command("GitCommitFile", function()
+    --fetch git root
+    local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
+    if git_res.code ~= 0 then
+        vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
+    end
+    local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
+
+    local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
     print("Commiting: ".. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t:r"))
 
     vim.ui.input({
@@ -449,23 +457,16 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 
         if input == nil then vim.notify("Commit canceled\n", vim.log.levels.INFO) return end
 
-        --fetch git root
-        local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
-        if git_res.code ~= 0 then
-            vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
-        end
-        local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
-        local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
-        local rel_path = vim.fs.relpath(git_root, fpath) --calc path local to git root
+        --local rel_path = vim.fs.relpath(git_root, fpath) --calc path local to git root
 
         --stage curr file
-        local stage_res = vim.system({"git", "add", "--", rel_path}, {text=true}):wait()
+        local stage_res = vim.system({"git", "add", "--", fpath}, {text=true}):wait()
         if stage_res.code ~= 0 then
             vim.notify("File staging failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
         end
 
         --local onelinemessage = input:gsub("[\r\n]+", " ")
-        local commit_res = vim.system({"git", "commit", "-m", input, "--", rel_path}, {text=true}):wait()
+        local commit_res = vim.system({"git", "commit", "-m", input, "--", fpath}, {text=true}):wait()
         if commit_res.code == 0 then
             local message_res = vim.system({"git", "log", "-1", '--pretty=format:%d [%h] "%s"'}, {text=true}):wait()
             if message_res.code == 0 then

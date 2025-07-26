@@ -180,9 +180,9 @@ vim.api.nvim_create_user_command("FileMove", function()
                 end
             end
 
-            --check target for file
+            --check target for existing file
             if vim.uv.fs_stat(target_path) then
-                local choice = vim.fn.confirm("Target file already exists. Overwrite?", "&Yes\n&No", 1)
+                local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
                 if choice ~= 1 then
                     vim.notify("Overwriting cancelled.", vim.log.levels.INFO)
                     return prompt_user()
@@ -229,6 +229,15 @@ vim.api.nvim_create_user_command("FileRename", function()
             end
 
             local new_fpath = vim.fs.joinpath(old_dir,input)
+
+            --check target for existing file
+            if vim.uv.fs_stat(new_fpath) then
+                local choice = vim.fn.confirm("Already a file with same name. Overwrite?", "&Yes\n&No", 1)
+                if choice ~= 1 then
+                    vim.notify("Overwriting cancelled.", vim.log.levels.INFO)
+                    return prompt_user()
+                end
+            end
 
             local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
             if not ret then

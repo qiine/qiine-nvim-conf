@@ -983,8 +983,8 @@ end)
 
 --### Diff
 --next/prev diff
-map({"i","n","v","c"}, "<M-S-PageUp>", function() vim.cmd("norm! [c") end)
-map({"i","n","v","c"}, "<M-S-PageDown>", function() vim.cmd("norm! ]c") end)
+map({"i","n","v","c"}, "<M-S-PageUp>", function() vim.cmd("norm! [cz.") end)
+map({"i","n","v","c"}, "<M-S-PageDown>", function() vim.cmd("norm! ]cz.") end)
 
 --diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")

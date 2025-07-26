@@ -479,7 +479,7 @@ end, {})
 --diff curr file with given rev
 vim.api.nvim_create_user_command("DiffRevision", function(opts)
     --Process arg
-    local rev = opts.args ~= "" and opts.args or "HEAD"
+    local rev = opts.args ~= "" and opts.args or "HEAD~1"
 
     local prev_workdir = vim.fn.getcwd()
 

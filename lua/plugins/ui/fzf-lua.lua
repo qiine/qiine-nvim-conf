@@ -68,27 +68,24 @@ return
         })
 
         --find files in currdir
-        vim.keymap.set({"i","n","v"}, "<M-f>c", function()
+        vim.keymap.set({"i","n","v","t"}, "<M-f>c", function()
             require("fzf-lua").files({})
-        end, { silent = true, desc = "Fuzzy find dir in cwd" })
+        end, {silent=true, desc="Fuzzy find dir in cwd"})
 
         --find files in project
-        vim.keymap.set({"i","n","v"}, "<C-S-f>", function()
-            local path = require("fzf-lua.path")
+        vim.keymap.set({"i","n","v","t"}, "<C-S-f>", function()
             require("fzf-lua").files({
-                cwd = path.git_root({}),
+                cwd = require("fzf-lua.path").git_root({}),
             })
-        end, { silent = true, desc = "Fuzzy find file" })
+        end, { silent = true, desc = "Fuzzy find file in project" })
 
         --find files in home
-        vim.keymap.set({"i","n","v"}, "<M-f>", function()
-            require("fzf-lua").files({
-                cwd="~",
-            })
-        end, { silent = true, desc = "Fuzzy find file" })
+        vim.keymap.set({"i","n","v","t"}, "<M-f>", function()
+            require("fzf-lua").files({ cwd="~", })
+        end, { silent=true, desc="Fuzzy find file in HOME"})
 
         --find files in notes
-        vim.keymap.set({"i","n"}, "<F49>", function()   --<M-F1>
+        vim.keymap.set({"i","n","t"}, "<F49>", function()   --<M-F1>
             require("fzf-lua").files({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
@@ -96,43 +93,46 @@ return
 
 
         --grep curr dir
-        vim.keymap.set({"i","n","v"}, "<M-f><S-g>", function()
+        vim.keymap.set({"i","n","v","t"}, "<M-f><S-g>", function()
             require("fzf-lua").live_grep({})
-        end, { silent = true, desc = "" })
+        end, { silent = true, desc = "grep" })
 
         --grep curr project
-        vim.keymap.set({"i","n"}, "<C-S-g>", function()
-            local path = require("fzf-lua.path")
+        vim.keymap.set({"i","n","v","t"}, "<C-S-g>", function()
             require("fzf-lua").live_grep({
-                cwd = path.git_root({}),
+                cwd = require("fzf-lua.path").git_root({}),
             })
         end, { noremap = true, silent = true, desc = "live grep project" })
 
         --grep curr project for selected
         vim.keymap.set("v", "<C-S-g>", function()
-            local path = require("fzf-lua.path")
             require("fzf-lua").grep_visual({
-                cwd = path.git_root({}),
+                cwd = require("fzf-lua.path").git_root({})
             })
-        end, {noremap=true, silent = true, desc = "live grep selected in project" })
+        end, {noremap=true, silent=true, desc="live grep selected in project"})
 
         --grep in home
-        vim.keymap.set({"i","n","v"}, "<M-f>g", function()
-            require("fzf-lua").live_grep({
-                cwd = "~"
-            })
+        vim.keymap.set({"i","n","v","t"}, "<M-f>g", function()
+            require("fzf-lua").live_grep({ cwd = "~" })
         end, { silent = true, desc = "Live grep in home" })
 
+        --grep in notes
+        vim.keymap.set({"i","n","t"}, "<F13>", function()   --<S-F1>
+            require("fzf-lua").live_grep({
+                cwd = "~/Personal/KnowledgeBase/Notes/"
+            })
+        end)
+
         --grep in help for selected
-        vim.keymap.set({"i","n","v"}, "<F49>", function()   --<M-F1>
-            require("fzf-lua").grep_visual({ --fzf-lua is smart and auto use selected text in vis mode
+        vim.keymap.set("v", "<F13>", function()   --<S-F1>
+            require("fzf-lua").grep_visual({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
         end)
 
 
         --fuzzy cd
-        vim.keymap.set({"i","n","v"}, "<M-f>d", function()
+        vim.keymap.set({"i","n","v","t"}, "<M-f>d", function()
             require("fzf-lua").fzf_exec("fdfind . --type d", { --or fd
                 prompt = "~/",
                 cwd = "~",
@@ -154,7 +154,7 @@ return
         end, {silent = true, desc = "search and set filetypes" })
 
         --search builtins
-        vim.keymap.set({"i","n","v"}, "<M-f>b", function()
+        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
             require("fzf-lua").builtin({})
         end, {silent = true, desc = "Search builtins" })
 

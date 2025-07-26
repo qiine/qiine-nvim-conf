@@ -26,7 +26,7 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 --## [Settings]
 ----------------------------------------------------------------------
-vim.opt.timeoutlen = 325 --delay between key press to register shortcuts
+vim.opt.timeoutlen = 350 --delay between key press to register shortcuts
 
 
 
@@ -93,7 +93,7 @@ end)
 --Open file picker
 map(modes, "<C-o>", function() vim.cmd("FilePicker") end)
 
---ctrl+s save
+--File save
 map(modes, "<C-s>", function()
     local cbuf = vim.api.nvim_get_current_buf()
     local path = vim.api.nvim_buf_get_name(0)
@@ -124,7 +124,7 @@ map(modes, "<C-s>", function()
 end)
 
 --Save all buffers
-map(modes, "<C-S-s>", function()
+map(modes, "<M-S-s>", function()
     local bufs = vim.api.nvim_list_bufs()
     for _, buf in ipairs(bufs) do
         if vim.api.nvim_buf_is_loaded(buf) and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1 then
@@ -748,9 +748,13 @@ map("v", "<M-r>", "r")
 map({"i","n"}, "<M-s>",
 "<Esc>:%s/\\v//g<Left><Left><Left>",
 {desc = "Enter substitue mode"})
-
 --sub word
 map("v", "<M-s>",
+"<esc>:'<,'>s/\\v//g<Left><Left><Left>",
+{desc = "Enter substitue mode"})
+
+--sub
+map("v", "<C-S-s>",
 [[y<esc>:%s/\v<C-r>"//g<Left><Left>]],
 {desc = "substitue word under cursor" })
 
@@ -976,9 +980,19 @@ map({"i","n","v"}, "<C-CR>", function()
     --<C-]>
 end)
 
+
+--### Diff
 --next/prev diff
 map({"i","n","v","c"}, "<M-C-PageUp>", function() vim.cmd("norm! [c") end)
 map({"i","n","v","c"}, "<M-C-PageDown>", function() vim.cmd("norm! ]c") end)
+
+--diff put
+map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")
+map("v",       "<C-g>dp", "<cmd>:'<,'>diffput<cr>")
+
+--diff get
+map({"i","n"}, "<C-g>dg", "<cmd>.diffget<cr>")
+map("v",       "<C-g>dg", "<cmd>:'<,'>diffget<cr>")
 
 
 

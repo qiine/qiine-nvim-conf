@@ -1,4 +1,4 @@
-&------------------------
+-------------------------
 -- User commands --
 -------------------------
 local v = vim
@@ -433,11 +433,6 @@ vim.api.nvim_create_user_command("PrintGitRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
 end, {})
 
---diff put all
-vim.api.nvim_create_user_command("DiffPutAll", function()
-    vim.cmd("diffput")
-end, {})
-
 vim.api.nvim_create_user_command("GitCommitFile", function()
     --fetch git root
     local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
@@ -482,7 +477,7 @@ end, {})
 --diff curr file with given rev
 vim.api.nvim_create_user_command("DiffRevision", function(opts)
     --Process arg
-    local rev = opts.args ~= "" and opts.args or "HEAD~1"
+    local rev = opts.args ~= "" and opts.args or "HEAD"
 
     local prev_workdir = vim.fn.getcwd()
 
@@ -551,6 +546,27 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.cmd("wincmd w") --back to diff
     vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
 end, {nargs = "?"})
+
+vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
+    local rev = opts.args ~= "" and opts.args or "HEAD"
+
+    local fpath = vim.api.nvim_buf_get_name(0)
+
+    -- Check if file exists in rev
+    local ls_res = vim.system({"git", "ls-tree", "-r", "--name-only", rev, fpath}, {text=true}):wait()
+    if ls_res.code ~= 0 or ls_res.stdout == "" then
+        vim.notify("File does not exist at revision " .. rev, vim.log.levels.ERROR)
+        return
+    end
+
+    local res = vim.system({"git", "restore", "-s", rev, "--", fpath}, {text=true}):wait()
+    if res.code == 0 then
+        vim.cmd("edit!")
+        vim.notify("File restored to ".. rev, vim.log.levels.INFO)
+    else
+        vim.notify("git restore failed: " .. git_res.stderr, vim.log.levels.ERROR)
+    end
+end, {nargs="?"})
 
 
 

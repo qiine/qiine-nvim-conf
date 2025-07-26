@@ -1,4 +1,4 @@
-------------------------
+&------------------------
 -- User commands --
 -------------------------
 local v = vim
@@ -145,7 +145,7 @@ vim.api.nvim_create_user_command("FileMove", function()
     local fdir  = vim.fn.fnamemodify(fpath, ":h")
 
     if vim.fn.filereadable(fpath) == 0 then
-        vim.notify("No file on disk to move", vim.log.levels.ERROR) return
+        vim.notify("No file on disk to move.", vim.log.levels.ERROR) return
     end
 
     local function prompt_user()
@@ -208,7 +208,7 @@ vim.api.nvim_create_user_command("FileRename", function()
     local old_fpath = vim.api.nvim_buf_get_name(0)
 
     if vim.fn.filereadable(old_fpath) == 0 then
-        vim.notify("No file to rename", vim.log.levels.ERROR) return
+        vim.notify("No file to rename.", vim.log.levels.ERROR) return
     end
 
     local old_dir  = vim.fn.fnamemodify(old_fpath, ":h")
@@ -222,7 +222,7 @@ vim.api.nvim_create_user_command("FileRename", function()
             vim.api.nvim_command("redraw") --Hide init prompt
 
             if input == nil then
-                vim.notify("Rename canceled", vim.log.levels.INFO) return
+                vim.notify("Rename canceled.", vim.log.levels.INFO) return
             end
             if input == "" then
                 vim.notify("Input cannot be empty!", vim.log.levels.WARN)
@@ -260,7 +260,7 @@ vim.api.nvim_create_user_command("SetFileReadonly", function()
     local name = vim.fn.fnamemodify(path, ":t")
 
     if path == "" then
-        vim.notify("No file for current buffer", vim.log.levels.WARN) return
+        vim.notify("No file for current buffer.", vim.log.levels.WARN) return
     end
 
     vim.bo.readonly = true  --optional refresh lualine
@@ -268,7 +268,7 @@ vim.api.nvim_create_user_command("SetFileReadonly", function()
     if ret == 0 then
         vim.print(name .. ", now readonly")
     else
-        vim.notify("Failed to set file as readonly", vim.log.levels.ERROR)
+        vim.notify("Failed to set file as readonly.", vim.log.levels.ERROR)
     end
 end, {})
 
@@ -277,7 +277,7 @@ vim.api.nvim_create_user_command("SetFileWritable", function()
     local name = vim.fn.fnamemodify(path, ":t")
 
     if path == "" then
-        vim.notify("No file for current buffer", vim.log.levels.ERROR) return
+        vim.notify("No file for current buffer.", vim.log.levels.ERROR) return
     end
 
     vim.bo.readonly = false  --optional refresh lualine
@@ -286,7 +286,7 @@ vim.api.nvim_create_user_command("SetFileWritable", function()
     if ok == 0 then
         vim.print(name .. ", now writable")
     else
-        vim.notify("Failed to set file as writable", vim.log.levels.ERROR)
+        vim.notify("Failed to set file as writable.", vim.log.levels.ERROR)
     end
 end, {})
 
@@ -295,14 +295,14 @@ vim.api.nvim_create_user_command("SetFileExecutable", function()
     local name = vim.fn.fnamemodify(path, ":t")
 
     if path == "" then
-        vim.notify("No file for current buffer", vim.log.levels.ERROR) return
+        vim.notify("No file for current buffer.", vim.log.levels.ERROR) return
     end
 
     local ok = os.execute("chmod +x " .. vim.fn.shellescape(path))
     if ok == 0 then
         vim.print(name .. ", now executable")
     else
-        vim.notify("Failed to set file as executable", vim.log.levels.ERROR)
+        vim.notify("Failed to set file as executable.", vim.log.levels.ERROR)
     end
 end, {})
 
@@ -311,14 +311,14 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     local name = vim.fn.fnamemodify(path, ":t")
 
     if path == "" then
-        vim.notify("No file for current buffer", vim.log.levels.ERROR) return
+        vim.notify("No file for current buffer.", vim.log.levels.ERROR) return
     end
 
     local ok = os.execute("chmod -x " .. vim.fn.shellescape(path))
     if ok == 0 then
         vim.print(name .. ", no longer executable")
     else
-        vim.notify("Failed to remove executable flag", vim.log.levels.ERROR)
+        vim.notify("Failed to remove executable flag.", vim.log.levels.ERROR)
     end
 end, {})
 
@@ -329,7 +329,7 @@ vim.api.nvim_create_user_command("FileDelete", function()
     local fname = vim.fn.fnamemodify(fpath, ":t")
 
     if fpath == "" or vim.fn.filereadable(fpath) == 0 then
-        vim.notify("No file to delete", vim.log.levels.ERROR) return
+        vim.notify("No file to delete.", vim.log.levels.ERROR) return
     end
 
     local choice = vim.fn.confirm('Delete "' .. fname .. '" ?', "&Yes\n&No", 1)
@@ -348,7 +348,7 @@ vim.api.nvim_create_user_command("FileDelete", function()
             end)
         end)
     else
-        vim.notify("Delete canceled", vim.log.levels.INFO) return
+        vim.notify("Delete canceled.", vim.log.levels.INFO) return
     end
 end, {})
 
@@ -369,7 +369,7 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
 
         local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
         if res.code ~= 0 then
-            vim.notify("Linking failed!\n" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR) return
+            vim.notify("Linking failed!" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR) return
         end
 
         vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
@@ -442,12 +442,13 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
     --fetch git root
     local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
     if git_res.code ~= 0 then
-        vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
+        vim.notify("Not inside a Git repo:" .. git_res.stderr, vim.log.levels.ERROR) return
     end
     local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
 
     local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
-    print("Commiting: ".. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t:r"))
+
+    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t:r"))
 
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
@@ -455,9 +456,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
 
-        if input == nil then vim.notify("Commit canceled\n", vim.log.levels.INFO) return end
-
-        --local rel_path = vim.fs.relpath(git_root, fpath) --calc path local to git root
+        if input == nil then vim.notify("Commit canceled.", vim.log.levels.INFO) return end
 
         --stage curr file
         local stage_res = vim.system({"git", "add", "--", fpath}, {text=true}):wait()

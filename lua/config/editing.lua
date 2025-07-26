@@ -16,30 +16,41 @@ vim.g.autostartinsert = true
 vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
 --"none" → Default, disables virtual editing.
 --"onemore" → Allows the cursor to move one character past the end of a line.
---"block" → Allows cursor to move where there is no actual text in visual block mode.
---"insert" → Allows inserting in positions where there is no actual text.
---"all" → Enables virtual editing in all modes.
+--"block"   → Allows cursor to move where there is no actual text in visual block mode.
+--"insert"  → Allows inserting in positions where there is no actual text.
+--"all"     → Enables virtual editing in all modes.
 
 --Smart virt edit
+--vim.api.nvim_create_autocmd("ModeChanged", {
+--    group = "UserAutoCmds",
+--    pattern = "*",
+--    callback = function(args)
+--        local to = args.match:match(":%s*(.*)")
+--        if to == "n" then
+--            vim.opt.virtualedit = "all"
+--        elseif to == "" then  -- vis block
+--            vim.opt.virtualedit = "block"
+--        elseif to == "v" or to == "V" then
+--            vim.opt.virtualedit = "none"
+--        elseif to == "i" then
+--            vim.opt.virtualedit = "none"
+--        else
+--            vim.opt.virtualedit = "none"
+--        end
+--    end,
+--})
 vim.api.nvim_create_autocmd("ModeChanged", {
     group = "UserAutoCmds",
     pattern = "*",
-    callback = function(args)
-        local to = args.match:match(":%s*(.*)")
-        if to == "n" then
-            vim.opt.virtualedit = "all"
-        elseif to == "" then  -- vis block
-            vim.opt.virtualedit = "block"
-        elseif to == "v" or to == "V" then
-            vim.opt.virtualedit = "none"
-        elseif to == "i" then
-            vim.opt.virtualedit = "none"
-        else
-            vim.opt.virtualedit = "none"
-        end
+    callback = function()
+        local mode = vim.fn.mode()
+        if mode == "n"  then vim.opt.virtualedit = "all"    return end
+        if mode == "i"  then vim.opt.virtualedit = "none"   return end
+        if mode == "v"  then vim.opt.virtualedit = "onemore"   return end
+        if mode == "V"  then vim.opt.virtualedit = "onemore"   return end
+        if mode == "" then vim.opt.virtualedit = "block"  return end
     end,
 })
-
 
 --Define what a word is
 vim.opt.iskeyword = "@,48-57,192-255,-,_"
@@ -58,14 +69,14 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --Smart autosave
 vim.g.autosave_enabled = true
 
----@bool
+---@return boolean
 local function file_was_saved_manually(path)
     if vim.fn.filereadable(path) == 1 then
         --A file can be readable fs_stat can still fail in some case:
         --Race condition: file was deleted after the readable check.
         --Permissions issues.
         --Path is a symlink to a broken target.
-        local stat = vim.loop.fs_stat(path)
+        local stat = vim.uv.fs_stat(path)
 
         if stat then
             local mtime = os.date("*t", stat.mtime.sec)
@@ -75,6 +86,8 @@ local function file_was_saved_manually(path)
                                        mtime.month == now.month and
                                        mtime.day   == now.day
             return was_saved_manually
+        else
+            return false
         end
     else
         return false

@@ -170,7 +170,8 @@ vim.api.nvim_create_user_command("FileMove", function()
             if not vim.uv.fs_stat(input) then
                 local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
                 if choice == 1 then
-                    local ret, err = vim.uv.fs_mkdir(input, 666) -- rw-rw-rw
+                    local ret, err = vim.uv.fs_mkdir(input, tonumber("755", 8)) -- dxrwxrwxrw
+
                     if not ret then
                         vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
                     end
@@ -432,13 +433,13 @@ vim.api.nvim_create_user_command("PrintGitRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
 end, {})
 
+--diff put all
+vim.api.nvim_create_user_command("DiffPutAll", function()
+    vim.cmd("diffput")
+end, {})
+
 vim.api.nvim_create_user_command("GitCommitFile", function()
-    --fetch git root
-    local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
-    if git_res.code ~= 0 then
-        vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
-    end
-    local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
+    print("Commiting: ".. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t:r"))
 
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
@@ -446,14 +447,16 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
 
-        if input == nil then
-            vim.notify("Commit canceled. ", vim.log.levels.INFO) return
+        if input == nil then vim.notify("Commit canceled\n", vim.log.levels.INFO) return end
+
+        --fetch git root
+        local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
+        if git_res.code ~= 0 then
+            vim.notify("Not inside a Git repo:\n" .. git_res.stderr, vim.log.levels.ERROR) return
         end
-
-        --calc path local to git root
+        local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
         local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
-
-        local rel_path = vim.fs.relpath(git_root, fpath)
+        local rel_path = vim.fs.relpath(git_root, fpath) --calc path local to git root
 
         --stage curr file
         local stage_res = vim.system({"git", "add", "--", rel_path}, {text=true}):wait()
@@ -519,7 +522,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.api.nvim_set_option_value("bufhidden",  "wipe",   { buf = difbuf })
 
     --Write content of commit to said buffer
-    vim.api.nvim_buf_set_lines(difbuf, 0, 0, false, git_metadata)
+    vim.api.nvim_buf_set_lines(difbuf,  0,  0, false, git_metadata)
     vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, {"============================================================"})
     vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, git_content)
 
@@ -531,8 +534,10 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.cmd("diffthis")
     vim.wo.scrollbind = true
     vim.wo.cursorbind = true
+    vim.wo.signcolumn = "no"
+    vim.wo.number     = false
     vim.wo.foldmethod = "diff"
-    vim.wo.foldlevel = 99 --hack to Keep folds open by default
+    vim.wo.foldlevel  = 99 --hack to Keep folds open by default
 
     vim.cmd("wincmd p") --back to og buf
 
@@ -541,10 +546,10 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.wo.scrollbind = true
     vim.wo.cursorbind = true
     vim.wo.foldmethod = "diff"
-    vim.wo.foldlevel = 99
+    vim.wo.foldlevel  = 99
 
+    vim.cmd("wincmd w") --back to diff
     vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
-    --vim.cmd("wincmd p") --to rev buffer again
 end, {nargs = "?"})
 
 

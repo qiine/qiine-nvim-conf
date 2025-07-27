@@ -295,12 +295,10 @@ map('n', '<C-Left>',  "5h")
 
 --ctrl+up/down to move fast
 map("i", "<C-Up>", "<C-o>3k")
-map("n", "<C-Up>", "3k")
-map("v", "<C-Up>", "3k")
+map({"n","v"}, "<C-Up>", "3k")
 
 map("i", "<C-Down>", "<C-o>3j")
-map("n", "<C-Down>", "3j")
-map("v", "<C-Down>", "3j")
+map({"n","v"}, "<C-Down>", "3j")
 
 
 --alt+left/right move to start/end of line
@@ -373,15 +371,9 @@ map("v",       "<S-Up>",    "k",       {noremap=true}) --avoid fast scrolling ar
 map({"i","n"}, "<S-Down>", "<Esc>vj",  {noremap=true})
 map("v",       "<S-Down>", "j",        {noremap=true}) --avoid fast scrolling around
 
---Select to home
-map("i", "<S-Home>", "<Esc>vgg0i")
-map("n", "<S-Home>", "vgg0")
-map("v", "<S-Home>", "g0")
-
---select to end
-map("i", "<S-End>", "<Esc>vGi")
-map("n", "<S-End>", "vG")
-map("v", "<S-End>", "G")
+--Select to home/end
+map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
+map({"i","n","v"}, "<S-End>",  "<Esc>vG")
 
 --sel in paragraph
 map({"i","n","v"}, "<C-S-p>", "<esc>vip")
@@ -395,9 +387,9 @@ map({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
 map("v", "<S-M-Left>",
     function()
         if vim.fn.mode() == '\22' then  --"\22" is vis block mode
-            vim.cmd("normal! h")
+            vim.cmd("norm! h")
         else
-            vim.cmd("normal! h")
+            vim.cmd("norm! h")
         end
     end
 )
@@ -447,8 +439,8 @@ map("n", "<C-S-PageUp>", "vh")
 map("v", "<C-S-PageUp>", "oho")
 
 --grow do end/start of line
-map("i", "<S-PageUp>", "<Esc><S-v>k")
-map("n", "<S-PageUp>", "<S-v>k")
+map("i", "<S-PageUp>", "<Esc>Vk")
+map("n", "<S-PageUp>", "Vk")
 map("v", "<S-PageUp>",
     function ()
         if vim.fn.mode() == "V" then
@@ -459,8 +451,8 @@ map("v", "<S-PageUp>",
     end
 )
 
-map("i", "<S-PageDown>", "<Esc><S-v>j")
-map("n", "<S-PageDown>", "<S-v>j")
+map("i", "<S-PageDown>", "<Esc>Vj")
+map("n", "<S-PageDown>", "Vj")
 map("v", "<S-PageDown>",
     function ()
         local m = vim.api.nvim_get_mode().mode
@@ -670,20 +662,11 @@ map("v", "<M-S-BS>", 'r ') --clear selected char
 
 --Remove to start of line
 map("i", "<M-BS>", '<esc>"_d0i')
-map("n", "<M-BS>", '"_d0')
+map({"n","v"}, "<M-BS>", '<esc>"_d0')
 
-
-map({"i","n"}, "<S-BS>", '<cmd>norm! "_cc<cr>')
---map("i", "<S-BS>", '<esc>"_cc')
---map("n", "<S-BS>", '"_cc<esc>')
-map("v", "<S-BS>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd('norm! "_cc')
-    else
-        vim.cmd('norm! V"_c')
-    end
-end)
-
+--clear line
+map({"i","n"}, "<S-BS>", '<cmd>norm! "_cc<CR>')
+map("v",       "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 
@@ -694,11 +677,11 @@ map("v", "<Del>", '"_di')
 --Delete right word
 map("i",       "<C-Del>", '<C-o>"_dw')
 map({"n","v"}, "<C-Del>", '"_dw')
---map("c",       "<C-Del>", '"_dw') does not work in cmd
+--map("c",       "<C-Del>", '"_dw') does not work in cmd bc not a buf
 
 --Delete in word
-map("i", "<C-S-Del>", '<esc>"_diwi')
-map("n", "<C-S-Del>", '"_diw')
+map({"i","n"}, "<C-S-Del>", '<cmd>norm!"_diw<CR>')
+map("v",       "<C-S-Del>", '<esc>"_diwgv')
 
 --Smart delete in
 map({"i","n"}, "<C-M-Del>", function()
@@ -734,8 +717,9 @@ map({"i","n"}, "<C-M-Del>", function()
 end)
 
 --del to end of line
-map("i", "<M-Del>", '<Esc>"_d$i')
-map("n", "<M-Del>", '"_d$')
+--map("i", "<M-Del>", '<Esc>"_d$i')
+--map("n", "<M-Del>", '"_d$')
+map({"i","n","v"}, "<M-Del>", '<cmd>norm!"_d$<CR>')
 
 --Delete line
 map("i", "<S-Del>", '<esc>"_ddi')
@@ -797,12 +781,6 @@ map({"n"}, "-", function() utils.smartdecrement() end)
 map("n", "<space>", "i<space><esc>")
 
 --tab ident
-vim.keymap.set("i", "<Tab>", function()
-    local width = vim.opt.shiftwidth:get()
-    vim.cmd("norm! v>")
-    vim.cmd("norm! ".. width .. "l")
-end)
-
 map("i", "<Tab>", function()
     local width = vim.opt.shiftwidth:get()
     vim.cmd("norm! v>")
@@ -845,7 +823,7 @@ map("v", "<S-M-cr>", function ()
     if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
         vim.cmd("normal! o")
     end
-    vim.cmd("normal! gv")
+    vim.cmd("norm! gv")
 
     --vim.cmd("normal! O")
 end)
@@ -933,9 +911,8 @@ map("n", "<C-S-Down>", "<cmd>m .+1<cr>==")
 
 
 --#[Comments]
-map("i", "<M-a>", "<cmd>norm gcc<cr>", {remap = true}) --remap needed
-map("n", "<M-a>", "gcc",   {remap = true}) --remap needed
-map("v", "<M-a>", "gcgv",  {remap = true}) --remap needed
+map({"i","n"}, "<M-a>", "<cmd>norm gcc<cr>", {noremap = true})
+map("v", "<M-a>", "gcgv", {remap = true})
 
 
 --#[Macro]
@@ -945,18 +922,20 @@ map("n", "<C-r>", "q", {remap = true})
 
 --## [Text inteligence]
 ----------------------------------------------------------------------
+--diag panel
+map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
+
+--ref panel
+map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
+
 --Goto definition
-map({"i","n","v"}, "<F10>", "<esc><cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
-
-map({"i","n","v"}, "<F11>", "<esc><cmd>Trouble lsp_references toggle focus=true<cr>")
-
 map("i", "<F12>", "<Esc>gdi")
 map("n", "<F12>", "<Esc>gd")
 --map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 map("v", "<F12>", "<Esc>gd")
 
 --show hover window
-map({"i","n","v"}, "<C-h>", function() vim.lsp.buf.hover() end)
+map({"i","n","v"}, "<C-h>", "<cmd>lua vim.lsp.buf.hover()<CR>")
 
 --rename symbol
 --vmap({"i","n"}, "<F2>", function()
@@ -983,7 +962,7 @@ map({"i","n","v"}, "<C-CR>", function()
     local filetype = vim.bo.filetype
 
     if word:match("^https?://") then
-        vim.cmd("normal! gx")
+        vim.cmd("norm! gx")
     elseif vim.fn.filereadable(word) == 1 then
         vim.cmd("norm! gf")
     else
@@ -996,8 +975,8 @@ end)
 
 --### Diff
 --next/prev diff
-map({"i","n","v","c"}, "<M-S-PageUp>", function() vim.cmd("norm! [cz.") end)
-map({"i","n","v","c"}, "<M-S-PageDown>", function() vim.cmd("norm! ]cz.") end)
+map({"i","n","v","c"}, "<M-S-PageUp>",   "<cmd>norm![cz.<CR>")
+map({"i","n","v","c"}, "<M-S-PageDown>", "<cmd>norm!]cz.<CR>")
 
 --diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")
@@ -1063,7 +1042,7 @@ map("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
---map("c", "<esc>", "<C-c>", {norem=true})
+map("c", "<esc>", "<C-c>", {noremap=true})
 
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
@@ -1077,14 +1056,14 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 --## [Terminal]
 ----------------------------------------------------------------------
 --Open term
-map({"i","n","v"}, "<M-t>",  function() v.cmd("term") end, {noremap=true})
+map({"i","n","v"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 
 --quick split term
 map({"i","n","v"}, "<M-w>t", function()
     vim.cmd("vsp|term")
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-end, {remap=true})
+end, {noremap=true})
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})

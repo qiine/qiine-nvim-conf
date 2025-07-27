@@ -129,11 +129,11 @@ vim.opt.fillchars:append({
 
 
 
---## [Whitespace symbols]
+--## [Whitespace symbols]
 ----------------------------------------------------------------------
 v.opt.list = true
 vim.opt.listchars:append({
-    tab="  ",
+    tab="▸▸",
     eol=" ",
     nbsp="␣",
     precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯
@@ -304,7 +304,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 
 
---[Commandline]--------------------------------------------------
+--## [Commandline]
+----------------------------------------------------------------------
 vim.opt.cmdheight = 1
 v.opt.showmode    = false --show curr mode in cmd
 

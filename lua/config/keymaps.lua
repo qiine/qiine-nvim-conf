@@ -39,7 +39,7 @@ map(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
 --F5 reload buffer
-map({"i","n","v"}, '<F5>', function() vim.cmd("e!") print("'-File reloaded-'") end, {noremap = true})
+map({"i","n","v"}, '<F5>', function() vim.cmd("e!") print("-File reloaded-") end, {noremap = true})
 
 
 --g
@@ -228,20 +228,21 @@ map("i", "<M-w>", "<esc><C-w>", {noremap=true})
 map("n", "<M-w>", "<C-w>",      {noremap=true})
 map("v", "<M-w>", "<Esc><C-w>", {noremap=true})
 
+map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
 map(modes, "<M-w>h", "<cmd>new<cr>")
 
 --To next window
 map(modes, "<M-Tab>", "<cmd>norm! w<cr>")
 
---map("n", "<M-w>H", "<C-w>t<C-w>H", {noremap=true})
---map("n", "<M-w>V", "<C-w>t<C-w>K", {noremap=true})
+--focus split
+map(modes, "<M-w>f", "<cmd>norm!|<cr><cmd>norm!_<cr>")
 
---resize vert
-map("n", "<M-w><Left>",  ":vertical resize -5<CR>", {noremap = true})
-map("n", "<M-w><Right>", ":vertical resize +5<CR>", {noremap = true})
 --resize hor
 map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
 map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
+--resize vert
+map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
+map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
 
 
 
@@ -671,10 +672,19 @@ map("v", "<M-S-BS>", 'r ') --clear selected char
 map("i", "<M-BS>", '<esc>"_d0i')
 map("n", "<M-BS>", '"_d0')
 
---Shift+backspace clear line
-map("i", "<S-BS>", '<esc>"_cc')
-map("n", "<S-BS>", '"_cc<esc>')
-map("v", "<S-BS>", '<esc>"_cc<esc>')
+
+map({"i","n"}, "<S-BS>", '<cmd>norm! "_cc<cr>')
+--map("i", "<S-BS>", '<esc>"_cc')
+--map("n", "<S-BS>", '"_cc<esc>')
+map("v", "<S-BS>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd('norm! "_cc')
+    else
+        vim.cmd('norm! V"_c')
+    end
+end)
+
+
 
 
 --##[Delete]
@@ -740,6 +750,9 @@ end)
 
 
 --#[Replace]
+--change in word
+map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
+
 --replace visual selection with char
 map("v", "<M-r>", "r")
 

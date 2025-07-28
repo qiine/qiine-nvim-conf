@@ -1,1 +1,0 @@
-v.opt.number         = false

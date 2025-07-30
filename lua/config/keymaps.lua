@@ -384,48 +384,40 @@ map(modes, "<C-a>", "<Esc>GGVgg")
 
 --Visual block selection
 map({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
-map("v", "<S-M-Left>",
-    function()
-        if vim.fn.mode() == '\22' then  --"\22" is vis block mode
-            vim.cmd("norm! h")
-        else
-            vim.cmd("norm! h")
-        end
+map("v", "<S-M-Left>", function()
+    if vim.fn.mode() == '\22' then  --"\22" is vis block mode
+        vim.cmd("norm! h")
+    else
+        vim.cmd("norm! h")
     end
-)
+end)
 
 map({"i","n"}, "<S-M-Right>", "<Esc><C-v>l")
-map("v", "<S-M-Right>",
-    function()
-        if vim.fn.mode() == '\22' then
-            vim.cmd("normal! l")
-        else
-            vim.cmd("normal! l")
-        end
+map("v", "<S-M-Right>", function()
+    if vim.fn.mode() == '\22' then
+        vim.cmd("normal! l")
+    else
+        vim.cmd("normal! l")
     end
-)
+end)
 
 map({"i","n"}, "<S-M-Up>", "<Esc><C-v>k")
-map("v", "<S-M-Up>",
-    function()
-        if vim.fn.mode() == '\22' then
-            vim.cmd("normal! k")
-        else
-            vim.cmd("normal! k")
-        end
+map("v", "<S-M-Up>", function()
+    if vim.fn.mode() == '\22' then
+        vim.cmd("normal! k")
+    else
+        vim.cmd("normal! k")
     end
-)
+end)
 
 map({"i","n"}, "<S-M-Down>", "<Esc><C-v>j")
-map("v", "<S-M-Down>",
-    function()
-        if vim.fn.mode() == '\22' then
-            vim.cmd("normal! j")
-        else
-            vim.cmd("normal! j")
-        end
+map("v", "<S-M-Down>", function()
+    if vim.fn.mode() == '\22' then
+        vim.cmd("normal! j")
+    else
+        vim.cmd("normal! j")
     end
-)
+end)
 
 
 --### [Grow select]
@@ -439,30 +431,23 @@ map("n", "<C-S-PageUp>", "vh")
 map("v", "<C-S-PageUp>", "oho")
 
 --grow do end/start of line
-map("i", "<S-PageUp>", "<Esc>Vk")
-map("n", "<S-PageUp>", "Vk")
-map("v", "<S-PageUp>",
-    function ()
-        if vim.fn.mode() == "V" then
-            vim.cmd("normal! k")
-        else
-            vim.cmd("normal! Vk")
-        end
+map({"i","n"}, "<S-PageUp>", "<esc>Vk")
+map("v", "<S-PageUp>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd("normal! k")
+    else
+        vim.cmd("normal! Vk")
     end
-)
+end)
 
-map("i", "<S-PageDown>", "<Esc>Vj")
-map("n", "<S-PageDown>", "Vj")
-map("v", "<S-PageDown>",
-    function ()
-        local m = vim.api.nvim_get_mode().mode
-        if vim.fn.mode() == "V" then
-            vim.cmd("normal! j")
-        else
-            vim.cmd("normal! Vj")
-        end
+map({"i","n"}, "<S-PageDown>", "<esc>Vj")
+map("v", "<S-PageDown>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd("normal! j")
+    else
+        vim.cmd("normal! Vj")
     end
-)
+end)
 
 
 --#[select search]
@@ -498,17 +483,15 @@ map("n", "<C-i>", "i<C-v>")
 --insert function()
 --kmap("i", "<C-S-i>")
 
-map("v", "î",
-    function()
-        if vim.fn.mode() == '\22' then  --"\22" is vis block mode
-            --"$A" insert at end of each lines from vis block mode
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
-        else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>", true, false, true), "n", false)
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
-        end
+map("v", "î", function()
+    if vim.fn.mode() == '\22' then  --"\22" is vis block mode
+        --"$A" insert at end of each lines from vis block mode
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
+    else
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>", true, false, true), "n", false)
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
     end
-)
+end)
 
 
 --Insert chars in visual mode
@@ -610,8 +593,8 @@ map("n", "<C-S-v>", '<esc>"_diw"+P')
 
 --Duplicate
 map("i", "<C-d>", '<esc>"zyy"zpi', {desc="dup"})
-map("n", "<C-d>", '"zyy"zp', {desc="dup"})
-map("v", "<C-d>", '"zy"zP',  {desc="dup"})
+map("n", "<C-d>", '"zyy"zp',       {desc="dup"})
+map("v", "<C-d>", '"zy"zP',        {desc="dup"})
 
 
 --#[Undo/redo]
@@ -638,7 +621,9 @@ map("v", "<BS>", '"_xi')
 --<M-S-BS> instead of <C-BS> because of wezterm
 map("i", "<M-S-BS>", '<esc>"_dbi')
 map("n", "<M-S-BS>", '"_db')
-map("v", "<M-S-BS>", 'r ') --clear selected char
+
+--clear selected char
+map("v", "<M-S-BS>", 'r ')
 
 --Backspace replace with white spaces, from cursor to line start
 --kmap({"i","n"}, "<M-BS>",
@@ -661,7 +646,7 @@ map("v", "<M-S-BS>", 'r ') --clear selected char
 --)
 
 --Remove to start of line
-map("i", "<M-BS>", '<esc>"_d0i')
+map("i",       "<M-BS>", '<esc>"_d0i')
 map({"n","v"}, "<M-BS>", '<esc>"_d0')
 
 --clear line
@@ -717,18 +702,16 @@ map({"i","n"}, "<C-M-Del>", function()
 end)
 
 --del to end of line
---map("i", "<M-Del>", '<Esc>"_d$i')
---map("n", "<M-Del>", '"_d$')
-map({"i","n","v"}, "<M-Del>", '<cmd>norm!"_d$<CR>')
+map({"i","n"}, "<M-Del>", '<cmd>norm!"_d$<CR>')
+map("v",       "<M-Del>", '<esc>"_d$')
 
 --Delete line
-map("i", "<S-Del>", '<esc>"_ddi')
-map("n", "<S-Del>", '"_dd')
-map("v", "<S-Del>", function()
-    if vim.fn.mode() == "V" then  --avoid <S-v> on line select, because it would unselect instead
-        vim.cmd('norm! "_d')
+map({"i","n"}, "<S-Del>", '<cmd>norm!"_dd<CR>')
+map("v",       "<S-Del>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd('norm!"_dd')
     else
-        vim.cmd('norm! V"_d')
+        vim.cmd('norm!V"_dd')
     end
 end)
 
@@ -745,15 +728,16 @@ map("v", "<M-r>", "r")
 map({"i","n"}, "<M-s>",
 "<Esc>:%s/\\v//g<Left><Left><Left>",
 {desc = "Enter substitue mode"})
---sub word
-map("v", "<M-s>",
-"<esc>:'<,'>s/\\v//g<Left><Left><Left>",
-{desc = "Enter substitue mode"})
 
---sub
+--sub word
 map("v", "<C-S-s>",
 [[y<esc>:%s/\v<C-r>"//g<Left><Left>]],
 {desc = "substitue word under cursor" })
+
+--sub in selection
+map("v", "<M-s>",
+"<esc>:'<,'>s/\\v//g<Left><Left><Left>",
+{desc = "Enter substitue in selection"})
 
 
 --#[Incrementing]
@@ -802,9 +786,8 @@ map("v", "<C-=>", "=")
 map("n", "<cr>", "i<cr><esc>")
 
 --breakline above
-map("i", "<S-CR>", "<C-o>O")
-map("n", "<S-CR>", "O<esc>")
-map("v", "<S-CR>", "<esc>O<esc>vgv")
+map({"i","n"}, "<S-CR>", "<cmd>norm!O<CR>")
+map("v",       "<S-CR>", "<esc>O<esc>gv")
 
 --breakline below
 map("i", "<M-CR>", "<C-o>o")
@@ -831,12 +814,12 @@ end)
 
 --##[Join]
 --Join below
-map("i",       "<C-j>", "<C-o><S-j>")
-map({"n","v"}, "<C-j>", "<S-j>")
+map({"i","n","v"}, "<C-j>", "<cmd>norm!J<CR>")
 
 --Join to upper
 map("i", "<C-S-j>", "<esc>k<S-j>i")
 map("n", "<C-S-j>", "k<S-j>")
+
 
 --##[move text]
 --Move single char
@@ -912,7 +895,7 @@ map("n", "<C-S-Down>", "<cmd>m .+1<cr>==")
 
 --#[Comments]
 map({"i","n"}, "<M-a>", "<cmd>norm gcc<cr>", {noremap = true})
-map("v", "<M-a>", "gcgv", {remap = true})
+map("v",       "<M-a>", "gcgv", {remap = true})
 
 
 --#[Macro]
@@ -994,7 +977,7 @@ map({"i","n","v"}, "<C-g>m", "<cmd>GitCommitFile<cr>", {remap=true})
 
 
 
---## [code runner]
+--## [Code runner]
 ----------------------------------------------------------------------
 --run code at cursor with sniprun
 --run curr line only and insert res below

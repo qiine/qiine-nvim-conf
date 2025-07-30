@@ -26,7 +26,7 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 --## [Settings]
 ----------------------------------------------------------------------
-vim.opt.timeoutlen = 350 --delay between key press to register shortcuts
+vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
 
 
 
@@ -973,7 +973,7 @@ map("v",       "<C-g>dg", "<cmd>:'<,'>diffget<cr>")
 
 --## [Version control]
 ----------------------------------------------------------------------
-map({"i","n","v"}, "<C-g>m", "<cmd>GitCommitFile<cr>", {remap=true})
+map({"i","n","v"}, "<C-g>gc", "<cmd>GitCommitFile<cr>", {noremap=true})
 
 
 

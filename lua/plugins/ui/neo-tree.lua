@@ -98,15 +98,9 @@ return
                     },
                 },
             },
-
-
         })--setup
-        --cmd samples:
-        --:Neotree toggle
-        --:Neotree toggle current reveal_force_cwd<cr>
-        --:Neotree reveal<cr>
-        --:Neotree float reveal_file=<cfile> reveal_force_cwd<cr>
-        vim.keymap.set({"i","n","v"}, "<C-b>",
+
+        vim.keymap.set({"i","n","v","t"}, "<C-b>",
             "<cmd>Neotre toggle<cr>",
         {noremap=true})
     end,

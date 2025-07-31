@@ -16,10 +16,11 @@
     "nvim user command": {
         "prefix": "nvim user command",
         "body": [
-            "vim.api.nvim_create_user_command(\"NewUserCmd\", function()",
-            "\t",
+            "vim.api.nvim_create_user_command(\"${1:NewUserCmd}\", function()",
+                "\t${0}",
             "end, {})"
-        ]
+        ],
+        "description": "Create a new user command in Neovim"
     },
 
     "nvim autocommand": {

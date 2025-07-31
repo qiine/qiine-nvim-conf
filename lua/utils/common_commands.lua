@@ -62,6 +62,10 @@ vim.api.nvim_create_user_command("WebSearch", function()
     )
 end, {range=true})
 
+vim.api.nvim_create_user_command("ClearClipboard", function()
+    vim.fn.setreg("+", " ")
+end, {})
+
 
 
 --## [Buffers]
@@ -424,6 +428,16 @@ vim.api.nvim_create_user_command("CodeAction", function()
     require("tiny-code-action").code_action()
 end, {})
 
+vim.api.nvim_create_user_command("PrintCharNumber", function()
+    vim.cmd('norm!"zyl')
+    print(vim.fn.char2nr(vim.fn.getreg("z")))
+end, {})
+
+vim.api.nvim_create_user_command("OpenDiagraph", function()
+    local cmd_output = vim.fn.execute('dig')
+    vim.cmd("enew")
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+end, {})
 
 
 --## [Version control]
@@ -443,7 +457,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 
     local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
 
-    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t:r"))
+    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
 
     vim.ui.input({
         prompt = "Commit message: ", default = "", --completion = "dir",
@@ -492,7 +506,9 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     local fpath_rootrelative = vim.fn.fnamemodify(fpath, ":.")
 
     local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrelative))
-    local git_content  = vim.fn.systemlist(string.format("git show %q:%q", rev, fpath_rootrelative))
+    local git_content = vim.fn.systemlist(string.format("git show %q:%q", rev, fpath_rootrelative))
+    --local git_content = vim.system({"git", "show", rev, "--", fpath}, {text=true}):wait()
+
 
     if vim.v.shell_error ~= 0 then
         vim.notify(
@@ -534,6 +550,8 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.wo.foldmethod = "diff"
     vim.wo.foldlevel  = 99 --hack to Keep folds open by default
 
+    vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
+
     vim.cmd("wincmd p") --back to og buf
 
     --og buffer
@@ -544,7 +562,6 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.wo.foldlevel  = 99
 
     vim.cmd("wincmd w") --back to diff
-    vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
 end, {nargs = "?"})
 
 vim.api.nvim_create_user_command("GitRestoreFile", function(opts)

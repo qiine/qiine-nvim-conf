@@ -39,8 +39,7 @@ map(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
 --F5 reload buffer
-map({"i","n","v"}, '<F5>', function() vim.cmd("e!") print("-File reloaded-") end, {noremap = true})
-
+map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap=true})
 
 --g
 map("i",       '<C-g>', "<esc>g", {noremap=true})
@@ -50,6 +49,7 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 --## [Buffers]
 ----------------------------------------------------------------------
+--reopen prev
 map(modes, "<C-S-t>", "<cmd>e #<cr>")
 
 --Omni close
@@ -84,10 +84,9 @@ end, {noremap=true})
 ----------------------------------------------------------------------
 --Create new file
 map({"i","n","v"}, "<C-n>", function()
-    local buff_count = vim.api.nvim_list_bufs()
+    local buff_count  = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
-    v.cmd("enew")
-    vim.cmd("e untitled_"..newbuff_num)
+    v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
 end)
 
 --Open file picker
@@ -95,31 +94,38 @@ map(modes, "<C-o>", function() vim.cmd("FilePicker") end)
 
 --File save
 map(modes, "<C-s>", function()
-    local cbuf = vim.api.nvim_get_current_buf()
+    local bufid = vim.api.nvim_get_current_buf()
     local path = vim.api.nvim_buf_get_name(0)
 
-    if vim.fn.filereadable(path) == 1 then   --Check file exist on disk
-        vim.cmd("write")
-    else
-        if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
-            vim.ui.input(
-                {
-                    prompt = "Save as: ", default = path, completion = "dir",
-                    cancelreturn = "canceled"
-                },
-                function(input)
-                    vim.api.nvim_command("redraw") --Hide prompt
+    if vim.fn.filereadable(path) == 1 then vim.cmd("write") return end
 
-                    if input == nil or input == "" or input == "canceled" then
-                        vim.notify("Creation cancelled.", vim.log.levels.INFO) return
+    if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
+        vim.ui.input({prompt="Save as: ", default=path, completion="dir"},
+        function(input)
+            vim.api.nvim_command("redraw") --Hide prompt
+
+            if     input == nil then
+                vim.notify("Save cancelled.", vim.log.levels.INFO)        return
+            elseif input == ""  then
+                vim.notify("Input cannot be empty!", vim.log.levels.INFO) return
+            end
+
+            --check target dir
+            local dir = vim.fs.dirname(input)
+            if not vim.uv.fs_stat(dir) then
+                local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
+                if choice == 1 then
+                    local ret, err = vim.uv.fs_mkdir(dir, tonumber("755", 8)) -- drwxr-xr-x
+                    if not ret then
+                        vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
                     end
-
-                    vim.api.nvim_buf_set_name(cbuf, input)
-                    vim.cmd("write")
-                    vim.cmd("edit!") --refresh name
+                else
+                    vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
                 end
-            )
-        end
+            end
+
+            vim.api.nvim_buf_set_name(0, input); vim.cmd("w|e!") --refresh buf to new path
+        end)
     end
 end)
 
@@ -139,39 +145,45 @@ map(modes, "<M-S-s>", function()
 end)
 
 --save as
-map(modes, "<M-C-S>", function()
-    local cbuf = vim.api.nvim_get_current_buf()
-    local path = vim.api.nvim_buf_get_name(0)
+map(modes, "<C-M-s>", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
 
-    vim.ui.input(
-        { prompt = "Save as: ", default = path, completion = "dir"},
-        function(input)
-            vim.api.nvim_command("redraw") --Hide prompt
+    vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"},
+    function(input)
+        vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil or input == "" then
-                vim.notify("Save cancelled.", vim.log.levels.INFO) return
-            end
-
-            vim.api.nvim_buf_set_name(cbuf, input)
-            vim.cmd("write")
-            vim.cmd("edit!") --refresh name
+        if     input == nil then
+            vim.notify("Save cancelled.", vim.log.levels.INFO)        return
+        elseif input == ""  then
+            vim.notify("Input cannot be empty!", vim.log.levels.INFO) return
         end
-    )
+
+        --check target dir
+        local dir = vim.fs.dirname(input)
+        if not vim.uv.fs_stat(dir) then
+            local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
+            if choice == 1 then
+                local ret, err = vim.uv.fs_mkdir(dir, tonumber("755", 8)) -- drwxr-xr-x
+                if not ret then
+                    vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
+                end
+            else
+                vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
+            end
+        end
+
+        vim.cmd("w "..input); vim.cmd("e "..input)
+    end)
 end)
 
 
 --Ressource curr file
-map(modes, "ç", --"<altgr-r>"
-    function()
-        local cf = vim.fn.expand("%:p")
+map(modes, "ç", function()  --"<altgr-r>"
+    local cf    = vim.fn.expand("%:p")
+    local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
 
-        vim.cmd("source "..cf)
-
-        --broadcast
-        local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
-        vim.cmd(string.format("echo '%s ressourced'", fname))
-    end
-)
+    vim.cmd("source "..cf); print("Ressourced: "..fname)
+end)
 
 
 
@@ -179,7 +191,7 @@ map(modes, "ç", --"<altgr-r>"
 ----------------------------------------------------------------------
 --alt-z toggle line wrap
 map({"i","n","v"}, "<A-z>", function()
-    vim.opt.wrap = not vim.opt.wrap:get()  --Toggle wrap
+    vim.opt.wrap = not vim.opt.wrap:get()
 end)
 
 --Gutter on/off
@@ -212,7 +224,7 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 --## [Tabs]
 ----------------------------------------------------------------------
 --create new tab
-map( modes,"<C-t>", function() vim.cmd("Alpha") end)
+map(modes,"<C-t>", function() vim.cmd("Alpha") end)
 
 --Tabs nav
 --next
@@ -479,6 +491,10 @@ map("v", "<M-i>", "I")
 --kmap("i", "<C-i>", "<C-v>") --collide with tab :(
 map("n", "<C-i>", "i<C-v>")
 
+
+--Insert diagraph
+map("n", "<C-S-k>", "i<C-S-k>")
+
 --Insert snipet
 --insert function()
 --kmap("i", "<C-S-i>")
@@ -524,7 +540,7 @@ end, {noremap=true})
 map("n", "<C-c>", function()
     local char = utils.get_char_at_cursorpos()
 
-    if  char ~= " " and char ~= "" then
+    if char ~= " " and char ~= "" then
         vim.cmd('norm! "+yl')
     end
 end, {noremap = true})
@@ -709,9 +725,9 @@ map("v",       "<M-Del>", '<esc>"_d$')
 map({"i","n"}, "<S-Del>", '<cmd>norm!"_dd<CR>')
 map("v",       "<S-Del>", function()
     if vim.fn.mode() == "V" then
-        vim.cmd('norm!"_dd')
+        vim.cmd('norm!"_d')
     else
-        vim.cmd('norm!V"_dd')
+        vim.cmd('norm!V"_d')
     end
 end)
 
@@ -778,25 +794,23 @@ map("n", "<S-Tab>", "v<")
 map("v", "<S-Tab>", "<gv")
 
 --trigger Auto ident
-map("i", "<C-=>", "<C-o>==")
+map({"i","n"}, "<C-=>", "<esc>==")
 map("v", "<C-=>", "=")
 
 
 --##[Line break]
-map("n", "<cr>", "i<cr><esc>")
+map("n", "<cr>", "i<CR><esc>")
 
 --breakline above
 map({"i","n"}, "<S-CR>", "<cmd>norm!O<CR>")
 map("v",       "<S-CR>", "<esc>O<esc>gv")
 
 --breakline below
-map("i", "<M-CR>", "<C-o>o")
-map("n", "<M-CR>", 'o<Esc>')
-map("v", "<M-CR>", "<Esc>o<Esc>vgv")
+map({"i","n"}, "<M-CR>", '<cmd>norm!o<CR>')
+map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
 --New line above and below
-map("i", "<S-M-cr>", "<esc>mzo<esc>kO<esc>`zi")
-map("n", "<S-M-cr>", "m'o<esc>kO<esc>`'")
+map({"i","n"}, "<S-M-cr>", "<cmd>norm!m`o<CR><cmd>norm!kO<CR><cmd>norm!``<CR>")
 map("v", "<S-M-cr>", function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
@@ -811,14 +825,12 @@ map("v", "<S-M-cr>", function ()
     --vim.cmd("normal! O")
 end)
 
-
 --##[Join]
 --Join below
 map({"i","n","v"}, "<C-j>", "<cmd>norm!J<CR>")
 
 --Join to upper
-map("i", "<C-S-j>", "<esc>k<S-j>i")
-map("n", "<C-S-j>", "k<S-j>")
+map({"i","n"}, "<C-S-j>", "<cmd>norm!kJ<CR>")
 
 
 --##[move text]
@@ -828,9 +840,12 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 --vmap("n", "<C-S-Up>", '"zxk"zp')
 --vmap("n", "<C-S-Down>", '"zxj"zp')
 
+--Move word right
+map("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
+map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
+
 --Move selected text
 --Move left
-map("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
 map("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
 
@@ -852,8 +867,7 @@ map("v", "<C-S-Left>", function()
     end
 end)
 
---Move right
-map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
+--Move selection right
 map("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
 
 --move selected line verticaly

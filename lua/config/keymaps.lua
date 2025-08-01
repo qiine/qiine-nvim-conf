@@ -587,17 +587,20 @@ map({"i","n","v"}, "<C-v>", function()
     local mode = vim.fn.mode()
     if mode == "v" or mode == "V" or mode == "" then vim.cmd('norm! "_d') end
 
-    vim.cmd('norm! "+P')
+    vim.cmd('norm! "+P') --paste from clipboard
 
     --Format after paste
     local ft = vim.bo.filetype
-    if ft == "markdown" or ft == "text" then
+
+    if ft == "" then
+        --no formating
+    elseif ft == "markdown" or ft == "text" then
         vim.cmd("norm! `[v`]gqw")
     else
         vim.cmd("norm! `[v`]=") --auto fix ident
     end
 
-    --proper cursor placement
+    --proper curso placement
     vim.cmd("norm! `]")
     if mode == "i" then vim.cmd("norm! a") end
 end)

@@ -185,6 +185,8 @@ map(modes, "ç", function()  --"<altgr-r>"
     vim.cmd("source "..cf); print("Ressourced: "..fname)
 end)
 
+map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
+
 
 
 --## [View]

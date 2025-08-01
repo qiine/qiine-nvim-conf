@@ -153,29 +153,22 @@ vim.api.nvim_create_user_command("FileMove", function()
     end
 
     local function prompt_user()
-        vim.ui.input({
-            prompt="Move to: ", default=fdir, completion="dir",
-        },
+        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil then
+            if     input == nil then
                 vim.notify("Move cancelled. ", vim.log.levels.INFO) return
-            end
-            if input == "" then
+            elseif input == ""  then
                 vim.notify("Input cannot be empty!", vim.log.levels.WARN)
                 return prompt_user()
             end
 
-            --assemble path
-            local target_path = vim.fs.joinpath(input, fname)
-
-            --check target dirs
+            --check target dir
             if not vim.uv.fs_stat(input) then
                 local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
                 if choice == 1 then
-                    local ret, err = vim.uv.fs_mkdir(input, tonumber("755", 8)) -- dxrwxrwxrw
-
+                    local ret, err = vim.uv.fs_mkdir(input, tonumber("755", 8)) -- drwxr-xr-x
                     if not ret then
                         vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
                     end
@@ -184,6 +177,8 @@ vim.api.nvim_create_user_command("FileMove", function()
                     return prompt_user()
                 end
             end
+
+            local target_path = vim.fs.joinpath(input, fname)
 
             --check target for existing file
             if vim.uv.fs_stat(target_path) then
@@ -219,16 +214,13 @@ vim.api.nvim_create_user_command("FileRename", function()
     local old_name = vim.fn.fnamemodify(old_fpath, ":t")
 
     local function prompt_user()
-        vim.ui.input({
-            prompt="New name = ", default=old_name, completion="file",
-        },
+        vim.ui.input({prompt="New name = ", default=old_name, completion="file"},
         function(input)
             vim.api.nvim_command("redraw") --Hide init prompt
 
-            if input == nil then
+            if     input == nil then
                 vim.notify("Rename canceled.", vim.log.levels.INFO) return
-            end
-            if input == "" then
+            elseif input == "" then
                 vim.notify("Input cannot be empty!", vim.log.levels.WARN)
                 return prompt_user()
             end
@@ -434,10 +426,29 @@ vim.api.nvim_create_user_command("PrintCharNumber", function()
 end, {})
 
 vim.api.nvim_create_user_command("OpenDiagraph", function()
-    local cmd_output = vim.fn.execute('dig')
+    local raw   = vim.fn.execute("digraphs")
+    local lines = vim.split(raw, "\n", {trimempty = true})
+    --local result = {}
+
+    --for _, line in ipairs(lines) do
+    --    -- Skip header lines
+    --    if not line:match("^Chr") then
+    --        for symbol, id, num in line:gmatch("(%S)%s+(%S+)%s+(%d+)") do
+    --            table.insert(result, string.format("%s\t%s\t%s", symbol, id, num))
+    --        end
+    --    end
+    --end
+
+    vim.cmd("vsp")
     vim.cmd("enew")
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+
+    vim.api.nvim_set_option_value("buftype",   "nofile", {buf=0})
+    vim.api.nvim_set_option_value("buflisted",  false,   {buf=0})
+    vim.api.nvim_set_option_value("bufhidden",  "wipe",  {buf=0})
 end, {})
+
+
 
 
 --## [Version control]

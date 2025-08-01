@@ -470,9 +470,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 
     print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
 
-    vim.ui.input({
-        prompt = "Commit message: ", default = "", --completion = "dir",
-    },
+    vim.ui.input({prompt="Commit message = ", default=""}, --completion="dir"
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
 

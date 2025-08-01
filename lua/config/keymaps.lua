@@ -393,7 +393,7 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG")
 map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 
 --ctrl+a select all
-map(modes, "<C-a>", "<Esc>GGVgg")
+map(modes, "<C-a>", "<Esc>GGvgg")
 
 
 --Visual block selection
@@ -829,11 +829,12 @@ end)
 
 --##[Join]
 --Join below
-map({"i","n","v"}, "<C-j>", "<cmd>norm!J<CR>")
+map("i",       "<C-j>", "<C-o><S-j>") --this syntax allow to use motions
+map({"n","v"}, "<C-j>", "<S-j>")
 
 --Join to upper
-map({"i","n"}, "<C-S-j>", "<cmd>norm!kJ<CR>")
-
+map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions
+map("n", "<C-S-j>", "k<S-j>")
 
 --##[move text]
 --Move single char

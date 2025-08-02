@@ -64,17 +64,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --    end,
 --})
 
--- TODO Disable confirmation for terminal buffers
---vim.api.nvim_create_autocmd("TermOpen", {
---    group = "UserAutoCmds",
---    pattern = "*",
---    callback = function()
---        vim.opt_local.confirm = false  -- Disable the confirm prompt for terminal buffers
---    end,
---})
-
-
-
 
 --## [View]
 ----------------------------------------------------------------------
@@ -132,7 +121,7 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
             else
                 vim.cmd("stopinsert")
             end
-        end, 10)
+        end, 5)
     end,
 })
 

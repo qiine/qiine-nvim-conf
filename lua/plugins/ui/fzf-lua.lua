@@ -85,9 +85,21 @@ return
         end, { silent=true, desc="Fuzzy find file in HOME"})
 
         --find files in notes
-        vim.keymap.set({"i","n","t"}, "<F49>", function()   --<M-F1>
+        vim.keymap.set({"i","n","v","t"}, "<F49>", function()   --<M-F1>
             require("fzf-lua").files({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
+            })
+        end)
+
+        --find selected files in notes
+        vim.keymap.set("v", "<F49>", function()   --<M-F1>
+            vim.cmd('norm! "zy')
+            local txt = vim.trim(vim.fn.getreg("z"))
+            require("fzf-lua").files({
+                cwd = "~/Personal/KnowledgeBase/Notes/",
+                fzf_opts = {
+                    ['--query'] = txt,
+                },
             })
         end)
 

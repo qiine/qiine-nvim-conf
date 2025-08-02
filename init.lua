@@ -65,6 +65,8 @@ safe_require("config.editing")
 safe_require("config.ui.conceal")
 safe_require("config.ui.view")
 safe_require("config.ui.menus")
+safe_require("config.ui.winbar")
+safe_require("config.ui.statusline")
 safe_require("config.ui.theme")
 
 

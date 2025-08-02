@@ -976,6 +976,26 @@ map({"i","n","v"}, "<C-CR>", function()
     --<C-]>
 end)
 
+--easy print curr
+map("v", "Ô", function()
+    vim.cmd('norm! "zy')
+    local txt =  vim.trim(vim.fn.getreg("z"))
+
+    local snip
+    local ft = vim.bo.filetype
+    if     ft == "lua" then
+        snip = string.format('print(%q)', txt)
+    elseif ft == "python" then
+        snip = string.format('print(%q)', txt)
+    elseif ft == "javascript" or ft == "typescript"
+        then snip = string.format('console.log(%q);', txt)
+    elseif ft == "c" or ft == "cpp" then
+        snip = string.format('printf("%s\\n"); // %s', txt, txt)
+    end
+
+    vim.cmd('norm! o'..snip)
+end)
+
 
 --### Diff
 --next/prev diff

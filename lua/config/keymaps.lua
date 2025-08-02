@@ -199,9 +199,10 @@ end)
 --Gutter on/off
 map({"i","n"}, "<M-g>", function()
     local toggle = "yes"
+    vim.opt.signcolumn = "no"
     vim.opt.number = false
     vim.opt.relativenumber = false
-    vim.opt.signcolumn = "no"
+    vim.opt.foldcolumn = "0"
     vim.opt.foldenable = false
 end, {desc = "Toggle Gutter" })
 
@@ -393,7 +394,7 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG")
 map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 
 --ctrl+a select all
-map(modes, "<C-a>", "<Esc>GGvgg")
+map(modes, "<C-a>", "<Esc>Gvgg0")
 
 
 --Visual block selection

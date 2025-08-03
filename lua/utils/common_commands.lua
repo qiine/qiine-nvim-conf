@@ -11,6 +11,13 @@ local utils = require("utils.utils")
 
 --## [Common]
 ----------------------------------------------------------------------
+vim.api.nvim_create_user_command('SudoWrite', function()
+    local tmp = vim.fn.tempname()
+    vim.cmd('write! ' .. tmp)
+    vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
+    vim.cmd('e!')
+end, {})
+
 --Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
@@ -428,18 +435,7 @@ end, {})
 vim.api.nvim_create_user_command("OpenDiagraph", function()
     local raw   = vim.fn.execute("digraphs")
     local lines = vim.split(raw, "\n", {trimempty = true})
-    --local result = {}
 
-    --for _, line in ipairs(lines) do
-    --    -- Skip header lines
-    --    if not line:match("^Chr") then
-    --        for symbol, id, num in line:gmatch("(%S)%s+(%S+)%s+(%d+)") do
-    --            table.insert(result, string.format("%s\t%s\t%s", symbol, id, num))
-    --        end
-    --    end
-    --end
-
-    vim.cmd("vsp")
     vim.cmd("enew")
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 

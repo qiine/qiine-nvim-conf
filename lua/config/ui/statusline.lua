@@ -43,7 +43,7 @@ local function file_name()
     if file_ondisk then
         file_ondisk_symbol = ""
     else
-        file_ondisk_symbol = '[nofile]'
+        file_ondisk_symbol = '[!file]'
     end
 
     local file_readonly_icon = "🔒"
@@ -81,7 +81,7 @@ local function render()
     })
 end
 
-vim.opt.statusline = "%!v:lua.require('config.ui.statusline').render()"
+--vim.opt.statusline = "%!v:lua.require('config.ui.statusline').render()"
 
 return { render = render }
 

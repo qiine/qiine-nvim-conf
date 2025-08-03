@@ -4,13 +4,10 @@
 
 local utils = require("utils.utils")
 
-local v = vim
-local vap = vim.api
-local vopt = vim.opt
 ------------------------------------
 
 
-v.opt.shortmess:append("si")
+vim.opt.shortmess:append("si")
 -- "f"	Use "(file # of #)" instead of full file name in messages
 -- "i"	Don't give intro message when starting Vim
 -- "l"	Don't show "line x of y" in messages
@@ -28,8 +25,8 @@ v.opt.shortmess:append("si")
 --## [Windows]
 ----------------------------------------------------------------------
 --Splits
-v.opt.splitbelow = true -- Open new split windows below the current window
-v.opt.splitright = true -- Open new split windows to the right of the current window
+vim.opt.splitbelow = true -- Open new split windows below the current window
+vim.opt.splitright = true -- Open new split windows to the right of the current window
 
 
 
@@ -43,15 +40,13 @@ local cursor_styles = {
     "r-cr:hor40", -- Replace, Command Replace: 20% height horizontal bar
     "o:hor50", -- Operator-pending: 50% height horizontal bar
     "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor", -- Global blinking settings
---Cursor stays solid for 700ms before blinking starts.
+    --Cursor stays solid for 700ms before blinking starts.
     --blinkoff400 -> Cursor is off for 400ms while blinking.
     --blinkon250 -> Cursor is on for 250ms while blinking.
 }
-v.opt.guicursor = table.concat(cursor_styles, ",")
+vim.opt.guicursor = table.concat(cursor_styles, ",")
 
-v.opt.cursorline = true
-v.opt.cursorlineopt = "both" --highlight numbers as well
-v.opt.cursorcolumn = false
+vim.opt.cursorcolumn = false
 
 --stopsel: Stop selection when leaving visual mode.
 --v.opt.keymodel=startsel
@@ -64,66 +59,67 @@ vim.opt.hlsearch   = true --Highlight all matches
 vim.opt.incsearch  = true --Highlight as you type
 
 
---[colorcolumn]
+--#[colorcolumn]
 --vim.opt.colorcolumn="80"
 
 
 
---## [Rendering]
+--## [Rendering]
 ----------------------------------------------------------------------
 vim.opt.updatetime = 200 --screen redraw speed in ms
 
 --v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
 -- Allow scrolling beyond the end of the file
-v.opt.scrolloff     = 2
-v.opt.sidescrolloff = 5
+vim.opt.scrolloff     = 2
+vim.opt.sidescrolloff = 5
 --v.opt.sidescroll = 1
 
 
 
 --## [Gutter]
 ----------------------------------------------------------------------
---vim.opt.statuscolumn = "%s%l %C"
---%l	line number column for currently drawn line
---%s	sign column for currently drawn line
---%C	fold column for currently drawn line
---statuscolumn=%@SignCb@%s%=%T%@NumCb@%l│%T
-
-
-v.opt.signcolumn = "yes" --show letters for error/warning/hint
+vim.opt.signcolumn = "no" --show error/warning/hint and others
 --"yes"    → Always keeps the sign column visible (prevents text movement).
 --"no"     → Disables the sign column.
---"auto"   → Only shows the sign column when needed.
+--"auto"   → Only shows the sign column when needed. (jiterry)
 --"auto:X" → Keeps the column visible when up to X signs are present
 --"number" → Merges the sign column with the number column.
 
---Numbers
-v.opt.number         = true
-v.opt.relativenumber = false
+
+vim.opt.cursorline    = true   --highlight gutter at curso pos
+vim.opt.cursorlineopt = "both" --highlight numbers as well
+
+--line Numbers
+vim.opt.number         = true
+vim.opt.relativenumber = false
+vim.opt.numberwidth    = 1
 
 
 --### [Folds]
-v.opt.foldenable = true
-
-v.opt.foldcolumn = "1"
---"0" Hides fold numbers and uses "fillchars" for fold lines
+vim.opt.foldcolumn = "1"
+--"0" Hides fold numbers
 --"1" Show dedicated fold column and numbers in the gutter
 
-v.opt.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
-v.opt.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldenable = true --see actual folds in gutter,
+--if false but foldcolumn=1, there will simply be an empty column
 
-v.opt.foldlevel      = 99 --hack to Keep folds open by default
-v.opt.foldlevelstart = 99
-vim.opt.foldnestmax  = 7
+vim.opt.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
+vim.opt.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
 
+vim.opt.foldlevel      = 99 --hack to Keep folds open by default
+vim.opt.foldlevelstart = 99
+vim.opt.foldnestmax    = 7
+
+
+--fillchars
 vim.opt.fillchars:append({
     fold      = ".", --in place of the folded text
-    foldopen  = "", -- 
-    foldclose = ">", --
+    foldopen  = "⌄", --   ⌄ ▾
+    foldclose = ">", -- > ▸
     foldsep   = " ", -- │  --separate folds (for open folds)
 
     diff      = "╱",
-    --vert      = "|",
+    vert      = "|",
     eob       = "~",
 })
 
@@ -131,7 +127,7 @@ vim.opt.fillchars:append({
 
 --## [Whitespace symbols]
 ----------------------------------------------------------------------
-v.opt.list = true
+vim.opt.list = true
 vim.opt.listchars:append({
     tab="▸▸",
     eol=" ",
@@ -307,7 +303,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --## [Commandline]
 ----------------------------------------------------------------------
 vim.opt.cmdheight = 1
-v.opt.showmode    = false --show curr mode in cmd
+vim.opt.showmode    = false --show curr mode in cmd
 
 -- vim.opt.showcmd = false
 --displaying selection info. It also shows incomplete commands in the bottom-right corner.
@@ -350,7 +346,7 @@ vim.opt.wildoptions = "pum"
 
 --## [Statusline]
 ----------------------------------------------------------------------
-v.opt.laststatus = 3
+vim.opt.laststatus = 3
 --0 → Never show the statusline.
 --1 → Show the statusline only when there are multiple windows.
 --2 → Always show the statusline in evry window.

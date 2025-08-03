@@ -94,6 +94,9 @@ Currently only supports **one global session**
 - lua_ls
 - luacheck
 - eslint_d
+* fzf
+* fd
+* ripgrep
 
 ---
 

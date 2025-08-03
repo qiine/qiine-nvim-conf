@@ -20,9 +20,9 @@ return
                     winbar = {},
                 },
                 disabled_buftypes = {
-                    winbar = {"terminal"},
+                    winbar = {"terminal", "neo-tree", "fzf-lua"},
                 },
-                ignore_focus = {"neo-tree", "trouble", "help", ""},
+                ignore_focus = {"help", "nofile", "", "neo-tree", "trouble", "fzf-lua"},
             },
 
             sections =
@@ -241,7 +241,7 @@ return
                             if file_ondisk then
                                 file_ondisk_symbol = ""
                             else
-                                file_ondisk_symbol = '[nofile]'
+                                file_ondisk_symbol = '[!file]'
                             end
 
                             local file_readonly_icon = "🔒"

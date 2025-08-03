@@ -12,11 +12,12 @@ return
             linehl     = false, -- Toggle with `:Gitsigns toggle_linehl`
             word_diff  = false, -- Toggle with `:Gitsigns toggle_word_diff`
             signs = {
-                add          = { text = '┃' },  -- ┃
-                change       = { text = '┣' },
+                add          = { text = '│' },  -- │ ┃
+                change       = { text = '├' },   --├ ┣
                 delete       = { text = '×' },  -- _
                 topdelete    = { text = '×' },  -- ‾
                 changedelete = { text = '×' },  --◇ *∗¤× ∙               untracked    = { text = '¦' },
+                untracked    = { text = '¦' },
             },
 
             signs_staged_enable = false,
@@ -28,6 +29,7 @@ return
                 changedelete = { text = '┣' },
                 untracked    = { text = '¦' },
             },
+
             current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
             current_line_blame_opts = {
                 virt_text = true,
@@ -38,9 +40,9 @@ return
                 use_focus = true,
             },
             current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
-            preview_config               = {
+            preview_config  = {
                 -- Options passed to nvim_open_win
-                style = 'minimal',
+                style    = 'minimal',
                 relative = 'cursor',
                 row = 0,
                 col = 1

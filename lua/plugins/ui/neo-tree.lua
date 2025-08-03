@@ -30,6 +30,20 @@ return
                     width = "100%",
                     right_padding = 0,
                 },
+                indent = {
+                    indent_size = 2,
+                    padding = 1,
+                    with_markers = true,
+                    indent_marker = "│",
+                    last_indent_marker = "└",
+                    highlight = "NeoTreeIndentMarker",
+
+                    -- expander config, needed for nesting files
+                    with_expanders = nil, -- if nil and file nesting is enabled, will enable expanders
+                    expander_collapsed = "",
+                    expander_expanded = "",
+                    expander_highlight = "NeoTreeExpander",
+                },
             },
 
             window = {
@@ -89,6 +103,7 @@ return
                     },
                 },
             },--filesytem
+
             document_symbols = {
                 follow_cursor = false,
                 window = {
@@ -96,6 +111,20 @@ return
                         ['/'] = 'noop',
                         ['F'] = 'filter',
                     },
+                },
+            },
+
+            event_handlers = {
+                {
+                    event = 'neo_tree_window_after_open',
+                    handler = function(args)
+                        --needed because they waste column space
+                        vim.wo[args.winid].statuscolumn = " "
+                        vim.wo[args.winid].colorcolumn = ""
+                        vim.wo[args.winid].signcolumn = "no"
+                        vim.wo[args.winid].number     = false
+                        vim.wo[args.winid].foldcolumn = "0"
+                    end
                 },
             },
         })--setup

@@ -394,7 +394,7 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG")
 map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 
 --ctrl+a select all
-map(modes, "<C-a>", "<Esc>Gvgg0")
+map(modes, "<C-a>", "<Esc>G$vgg0")
 
 
 --Visual block selection
@@ -976,7 +976,7 @@ map({"i","n","v"}, "<C-CR>", function()
     --<C-]>
 end)
 
---easy print curr
+--add print snippet for selected
 map("v", "Ô", function()
     vim.cmd('norm! "zy')
     local txt =  vim.trim(vim.fn.getreg("z"))

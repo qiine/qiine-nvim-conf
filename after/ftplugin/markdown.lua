@@ -3,14 +3,14 @@
 
 
 --[Gutter]
-vim.opt.signcolumn = "yes"
+vim.opt_local.signcolumn = "no"
 
 --Numbers
 vim.opt_local.number = false
 
 --folds
-vim.opt.foldcolumn = "1"
-vim.opt.foldenable = true
+vim.opt_local.foldcolumn = "1"
+vim.opt_local.foldenable = true
 
 
 --[Format]

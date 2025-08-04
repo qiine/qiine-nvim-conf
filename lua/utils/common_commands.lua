@@ -548,12 +548,14 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     --Enable diff mode in both windows
     --rev buffer
     vim.cmd("diffthis")
-    vim.wo.scrollbind = true
-    vim.wo.cursorbind = true
-    vim.wo.signcolumn = "no"
-    vim.wo.number     = false
-    vim.wo.foldmethod = "diff"
-    vim.wo.foldlevel  = 99 --hack to Keep folds open by default
+    vim.wo.scrollbind   = true
+    vim.wo.cursorbind   = true
+    vim.wo.statuscolumn = ""
+    vim.wo.signcolumn   = "no"
+    vim.wo.number       = false
+    vim.wo.foldcolumn   = "0"
+    vim.wo.foldmethod   = "diff"
+    vim.wo.foldlevel    = 99 --hack to Keep folds open by default
 
     vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
 

@@ -17,10 +17,17 @@ end
 local function path_bar() --path
     local cf = vim.fn.expand("%:p")
     local dir = vim.fn.fnamemodify(cf, ":h")
-    local home = vim.fn.expand("~")
-    local short = vim.fn.substitute(dir, "^" .. vim.fn.escape(home, "\\") .. "/", "~/", "")
-    --vim.fn.pathshorten
-    local fancy = short:gsub("/", "🮥 ") --› > 〉  › ›
+
+    local shortened = ""
+    if #dir > 75 then
+        shortened = vim.fn.pathshorten(dir, 1)
+    else
+        local home = vim.fn.expand("~")
+        shortened = vim.fn.substitute(dir, "^" .. vim.fn.escape(home, "\\") .. "/", "~/", "")
+    end
+
+    local fancy = shortened:gsub("/", "🮥 ") --› > 〉  › ›
+
     return "📁│"..fancy..""  --/.
 end
 
@@ -48,12 +55,33 @@ local function render()
     })
 end
 
---attach
-vim.api.nvim_create_autocmd({ "BufNew", "BufWinEnter", "WinEnter" }, {
+local excluded_filetype = {
+    "help",
+    "trouble",
+    "neo-tree",
+    "startify",
+    "dashboard",
+    "alpha",
+    "Outline"
+}
+
+--cond attach
+vim.api.nvim_create_autocmd({"BufNew", "WinEnter"}, {
     group    = "UserAutoCmds",
     pattern  = "*",
     callback = function()
-        vim.wo.winbar = require("config.ui.winbar").render()
+        vim.defer_fn(function()
+            local bt = vim.bo.buftype
+
+            if bt == 'terminal' then vim.opt_local.winbar = nil return end
+
+            if vim.tbl_contains(excluded_filetype, vim.bo.filetype) then
+                vim.opt_local.winbar = nil
+                return
+            end
+
+            vim.wo.winbar = require("config.ui.winbar").render()
+        end, 5)  -- delay 5ms give time for proper buftype update
     end,
 })
 

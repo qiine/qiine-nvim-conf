@@ -4,7 +4,6 @@
 
 local v    = vim
 local vapi = vim.api
-local vcmd = vim.cmd
 local vmap = vim.keymap.set
 -----------------------------
 
@@ -49,11 +48,6 @@ function M.get_char_at_cursorpos()
     local cpos = M.get_cursor_pos()
     local char = M.get_char_at_pos(cpos)
     return char
-end
-
----@return boolean
-function M.string_contains(str, substr)
-    return string.find(str, substr) ~= nil
 end
 
 M.alphabet_lowercase = {

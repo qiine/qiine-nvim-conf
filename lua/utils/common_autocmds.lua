@@ -48,6 +48,18 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
 })
 
+--allow some type of yanking to go to sys clip
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = "UserAutoCmds",
+    pattern = "*",
+    callback = function()
+        local op = vim.v.operator
+        if op == "y" or op == "d" then
+            vim.fn.setreg("+", vim.fn.getreg('"'))
+        end
+    end,
+})
+
 
 --local conf = vim.fn.stdpath('config')
 ---- TODO Autocommand to reload the configuration when any file in the config directory is saved
@@ -78,6 +90,30 @@ vim.api.nvim_create_autocmd("TextYankPost", {
         vim.hl.on_yank({higroup = "IncSearch", timeout = 100})
     end,
 })
+
+--vim.api.nvim_create_autocmd({"OperatorPending"}, {
+--    pattern = "*",
+--    callback = function()
+--        -- Save clipboard before operator runs
+--        print("vim.fn.getreg('+')")
+
+--    end
+--})
+
+--no gutter for terms
+vim.api.nvim_create_autocmd('TermOpen', {
+    group    = 'UserAutoCmds',
+    pattern  = '*',
+    callback = function()
+        vim.opt_local.statuscolumn   = ""
+        vim.opt_local.signcolumn     = "no"
+        vim.opt_local.number         = false
+        vim.opt_local.relativenumber = false
+        vim.opt_local.foldcolumn     = "0"
+    end,
+})
+
+
 
 --revert search highlight
 vim.api.nvim_create_autocmd('InsertEnter', {

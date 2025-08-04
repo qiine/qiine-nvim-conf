@@ -4,7 +4,7 @@
 
 
 --[System]--------------------------------------------------
-vim.opt.clipboard = 'unnamedplus'  -- "", "unnmaed", "unnamedplus"
+vim.opt.clipboard = ''  -- "", "unnamed", "unnamedplus"
 
 
 

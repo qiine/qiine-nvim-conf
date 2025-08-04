@@ -446,7 +446,6 @@ end, {})
 
 
 
-
 --## [Version control]
 ----------------------------------------------------------------------
 --Handy Show git root
@@ -464,6 +463,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 
     local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
 
+    print("Git root: ".. git_root)
     print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
 
     vim.ui.input({prompt="Commit message = ", default=""}, --completion="dir"
@@ -548,14 +548,14 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     --Enable diff mode in both windows
     --rev buffer
     vim.cmd("diffthis")
-    vim.wo.scrollbind   = true
-    vim.wo.cursorbind   = true
-    vim.wo.statuscolumn = ""
-    vim.wo.signcolumn   = "no"
-    vim.wo.number       = false
-    vim.wo.foldcolumn   = "0"
-    vim.wo.foldmethod   = "diff"
-    vim.wo.foldlevel    = 99 --hack to Keep folds open by default
+    vim.opt_local.scrollbind   = true
+    vim.opt_local.cursorbind   = true
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldcolumn   = "0"
+    vim.opt_local.foldmethod   = "diff"
+    vim.opt_local.foldlevel    = 99 --hack to Keep folds open by default
 
     vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
 
@@ -563,10 +563,11 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
 
     --og buffer
     vim.cmd("diffthis")
-    vim.wo.scrollbind = true
-    vim.wo.cursorbind = true
-    vim.wo.foldmethod = "diff"
-    vim.wo.foldlevel  = 99
+    vim.opt_local.scrollbind = true
+    vim.opt_local.cursorbind = true
+    vim.opt_local.foldcolumn = "1"
+    vim.opt_local.foldmethod = "diff"
+    vim.opt_local.foldlevel  = 99
 
     vim.cmd("wincmd w") --back to diff
 end, {nargs = "?"})

@@ -119,11 +119,10 @@ return
                     event = 'neo_tree_window_after_open',
                     handler = function(args)
                         --needed because they waste column space
-                        vim.wo[args.winid].statuscolumn = " "
-                        vim.wo[args.winid].colorcolumn = ""
-                        vim.wo[args.winid].signcolumn = "no"
-                        vim.wo[args.winid].number     = false
-                        vim.wo[args.winid].foldcolumn = "0"
+                        vim.wo[args.winid].statuscolumn = ""
+                        vim.wo[args.winid].signcolumn   = "no"
+                        vim.wo[args.winid].number       = false
+                        vim.wo[args.winid].foldcolumn   = "0"
                     end
                 },
             },

@@ -20,7 +20,7 @@ return
                     winbar = {},
                 },
                 disabled_buftypes = {
-                    winbar = {"terminal", "neo-tree", "fzf-lua"},
+                    winbar = {"terminal", "neo-tree"},
                 },
                 ignore_focus = {"help", "nofile", "", "neo-tree", "trouble", "fzf-lua"},
             },
@@ -317,52 +317,9 @@ return
 
             winbar =
             {
-                lualine_a ={
-                    {
-                        function() --toggle neotree
-                            return " ⇥ "
-                        end,
-                        on_click=function() vim.cmd("Neotree toggle") end,
-                        right_padding = 1,
-                        color = { fg = "#5c5c5c", bg = 'NONE'},
-                    },
-                },
-                lualine_b = {
-                    {
-                        function() --path
-                            local cf = vim.fn.expand("%:p")
-                            local dir = vim.fn.fnamemodify(cf, ":h")
-                            local home = vim.fn.expand("~")
-                            local short = vim.fn.substitute(dir, "^" .. vim.fn.escape(home, "\\") .. "/", "~/", "")
-                            local fancy = short:gsub("/", "🮥 ") --› > 〉  › ›
-
-                            return "📁│"..fancy..""  --/.
-                        end,
-                        --separator={right=''},
-                        color = { fg = "#737373", bg = 'NONE'},
-                    },
-
-                },
-
-                lualine_z =
-                {
-                    {
-                        function () --add to favorite
-                            return "☆" --☆ ★
-                        end,
-                        on_click=function() vim.cmd("echo'fav!'") end,
-                        padding=0,
-                        color = { fg = "#5c5c5c", bg = 'NONE'},
-                    },
-
-                    {
-                        function() --burger
-                          return "≡"
-                        end,
-                        color = { fg = "#5c5c5c", bg = 'NONE'},
-                    }
-                },
-
+                --lualine_a = {},
+                --lualine_b = {},
+                --lualine_z = {},
             },
 
 

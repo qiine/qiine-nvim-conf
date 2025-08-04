@@ -198,12 +198,20 @@ end)
 
 --Gutter on/off
 map({"i","n"}, "<M-g>", function()
-    local toggle = "yes"
-    vim.opt.signcolumn = "no"
-    vim.opt.number = false
-    vim.opt.relativenumber = false
-    vim.opt.foldcolumn = "0"
-    vim.opt.foldenable = false
+    if vim.g.gutter_show then
+        vim.g.gutter_show = false
+
+        vim.wo.statuscolumn   = ""
+        vim.wo.signcolumn     = "no"
+        vim.wo.number         = false
+        vim.wo.relativenumber = false
+        vim.wo.foldcolumn     = "0"
+    else
+        local confp = vim.fn.stdpath("config")
+        vim.cmd("so ".. confp .."/lua/plugins/ui/editor/statuscol.lua")
+        vim.cmd("so ".. confp .."/init.lua")
+        vim.cmd("so ".. confp .."/lua/config/ui/view.lua")
+    end
 end, {desc = "Toggle Gutter" })
 
 
@@ -977,9 +985,14 @@ map({"i","n","v"}, "<C-CR>", function()
 end)
 
 --add print snippet for selected
-map("v", "Ô", function()
-    vim.cmd('norm! "zy')
-    local txt =  vim.trim(vim.fn.getreg("z"))
+map({"n","v"}, "Ô", function()
+    local txt = ""
+    if vim.fn.mode() == "n"
+        then txt = ""
+    else
+        vim.cmd('norm! "zy')
+        txt = vim.trim(vim.fn.getreg("z"))
+    end
 
     local snip
     local ft = vim.bo.filetype
@@ -993,7 +1006,8 @@ map("v", "Ô", function()
         snip = string.format('printf("%s\\n"); // %s', txt, txt)
     end
 
-    vim.cmd('norm! o'..snip)
+    if vim.fn.mode() ~= "n" then vim.cmd('norm! o') end
+    vim.cmd('norm! i'..snip)
 end)
 
 

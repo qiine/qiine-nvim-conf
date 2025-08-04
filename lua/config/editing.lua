@@ -72,7 +72,7 @@ vim.g.autosave_enabled = true
 ---@return boolean
 local function file_was_saved_manually(path)
     if vim.fn.filereadable(path) == 1 then
-        --A file can be readable fs_stat can still fail in some case:
+        --A file can be readable but fs_stat can still fail in some case:
         --Race condition: file was deleted after the readable check.
         --Permissions issues.
         --Path is a symlink to a broken target.

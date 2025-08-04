@@ -78,6 +78,8 @@ vim.opt.sidescrolloff = 5
 
 --## [Gutter]
 ----------------------------------------------------------------------
+vim.g.gutter_show = true
+
 vim.opt.signcolumn = "no" --show error/warning/hint and others
 --"yes"    → Always keeps the sign column visible (prevents text movement).
 --"no"     → Disables the sign column.

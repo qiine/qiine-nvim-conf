@@ -984,29 +984,29 @@ map({"i","n","v"}, "<C-CR>", function()
     --<C-]>
 end)
 
---add print snippet for selected
+--insert print snippet
 map({"n","v"}, "Ô", function()
     local txt = ""
     if vim.fn.mode() == "n"
-        then txt = ""
+        then txt = '""'
     else
         vim.cmd('norm! "zy')
         txt = vim.trim(vim.fn.getreg("z"))
+        vim.cmd('norm! o')
     end
 
     local snip
     local ft = vim.bo.filetype
     if     ft == "lua" then
-        snip = string.format('print(%q)', txt)
+        snip = string.format('print(%s)', txt)
     elseif ft == "python" then
-        snip = string.format('print(%q)', txt)
+        snip = string.format('print(%s)', txt)
     elseif ft == "javascript" or ft == "typescript"
-        then snip = string.format('console.log(%q);', txt)
+        then snip = string.format('console.log(%s);', txt)
     elseif ft == "c" or ft == "cpp" then
         snip = string.format('printf("%s\\n"); // %s', txt, txt)
     end
 
-    if vim.fn.mode() ~= "n" then vim.cmd('norm! o') end
     vim.cmd('norm! i'..snip)
 end)
 
@@ -1099,6 +1099,7 @@ map({"i","n","v"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 --quick split term
 map({"i","n","v"}, "<M-w>t", function()
     vim.cmd("vsp|term")
+
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {noremap=true})

@@ -6,6 +6,18 @@
 --[System]--------------------------------------------------
 vim.opt.clipboard = ''  -- "", "unnamed", "unnamedplus"
 
+--allow some type of yanking to go to sys clip
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = "UserAutoCmds",
+    pattern = "*",
+    callback = function()
+        local op = vim.v.operator
+        if op == "y" or op == "d" then
+            vim.fn.setreg("+", vim.fn.getreg('"'))
+        end
+    end,
+})
+
 
 
 --[Files]--------------------------------------------------

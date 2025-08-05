@@ -44,11 +44,11 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     pattern = "*",
     callback = function()
         local mode = vim.fn.mode()
-        if mode == "n"  then vim.opt.virtualedit = "all"    return end
-        if mode == "i"  then vim.opt.virtualedit = "none"   return end
-        if mode == "v"  then vim.opt.virtualedit = "onemore"   return end
-        if mode == "V"  then vim.opt.virtualedit = "onemore"   return end
-        if mode == "" then vim.opt.virtualedit = "block"  return end
+        if mode == "n"  then vim.opt.virtualedit = "all"     return end
+        if mode == "i"  then vim.opt.virtualedit = "none"    return end
+        if mode == "v"  then vim.opt.virtualedit = "onemore" return end
+        if mode == "V"  then vim.opt.virtualedit = "onemore" return end
+        if mode == "" then vim.opt.virtualedit = "block"   return end
     end,
 })
 
@@ -66,6 +66,9 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --"start"  → Allows Backspace at the start of insert mode.
 
 
+
+--## [Save]
+----------------------------------------------------------------------
 --Smart autosave
 vim.g.autosave_enabled = true
 
@@ -124,7 +127,8 @@ end))
 
 
 
---[Undo]
+--## [Undo]
+----------------------------------------------------------------------
 vim.opt.undolevels = 2000
 
 --Persistent undo
@@ -171,8 +175,7 @@ vim.opt.spell = false
 --## [Formating]
 ----------------------------------------------------------------------
 local formatopts = {} --will hold all users formats opts
---View the current formatoptions with:
--- :set verbose=1 formatoptions?
+--View the current formatoptions with ':set verbose=1 formatoptions?'
 
 
 --### Identation

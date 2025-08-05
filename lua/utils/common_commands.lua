@@ -131,8 +131,9 @@ vim.api.nvim_create_user_command("CopyFileDirPath", function()
     print("Copied path: " .. vim.fn.getreg("+"))
 end, {})
 
-vim.api.nvim_create_user_command("CDFileDir", function()
+vim.api.nvim_create_user_command("CdFileDir", function()
     vim.cmd("cd %:p:h")
+    vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()
@@ -464,7 +465,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
     local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
 
     print("Git root: ".. git_root)
-    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
+    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
 
     vim.ui.input({prompt="Commit message = ", default=""}, --completion="dir"
     function(input)

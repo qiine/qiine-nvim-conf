@@ -122,13 +122,13 @@ end, {})
 --## [Files]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("CopyFilePath", function()
-    vim.cmd("let @+ = expand('%')")
-    print("Copied path: " .. vim.fn.getreg("+"))
+    vim.fn.setreg("+", vim.fn.expand("%:p"))
+    print("Copied file path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
 vim.api.nvim_create_user_command("CopyFileDirPath", function()
-    vim.cmd("let @+ = expand('%:h')")
-    print("Copied path: " .. vim.fn.getreg("+"))
+    vim.fn.setreg("+", vim.fn.expand("%:p:h"))
+    print("Copied file dir path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
 vim.api.nvim_create_user_command("CdFileDir", function()

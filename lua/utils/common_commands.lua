@@ -465,7 +465,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
     local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
 
     print("Git root: ".. git_root)
-    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
+    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
 
     vim.ui.input({prompt="Commit message = ", default=""}, --completion="dir"
     function(input)

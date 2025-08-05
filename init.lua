@@ -42,6 +42,7 @@ local function safe_require(module_name)
     return module
 end
 
+--## Custom modules
 local module   --will hold special local modules
 
 module = safe_require("modules.v-enveloppe") if module then module.setup() end
@@ -49,6 +50,7 @@ module = safe_require("modules.dialeur.dialeur") if module then module.setup() e
 safe_require("modules.tiny-session")
 safe_require("modules.rouleau-nvim")
 
+--## Commands
 safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
 safe_require("utils.common_autocmds")
@@ -58,16 +60,17 @@ safe_require("config.lazy") --plugins
 safe_require("config.keymaps")
 safe_require("config.mousemaps")
 
---settings
+--## Settings
 safe_require("config.settings")
-
 safe_require("config.editing")
+
+--### ui
+safe_require("config.ui.theme")
 safe_require("config.ui.conceal")
 safe_require("config.ui.view")
 safe_require("config.ui.menus")
 safe_require("config.ui.winbar")
 safe_require("config.ui.statusline")
-safe_require("config.ui.theme")
 
 
 --debug messages

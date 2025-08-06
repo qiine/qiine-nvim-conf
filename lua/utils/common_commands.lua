@@ -433,7 +433,7 @@ vim.api.nvim_create_user_command("PrintCharNumber", function()
     print(vim.fn.char2nr(vim.fn.getreg("z")))
 end, {})
 
-vim.api.nvim_create_user_command("OpenDiagraph", function()
+vim.api.nvim_create_user_command("OpenDigraph", function()
     local raw   = vim.fn.execute("digraphs")
     local lines = vim.split(raw, "\n", {trimempty = true})
 

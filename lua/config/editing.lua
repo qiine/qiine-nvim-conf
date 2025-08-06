@@ -12,7 +12,7 @@ local v = vim
 vim.g.autostartinsert = true
 
 
---#[Virtual Edit]
+--Virtual Edit
 vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
 --"none" → Default, disables virtual editing.
 --"onemore" → Allows the cursor to move one character past the end of a line.
@@ -59,11 +59,11 @@ vim.opt.iskeyword = "@,48-57,192-255,-,_"
 -- 192-255 -> extended Latin chars
 
 
---Backspace behaviour
+-- Backspace behaviour
 vim.opt.backspace = { "indent", "eol", "start" }
---"indent" → Allows Backspace to delete auto-indent.
---"eol   " → Allows Backspace to delete past line breaks.
---"start"  → Allows Backspace at the start of insert mode.
+--"indent" -- Allows Backspace to delete auto-indent.
+--"eol   " -- Allows Backspace to delete past line breaks.
+--"start"  -- Allows Backspace at the start of insert mode.
 
 
 
@@ -179,20 +179,22 @@ local formatopts = {} --will hold all users formats opts
 
 
 --### Identation
-vim.opt.autoindent  = true
-vim.opt.smartindent = true  --Do smart autoindenting when starting a new line
+vim.opt.shiftwidth  = 4    -- Number of spaces to use for indentation
+vim.opt.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
+vim.opt.tabstop     = 4
+vim.opt.softtabstop = 4    -- Number of spaces to use for pressing TAB in insert mode
+
+vim.opt.expandtab   = true -- Use spaces instead of tabs
+
+vim.opt.autoindent  = true -- keep indent of prev line when making a new one
+vim.opt.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
 --vim.opt.copyindent = true
 --vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
 --A list of keys that, when typed in Insert mode, cause reindenting of
 --the current line. Only happens if 'indentexpr' isn't empty.
 
-vim.opt.expandtab   = true --Use spaces instead of tabs
-vim.opt.shiftround  = true --always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
-vim.opt.shiftwidth  = 4 --Number of spaces to use for indentation
-vim.opt.tabstop     = 4
-vim.opt.softtabstop = 4 --Number of spaces to use for pressing TAB in insert mode
 
---##[Text Wrapping]
+--### Text Wrapping
 --"t" Auto-wrap text using textwidth (for non-comments).
 --"w" Auto-wrap lines in insert mode, even without spaces.
 --"v" Don't auto-wrap lines in visual mode.
@@ -204,14 +206,14 @@ vim.opt.textwidth = 80
 vim.opt.wrap        = false --word wrap off by default
 vim.opt.breakindent = true --wrapped lines conserve whole block identation
 
---##[Paragraph & Line Formatting]
+--### Paragraph & Line Formatting
 --"a"	Auto-format paragraphs as you type (very aggressive).
 --"l"   on joins, Don’t break long lines in insert mode.
 --"n"	Recognize numbered lists (1., 2., etc.) and format them properly.
 --"2"	Use a two-space indent for paragraph continuation.
 table.insert(formatopts, "n")
 
---##[Comments]
+--### Comments
 --"c" Auto-wrap comments using textwidth.
 --"r" Continue comments when pressing <Enter> in insert mode.
 --"o" Continue comments when opening a new line with o or O.

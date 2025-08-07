@@ -14,11 +14,6 @@ local map = vim.keymap.set
 ----------------------------------------
 
 
---<esc> = \27
---<cr> = \n
---<Tab> = \t
---<C-BS> = ^H
-
 --modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
@@ -59,24 +54,35 @@ map(modes, "<C-w>", function()
     local bufmodif   = vim.api.nvim_get_option_value("modified", {buf=bufid})
     local bufwindows = vim.fn.win_findbuf(bufid)
 
-    --check if modfi and splits point to same buf, no need to prompt in this case!
+    --custom save warning if buf modified and it is it's last win
     if bufmodif and #bufwindows <= 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
         if choice ~= 1 then return end
     end
 
+    --close cmdline before
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("<C-L>", "n", false) end
-    --try close splits first, in case both splits are same buf
-    --that avoids killing the shared buffer in this case
+
+    --try :close splits first, in case both splits are same buf
+    --It avoids killing the shared buffer in this case
     local ret, err = pcall(vim.cmd, "close")
     if not ret then
         if buftype == "terminal" then
             vim.cmd("bwipeout!")
         else
-            vim.cmd("bd!")  --can also close tabs, bypass save warnings
+            vim.cmd("bd!")
+            --can also close tabs,
+            --bypass save warnings,
+            --not bwipeout to preserve #file
         end
     end
 end, {noremap=true})
+
+
+
+--## [Register]
+----------------------------------------------------------------------
+map("n", "<C-r>", "i<C-r>")
 
 
 
@@ -331,7 +337,7 @@ map({"n","v"}, "<M-Left>", "0")
 map("i",       "<M-Right>", "<Esc>$a")
 map({"n","v"}, "<M-Right>", "$")
 
---Quick home/end
+--jump home/end
 map("i",       "<Home>", "<Esc>gg0i")
 map({"n","v"}, "<Home>", "gg0")
 
@@ -370,15 +376,29 @@ map("n", "f", function()
 end, {remap = true})
 
 
+--#[select search]
+map("i", "<C-f>", "<Esc><C-l>:/")
+map("n", "<C-f>", "/")
+map("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
+
+--search Help for selection
+map("v", "<F1>", 'y:h <C-r>"<CR>')
+
+
+--move one dir up
+map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
+
+--to last directoy
+map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR><cmd>pwd<CR>")
+
+
 
 --## [Selection]
 ----------------------------------------------------------------------
 --Swap selection anchors
 map("v", "<M-v>", "o")
 
---Select word under cursor
-map({"i","n","v"}, "<C-S-w>", "<esc>viw")
-
+--### Visual selection
 --shift+arrows visual select
 map("i", "<S-Left>", "<Esc>hv",  {noremap = true})
 map("n", "<S-Left>", "vh",       {noremap = true})
@@ -394,18 +414,51 @@ map("v",       "<S-Up>",    "k",       {noremap=true}) --avoid fast scrolling ar
 map({"i","n"}, "<S-Down>", "<Esc>vj",  {noremap=true})
 map("v",       "<S-Down>", "j",        {noremap=true}) --avoid fast scrolling around
 
---Select to home/end
-map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
-map({"i","n","v"}, "<S-End>",  "<Esc>vG")
+--Select word under cursor
+map({"i","n","v"}, "<C-S-w>", "<esc>viw")
 
 --sel in paragraph
 map({"i","n","v"}, "<C-S-p>", "<esc>vip")
+
+--Select to home/end
+map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
+map({"i","n","v"}, "<S-End>",  "<Esc>vG")
 
 --ctrl+a select all
 map(modes, "<C-a>", "<Esc>G$vgg0")
 
 
---Visual block selection
+--### Grow select
+--grow horizontally TODO proper anchor logic
+map("i", "<C-S-PageDown>", "<Esc>vl")
+map("n", "<C-S-PageDown>", "vl")
+map("v", "<C-S-PageDown>", "l")
+
+map("i", "<C-S-PageUp>", "<Esc>vh")
+map("n", "<C-S-PageUp>", "vh")
+map("v", "<C-S-PageUp>", "oho")
+
+--grow do end/start of line
+map({"i","n"}, "<S-PageUp>", "<esc>Vk")
+map("v", "<S-PageUp>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd("normal! k")
+    else
+        vim.cmd("normal! Vk")
+    end
+end)
+
+map({"i","n"}, "<S-PageDown>", "<esc>Vj")
+map("v", "<S-PageDown>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd("normal! j")
+    else
+        vim.cmd("normal! Vj")
+    end
+end)
+
+
+--### Visual block selection
 map({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
 map("v", "<S-M-Left>", function()
     if vim.fn.mode() == '\22' then  --"\22" is vis block mode
@@ -443,46 +496,6 @@ map("v", "<S-M-Down>", function()
 end)
 
 
---### [Grow select]
---grow horizontally TODO proper anchor logic
-map("i", "<C-S-PageDown>", "<Esc>vl")
-map("n", "<C-S-PageDown>", "vl")
-map("v", "<C-S-PageDown>", "l")
-
-map("i", "<C-S-PageUp>", "<Esc>vh")
-map("n", "<C-S-PageUp>", "vh")
-map("v", "<C-S-PageUp>", "oho")
-
---grow do end/start of line
-map({"i","n"}, "<S-PageUp>", "<esc>Vk")
-map("v", "<S-PageUp>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd("normal! k")
-    else
-        vim.cmd("normal! Vk")
-    end
-end)
-
-map({"i","n"}, "<S-PageDown>", "<esc>Vj")
-map("v", "<S-PageDown>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd("normal! j")
-    else
-        vim.cmd("normal! Vj")
-    end
-end)
-
-
---#[select search]
-map("i", "<C-f>", "<Esc><C-l>:/")
-map("n", "<C-f>", "/")
-map("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
-
---search Help for selection
-map("v", "<F1>", 'y:h <C-r>"<CR>')
-
-
-
 
 --## [Editing]
 ----------------------------------------------------------------------
@@ -490,25 +503,14 @@ map("v", "<F1>", 'y:h <C-r>"<CR>')
 map("i", "<Ins>", "<Esc>")
 map("n", "<Ins>", "i")
 map("v", "<Ins>", function ()
-    --seems to be more relyable
+    --seems to be more reliable
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>i", true, false, true), "n", false)
 end)
+map("c", "<Ins>", "<C-c>i")
 
 
 --To Visual insert mode
 map("v", "<M-i>", "I")
-
---Insert literal
---kmap("i", "<C-i>", "<C-v>") --collide with tab :(
-map("n", "<C-i>", "i<C-v>")
-
-
---Insert diagraph
-map("n", "<C-S-k>", "i<C-S-k>")
-
---Insert snipet
---insert function()
---kmap("i", "<C-S-i>")
 
 map("v", "î", function()
     if vim.fn.mode() == '\22' then  --"\22" is vis block mode
@@ -519,7 +521,6 @@ map("v", "î", function()
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
     end
 end)
-
 
 --Insert chars in visual mode
 local chars = utils.table_flatten(
@@ -535,6 +536,49 @@ for _, char in ipairs(chars) do
 end
 map("v", "<space>", '"_di<space>', {noremap=true})
 map("v", "<cr>",    '"_di<cr>',    {noremap=true})
+
+
+--Insert literal
+--map("i", "<C-i>l", "<C-v>", {noremap=true})
+map("n", "<C-i>l", "i<C-v>")
+
+--Insert digraph
+map("i", "<C-i>d", "<C-S-k>")
+map("n", "<C-i>d", "i<C-S-k>")
+
+
+--### Insert snipet
+--insert function()
+--kmap("i", "<C-S-i>")
+
+map("i", "<C-i>sf", "")
+
+--insert print snippet
+map({"n","v"}, "Ô", function()
+    local txt = ""
+    if vim.fn.mode() == "n"
+    then txt = '""'
+    else
+        vim.cmd('norm! "zy')
+        txt = vim.trim(vim.fn.getreg("z"))
+        vim.cmd('norm! o')
+    end
+
+    local snip
+    local ft = vim.bo.filetype
+    if ft == "lua" then
+        snip = string.format('print(%s)', txt)
+    elseif ft == "python" then
+        snip = string.format('print(%s)', txt)
+    elseif ft == "javascript" or ft == "typescript"
+    then
+        snip = string.format('console.log(%s);', txt)
+    elseif ft == "c" or ft == "cpp" then
+        snip = string.format('printf("%s\\n"); // %s', txt, txt)
+    end
+
+    vim.cmd('norm! i' .. snip)
+end)
 
 
 --#[Copy / Paste]
@@ -606,7 +650,7 @@ map({"i","n","v"}, "<C-v>", function()
     elseif ft == "markdown" or ft == "text" then
         vim.cmd("norm! `[v`]gqw")
     else
-        vim.cmd("norm! `[v`]=") --auto fix ident
+        vim.cmd("norm! `[v`]=") --auto fix indent
     end
 
     --proper curso placement
@@ -639,53 +683,36 @@ map("i",       "<C-S-z>", "<C-o><C-r>")
 map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 
---#[Deletion]
---##[Backspace]
---BS remove char
+--### Deletion
+--#### Remove
+--Remove char
 --kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 --kmap("n", "<BS>", '<Esc>"_X<Esc>')
 map("n", "<BS>", 'r ')
 map("v", "<BS>", '"_xi')
 
---remove word left
+--Remove word left
 --<M-S-BS> instead of <C-BS> because of wezterm
 map("i", "<M-S-BS>", '<esc>"_dbi')
 map("n", "<M-S-BS>", '"_db')
-
---clear selected char
-map("v", "<M-S-BS>", 'r ')
-
---Backspace replace with white spaces, from cursor to line start
---kmap({"i","n"}, "<M-BS>",
-    --better?
-    --vim.cmd("norm! v0R ")
-
---    function()
---        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
---        local line = vim.api.nvim_get_current_line()
-
---        local left = line:sub(1, col)
---        local right = line:sub(col + 1)
-
---        local spaces = left:gsub(".", " ")
---        vim.api.nvim_set_current_line(spaces .. right)
-
---        -- Keep cursor pos
---        vim.api.nvim_win_set_cursor(0, {row, col})
---    end
---)
 
 --Remove to start of line
 map("i",       "<M-BS>", '<esc>"_d0i')
 map({"n","v"}, "<M-BS>", '<esc>"_d0')
 
---clear line
-map({"i","n"}, "<S-BS>", '<cmd>norm! "_cc<CR>')
-map("v",       "<S-BS>", "<cmd>norm!Vr <CR>")
+
+--Clear selected char
+map("v", "<M-S-BS>", 'r ') --TODO better keybind hack with westerm
+
+--Clear from cursor to sol
+--kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"
+
+--Clear line
+map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 
---##[Delete]
+--### Del
 map("n", "<Del>", 'v"_d<esc>')
 map("v", "<Del>", '"_di')
 
@@ -746,7 +773,7 @@ map("v",       "<S-Del>", function()
 end)
 
 
---#[Replace]
+--### Replace
 --change in word
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
@@ -770,7 +797,7 @@ map("v", "<M-s>",
 {desc = "Enter substitue in selection"})
 
 
---#[Incrementing]
+--### (Incrementing)
 --vmap("n", "+", "<C-a>")
 map("v", "+", "<C-a>gv")
 
@@ -789,16 +816,16 @@ map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
 
---#[Formating]
---##[Ident]
+--### (Formating)
+--#### Indentation
 --space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
---tab ident
+--tab indent
 map("i", "<Tab>", function()
     local width = vim.opt.shiftwidth:get()
     vim.cmd("norm! v>")
-    vim.cmd("norm! ".. width .. "l")
+    vim.cmd("norm! ".. width .. "l") --smartly move cursor
 end)
 map("n", "<Tab>", "v>")
 map("v", "<Tab>", ">gv")
@@ -928,7 +955,7 @@ map("v",       "<M-a>", "gcgv", {remap = true})
 
 
 --#[Macro]
-map("n", "<C-r>", "q", {remap = true})
+--map("n", "<C-r>", "q", {remap = true})
 
 
 
@@ -982,32 +1009,6 @@ map({"i","n","v"}, "<C-CR>", function()
     end
     --to tag
     --<C-]>
-end)
-
---insert print snippet
-map({"n","v"}, "Ô", function()
-    local txt = ""
-    if vim.fn.mode() == "n"
-        then txt = '""'
-    else
-        vim.cmd('norm! "zy')
-        txt = vim.trim(vim.fn.getreg("z"))
-        vim.cmd('norm! o')
-    end
-
-    local snip
-    local ft = vim.bo.filetype
-    if     ft == "lua" then
-        snip = string.format('print(%s)', txt)
-    elseif ft == "python" then
-        snip = string.format('print(%s)', txt)
-    elseif ft == "javascript" or ft == "typescript"
-        then snip = string.format('console.log(%s);', txt)
-    elseif ft == "c" or ft == "cpp" then
-        snip = string.format('printf("%s\\n"); // %s', txt, txt)
-    end
-
-    vim.cmd('norm! i'..snip)
 end)
 
 

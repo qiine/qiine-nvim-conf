@@ -35,9 +35,6 @@ end
 
 
 
---[Winbar]--------------------------------------------------
-vim.api.nvim_set_hl(0, "WinBar", { fg = "#ffffff", bg = "#e0e0e0", bold = false })
-vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#ffffff", bg = "#e0e0e0", bold = false })
 
 
 

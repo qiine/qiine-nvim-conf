@@ -1,7 +1,7 @@
 --winbar
 
-vim.api.nvim_set_hl(0, "WinBar", { fg = "#737373", bg = "NONE", bold = false })
-vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#737373", bg = "NONE" })
+vim.api.nvim_set_hl(0, "WinBar", { fg = "#595959", bg = "#e6e6e6", bold = false })
+vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#595959", bg = "#e6e6e6" })
 
 --_G.on_click_handle = function(minwid, clicks, button, mods)
 --    print("You clicked the 📁 icon!")
@@ -66,7 +66,7 @@ local excluded_filetype = {
 }
 
 --cond attach
-vim.api.nvim_create_autocmd({"BufNew", "WinEnter"}, {
+vim.api.nvim_create_autocmd({"BufNew", "WinEnter", "BufWinEnter"}, {
     group    = "UserAutoCmds",
     pattern  = "*",
     callback = function()

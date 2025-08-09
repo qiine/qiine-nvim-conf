@@ -45,14 +45,15 @@ local function render()
     return table.concat({
         " ",
         toggle_filebrowser(),
-        "   ",
+        "    ",
         path_bar(),
 
         "%=", --middle split
 
         fav(),
         " ",
-        burger()
+        burger(),
+        " ",
     })
 end
 
@@ -70,8 +71,11 @@ local excluded_filetype = {
 vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     group    = "UserAutoCmds",
     pattern  = "*",
-    callback = function()
+    callback = function(args)
         vim.defer_fn(function()
+            --prevent errors with very small windows
+            if vim.api.nvim_win_get_height(0) < 5 then return end
+
             local bt = vim.bo.buftype
 
             if bt == 'terminal' then vim.opt_local.winbar = nil return end

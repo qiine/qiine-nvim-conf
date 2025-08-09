@@ -11,13 +11,6 @@ local utils = require("utils.utils")
 
 --## [Common]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command('SudoWrite', function()
-    local tmp = vim.fn.tempname()
-    vim.cmd('write! ' .. tmp)
-    vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
-    vim.cmd('e!')
-end, {})
-
 --Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
@@ -69,10 +62,54 @@ vim.api.nvim_create_user_command("WebSearch", function()
     )
 end, {range=true})
 
+--### Registers
 vim.api.nvim_create_user_command("ClearClipboard", function()
     vim.fn.setreg("+", " ")
 end, {})
 
+vim.api.nvim_create_user_command("LiveReg", function()
+    vim.cmd("vsp|enew"); vim.cmd("file! Reg")
+
+    local buf = vim.api.nvim_get_current_buf()
+
+    vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+    vim.api.nvim_set_option_value("buflisted", false,  { buf = buf })
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldcolumn   = "0"
+
+    local function refresh()
+        if not vim.api.nvim_buf_is_valid(buf) then return false end
+
+        local raw   = vim.fn.execute("reg")
+        local lines = vim.split(raw, "\n", { trimempty = true })
+        vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+        return true
+    end
+
+    -- start timer
+    --local timer_new = vim.uv.new_timer()
+
+    local timer = vim.fn.timer_start(350, function()
+        if not refresh() then
+            vim.fn.timer_stop(timer)
+        end
+    end, { ["repeat"] = -1 })
+
+    refresh() -- initial fill
+
+    -- stop timer if buffer is wiped
+    vim.api.nvim_create_autocmd("BufWipeout", {
+        buffer = buf,
+        callback = function()
+            vim.fn.timer_stop(timer)
+        end,
+    })
+end, {})
 
 
 --## [Buffers]
@@ -326,6 +363,12 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command('SudoWrite', function()
+    local tmp = vim.fn.tempname()
+    vim.cmd('write! ' .. tmp)
+    vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
+    vim.cmd('e!')
+end, {})
 
 --Easy del files without file browser
 vim.api.nvim_create_user_command("FileDelete", function()
@@ -360,6 +403,7 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
     local bufid = vim.api.nvim_get_current_buf()
     local fpath = vim.api.nvim_buf_get_name(bufid)
 
+    --TODO make it retriable
     vim.ui.input({
         prompt = "Symlink path: ", default = vim.fn.expand("~").."/", completion = "dir",
     },
@@ -369,7 +413,10 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
         if input == nil then
             vim.notify("linking cancelled. ", vim.log.levels.INFO) return
         end
-        --if input == "" then
+        if input == "" then
+            vim.notify("Input cannot be empty!", vim.log.levels.WARN) return
+        end
+
 
         local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
         if res.code ~= 0 then
@@ -428,21 +475,26 @@ vim.api.nvim_create_user_command("CodeAction", function()
     require("tiny-code-action").code_action()
 end, {})
 
-vim.api.nvim_create_user_command("PrintCharNumber", function()
+vim.api.nvim_create_user_command("PrintCharInfo", function()
     vim.cmd('norm!"zyl')
-    print(vim.fn.char2nr(vim.fn.getreg("z")))
+    local char = vim.fn.getreg("z")
+    print('char: '..'"'..char..'"'..' nr: '..vim.fn.char2nr(char))
 end, {})
 
 vim.api.nvim_create_user_command("OpenDigraph", function()
     local raw   = vim.fn.execute("digraphs")
     local lines = vim.split(raw, "\n", {trimempty = true})
 
-    vim.cmd("enew")
+    vim.cmd("enew"); vim.cmd("file Digraphs")
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 
     vim.api.nvim_set_option_value("buftype",   "nofile", {buf=0})
-    vim.api.nvim_set_option_value("buflisted",  false,   {buf=0})
-    vim.api.nvim_set_option_value("bufhidden",  "wipe",  {buf=0})
+    --vim.api.nvim_set_option_value("buflisted",  false,   {buf=0})
+    --vim.api.nvim_set_option_value("bufhidden",  "wipe",  {buf=0})
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldcolumn   = "0"
 end, {})
 
 

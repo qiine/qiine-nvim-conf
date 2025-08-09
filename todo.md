@@ -2,6 +2,16 @@
 # TODO 
 
 
+## Pending:
+---
+* proper dashboard
+* outliner
+* 
+
+
+
+## Backlog           
+
 ## editing
 ----
 * [ ] better grow selection

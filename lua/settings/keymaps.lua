@@ -45,7 +45,9 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 --## [Buffers]
 ----------------------------------------------------------------------
 --reopen prev
-map(modes, "<C-S-t>", "<cmd>e #<cr>")
+--map(modes, "<C-S-t>", "<cmd>e #<cr>")
+map(modes, "<C-S-t>", "<cmd>OpenPrevBuf<cr>")
+
 
 --Omni close
 map(modes, "<C-w>", function()
@@ -543,15 +545,14 @@ map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 map("n", "<C-i>l", "i<C-v>")
 
 --Insert digraph
-map("i", "<C-i>d", "<C-S-k>")
-map("n", "<C-i>d", "i<C-S-k>")
+map("n", "<C-S-k>", "i<C-S-k>")
 
 
 --### Insert snipet
 --insert function()
 --kmap("i", "<C-S-i>")
 
-map("i", "<C-i>sf", "")
+--map("i", "<C-i>sf", "")
 
 --insert print snippet
 map({"n","v"}, "Ô", function()
@@ -666,8 +667,8 @@ map("i", "<C-S-v>", '<esc>"_diw"+Pa')
 map("n", "<C-S-v>", '<esc>"_diw"+P')
 
 --Duplicate
-map("i", "<C-d>", '<esc>"zyy"zpi', {desc="dup"})
-map("n", "<C-d>", '"zyy"zp',       {desc="dup"})
+map("i", "<C-d>", '<esc>"zyy"zpi', {desc="dup"}) --auto line dup
+map("n", "<C-d>", '"zyy"zp',       {desc="dup"}) --auto line dup
 map("v", "<C-d>", '"zy"zP',        {desc="dup"})
 
 

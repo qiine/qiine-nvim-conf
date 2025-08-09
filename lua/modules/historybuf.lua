@@ -11,7 +11,6 @@ vim.api.nvim_create_autocmd("BufDelete", {
         if not vim.api.nvim_buf_is_valid(bufid) then return end
         if not vim.api.nvim_get_option_value("buflisted", {buf=bufid}) then return end
 
-
         -- insert unique buf
         for _, v in ipairs(prevbufs) do
             if v == bufid then return end
@@ -33,7 +32,6 @@ vim.api.nvim_create_user_command("OpenPrevBuf", function()
     local bname = vim.api.nvim_buf_get_name(bufid)
 
     if bufid and vim.api.nvim_buf_is_valid(bufid) then
-        --vim.cmd("enew")
         vim.cmd("e "..bname)
     end
 end, {})
@@ -48,5 +46,4 @@ end, {})
 vim.api.nvim_create_user_command("ClearBufHistory", function()
     prevbufs = {}
     vim.notify("Buffer history cleared", vim.log.levels.INFO)
-
 end, {})

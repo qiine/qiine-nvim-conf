@@ -1,3 +1,4 @@
+
 --winbar
 
 vim.api.nvim_set_hl(0, "WinBar", { fg = "#595959", bg = "#e6e6e6", bold = false })
@@ -42,9 +43,9 @@ end
 --render all
 local function render()
     return table.concat({
-        "     ",
-        toggle_filebrowser(),
         " ",
+        toggle_filebrowser(),
+        "   ",
         path_bar(),
 
         "%=", --middle split
@@ -66,7 +67,7 @@ local excluded_filetype = {
 }
 
 --cond attach
-vim.api.nvim_create_autocmd({"BufNew", "WinEnter", "BufWinEnter"}, {
+vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     group    = "UserAutoCmds",
     pattern  = "*",
     callback = function()
@@ -80,7 +81,7 @@ vim.api.nvim_create_autocmd({"BufNew", "WinEnter", "BufWinEnter"}, {
                 return
             end
 
-            vim.wo.winbar = require("config.ui.winbar").render()
+            vim.wo.winbar = require("settings.ui.winbar").render()
         end, 5)  -- delay 5ms give time for proper buftype update
     end,
 })

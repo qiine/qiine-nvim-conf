@@ -8,7 +8,7 @@ return
         require("fzf-lua").setup({
             defaults = {
                 actions = {
-                    ["esc"] = ""  --restore esc to normal mode (now quit with C-w)
+                    ["esc"] = "",  --restore esc to normal mode (now quit with C-w)
                 },
             },
 
@@ -28,8 +28,7 @@ return
                 },
             },
             fzf_opts = {
-                ["--layout"] = "default",  --reverse
-
+                ["--layout"] = "default",  -- default, reverse
             },
 
             files = {
@@ -62,8 +61,7 @@ return
                             --preview = {hidden = true}
                         }
                     }) end,
-                    --["<F5>"] =
-                }
+                },
             }
         })
 
@@ -86,6 +84,7 @@ return
 
         --find files in notes
         vim.keymap.set({"i","n","v","t"}, "<F49>", function()   --<M-F1>
+            local home = vim.fn.expand("~")
             require("fzf-lua").files({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
@@ -146,13 +145,14 @@ return
         --fuzzy cd
         vim.keymap.set({"i","n","v","t"}, "<M-f>d", function()
             require("fzf-lua").fzf_exec("fdfind . --type d", { --or fd
-                prompt = "~/",
-                cwd = "~",
+                prompt = "/",
+                cwd = "/",
                 actions = {
                     ["default"] = function(selected)
                         if selected and #selected > 0 then
-                            local root = vim.fn.expand("~").."/"
-                            vim.cmd("cd " .. root .. selected[1])
+                            --local root = vim.fn.expand("~").."/"
+                            --vim.cmd("cd " .. root .. selected[1])
+                            vim.cmd("cd " .. "/" .. selected[1])
                         end
                     end,
                 },

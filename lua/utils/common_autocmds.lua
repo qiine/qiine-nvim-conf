@@ -79,14 +79,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 
---vim.api.nvim_create_autocmd({"OperatorPending"}, {
---    pattern = "*",
---    callback = function()
---        -- Save clipboard before operator runs
---        print("vim.fn.getreg('+')")
-
---    end
---})
 
 --no gutter for terms
 vim.api.nvim_create_autocmd('TermOpen', {
@@ -100,7 +92,6 @@ vim.api.nvim_create_autocmd('TermOpen', {
         vim.opt_local.foldcolumn     = "0"
     end,
 })
-
 
 
 --revert search highlight

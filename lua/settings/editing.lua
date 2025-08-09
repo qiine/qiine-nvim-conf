@@ -178,7 +178,7 @@ local formatopts = {} --will hold all users formats opts
 --View the current formatoptions with ':set verbose=1 formatoptions?'
 
 
---### Identation
+--### Indentation
 vim.opt.shiftwidth  = 4    -- Number of spaces to use for indentation
 vim.opt.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
 vim.opt.tabstop     = 4

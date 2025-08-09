@@ -46,31 +46,32 @@ end
 local module   --will hold special local modules
 
 module = safe_require("modules.v-enveloppe") if module then module.setup() end
-module = safe_require("modules.dialeur.dialeur") if module then module.setup() end
+--module = safe_require("modules.dialeur.dialeur") if module then module.setup() end
 safe_require("modules.tiny-session")
 safe_require("modules.rouleau-nvim")
+safe_require("modules.historybuf")
 
 --## Commands
 safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
 safe_require("utils.common_autocmds")
 
-safe_require("config.lazy") --plugins
+safe_require("settings.lazy") --plugins
 
-safe_require("config.keymaps")
-safe_require("config.mousemaps")
+safe_require("settings.keymaps")
+safe_require("settings.mousemaps")
 
 --## Settings
-safe_require("config.settings")
-safe_require("config.editing")
+safe_require("settings.settings")
+safe_require("settings.editing")
 
 --### ui
-safe_require("config.ui.theme")
-safe_require("config.ui.conceal")
-safe_require("config.ui.view")
-safe_require("config.ui.menus")
-safe_require("config.ui.winbar")
-safe_require("config.ui.statusline")
+safe_require("settings.ui.theme")
+safe_require("settings.ui.conceal")
+safe_require("settings.ui.view")
+safe_require("settings.ui.menus")
+safe_require("settings.ui.winbar")
+safe_require("settings.ui.statusline")
 
 
 --debug messages

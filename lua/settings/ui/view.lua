@@ -52,14 +52,14 @@ vim.opt.cursorcolumn = false
 --v.opt.keymodel=startsel
 --startsel: Start selection when entering visual mode.
 
---#[Search]
+--Search
 vim.opt.ignorecase = true
 vim.opt.smartcase  = true --case-sensitive only if uppercase letters are typed
 vim.opt.hlsearch   = true --Highlight all matches
 vim.opt.incsearch  = true --Highlight as you type
 
 
---#[colorcolumn]
+--colorcolumn
 --vim.opt.colorcolumn="80"
 
 

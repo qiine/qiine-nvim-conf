@@ -11,10 +11,25 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
-        local op = vim.v.operator
-        if op == "y" or op == "d" then
-            vim.fn.setreg("+", vim.fn.getreg('"'))
+        if vim.v.register == '"' then
+            local op = vim.v.operator
+            if op == "y" or op == "d" then
+                vim.fn.setreg("+", vim.fn.getreg('"'))
+            end
         end
+    end,
+})
+
+--crude yank history
+vim.api.nvim_create_autocmd("TextYankPost", {
+    callback = function()
+        local old_b = vim.fn.getreg('b')
+        local old_a = vim.fn.getreg('a')
+        local new_yank = vim.fn.getreg('+')
+
+        vim.fn.setreg('c', old_b)
+        vim.fn.setreg('b', old_a)
+        vim.fn.setreg('a', new_yank)
     end,
 })
 

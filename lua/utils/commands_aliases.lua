@@ -2,7 +2,7 @@
 -- cmd aliases
 --------------------------
 
-local aliases = 
+local aliases =
 {
     cwd2f = "WorkDirToCurrent",
 }

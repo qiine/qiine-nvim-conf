@@ -321,23 +321,23 @@ map("n",       "<M-PageUp>",    "<C-i>")
 
 --#[Fast cursor move]
 --Fast left/right move in normal mode
-map('n', '<C-Right>', "5l")
-map('n', '<C-Left>',  "5h")
+map('n', '<C-Right>', "m'5l")
+map('n', '<C-Left>',  "m'5h")
 
 --ctrl+up/down to move fast
-map("i", "<C-Up>", "<C-o>3k")
-map({"n","v"}, "<C-Up>", "3k")
+map("i",       "<C-Up>", "<esc>m'3ki")
+map({"n","v"}, "<C-Up>", "m'3k")
 
-map("i", "<C-Down>", "<C-o>3j")
-map({"n","v"}, "<C-Down>", "3j")
+map("i",       "<C-Down>", "<esc>m'3ji")
+map({"n","v"}, "<C-Down>", "m'3j")
 
 
 --alt+left/right move to start/end of line
-map("i",       "<M-Left>", "<Esc>0i")
-map({"n","v"}, "<M-Left>", "0")
+map("i",       "<M-Left>", "<Esc>m'0i")
+map({"n","v"}, "<M-Left>", "m'0")
 
-map("i",       "<M-Right>", "<Esc>$a")
-map({"n","v"}, "<M-Right>", "$")
+map("i",       "<M-Right>", "<Esc>m'$a")
+map({"n","v"}, "<M-Right>", "m'$")
 
 --jump home/end
 map("i",       "<Home>", "<Esc>gg0i")
@@ -541,6 +541,7 @@ map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
 
 --Insert literal
+--TODO update wezterm? so we can use C-i again without coliding with Tab
 --map("i", "<C-i>l", "<C-v>", {noremap=true})
 map("n", "<C-i>l", "i<C-v>")
 
@@ -943,11 +944,8 @@ map('v', '<C-S-Down>', function ()
 end)
 
 --Move whole line
-map("i", "<C-S-Up>", "<cmd>m .-2|norm!==<cr>")
-map("n", "<C-S-Up>", "<cmd>m .-2<CR>==")
-
-map("i", "<C-S-Down>", "<cmd>m .+1|norm!==<cr>")
-map("n", "<C-S-Down>", "<cmd>m .+1<cr>==")
+map({'i','n'}, '<C-S-Up>', "<cmd>lua vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')<CR>", {desc='Move curr line up'})
+map({'i','n'}, '<C-S-Down>', "<cmd>lua vim.cmd('m.'..vim.v.count1..'|norm!==')<CR>", {desc='Move curr line down'})
 
 
 --#[Comments]

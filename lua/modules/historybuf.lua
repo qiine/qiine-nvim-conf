@@ -1,49 +1,48 @@
 
 -- historybuf --
 
-local prevbufs = {}
-local max_history = 20
+local closedbufs = {}
+local max_history = 25
 
 -- Track previous buffers
 vim.api.nvim_create_autocmd("BufDelete", {
     callback = function(args)
         local bufid = args.buf
+
         if not vim.api.nvim_buf_is_valid(bufid) then return end
         if not vim.api.nvim_get_option_value("buflisted", {buf=bufid}) then return end
 
         -- insert unique buf
-        for _, v in ipairs(prevbufs) do
+        for _, v in ipairs(closedbufs) do
             if v == bufid then return end
         end
-        table.insert(prevbufs, bufid)
+        local bufname = vim.api.nvim_buf_get_name(args.buf)
+        table.insert(closedbufs, bufname)
 
         -- Keep size limit
-        if #prevbufs > max_history then
-            table.remove(prevbufs, 1)
+        if #closedbufs > max_history then
+            table.remove(closedbufs, 1)
         end
     end,
 })
 
 vim.api.nvim_create_user_command("OpenPrevBuf", function()
-    if #prevbufs == 0 then vim.notify("No previous buffer") return end
+    if #closedbufs == 0 then vim.notify("No previous buffer") return end
 
     -- Rem last item from the table and return it
-    local bufid = table.remove(prevbufs, #prevbufs)
-    local bname = vim.api.nvim_buf_get_name(bufid)
+    local bufname = table.remove(closedbufs, #closedbufs)
+    if not bufname then return end
 
-    if bufid and vim.api.nvim_buf_is_valid(bufid) then
-        vim.cmd("e "..bname)
-    end
+    vim.cmd("e "..bufname)
 end, {})
 
 vim.api.nvim_create_user_command("ShowBufHistory", function()
-    for _, buf in ipairs(prevbufs) do
-        local bufname = vim.api.nvim_buf_get_name(buf)
+    for _, bufname in ipairs(closedbufs) do
         vim.notify(bufname ~= "" and bufname or "[No Name]", vim.log.levels.INFO)
     end
 end, {})
 
 vim.api.nvim_create_user_command("ClearBufHistory", function()
-    prevbufs = {}
+    closedbufs = {}
     vim.notify("Buffer history cleared", vim.log.levels.INFO)
 end, {})

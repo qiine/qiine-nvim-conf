@@ -9,9 +9,9 @@ My text editor journey:
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
 
 I was aware of vim/nvim for years, after switching to linux I figured It was 
-finally time to try it out.
-At first I hesitated between nvim and emacs, but the motions intrigued me...
-I am still in the "hjkl? hu no? arrow's fine" phase though, haha.                                                           
+finally time to try it out. 
+At first I hesitated between nvim and emacs, but the motions intrigued me... 
+I am still in the "hjkl? hu no? arrow's fine" phase though, haha. 
 
 
   ---

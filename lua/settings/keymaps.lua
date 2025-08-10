@@ -45,8 +45,7 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 --## [Buffers]
 ----------------------------------------------------------------------
 --reopen prev
---map(modes, "<C-S-t>", "<cmd>e #<cr>")
-map(modes, "<C-S-t>", "<cmd>OpenPrevBuf<cr>")
+map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
 
 
 --Omni close
@@ -256,18 +255,17 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 --## [Windows]
 ----------------------------------------------------------------------
-map("i", "<M-w>", "<esc><C-w>", {noremap=true})
-map("n", "<M-w>", "<C-w>",      {noremap=true})
-map("v", "<M-w>", "<Esc><C-w>", {noremap=true})
+map({"i","n","v"}, "<M-w>", "<esc><C-w>",   {noremap=true})
+map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
 map(modes, "<M-w>h", "<cmd>new<cr>")
 
 --To next window
-map(modes, "<M-Tab>", "<cmd>norm! w<cr>")
+map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
 --focus split
-map(modes, "<M-w>f", "<cmd>norm!|<cr><cmd>norm!_<cr>")
+map(modes, "<M-w>f", "<cmd>wincmd |<cr><cmd>wincmd _<cr>")
 
 --resize hor
 map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
@@ -380,7 +378,7 @@ end, {remap = true})
 
 
 --#[select search]
-map("i", "<C-f>", "<Esc><C-l>:/\\V")  --\\V is very no magic makes thing easyier
+map("i", "<C-f>", "<Esc><C-l>:/\\V")  --\\V is very no magic makes thing easier
 map("n", "<C-f>", "/\\V")
 map("v", "<C-f>", 'y<Esc><C-l>:/\\V<C-r>"')
 
@@ -635,9 +633,6 @@ map("i", "<C-S-x>", '<esc>viw"+xi')
 map("n", "<C-S-x>", 'viw"+x')
 map("v", "<C-S-x>", '<esc>m`viw"+x``:echo"Word Cut"<CR>')
 
---cut line with x
---map("n", "xx", 'dd')
-
 --Paste
 map({"i","n","v"}, "<C-v>", function()
     local mode = vim.fn.mode()
@@ -799,7 +794,7 @@ map("v", "<M-s>",
 {desc = "Enter substitue in selection"})
 
 
---### (Incrementing)
+--### Incrementing
 --vmap("n", "+", "<C-a>")
 map("v", "+", "<C-a>gv")
 
@@ -818,7 +813,7 @@ map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
 
---### (Formating)
+--### Formating
 --#### Indentation
 --space bar in normal mode
 map("n", "<space>", "i<space><esc>")
@@ -838,7 +833,7 @@ map("v", "<S-Tab>", "<gv")
 
 --trigger Auto ident
 map({"i","n"}, "<C-=>", "<esc>==")
-map("v", "<C-=>", "=")
+map("v",       "<C-=>", "=")
 
 
 --##[Line break]
@@ -885,7 +880,7 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 --vmap("n", "<C-S-Down>", '"zxj"zp')
 
 --Move word right
-map("i", "<C-S-Left>", '<esc>viw"zdh"zPgvhoho')
+map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
 map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
 
 --Move selected text

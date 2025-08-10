@@ -10,14 +10,13 @@ My text editor journey:
 
 I was aware of vim/nvim for years, after switching to linux I figured It was  
 finally time to try it out.  
-At first I hesitated between nvim and emacs, but the motions intrigued me...  
+At first I hesitated between nvim and emacs, but lua and the motions intrigued me...  
 I am still in the "hjkl? hu no? arrow's fine" phase though, haha.  
 
 
   ---
 ## ✏️Editing
 ---
-
 - Hundreds of custom keymaps (I am unable to stop myself ;p)  
 - Extensive mouse support! (°)°) with mouse binds! 
 - Native Word "speed dial" in normal mode with `+` / `-`  

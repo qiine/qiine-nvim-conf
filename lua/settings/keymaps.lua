@@ -72,7 +72,8 @@ map(modes, "<C-w>", function()
         if buftype == "terminal" then
             vim.cmd("bwipeout!")
         else
-            vim.cmd("bd!")
+            vim.cmd("bwipeout!")
+            --vim.cmd("bd!")
             --can also close tabs,
             --bypass save warnings,
             --not bwipeout to preserve #file
@@ -668,9 +669,8 @@ map("i", "<C-S-v>", '<esc>"_diw"+Pa')
 map("n", "<C-S-v>", '<esc>"_diw"+P')
 
 --Duplicate
-map("i", "<C-d>", '<esc>"zyy"zpi', {desc="dup"}) --auto line dup
-map("n", "<C-d>", '"zyy"zp',       {desc="dup"}) --auto line dup
-map("v", "<C-d>", '"zy"zP',        {desc="dup"})
+map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})
+map("v", "<C-d>", '"zy"zP', {desc="dup sel"})
 
 
 --#[Undo/redo]
@@ -943,7 +943,7 @@ map('v', '<C-S-Down>', function ()
     end
 end)
 
---Move whole line
+--Move line
 map({'i','n'}, '<C-S-Up>', "<cmd>lua vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')<CR>", {desc='Move curr line up'})
 map({'i','n'}, '<C-S-Down>', "<cmd>lua vim.cmd('m.'..vim.v.count1..'|norm!==')<CR>", {desc='Move curr line down'})
 

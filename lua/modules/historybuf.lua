@@ -8,15 +8,20 @@ local max_history = 25
 vim.api.nvim_create_autocmd("BufDelete", {
     callback = function(args)
         local bufid = args.buf
+        local bufname = vim.api.nvim_buf_get_name(args.buf)
 
-        if not vim.api.nvim_buf_is_valid(bufid) then return end
-        if not vim.api.nvim_get_option_value("buflisted", {buf=bufid}) then return end
+        if
+            not vim.api.nvim_buf_is_valid(bufid)                                or
+            not vim.api.nvim_get_option_value("buflisted", {buf=bufid})         or
+            vim.api.nvim_get_option_value("buftype", {buf=bufid}) == "terminal" or
+            bufname == ""
+        then return end
 
         -- insert unique buf
-        for _, v in ipairs(closedbufs) do
-            if v == bufid then return end
+        for _, cbuf in ipairs(closedbufs) do
+            if cbuf == bufid then return end
         end
-        local bufname = vim.api.nvim_buf_get_name(args.buf)
+
         table.insert(closedbufs, bufname)
 
         -- Keep size limit
@@ -26,7 +31,7 @@ vim.api.nvim_create_autocmd("BufDelete", {
     end,
 })
 
-vim.api.nvim_create_user_command("OpenPrevBuf", function()
+vim.api.nvim_create_user_command("OpenLastClosedBuf", function()
     if #closedbufs == 0 then vim.notify("No previous buffer") return end
 
     -- Rem last item from the table and return it
@@ -34,6 +39,17 @@ vim.api.nvim_create_user_command("OpenPrevBuf", function()
     if not bufname then return end
 
     vim.cmd("e "..bufname)
+end, {})
+
+vim.api.nvim_create_user_command("PickClosedBuf", function()
+    if #closedbufs == 0 then vim.notify("No previous buffer") return end
+
+    vim.ui.select(closedbufs, {
+        prompt = "Pick from closed buffer:",
+    },
+    function(choice)
+        if choice then vim.cmd("e " .. choice) end
+    end)
 end, {})
 
 vim.api.nvim_create_user_command("ShowBufHistory", function()

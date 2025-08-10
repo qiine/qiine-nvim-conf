@@ -380,9 +380,9 @@ end, {remap = true})
 
 
 --#[select search]
-map("i", "<C-f>", "<Esc><C-l>:/")
-map("n", "<C-f>", "/")
-map("v", "<C-f>", 'y<Esc><C-l>:/<C-r>"')
+map("i", "<C-f>", "<Esc><C-l>:/\\V")  --\\V is very no magic makes thing easyier
+map("n", "<C-f>", "/\\V")
+map("v", "<C-f>", 'y<Esc><C-l>:/\\V<C-r>"')
 
 --search Help for selection
 map("v", "<F1>", 'y:h <C-r>"<CR>')
@@ -944,8 +944,8 @@ map('v', '<C-S-Down>', function ()
 end)
 
 --Move line
-map({'i','n'}, '<C-S-Up>', "<cmd>lua vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')<CR>", {desc='Move curr line up'})
-map({'i','n'}, '<C-S-Down>', "<cmd>lua vim.cmd('m.'..vim.v.count1..'|norm!==')<CR>", {desc='Move curr line down'})
+map({'i','n'}, '<C-S-Up>', function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
+map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end, {desc='Move curr line down'})
 
 
 --#[Comments]

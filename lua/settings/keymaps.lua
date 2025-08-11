@@ -377,7 +377,7 @@ map("n", "f", function()
 end, {remap = true})
 
 
---#[select search]
+--search
 map("i", "<C-f>", "<Esc><C-l>:/\\V")  --\\V is very no magic makes thing easier
 map("n", "<C-f>", "/\\V")
 map("v", "<C-f>", 'y<Esc><C-l>:/\\V<C-r>"')
@@ -782,18 +782,19 @@ map("v", "<M-r>", "r")
 
 
 --substitue mode
-map({"i","n"}, "<M-s>", [[<Esc>:%s/\v//g<Left><Left><Left>]],
+map({"i","n"}, "<M-s>",
+[[<Esc>:%s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode"})
 
 --sub word
-map("v", "<C-S-s>",
-[[y<esc>:%s/\v<C-r>"//g<Left><Left>]],
+map({"i","n","v"}, "<C-S-s>",
+[[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
 
 --sub in selection
 map("v", "<M-s>",
-[[<esc>:'<,'>s/\v//g<Left><Left><Left>]],
-{desc = "Enter substitue in selection"})
+[[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
+{desc = "Enter substitue mode in selection"})
 
 
 --### Incrementing
@@ -1010,8 +1011,21 @@ end)
 
 --### Diff
 --next/prev diff
-map({"i","n","v","c"}, "<M-S-PageUp>",   "<cmd>norm![cz.<CR>")
-map({"i","n","v","c"}, "<M-S-PageDown>", "<cmd>norm!]cz.<CR>")
+map({"i","n","v","c"}, "<M-S-PageUp>", function()
+    if vim.wo.diff then
+        vim.cmd("norm! [cz.")
+    else
+        require('gitsigns').nav_hunk('prev')
+    end
+end)
+map({"i","n","v","c"}, "<M-S-PageDown>", function()
+    if vim.wo.diff then
+        vim.cmd.normal({']cz.', bang = true})
+    else
+        require('gitsigns').nav_hunk('next')
+    end
+end)
+
 
 --diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")

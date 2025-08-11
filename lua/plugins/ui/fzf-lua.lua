@@ -51,13 +51,9 @@ return
                     -g '!*/steam-runtime-sniper/**' \
                     -g '!**/containers/**'
                 ]],
+                case_mode = 'smart',
                 actions = {
-                    ["enter"] = function(selected) --open multiples
-                        for _, f in ipairs(selected) do
-                            local file = require('fzf-lua').path.entry_to_file(f)
-                            vim.cmd("e " .. file.path)
-                        end
-                    end,
+                    ['default'] = require('fzf-lua.actions').file_edit,--open multiples
                 }
             },
 

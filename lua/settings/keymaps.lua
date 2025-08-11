@@ -392,6 +392,9 @@ map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 --to last directoy
 map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR><cmd>pwd<CR>")
 
+--cd file dir
+map(modes, "<C-g>nf", "<cmd>cd %:p:h | pwd<CR>")
+
 
 
 --## [Selection]
@@ -779,18 +782,17 @@ map("v", "<M-r>", "r")
 
 
 --substitue mode
-map({"i","n"}, "<M-s>",
-"<Esc>:%s/\\v//g<Left><Left><Left>",
+map({"i","n"}, "<M-s>", [[<Esc>:%s/\v//g<Left><Left><Left>]],
 {desc = "Enter substitue mode"})
 
 --sub word
 map("v", "<C-S-s>",
 [[y<esc>:%s/\v<C-r>"//g<Left><Left>]],
-{desc = "substitue word under cursor" })
+{desc = "Substitue word under cursor" })
 
 --sub in selection
 map("v", "<M-s>",
-"<esc>:'<,'>s/\\v//g<Left><Left><Left>",
+[[<esc>:'<,'>s/\v//g<Left><Left><Left>]],
 {desc = "Enter substitue in selection"})
 
 

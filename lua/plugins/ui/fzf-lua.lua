@@ -50,18 +50,26 @@ return
                     -g '!.cargo/**' \
                     -g '!*/steam-runtime-sniper/**' \
                     -g '!**/containers/**'
-                ]]
+                ]],
+                actions = {
+                    ["enter"] = function(selected) --open multiples
+                        for _, f in ipairs(selected) do
+                            local file = require('fzf-lua').path.entry_to_file(f)
+                            vim.cmd("e " .. file.path)
+                        end
+                    end,
+                }
             },
 
             keymap = {
-                --f4 toggle prev
-                fzf = {
-                    ["tab"] = function() require("fzf-lua").builtin({
-                        winopts = {
-                            --preview = {hidden = true}
-                        }
-                    }) end,
-                },
+                ----f4 toggle prev
+                --fzf = {
+                --    ["tab"] = function() require("fzf-lua").builtin({
+                --        winopts = {
+                --            --preview = {hidden = true}
+                --        }
+                --    }) end,
+                --},
             }
         })
 

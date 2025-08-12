@@ -378,9 +378,16 @@ end, {remap = true})
 
 
 --search
-map("i", "<C-f>", "<Esc><C-l>:/\\V")  --\\V is very no magic makes thing easier
-map("n", "<C-f>", "/\\V")
-map("v", "<C-f>", 'y<Esc><C-l>:/\\V<C-r>"')
+map({"i","n","v"}, "<C-f>", function()
+    vim.fn.setreg("/", "") --clear last search
+    vim.opt.hlsearch = true
+
+    if vim.fn.mode() ~= "v" then
+        vim.api.nvim_feedkeys([[/\V]], "n", false) --need feedkey avoid glitchy cmd
+    else
+        vim.api.nvim_feedkeys([[y/\V"]], "n", false)
+    end
+end)
 
 --search Help for selection
 map("v", "<F1>", 'y:h <C-r>"<CR>')
@@ -592,7 +599,7 @@ map("i", "<C-c>", function()
 
     if line ~= "" then
         vim.cmd([[norm! m`0"+y$``]])
-        vim.cmd("echo 'line copied!'")
+        vim.cmd("echo 'line copied'")
     end
 end, {noremap=true})
 
@@ -605,7 +612,7 @@ map("n", "<C-c>", function()
 end, {noremap = true})
 
 map("v", "<C-c>", function()
-    vim.cmd('norm! m`"+y``'); print("copied")
+    vim.cmd('norm! m`"+y``'); print("selection copied")
 end, {noremap=true})
 
 
@@ -781,12 +788,18 @@ map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 map("v", "<M-r>", "r")
 
 
---substitue mode
+-- substitue mode
 map({"i","n"}, "<M-s>",
-[[<Esc>:%s/\V//g<Left><Left><Left>]],
-{desc = "Enter substitue mode"})
+     [[<Esc>:%s/\V//g<Left><Left><Left>]]
+    --function()
+    --vim.api.nvim_feedkeys([[:%s/\V//g]], "n", false)
+    --vim.api.nvim_feedkeys("<Left><Left><Left>", "n", false)
+    --vim.api.nvim_feedkeys("|nohls", "n", false)
+--end
+,{desc = "Enter substitue mode"})
 
---sub word
+
+-- sub word
 map({"i","n","v"}, "<C-S-s>",
 [[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })

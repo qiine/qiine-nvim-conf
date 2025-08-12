@@ -26,7 +26,7 @@ vim.api.nvim_create_autocmd("InsertLeave", {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
-        vim.cmd("normal! `^")
+        vim.cmd("norm! `^")
     end,
 })
 
@@ -72,10 +72,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     group = "UserAutoCmds",
     pattern = "*",
     callback = function()
-        --TODO IncSearch confilct with C-f
-        --vim.highlight.on_yank({higroup='IncSearch', timeout = 200 })
-        --vim.highlight.on_yank({higroup='Visual', timeout = 200 })
-        vim.hl.on_yank({higroup = "IncSearch", timeout = 100})
+        vim.hl.on_yank({higroup = 'IncSearch', timeout = 200})
     end,
 })
 
@@ -90,22 +87,6 @@ vim.api.nvim_create_autocmd('TermOpen', {
         vim.opt_local.number         = false
         vim.opt_local.relativenumber = false
         vim.opt_local.foldcolumn     = "0"
-    end,
-})
-
-
---revert search highlight
-vim.api.nvim_create_autocmd('InsertEnter', {
-    group = "UserAutoCmds",
-    pattern = '*',
-    callback = function()
-        vim.defer_fn(function()
-            if vim.v.hlsearch == 1 then
-                vim.cmd('nohlsearch')
-                --vim.api.nvim_feedkeys("\27", "n", false)
-                --vim.cmd('startinsert')
-            end
-        end, 1)
     end,
 })
 

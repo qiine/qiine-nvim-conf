@@ -42,7 +42,6 @@ end
 --vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#ff8800", bg = "NONE" })
 
 
-vim.api.nvim_set_hl(0, "IncSearch", { fg = "NONE", bg = "#bfbfbf", bold = false })
 
 
 --ghost

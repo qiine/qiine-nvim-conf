@@ -7,6 +7,22 @@ local utils = require("utils.utils")
 ------------------------------------
 
 
+
+--## [Rendering]
+----------------------------------------------------------------------
+vim.opt.updatetime = 200 --screen redraw speed in ms
+
+--v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
+-- Allow scrolling beyond the end of the file
+vim.opt.scrolloff     = 2
+vim.opt.sidescrolloff = 5
+--v.opt.sidescroll = 1
+
+--colorcolumn
+--vim.opt.colorcolumn="80"
+
+
+--shortmess
 vim.opt.shortmess:append("si")
 -- "f"	Use "(file # of #)" instead of full file name in messages
 -- "i"	Don't give intro message when starting Vim
@@ -52,27 +68,25 @@ vim.opt.cursorcolumn = false
 --v.opt.keymodel=startsel
 --startsel: Start selection when entering visual mode.
 
---Search
+
+
+--## [Search]
+----------------------------------------------------------------------
 vim.opt.ignorecase = true
 vim.opt.smartcase  = true --case-sensitive only if uppercase letters are typed
 vim.opt.hlsearch   = true --Highlight all matches
 vim.opt.incsearch  = true --Highlight as you type
 
+--revert search highlight
+vim.api.nvim_create_autocmd('InsertEnter', {
+    group = "UserAutoCmds",
+    pattern = '*',
+    callback = function()
+        vim.opt.hlsearch = false
+    end,
+})
 
---colorcolumn
---vim.opt.colorcolumn="80"
-
-
-
---## [Rendering]
-----------------------------------------------------------------------
-vim.opt.updatetime = 200 --screen redraw speed in ms
-
---v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
--- Allow scrolling beyond the end of the file
-vim.opt.scrolloff     = 2
-vim.opt.sidescrolloff = 5
---v.opt.sidescroll = 1
+vim.api.nvim_set_hl(0, "IncSearch", { fg = "NONE", bg = "#bfbfbf", bold = false })
 
 
 
@@ -305,7 +319,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --## [Commandline]
 ----------------------------------------------------------------------
 vim.opt.cmdheight = 1
-vim.opt.showmode    = false --show curr mode in cmd
+vim.opt.showmode  = false --show curr mode in cmd
 
 -- vim.opt.showcmd = false
 --displaying selection info. It also shows incomplete commands in the bottom-right corner.

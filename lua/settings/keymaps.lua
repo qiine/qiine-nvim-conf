@@ -28,7 +28,7 @@ vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
 --## [Internal]
 ----------------------------------------------------------------------
 --Ctrl+q to quit
-map(modes, "<C-q>", function() v.cmd("qa!") end, {noremap=true, desc="Force quit all buffer"})
+map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 
 --Quick restart nvim
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
@@ -446,18 +446,18 @@ map("v", "<C-S-PageUp>", "oho")
 map({"i","n"}, "<S-PageUp>", "<esc>Vk")
 map("v", "<S-PageUp>", function()
     if vim.fn.mode() == "V" then
-        vim.cmd("normal! k")
+        vim.cmd("norm! k")
     else
-        vim.cmd("normal! Vk")
+        vim.cmd("norm! Vk")
     end
 end)
 
 map({"i","n"}, "<S-PageDown>", "<esc>Vj")
 map("v", "<S-PageDown>", function()
     if vim.fn.mode() == "V" then
-        vim.cmd("normal! j")
+        vim.cmd("norm! j")
     else
-        vim.cmd("normal! Vj")
+        vim.cmd("norm! Vj")
     end
 end)
 
@@ -475,27 +475,27 @@ end)
 map({"i","n"}, "<S-M-Right>", "<Esc><C-v>l")
 map("v", "<S-M-Right>", function()
     if vim.fn.mode() == '\22' then
-        vim.cmd("normal! l")
+        vim.cmd("norm! l")
     else
-        vim.cmd("normal! l")
+        vim.cmd("norm! l")
     end
 end)
 
 map({"i","n"}, "<S-M-Up>", "<Esc><C-v>k")
 map("v", "<S-M-Up>", function()
     if vim.fn.mode() == '\22' then
-        vim.cmd("normal! k")
+        vim.cmd("norm! k")
     else
-        vim.cmd("normal! k")
+        vim.cmd("norm! k")
     end
 end)
 
 map({"i","n"}, "<S-M-Down>", "<Esc><C-v>j")
 map("v", "<S-M-Down>", function()
     if vim.fn.mode() == '\22' then
-        vim.cmd("normal! j")
+        vim.cmd("norm! j")
     else
-        vim.cmd("normal! j")
+        vim.cmd("norm! j")
     end
 end)
 
@@ -660,7 +660,7 @@ map({"i","n","v"}, "<C-v>", function()
 end)
 
 map("c", "<C-v>", '<C-R>+')
-map("t", "<C-v>", '<C-o>"+P')
+map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
 --paste replace word
 map("i", "<C-S-v>", '<esc>"_diw"+Pa')

@@ -18,6 +18,6 @@ return
              -- See `:help mode()` for possible values
             modes_allowlist = {"v"},
             --modes_denylist = {"V"},
-        }) 
-    end 
+        })
+    end
 }

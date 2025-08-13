@@ -1,5 +1,6 @@
 
 -- historybuf --
+--track previousely closed buffers for current session
 
 local closedbufs = {}
 local max_history = 25

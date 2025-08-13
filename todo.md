@@ -6,7 +6,7 @@
 ---
 * proper dashboard
 * outliner
-* 
+* project management using project.toml files
 
 
 

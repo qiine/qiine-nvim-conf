@@ -56,22 +56,22 @@ safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
 safe_require("utils.common_autocmds")
 
-safe_require("settings.lazy") --plugins
+safe_require("options.lazy") --plugins
 
-safe_require("settings.keymaps")
-safe_require("settings.mousemaps")
+safe_require("options.keymaps")
+safe_require("options.mousemaps")
 
---## Settings
-safe_require("settings.settings")
-safe_require("settings.editing")
+--## options
+safe_require("options.internal")
+safe_require("options.editing")
 
 --### ui
-safe_require("settings.ui.theme")
-safe_require("settings.ui.conceal")
-safe_require("settings.ui.view")
-safe_require("settings.ui.menus")
-safe_require("settings.ui.winbar")
-safe_require("settings.ui.statusline")
+safe_require("options.ui.theme")
+safe_require("options.ui.conceal")
+safe_require("options.ui.view")
+safe_require("options.ui.menus")
+safe_require("options.ui.winbar")
+safe_require("options.ui.statusline")
 
 
 --debug messages

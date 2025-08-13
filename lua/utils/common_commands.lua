@@ -429,6 +429,14 @@ end, {})
 
 
 
+--## [Windows]
+----------------------------------------------------------------------
+vim.api.nvim_create_user_command("CreateWindow", function()
+
+end, {})
+
+
+
 --## [Editing]
 --------------------------------------------------
 --Trim select, include tab and break lines

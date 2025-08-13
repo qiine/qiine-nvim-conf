@@ -22,7 +22,7 @@ return
 
             list = {
                 selection = { preselect = true, auto_insert = true },
-                cycle = { from_bottom = true, from_top = true, },
+                cycle     = { from_bottom = true, from_top = true, },
             },
             menu = {
                 auto_show = true,

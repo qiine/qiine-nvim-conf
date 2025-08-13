@@ -378,12 +378,15 @@ end, {remap = true})
 
 
 --search
-map({"i","n","v"}, "<C-f>", function()
-    vim.fn.setreg("/", "") --clear last search
+map({"i","n","v","c"}, "<C-f>", function()
+    vim.fn.setreg("/", "") --clear last search and hl
     vim.opt.hlsearch = true
 
+    --proper clear and exit cmd mode
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "n", false) end
+
     if vim.fn.mode() ~= "v" then
-        vim.api.nvim_feedkeys([[/\V]], "n", false) --need feedkey avoid glitchy cmd
+        vim.api.nvim_feedkeys([[/\V]], "n", false) --need feedkey, avoid glitchy cmd
     else
         vim.api.nvim_feedkeys([[y/\V"]], "n", false)
     end

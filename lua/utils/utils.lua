@@ -289,6 +289,9 @@ function M.make_relative_path_to_root(root_path, path)
     return abs_path:sub(#root + 2)  -- +2 to remove root + "/" or "\"
 end
 
+function M.create_file(name, path, opts)
+
+end
 
 
 

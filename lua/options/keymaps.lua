@@ -44,9 +44,15 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 --## [Buffers]
 ----------------------------------------------------------------------
+--Create new buffer
+map({"i","n","v"}, "<C-n>", function()
+    local buff_count  = vim.api.nvim_list_bufs()
+    local newbuff_num = #buff_count
+    v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
+end)
+
 --reopen prev
 map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
-
 
 --Omni close
 map(modes, "<C-w>", function()
@@ -88,54 +94,12 @@ map("n", "<C-r>", "i<C-r>")
 
 
 
---## [File]
+--## [Files]
 ----------------------------------------------------------------------
---Create new file
-map({"i","n","v"}, "<C-n>", function()
-    local buff_count  = vim.api.nvim_list_bufs()
-    local newbuff_num = #buff_count
-    v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
-end)
-
 --Open file picker
-map(modes, "<C-o>", function() vim.cmd("FilePicker") end)
+map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
---File save
-map(modes, "<C-s>", function()
-    local bufid = vim.api.nvim_get_current_buf()
-    local path = vim.api.nvim_buf_get_name(0)
-
-    if vim.fn.filereadable(path) == 1 then vim.cmd("write") return end
-
-    if vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1) == 1 then
-        vim.ui.input({prompt="Save as: ", default=path, completion="dir"},
-        function(input)
-            vim.api.nvim_command("redraw") --Hide prompt
-
-            if     input == nil then
-                vim.notify("Save cancelled.", vim.log.levels.INFO)        return
-            elseif input == ""  then
-                vim.notify("Input cannot be empty!", vim.log.levels.INFO) return
-            end
-
-            --check target dir
-            local dir = vim.fs.dirname(input)
-            if not vim.uv.fs_stat(dir) then
-                local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
-                if choice == 1 then
-                    local ret, err = vim.uv.fs_mkdir(dir, tonumber("755", 8)) -- drwxr-xr-x
-                    if not ret then
-                        vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
-                    end
-                else
-                    vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
-                end
-            end
-
-            vim.api.nvim_buf_set_name(0, input); vim.cmd("w|e!") --refresh buf to new path
-        end)
-    end
-end)
+map(modes, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
 --Save all buffers
 map(modes, "<M-S-s>", function()
@@ -153,36 +117,7 @@ map(modes, "<M-S-s>", function()
 end)
 
 --save as
-map(modes, "<C-M-s>", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-
-    vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"},
-    function(input)
-        vim.api.nvim_command("redraw") --Hide prompt
-
-        if     input == nil then
-            vim.notify("Save cancelled.", vim.log.levels.INFO)        return
-        elseif input == ""  then
-            vim.notify("Input cannot be empty!", vim.log.levels.INFO) return
-        end
-
-        --check target dir
-        local dir = vim.fs.dirname(input)
-        if not vim.uv.fs_stat(dir) then
-            local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
-            if choice == 1 then
-                local ret, err = vim.uv.fs_mkdir(dir, tonumber("755", 8)) -- drwxr-xr-x
-                if not ret then
-                    vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
-                end
-            else
-                vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
-            end
-        end
-
-        vim.cmd("w "..input); vim.cmd("e "..input)
-    end)
-end)
+map(modes, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
 
 --Ressource curr file

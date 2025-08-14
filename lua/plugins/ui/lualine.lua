@@ -223,19 +223,15 @@ return
                         function()
                             local file_path = vim.api.nvim_buf_get_name(0)
 
-                            --local file_name = vim.fn.expand("%:t")
                             local fname = vim.fn.fnamemodify(file_path, ":t")
 
-                            --local file_type = "." .. vim.bo.filetype
-                            --local file_type = "." .. vim.fn.expand("%:e")
-                            --if file_type == "." then file_type = "[.notype]" end
 
                             --file properties
-                            local fstat      = vim.uv.fs_stat(file_path)
-                            local fondisk    = vim.fn.filereadable(file_path) == 1
-                            local freadonly  = vim.bo.readonly
-                            local fprotected = fstat and fstat.uid == 0 and not vim.uv.fs_access(fname, "w")
-                            local fexec      = vim.fn.executable(file_path) == 1
+                            local fstat       = vim.uv.fs_stat(file_path)
+                            local fondisk     = vim.fn.filereadable(file_path) == 1
+                            local freadonly   = (bit.band(fstat.mode, 0x80) == 0)
+                            local fprivileged = fstat and fstat.uid == 0
+                            local fexec       = vim.fn.executable(file_path) == 1
 
                             if fname == "" then fname = "[noname]" end
 
@@ -243,7 +239,7 @@ return
                             if not fondisk then fondisk_ic = '[!file]' end
 
                             local fprotected_ic = ""
-                            if fprotected then fprotected_ic = "🛡️" end
+                            if fprivileged then fprotected_ic = "🛡️" end
 
                             local freadonly_ic = "🔒"
                             if not freadonly then freadonly_ic = "" end

@@ -173,6 +173,10 @@ vim.api.nvim_create_user_command("CdFileDir", function()
     vim.cmd("pwd")
 end, {})
 
+vim.api.nvim_create_user_command("FileStat", function()
+    print(vim.inspect(vim.uv.fs_stat(vim.fn.expand("%"))))
+end, {})
+
 vim.api.nvim_create_user_command("FilePicker", function()
     local curfdir = vim.fn.expand("%:p")
 
@@ -186,6 +190,69 @@ vim.api.nvim_create_user_command("FilePicker", function()
             vim.cmd("edit " .. vim.fn.fnameescape(filepath))
         end
     end
+end, {})
+
+vim.api.nvim_create_user_command("FileSaveInteractive", function()
+    local bufid       = vim.api.nvim_get_current_buf()
+
+    local fpath       = vim.api.nvim_buf_get_name(0)
+    local fstat       = vim.uv.fs_stat(fpath)
+    local freadonly   = fstat and (bit.band(fstat.mode, 0x80) == 0)
+    local fprivileged = fstat and fstat.uid == 0
+
+    if not fstat then
+        if vim.fn.confirm("file does not exist. Create it?", "&Yes\n&No", 1) == 1 then
+            vim.cmd("FileSaveAsInteractive") return
+        end
+    end
+
+    if fstat and not fprivileged and not freadonly then vim.cmd("write") return end
+    if fstat and fprivileged and not freadonly then vim.cmd("SudoWrite") return end
+    if fstat and freadonly then vim.notify("Can't write, file is readonly!", vim.log.levels.WARN) return end
+end, {})
+
+vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+
+    local function prompt_user()
+        vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"},
+        function(input)
+            vim.api.nvim_command("redraw") --Hide prompt
+
+            if     input == nil then
+                vim.notify("Save cancelled.", vim.log.levels.INFO) return
+            elseif input == ""  then
+                vim.notify("Input cannot be empty!", vim.log.levels.INFO)
+                return prompt_user()
+            end
+
+            local dir = vim.fs.dirname(input) -- check target dir
+            if not vim.uv.fs_stat(dir) then
+                local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
+                if choice == 1 then
+                    local ret, err = vim.uv.fs_mkdir(dir, tonumber("755", 8)) -- drwxr-xr-x
+                    if not ret then
+                        vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
+                    end
+                else
+                    vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
+                    return prompt_user()
+                end
+            end
+
+            --check target path for existing file
+            if vim.uv.fs_stat(input) then
+                local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
+                if choice ~= 1 then
+                    vim.notify("Overwriting cancelled.", vim.log.levels.INFO)
+                    return prompt_user()
+                end
+            end
+
+            vim.api.nvim_buf_set_name(0, input); vim.cmd("w!|e!") return --w! to bypass builtin overwite check
+        end)
+    end
+    prompt_user()
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
@@ -225,7 +292,7 @@ vim.api.nvim_create_user_command("FileMove", function()
 
             local target_path = vim.fs.joinpath(input, fname)
 
-            --check target for existing file
+            --check target path for existing file
             if vim.uv.fs_stat(target_path) then
                 local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
                 if choice ~= 1 then

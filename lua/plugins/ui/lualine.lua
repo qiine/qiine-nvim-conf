@@ -224,33 +224,34 @@ return
                             local file_path = vim.api.nvim_buf_get_name(0)
 
                             --local file_name = vim.fn.expand("%:t")
-                            local file_name = vim.fn.fnamemodify(file_path, ":t")
+                            local fname = vim.fn.fnamemodify(file_path, ":t")
 
                             --local file_type = "." .. vim.bo.filetype
                             --local file_type = "." .. vim.fn.expand("%:e")
                             --if file_type == "." then file_type = "[.notype]" end
 
                             --file properties
-                            local file_ondisk   = vim.fn.filereadable(file_path) == 1
-                            local file_readonly = vim.bo.readonly
-                            local file_exec     = vim.fn.executable(file_path) == 1
+                            local fstat      = vim.uv.fs_stat(file_path)
+                            local fondisk    = vim.fn.filereadable(file_path) == 1
+                            local freadonly  = vim.bo.readonly
+                            local fprotected = fstat and fstat.uid == 0 and not vim.uv.fs_access(fname, "w")
+                            local fexec      = vim.fn.executable(file_path) == 1
 
-                            if file_name == "" then file_name = "[noname]" end
+                            if fname == "" then fname = "[noname]" end
 
-                            local file_ondisk_symbol = ""
-                            if file_ondisk then
-                                file_ondisk_symbol = ""
-                            else
-                                file_ondisk_symbol = '[!file]'
-                            end
+                            local fondisk_ic = ""
+                            if not fondisk then fondisk_ic = '[!file]' end
 
-                            local file_readonly_icon = "🔒"
-                            if not file_readonly then file_readonly_icon = "" end
+                            local fprotected_ic = ""
+                            if fprotected then fprotected_ic = "🛡️" end
 
-                            local file_exec_icon = "▶"
-                            if not file_exec then file_exec_icon = "" end
+                            local freadonly_ic = "🔒"
+                            if not freadonly then freadonly_ic = "" end
 
-                            return file_readonly_icon..file_exec_icon..file_name..file_ondisk_symbol
+                            local fexec_ic = "▶"
+                            if not fexec then fexec_ic = "" end
+
+                            return fprotected_ic..freadonly_ic..fexec_ic..fname..fondisk_ic
                         end,
                         color={gui = 'none'},
                         padding={left=0,right=0},

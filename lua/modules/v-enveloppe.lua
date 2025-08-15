@@ -44,6 +44,10 @@ function M.setup()
     vim.keymap.set("v", '<C-*>', function() M.enveloppe_selection('*','*') end)
 
     vim.keymap.set("v", '<C-->', function() M.enveloppe_selection('-','-') end)
+
+    -- /
+    vim.keymap.set("v", '<C-/>', function() M.enveloppe_selection('/','/') end)
+
 end
 
 

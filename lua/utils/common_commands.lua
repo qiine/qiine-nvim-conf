@@ -272,13 +272,16 @@ vim.api.nvim_create_user_command('SudoWrite', function()
     local wsize = {w = 45, h = 3}
 
     local wopts = {
-        relative = "editor",
-        style    = "minimal",
-        border   = "single",
-        width    = wsize.w,
-        height   = wsize.h,
-        col      = math.floor((edw_w - wsize.w) / 2),
-        row      = math.floor((edw_h - wsize.h) / 2),
+        title     = "Authentication required",
+        title_pos = "center",
+        relative  = "editor",
+        style     = "minimal",
+        border    = "single",
+        width     = wsize.w,
+        height    = wsize.h,
+        col       = math.floor((edw_w - wsize.w) / 2),
+        row       = math.floor((edw_h - wsize.h) / 2),
+
     }
     vim.api.nvim_open_win(0, true, wopts)
 

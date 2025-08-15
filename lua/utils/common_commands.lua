@@ -265,27 +265,24 @@ end, {})
 vim.api.nvim_create_user_command('SudoWrite', function()
     local tmp = vim.fn.tempname()
     vim.cmd('write! ' .. tmp)
-    --vim.cmd('vsp')
 
     local edw_w = vim.o.columns
     local edw_h = vim.o.lines
 
-    local wsize = {w = 50, h = 4}
+    local wsize = {w = 45, h = 3}
 
-    local win_opts = {
+    local wopts = {
         relative = "editor",
-        focusable = true,
-        style  = "minimal",
-        border = "single",
-        width  = wsize.w,
-        height = wsize.h,
-        col = math.floor((edw_w - wsize.w) / 2),
-        row = math.floor((edw_h - wsize.h) / 2),
+        style    = "minimal",
+        border   = "single",
+        width    = wsize.w,
+        height   = wsize.h,
+        col      = math.floor((edw_w - wsize.w) / 2),
+        row      = math.floor((edw_h - wsize.h) / 2),
     }
-    vim.api.nvim_open_win(0, true, win_opts)
+    vim.api.nvim_open_win(0, true, wopts)
 
     vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
-    vim.cmd('e!')
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()

@@ -20,6 +20,8 @@ else
     vim.cmd("colorscheme ron")
 end
 
+--make float win same bg reg win
+vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
 
 
 --[Bufferline]--------------------------------------------------

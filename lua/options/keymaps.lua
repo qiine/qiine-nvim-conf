@@ -335,7 +335,10 @@ map("v", "<F1>", 'y:h <C-r>"<CR>')
 map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 
 --to last directoy
-map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR><cmd>pwd<CR>")
+map({"i","n","v"}, "<M-Home>", "<cmd>cd -<CR><cmd>pwd<CR>")
+
+--pick dir
+map({"i","n","v"}, "<C-End>", "<esc>:cd")
 
 --cd file dir
 map(modes, "<C-g>nf", "<cmd>cd %:p:h | pwd<CR>")
@@ -1042,7 +1045,7 @@ map("i", "<C-l>", "<C-o><C-l>")
 
 --Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
-map("c", "<esc>", "<C-c>", {noremap=true})
+--map("c", "<esc>", "<C-c>", {noremap=true})
 
 --Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {

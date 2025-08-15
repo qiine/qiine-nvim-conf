@@ -73,16 +73,17 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     pattern  = "*",
     callback = function(args)
         vim.defer_fn(function()
+            if vim.bo.buftype == 'terminal' then vim.opt_local.winbar = nil return end
+
             --prevent errors with very small windows
             if vim.api.nvim_win_get_height(0) < 5 then return end
 
-            local bt = vim.bo.buftype
-
-            if bt == 'terminal' then vim.opt_local.winbar = nil return end
+            --avoid floatwin
+            local wcfg = vim.api.nvim_win_get_config(vim.api.nvim_get_current_win())
+            if wcfg.relative ~= "" then vim.opt_local.winbar = nil return end
 
             if vim.tbl_contains(excluded_filetype, vim.bo.filetype) then
-                vim.opt_local.winbar = nil
-                return
+                vim.opt_local.winbar = nil return
             end
 
             vim.wo.winbar = require("options.ui.winbar").render()

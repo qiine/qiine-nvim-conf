@@ -225,7 +225,6 @@ return
 
                             local fname = vim.fn.fnamemodify(file_path, ":t")
 
-
                             --file properties
                             local fstat       = vim.uv.fs_stat(file_path)
                             local fondisk     = vim.fn.filereadable(file_path) == 1

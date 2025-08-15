@@ -62,9 +62,12 @@ vim.api.nvim_create_user_command("WebSearch", function()
     )
 end, {range=true})
 
---### Registers
+
+
+--## [Registers]
+----------------------------------------------------------------------
 vim.api.nvim_create_user_command("ClearClipboard", function()
-    vim.fn.setreg("+", " ")
+    vim.fn.setreg("+", " ") --need white space here
 end, {})
 
 vim.api.nvim_create_user_command("LiveReg", function()
@@ -100,7 +103,7 @@ vim.api.nvim_create_user_command("LiveReg", function()
         end
     end, { ["repeat"] = -1 })
 
-    refresh() -- initial fill
+    refresh()
 
     -- stop timer if buffer is wiped
     vim.api.nvim_create_autocmd("BufWipeout", {
@@ -110,6 +113,7 @@ vim.api.nvim_create_user_command("LiveReg", function()
         end,
     })
 end, {})
+
 
 
 --## [Buffers]
@@ -193,22 +197,25 @@ vim.api.nvim_create_user_command("FilePicker", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileSaveInteractive", function()
-    local bufid       = vim.api.nvim_get_current_buf()
-
     local fpath       = vim.api.nvim_buf_get_name(0)
     local fstat       = vim.uv.fs_stat(fpath)
     local freadonly   = fstat and (bit.band(fstat.mode, 0x80) == 0)
     local fprivileged = fstat and fstat.uid == 0
 
     if not fstat then
-        if vim.fn.confirm("file does not exist. Create it?", "&Yes\n&No", 1) == 1 then
-            vim.cmd("FileSaveAsInteractive") return
+        local choice = vim.fn.confirm("file does not exist. Create it?", "&Yes\n&No", 1)
+        if choice == 1 then vim.cmd("FileSaveAsInteractive")                       return
+        else                vim.notify("Creation cancelled.", vim.log.levels.INFO) return
         end
     end
-
     if fstat and not fprivileged and not freadonly then vim.cmd("write") return end
     if fstat and fprivileged and not freadonly then vim.cmd("SudoWrite") return end
-    if fstat and freadonly then vim.notify("Can't write, file is readonly!", vim.log.levels.WARN) return end
+    if fstat and freadonly then
+        local choice = vim.fn.confirm("Can't write, file is readonly! Try force?", "&Yes\n&No", 1)
+        if choice == 1 then vim.cmd("SudoWrite")                                      return
+        else                vim.notify("Force write cancelled.", vim.log.levels.INFO) return
+        end
+    end
 end, {})
 
 vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
@@ -253,6 +260,32 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
         end)
     end
     prompt_user()
+end, {})
+
+vim.api.nvim_create_user_command('SudoWrite', function()
+    local tmp = vim.fn.tempname()
+    vim.cmd('write! ' .. tmp)
+    --vim.cmd('vsp')
+
+    local edw_w = vim.o.columns
+    local edw_h = vim.o.lines
+
+    local wsize = {w = 50, h = 4}
+
+    local win_opts = {
+        relative = "editor",
+        focusable = true,
+        style  = "minimal",
+        border = "single",
+        width  = wsize.w,
+        height = wsize.h,
+        col = math.floor((edw_w - wsize.w) / 2),
+        row = math.floor((edw_h - wsize.h) / 2),
+    }
+    vim.api.nvim_open_win(0, true, win_opts)
+
+    vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
+    vim.cmd('e!')
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
@@ -430,13 +463,6 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     end
 end, {})
 
-vim.api.nvim_create_user_command('SudoWrite', function()
-    local tmp = vim.fn.tempname()
-    vim.cmd('write! ' .. tmp)
-    vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
-    vim.cmd('e!')
-end, {})
-
 --Easy del files without file browser
 vim.api.nvim_create_user_command("FileDelete", function()
     local fpath = vim.api.nvim_buf_get_name(0)
@@ -498,8 +524,32 @@ end, {})
 
 --## [Windows]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("CreateWindow", function()
+vim.api.nvim_create_user_command("CreateFloatingWindow", function()
+    local bufid = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufid })
 
+    local edw_w = vim.o.columns
+    local edw_h = vim.o.lines
+
+    local wsize = {w = 65, h = 20}
+
+    local wopts = {
+        title = "Scratchpad",
+        relative = "editor",
+        border = "single",
+        width  = wsize.w,
+        height = wsize.h,
+        col = math.floor((edw_w - wsize.w) / 2),
+        row = math.floor((edw_h - wsize.h) / 2),
+        style  = "minimal",
+        focusable = true,
+    }
+    local win = vim.api.nvim_open_win(bufid, true, wopts)
+end, {})
+
+vim.api.nvim_create_user_command("WinInfo", function()
+    local winid = vim.api.nvim_get_current_win()
+    print(vim.inspect(vim.api.nvim_win_get_config(winid)))
 end, {})
 
 
@@ -576,7 +626,6 @@ end, {})
 
 --## [Version control]
 ----------------------------------------------------------------------
---Handy Show git root
 vim.api.nvim_create_user_command("PrintGitRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
 end, {})

@@ -36,7 +36,6 @@
 * [ ] luasnip, friendly-snippets  
 * [ ] understand quickfix  
 * [ ] understand why blink comp don't suggest words from other part of the project  
-* [ ] Open trouble panel on error or warning 
 * [ ] understand code actions  
 
 
@@ -61,7 +60,6 @@
 * [ ] learn neogit  
 
 * [ ] sync neotreee and oil nvim  
-* [ ] fix telescope root finding and grep  
 
 * [ ] img support  
 * [ ] add some padlock icon when buffer is not modifyable
@@ -71,8 +69,11 @@
 
 
 
-## window manager
+## window manager
+---
 * [ ] add focus curr win bind
+
+
 
 ## proj
 ----
@@ -98,4 +99,11 @@
 * [ ] Use 'keymaps.lua' only for pure shortcuts def, move all logic to dedicated library or 
   modules.
 * [ ] learn how to write test in lua and for nvim  
+
+
+
+
+
+
+
 

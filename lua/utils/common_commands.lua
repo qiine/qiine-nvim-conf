@@ -158,6 +158,12 @@ vim.api.nvim_create_user_command("DeleteAllBuffers", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("BufferCopy", function()
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    vim.fn.setreg("+", table.concat(lines, "\n"))
+    print("Buffer copied")
+end, {})
+
 
 
 --## [Files]
@@ -203,11 +209,12 @@ vim.api.nvim_create_user_command("FileSaveInteractive", function()
     local fprivileged = fstat and fstat.uid == 0
 
     if not fstat then
-        local choice = vim.fn.confirm("file does not exist. Create it?", "&Yes\n&No", 1)
+        local choice = vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1)
         if choice == 1 then vim.cmd("FileSaveAsInteractive")                       return
         else                vim.notify("Creation cancelled.", vim.log.levels.INFO) return
         end
     end
+
     if fstat and not fprivileged and not freadonly then vim.cmd("write") return end
     if fstat and fprivileged and not freadonly then vim.cmd("SudoWrite") return end
     if fstat and freadonly then
@@ -293,10 +300,6 @@ vim.api.nvim_create_user_command("FileMove", function()
     local fname = vim.fn.fnamemodify(fpath, ":t")
     local fdir  = vim.fn.fnamemodify(fpath, ":h")
 
-    if vim.fn.filereadable(fpath) == 0 then
-        vim.notify("No file on disk to move.", vim.log.levels.ERROR) return
-    end
-
     local function prompt_user()
         vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
         function(input)
@@ -350,11 +353,6 @@ end, {})
 
 vim.api.nvim_create_user_command("FileRename", function()
     local old_fpath = vim.api.nvim_buf_get_name(0)
-
-    if vim.fn.filereadable(old_fpath) == 0 then
-        vim.notify("No file to rename.", vim.log.levels.ERROR) return
-    end
-
     local old_dir  = vim.fn.fnamemodify(old_fpath, ":h")
     local old_name = vim.fn.fnamemodify(old_fpath, ":t")
 
@@ -389,6 +387,60 @@ vim.api.nvim_create_user_command("FileRename", function()
             --Reload buffer with new file
             vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
             vim.notify('Renamed to: "'..input..'"', vim.log.levels.INFO)
+        end)
+    end
+    prompt_user()
+end, {})
+
+--Easy del files without file browser
+vim.api.nvim_create_user_command("FileDelete", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+    local fname = vim.fn.fnamemodify(fpath, ":t")
+
+    local choice = vim.fn.confirm('Delete "' .. fname .. '" ?', "&Yes\n&No", 1)
+    if choice == 1 then
+        vim.uv.fs_unlink(fpath, function(err)
+            if err then
+                vim.schedule(function()
+                    vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
+                end)
+                return
+            end
+
+            vim.schedule(function()
+                vim.cmd('bdelete!'); vim.notify("Deleted: " .. fpath, vim.log.levels.INFO)
+            end)
+        end)
+    else
+        vim.notify("Delete canceled.", vim.log.levels.INFO) return
+    end
+end, {})
+
+vim.api.nvim_create_user_command("SymlinkToFile", function()
+    local bufid = vim.api.nvim_get_current_buf()
+    local fpath = vim.api.nvim_buf_get_name(bufid)
+
+    local function prompt_user()
+        vim.ui.input({
+            prompt = "Symlink path: ", default = vim.fn.expand("~").."/", completion = "dir",
+        },
+        function(input)
+            vim.api.nvim_command("redraw") --Hide prompt
+
+            if input == nil then
+                vim.notify("linking cancelled. ", vim.log.levels.INFO) return
+            elseif input == "" then
+                vim.notify("Input cannot be empty!", vim.log.levels.WARN)
+                return prompt_user()
+            end
+
+            local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
+            if res.code ~= 0 then
+                vim.notify("Linking failed!" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR)
+                return prompt_user()
+            end
+
+            vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
         end)
     end
     prompt_user()
@@ -461,63 +513,6 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
     else
         vim.notify("Failed to remove executable flag.", vim.log.levels.ERROR)
     end
-end, {})
-
---Easy del files without file browser
-vim.api.nvim_create_user_command("FileDelete", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local fname = vim.fn.fnamemodify(fpath, ":t")
-
-    if fpath == "" or vim.fn.filereadable(fpath) == 0 then
-        vim.notify("No file to delete.", vim.log.levels.ERROR) return
-    end
-
-    local choice = vim.fn.confirm('Delete "' .. fname .. '" ?', "&Yes\n&No", 1)
-    if choice == 1 then
-        vim.uv.fs_unlink(fpath, function(err)
-            if err then
-                vim.schedule(function()
-                    vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
-                end)
-                return
-            end
-
-            vim.schedule(function()
-                vim.cmd('bdelete!')
-                vim.notify("Deleted: " .. fpath, vim.log.levels.INFO)
-            end)
-        end)
-    else
-        vim.notify("Delete canceled.", vim.log.levels.INFO) return
-    end
-end, {})
-
-vim.api.nvim_create_user_command("SymlinkToFile", function()
-    local bufid = vim.api.nvim_get_current_buf()
-    local fpath = vim.api.nvim_buf_get_name(bufid)
-
-    --TODO make it retriable
-    vim.ui.input({
-        prompt = "Symlink path: ", default = vim.fn.expand("~").."/", completion = "dir",
-    },
-    function(input)
-        vim.api.nvim_command("redraw") --Hide prompt
-
-        if input == nil then
-            vim.notify("linking cancelled. ", vim.log.levels.INFO) return
-        end
-        if input == "" then
-            vim.notify("Input cannot be empty!", vim.log.levels.WARN) return
-        end
-
-
-        local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
-        if res.code ~= 0 then
-            vim.notify("Linking failed!" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR) return
-        end
-
-        vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
-    end)
 end, {})
 
 

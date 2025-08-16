@@ -193,10 +193,12 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 map({"i","n","v"}, "<M-w>", "<esc><C-w>",   {noremap=true})
 map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
+--make ver split
 map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
+--make hor split
 map(modes, "<M-w>h", "<cmd>new<cr>")
 
---To next window
+--To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
 --focus split
@@ -208,6 +210,32 @@ map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
 --resize vert
 map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
 map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
+
+--open new win
+map(modes, "<M-w>n", function ()
+    local wopts = {
+        split = "right",
+        height = 30,
+        width = 20
+    }
+    vim.api.nvim_open_win(0, true, wopts)
+end)
+
+--detach win
+map(modes, "<M-w>d", function()
+    --TODO
+    --the idea would be to close curr win save its buff and reopen as split and carry prev settings
+
+    --local buf = vim.api.nvim_get_current_buf()
+    --local winid = vim.api.nvim_get_current_win()
+    --local wopts = vim.api.nvim_win_get_config(winid)
+
+    --wopts.relative = "editor"
+    --wopts.col = 20
+    --wopts.row = 20
+
+    --vim.api.nvim_win_set_config(winid, wopts)
+end)
 
 
 
@@ -280,8 +308,8 @@ map({"n","v"}, "<Home>", "gg0")
 --kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
-map("i",       "<End>", "<esc>G0i")
-map({"n","v"}, "<End>", "G0")
+map("i",       "<End>", "<esc>G$a")
+map({"n","v"}, "<End>", "G$")
 
 --kmap("i", "<M-Down>", "<Esc>G0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Down>", "G0")
@@ -374,7 +402,7 @@ map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 
 --Select to home/end
 map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
-map({"i","n","v"}, "<S-End>",  "<Esc>vG")
+map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 --ctrl+a select all
 map(modes, "<C-a>", "<Esc>G$vgg0")
@@ -563,7 +591,7 @@ map("v", "<M-c>", function()
 
     vim.cmd('norm! mz"+y`z')
 
-    vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+")) --apppend
+    vim.fn.setreg("+", reg_prev .. vim.fn.getreg("+"))
 
     print("Appended to clipboard")
 end)
@@ -1071,6 +1099,3 @@ end, {noremap=true})
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
-
-
-

@@ -41,8 +41,8 @@ vim.opt.shortmess:append("si")
 --## [Windows]
 ----------------------------------------------------------------------
 --Splits
-vim.opt.splitbelow = true -- Open new split windows below the current window
-vim.opt.splitright = true -- Open new split windows to the right of the current window
+vim.opt.splitbelow = true -- Open new hor split windows below the current window
+vim.opt.splitright = true -- Open new ver split windows to the right of the current window
 
 
 

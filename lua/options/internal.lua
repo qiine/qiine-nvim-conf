@@ -52,4 +52,41 @@ vim.opt.path = { ".", "**" }
 --vim.opt.findfunc =
 
 
+--vim.opt.fixeol = false -- don't make unnecessary changes
+
+
+
+--## [Buffers]
+----------------------------------------------------------------------
+--vim.opt.hidden = false -- always destroy buffers when closed
+
+
+
+--## [shada]
+----------------------------------------------------------------------
+vim.opt.shada = "!,'1000,<50,s10,h"
+--The ShaDa file is used to store:
+--- The command line history.
+--- The search string history.
+--- The input-line history.
+--- Contents of non-empty registers.
+--- Marks for several files.
+--- File marks, pointing to locations in files.
+--- Last search/substitute pattern (for 'n' and '&').
+--- The buffer list.
+--- Global variables.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

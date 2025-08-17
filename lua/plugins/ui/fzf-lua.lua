@@ -10,16 +10,17 @@ return
                 actions = {
                     ["esc"] = "",  --restore esc to normal mode (now quit with C-w)
                 },
+
             },
 
             winopts = {
                 title_pos    = "center",
-                border       = "rounded",  --single
-                height       = 0.75,            -- window height
+                border       = "rounded", --single
+                height       = 0.75,         -- window height
                 width        = 1,            -- window width
-                row          = 0.50,            -- window row position (0=top, 1=bottom)
-                col          = 0.51,            -- window col position (0=left, 1=right)
-                backdrop     = 100, --opacity
+                row          = 0.50,         -- window row position (0=top, 1=bottom)
+                col          = 0.51,         -- window col position (0=left, 1=right)
+                backdrop     = 100,  --opacity
                 preview = {
                     --hidden = "hidden",
                     border = "border",
@@ -53,7 +54,7 @@ return
                 ]],
                 case_mode = 'smart',
                 actions = {
-                    ['default'] = require('fzf-lua.actions').file_edit,--open multiples
+                    ['default'] = require('fzf-lua.actions').file_edit, --allow open multiples
                 }
             },
 
@@ -79,12 +80,18 @@ return
             require("fzf-lua").files({
                 cwd = require("fzf-lua.path").git_root({}),
             })
-        end, { silent = true, desc = "Fuzzy find file in project" })
+        end, {silent=true, desc="Fuzzy find file in project" })
 
         --find files in home
         vim.keymap.set({"i","n","v","t"}, "<M-f>", function()
             require("fzf-lua").files({ cwd="~", })
         end, { silent=true, desc="Fuzzy find file in HOME"})
+
+        --find recent files
+        vim.keymap.set({"i","n","v","t"}, "<M-f>r", function()
+            require("fzf-lua").oldfiles({ })
+        end, {silent=true, desc="Fuzzy find recent files"})
+
 
         --find files in notes
         vim.keymap.set({"i","n","v","t"}, "<F49>", function()   --<M-F1>
@@ -105,6 +112,7 @@ return
                 },
             })
         end)
+
 
 
         --grep curr dir
@@ -164,7 +172,7 @@ return
         end, {silent=true, desc="Fuzzy cd to dir under ~"})
 
 
-        --search ft
+        --search ft and set it
         vim.keymap.set({"i","n","v"}, "<M-f>t", function()
             require("fzf-lua").filetypes({})
         end, {silent = true, desc = "search and set filetypes" })

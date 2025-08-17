@@ -190,26 +190,9 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 --## [Windows]
 ----------------------------------------------------------------------
+--rebind win prefix
 map({"i","n","v"}, "<M-w>", "<esc><C-w>",   {noremap=true})
 map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
-
---make ver split
-map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
---make hor split
-map(modes, "<M-w>h", "<cmd>new<cr>")
-
---To next window (include splits)
-map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
-
---focus split
-map(modes, "<M-w>f", "<cmd>wincmd |<cr><cmd>wincmd _<cr>")
-
---resize hor
-map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
-map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
---resize vert
-map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
-map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
 
 --open new win
 map(modes, "<M-w>n", function ()
@@ -220,6 +203,39 @@ map(modes, "<M-w>n", function ()
     }
     vim.api.nvim_open_win(0, true, wopts)
 end)
+
+--make ver split
+map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
+--make hor split
+map(modes, "<M-w>h", "<cmd>new<cr>")
+
+--To next window (include splits)
+map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
+
+--focus split
+map(modes, "<M-w>f", function()
+    local win     = vim.api.nvim_get_current_win()
+    local wwidth  = vim.api.nvim_win_get_width(win)
+    local wheight = vim.api.nvim_win_get_height(win)
+
+    local tab_width  = vim.o.columns
+    local tab_height = vim.o.lines - vim.o.cmdheight
+
+    local focused = wwidth >= tab_width * 0.9 and wheight >= tab_height * 0.9
+    if focused then
+        vim.cmd("wincmd =") --equalize win size
+    else
+        vim.cmd("wincmd |")
+        vim.cmd("wincmd _")
+    end
+end)
+
+--resize hor
+map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
+map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
+--resize vert
+map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
+map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
 
 --detach win
 map(modes, "<M-w>d", function()

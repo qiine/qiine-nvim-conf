@@ -4,6 +4,7 @@ return
     dependencies = { "nvim-tree/nvim-web-devicons" },
 
     config = function()
+        local fzfl = require("fzf-lua")
         require('fzf-lua').register_ui_select()
         require("fzf-lua").setup({
             defaults = {
@@ -153,11 +154,10 @@ return
             })
         end)
 
-
         --fuzzy cd
-        vim.keymap.set({"i","n","v","t"}, "<M-f>d", function()
-            require("fzf-lua").fzf_exec("fdfind . --type d", { --or fd
-                prompt = "/",
+        fzfl.fuzzy_cd = function()
+            fzfl.fzf_exec("fdfind . --type d", {     --or fd
+                prompt = "cd ",
                 cwd = "/",
                 actions = {
                     ["default"] = function(selected)
@@ -169,7 +169,31 @@ return
                     end,
                 },
             })
-        end, {silent=true, desc="Fuzzy cd to dir under ~"})
+        end
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>d", function() fzfl.fuzzy_cd() end,
+        {silent=true, desc = "Fuzzy cd to directory"})
+
+
+        --TODO find project using .git
+        vim.keymap.set({"i","n","v","t"}, "<M-f>p", function()
+            require("fzf-lua").fzf_exec(
+                --&& echo {} will only output the directories that pass the test.
+                "fdfind . -t d -e .git",  -- find .git directories
+                {
+                    prompt = "Projects>",
+                    cwd = "~",
+                    actions = {
+                        ["default"] = function(selected)
+                            if selected and #selected > 0 then
+                                local proj = selected[1]:gsub("/%.git$", "")  -- strip .git
+                                vim.cmd("cd " .. vim.fn.expand(proj))
+                            end
+                        end,
+                    },
+                }
+            )
+        end, {silent=true, desc="Fuzzy cd to git projectsfp"})
 
 
         --search ft and set it

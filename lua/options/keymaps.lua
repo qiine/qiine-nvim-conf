@@ -671,7 +671,7 @@ map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
 --paste replace word
 map("i", "<C-S-v>", '<esc>"_diw"+Pa')
-map("n", "<C-S-v>", '<esc>"_diw"+P')
+map({"n","v"}, "<C-S-v>", '<esc>"_diw"+P')
 
 --Duplicate
 map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})

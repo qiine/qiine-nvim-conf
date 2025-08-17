@@ -6,7 +6,7 @@ local function layout()
         local def_opts = {
             cursor = 1,
             position = "center",
-            width = 40,
+            width = 45,
             align_shortcut = "right",
             hl_shortcut = "AlphaButtonShortcut",
             hl = "AlphaButton",
@@ -113,10 +113,11 @@ local function layout()
         local nvim_cfg_init = nvim_cfg_path.."/init.lua"
 
         return {
-            button("n", " New file", "<Cmd>enew<CR>"),
-            button("r", "󰈢 Recently opened files", "<Cmd>FzfLua oldfiles<CR>"),
-            button("f", " File browser"),
-            button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
+            button("n", "┃ New file", "<Cmd>enew<CR>"),
+            button("r", "┃󰈢 Recently opened files", "<Cmd>FzfLua oldfiles<CR>"),
+            button("f", "┃ File browser"),
+            button("p", "┃📁 Project", "<Cmd>FzfLua fuzzy_cd<CR>"),
+            button("s", "┃ Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
     end
 
@@ -162,6 +163,7 @@ local function layout()
             --opts = { hl = header_color, position = "center" },
             opts = { position = "center" },
         },
+
         --{ type = "padding", val = 1 }, --
         {
             val  = date(),
@@ -175,27 +177,36 @@ local function layout()
             --opts = { hl = header_color, position = "center" }
             opts = { position = "center" }
         },
+
         {type = "padding", val = 1 }, --
         {
             val  = menu(),
             type = "group",
             opts = { spacing = 0 }
         },
+
         {type = "padding", val = 1 }, --
         {   --options
             val  = {
-                button("c", " Config", function()vim.cmd("e "..nvim_cfg_init) vim.cmd("cd "..nvim_cfg_path) end),
-                button("p", " Plugins", "<Cmd>Lazy<CR>"), --󰂖 🧩 󱁤
+                button("c", "┃ Config", function()vim.cmd("e "..nvim_cfg_init) vim.cmd("cd "..nvim_cfg_path) end),
+                button("e", "┃ Plugins", "<Cmd>Lazy<CR>"), --󰂖 🧩 󱁤
             },
             type = "group",
             opts = { spacing = 0 }
         },
 
-        {type = "padding", val = 1 }, --
+
+        {type = "padding", val = 2 }, --
         {   --quit
-            val  = {button("q", " Quit", "<Cmd>qa!<CR>")}, --󰅚  ⎋
+            val  = {button("q", "┃ Quit", "<Cmd>qa!<CR>")}, --󰅚  ⎋
             type = "group",
             opts = { spacing = 0 }
+        },
+
+        {
+            val  = fortune(),
+            type = "text",
+            opts = { hl = "AlphaQuote", position = "center" }
         },
         --{ type = "padding", val = 1 }, --
         --{
@@ -204,13 +215,6 @@ local function layout()
         --    opts = { spacing = 0 }
         --},
         --{ type = "padding", val = 1 },
-        {
-            val  = fortune(),
-            type = "text",
-            opts = { hl = "AlphaQuote", position = "center" }
-        },
-        --{ { type = "text", val = " LEFT COLUMN", opts = { position = "left" } },
-        --{ type = "text", val = "RIGHT COLUMN", opts = { position = "left" } }, }
     }
 end
 

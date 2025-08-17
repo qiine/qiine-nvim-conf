@@ -89,6 +89,8 @@ return
                             --local cwd = vim.fn.getcwd()
                             --local excwd = vim.fn.expand(cwd)
                             vim.cmd("term")
+                            vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+                            vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
                             local lines = vim.fn.line('$')
                             local new_height = math.floor(lines / 2)

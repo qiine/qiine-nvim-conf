@@ -223,7 +223,7 @@ map(modes, "<M-w>f", function()
 
     local focused = wwidth >= tab_width * 0.9 and wheight >= tab_height * 0.9
     if focused then
-        vim.cmd("wincmd =") --equalize win size
+        vim.cmd("wincmd =") --equalize all win size
     else
         vim.cmd("wincmd |")
         vim.cmd("wincmd _")

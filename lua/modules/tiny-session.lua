@@ -13,15 +13,15 @@ vim.opt.sessionoptions = {
     --"blank",  	--empty windows
     --"buffers",   --hidden and unloaded buffers, not just those in windows
     "tabpages",  --all tab pages; without this only the current tab page is restored
-    "terminal",
+    --"terminal",
     "folds",     --manually created folds, opened/closed folds and local fold options
     --"globals",	--global variables that start with an uppercase letter and contain at least one lowercase letter.  Only String and Number types are stored.
     --"options",	--all options and mappings (also global values for local options)
     --"localoptions"	--options and mappings local to a window or buffer (not global values for local options)
     "winsize",
     --"resizes",	--size of the Vim window: 'lines' and 'columns'
-    "winpos",	--position of the whole Vim window
-    --"help",	--the help window
+    --"winpos",	 --position of the whole Vim window
+    --"help",	 --the help window
     --"skiprtp",	--exclude 'runtimepath' and 'packpath' from the options
     --"sesdir", 	--the dir in which the session file is stored will become the current dir
 }
@@ -56,44 +56,16 @@ function M.session_clean(session)
     end
 end
 
-function M.session_clear_hiddenbufs(path)
-    local lines = {}
-    local ok, session = pcall(io.open, path, "r")
-    if not ok or not session then
-        return
-    end
-
-    for line in session:lines() do
-        if not line:match("^badd ")
-            and not line:match("^silent! badd ")
-            and not line:match("^%$argadd ")
-        then
-            table.insert(lines, line)
-        end
-    end
-
-    session:close()
-
-    local out, err = io.open(path, "w")
-    if not out then
-        return
-    end
-
-    for _, l in ipairs(lines) do
-        out:write(l .. "\n")
-    end
-    out:close()
-end
 
 function M.globalsession_save()
-    if vim.fn.win_gettype() == "command" then return end  --mksession not allowed in cmdline
+    --if vim.fn.win_gettype() == "command" then return end  --mksession not allowed in cmdline
     vim.cmd("mksession! " .. GLOBAL_SESSION)
-    M.session_clear_hiddenbufs(GLOBAL_SESSION)
+    --M.session_clear_hiddenbufs(GLOBAL_SESSION)
 end
 
 --create/save session
 vim.api.nvim_create_user_command("SaveGlobalSession", function()
-M.globalsession_save()
+    M.globalsession_save()
     print("global session saved: " .. GLOBAL_SESSION)
 end, {})
 
@@ -104,7 +76,9 @@ end, {})
 
 --Load session
 vim.api.nvim_create_user_command("LoadGlobalSession", function()
-    vim.cmd("silent! source " .. GLOBAL_SESSION)
+    --vim.cmd("silent! source " .. GLOBAL_SESSION)
+    print("Loading last global session")
+    vim.cmd("source " .. GLOBAL_SESSION)
 end, {})
 
 --Flush global session file
@@ -117,7 +91,8 @@ end, {})
 vim.api.nvim_create_augroup('TinySession', { clear = true })
 
 --Smart auto save session
-vim.api.nvim_create_autocmd({"BufAdd","BufDelete","DirChanged","VimLeavePre"}, {
+--vim.api.nvim_create_autocmd({"BufAdd","BufDelete", "DirChanged", "VimLeavePre"}, {
+vim.api.nvim_create_autocmd({"VimLeavePre"}, {
     group = 'TinySession',
     pattern = '*',
     callback = function()

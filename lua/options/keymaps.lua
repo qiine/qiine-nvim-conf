@@ -308,11 +308,11 @@ map({"n","v"}, "<Home>", "gg0")
 --kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
-map("i",       "<End>", "<esc>G$a")
+map("i",       "<End>", "<Esc>G$a")
 map({"n","v"}, "<End>", "G$")
 
---kmap("i", "<M-Down>", "<Esc>G0i")  --collide with <esc><up>
---kmap({"n","v"}, "<M-Down>", "G0")
+--kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
+--kmap({"n","v"}, "<M-Down>", "G$")
 
 --jump to word
 --function JumpToCharAcrossLines(target)
@@ -340,7 +340,7 @@ map("n", "f", function()
 end, {remap = true})
 
 
---search
+--### search
 map({"i","n","v","c"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl
     vim.opt.hlsearch = true
@@ -359,17 +359,32 @@ end)
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 
---move one dir up
+--### Directory nav
+--Move one dir up
 map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 
 --to last directoy
 map({"i","n","v"}, "<M-Home>", "<cmd>cd -<CR><cmd>pwd<CR>")
 
---pick dir
-map({"i","n","v"}, "<C-End>", "<esc>:cd")
+--Interactive cd
+map({"i","n","v","c"}, "<C-End>", function()
+    vim.api.nvim_feedkeys(":cd ", "n", false)
+    vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
+end)
 
 --cd file dir
-map(modes, "<C-g>nf", "<cmd>cd %:p:h | pwd<CR>")
+map(modes, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
+
+--cd project root
+map(modes, "<C-p>p", function()
+    local res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
+    if res.code ~= 0 then
+        vim.notify("Not inside a Git repo:"..res.stderr, vim.log.levels.ERROR) return
+    end
+    local groot = vim.trim(res.stdout) --trim white space to avoid surprises
+
+    vim.cmd("cd " .. groot); vim.cmd("pwd")
+end)
 
 
 
@@ -757,23 +772,18 @@ map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 map("v", "<M-r>", "r")
 
 
--- substitue mode
+-- Substitue mode
 map({"i","n"}, "<M-s>",
-     [[<Esc>:%s/\V//g<Left><Left><Left>]]
-    --function()
-    --vim.api.nvim_feedkeys([[:%s/\V//g]], "n", false)
-    --vim.api.nvim_feedkeys("<Left><Left><Left>", "n", false)
-    --vim.api.nvim_feedkeys("|nohls", "n", false)
---end
+[[<Esc>:%s/\V//g<Left><Left><Left>]]
 ,{desc = "Enter substitue mode"})
 
 
--- sub word
+-- Substitue word
 map({"i","n","v"}, "<C-S-s>",
 [[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
 
---sub in selection
+-- Substitue in selection
 map("v", "<M-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode in selection"})

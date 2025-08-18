@@ -30,7 +30,7 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 
 
 ---
-## 🧠 Text Parsing
+## 🧠 Text inteligence
 ---
 **Supported languages**:
 - Lua  
@@ -45,7 +45,6 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - Custom snippets  
 - **nvim-lint**, 
 - **conform.nvim**  
-- Spell checking
 
 
 ---
@@ -53,7 +52,6 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 ---
 - **neo-tree**  
 - **oil.nvim**  
-- **telescope.nvim**
 - custom files user commands like delete current file, set readonly, move etc...
 
 
@@ -64,6 +62,7 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - **barbar.nvim** for tabs  
 - **trouble.nvim**  
 - **indent-blankline.nvim**
+- custom winbar, displaying curr file path
 
 
 ---
@@ -82,7 +81,7 @@ Currently only supports **one global session**
 ---
 - Based on **Nightfox**  
 - Custom highlight groups  
-- Tweaked for a **black & white eInk monitor** — no colors for now
+- Tweaked for a **black & white eInk monitor** -- no proper colors for now
 
 
 ---
@@ -95,14 +94,18 @@ Currently only supports **one global session**
 ## 🧪 Environment
 ---
 ### Dependencies
+
+* fzf
+* fd
+* ripgrep
+
+optional
 - stylua
 - marksman
 - lua_ls
 - luacheck
 - eslint_d
-* fzf
-* fd
-* ripgrep
+
 
 ---
 

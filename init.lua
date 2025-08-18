@@ -23,7 +23,6 @@ else
     vim.opt.termguicolors = false --for tty
 end
 
-vim.opt.encoding = "UTF-8"
 
 
 -------------------------------

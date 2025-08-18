@@ -37,7 +37,7 @@ function M.session_clean(session)
             if vim.fn.filereadable(filepath) == 1 then
                 table.insert(safe_buf, line)
             else
-                print("Removed missing file from session: " .. filepath)
+                --nofile
             end
         else
             table.insert(safe_buf, line)
@@ -52,7 +52,7 @@ function M.session_clean(session)
         end
         f:close()
     else
-        print("Failed to rewrite session file.") return
+        return --fail
     end
 end
 
@@ -63,10 +63,10 @@ function M.globalsession_save()
     --M.session_clear_hiddenbufs(GLOBAL_SESSION)
 end
 
---create/save session
+--cmd create/save session
 vim.api.nvim_create_user_command("SaveGlobalSession", function()
     M.globalsession_save()
-    print("global session saved: " .. GLOBAL_SESSION)
+    --print("global session saved: " .. GLOBAL_SESSION)
 end, {})
 
 --edit global session file

@@ -178,7 +178,7 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 --## [Tabs]
 ----------------------------------------------------------------------
 --create new tab
-map(modes,"<C-t>", function() vim.cmd("Alpha") end)
+map(modes,"<C-t>", "<Cmd>tabnew<CR>")
 
 --Tabs nav
 --next
@@ -876,8 +876,8 @@ end)
 
 --##[Join]
 --Join below
-map("i",       "<C-j>", "<C-o><S-j>") --this syntax allow to use motions
-map({"n","v"}, "<C-j>", "<S-j>")
+map("i",       "<C-j>", "<C-o><S-j>")
+map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use motions
 
 --Join to upper
 map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions

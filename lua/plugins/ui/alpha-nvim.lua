@@ -4,12 +4,12 @@ local function layout()
     ---@return table
     local function button(sc, txt, keybind, keybind_opts, opts)
         local def_opts = {
-            cursor = 1,
+            cursor   = 2,
             position = "center",
-            width = 45,
+            width    = 45,
             align_shortcut = "right",
             hl_shortcut = "AlphaButtonShortcut",
-            hl = "AlphaButton",
+            hl          = "AlphaButton",
         }
 
         opts = opts and vim.tbl_extend("force", def_opts, opts) or def_opts
@@ -28,7 +28,7 @@ local function layout()
         return { type = "button", val = txt, on_press = on_press, opts = opts }
     end
 
-    local splash = {
+    local splasharts = {
         ["default1"] =
         {
             [[███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗]],
@@ -57,9 +57,43 @@ local function layout()
             [[ ███████████ ███    ███ █████████ █████ █████ ████ █████ ]],
             [[██████  █████████████████████ ████ █████ █████ ████ ██████]],
         },
+        --["doombig"] =
+        --{
+        --    [[=================     ===============     ===============   ========  ========]],
+        --    [[\\ . . . . . . .\\   //. . . . . . .\\   //. . . . . . .\\  \\. . .\\// . . //]],
+        --    [[||. . ._____. . .|| ||. . ._____. . .|| ||. . ._____. . .|| || . . .\/ . . .||]],
+        --    [[|| . .||   ||. . || || . .||   ||. . || || . .||   ||. . || ||. . . . . . . ||]],
+        --    [[||. . ||   || . .|| ||. . ||   || . .|| ||. . ||   || . .|| || . | . . . . .||]],
+        --    [[|| . .||   ||. _-|| ||-_ .||   ||. . || || . .||   ||. _-|| ||-_.|\ . . . . ||]],
+        --    [[||. . ||   ||-'  || ||  `-||   || . .|| ||. . ||   ||-'  || ||  `|\_ . .|. .||]],
+        --    [[|| . _||   ||    || ||    ||   ||_ . || || . _||   ||    || ||   |\ `-_/| . ||]],
+        --    [[||_-' ||  .|/    || ||    \|.  || `-_|| ||_-' ||  .|/    || ||   | \  / |-_.||]],
+        --    [[||    ||_-'      || ||      `-_||    || ||    ||_-'      || ||   | \  / |  `||]],
+        --    [[||    `'         || ||         `'    || ||    `'         || ||   | \  / |   ||]],
+        --    [[||            .===' `===.         .==='.`===.         .===' /==. |  \/  |   ||]],
+        --    [[||         .=='   \_|-_ `===. .==='   _|_   `===. .===' _-|/   `==  \/  |   ||]],
+        --    [[||      .=='    _-'    `-_  `='    _-'   `-_    `='  _-'   `-_  /|  \/  |   ||]],
+        --    [[||   .=='    _-'          '-__\._-'         '-_./__-'         `' |. /|  |   ||]],
+        --    [[||.=='    _-'                                                     `' |  /==.||]],
+        --    [[=='    _-'                        N E O V I M                         \/   `==]],
+        --    [[\   _-'                                                                `-_   /]],
+        --    [[ `''                                                                      ``' ]],
+        --},
+        ["doomsmall"] =
+        {
+            [[.━━━━━━. .━━━━━━..━━━━━━. .━  .━━.]],
+            [[┃|  _   V   _   ┃┃   _   V  \/  |┃]],
+            [[┃┃ ┃ ┃  ┃  | ┃  ┃┃  ┃ |  ┃ .  . ┃┃]],
+            [[┃┃ ┃ ┃  ┃   \|  ┃┃  |/   ┃ ┃\/┃ ┃┃]],
+            [[┃┃ ┃/ .'|'.   .'┃┃'.   .'┃'┃  ┃ ┃┃]],
+            [[┃┃  .'./ \.'.'./  \.'.'./ \┃  ┃ ┃┃]],
+            [[┃┃.'./     \./      \./       ┃.┃┃]],
+            [[|_./                          '._|]],
+            [[           N E O V I M            ]],
+        },
         ["pika"] =
         {
-            [[        ▀████▀▄▄              ▄█]],
+            [[        ▀████▀▄▄  N E O V I M ▄█]],
             [[          █▀    ▀▀▄▄▄▄▄    ▄▄▀▀█]],
             [[  ▄        █          ▀▀▀▀▄  ▄▀ ]],
             [[ ▄▀ ▀▄      ▀▄              ▀▄▀ ]],
@@ -79,7 +113,6 @@ local function layout()
             [[┃   ┃ __      ┃   ┃]],
             [[┃   ┃┃  ┃     ┃   ┃]],
             [[\▁▁▁||▁▁|▁▁▁▁▁|▁▁▁┃]],
-            [[                   ]],
         },
 
     }
@@ -87,37 +120,65 @@ local function layout()
     --heavy (━ ┃ ┏ ┓ ┗ ┛ ┳ ┻ ┣ ┫ ╋ …)
     --double (═ ║ ╔ ╗ ╚ ╝ ╦ ╩ ╠ ╣ ╬ …)
 
+    local function splash()
+        local header_color = "AlphaCol" .. math.random(11)
+
+        local splash_keys = vim.tbl_keys(splasharts)
+        local rand_key = splash_keys[math.random(#splash_keys)]
+
+        return splasharts[rand_key]
+    end
+
     local function date()
-        return os.date(" %H:%M:%S -  %d/%m/%Y")
+        return os.date(" %H:%M:%S -  %a %d/%m/%Y")
     end
 
     ---@return string
     local function system()
-        local v = vim.version()
+        local function get_platform_icon()
+            if vim.fn.has("win32") == 1 then
+                return ""
+            elseif vim.fn.has("macunix") == 1 then
+                return ""
+            elseif vim.fn.has("unix") == 1 then
+                return ""
+            else
+                return "OS"
+            end
+        end
+
+        local function get_distro_info()
+            if vim.fn.has("unix") == 0 then return nil end
+
+            local res = vim.system({"grep", "ID", "/etc/os-release"}, {text=true}):wait()
+            local distroinfo = vim.trim(tostring(res.stdout))
+            distroinfo = string.gsub(distroinfo, "ID=", "")
+
+            return "("..distroinfo..")"
+        end
+
+        local vv = vim.version()
+
         local plugins = #vim.tbl_keys(require("lazy").plugins())
-        local platform = vim.fn.has("win32") == 1 and "" or ""
+
         local parts = {
             "", plugins,
-            "|",
-            "", v.major .. "." .. v.minor .. "." .. v.patch,
-            "|",
-            "OS:", platform,
+            " | ",
+            "", " ", vv.major .. "." .. vv.minor .. "." .. vv.patch,
+            " | ",
+            get_platform_icon(), " ", get_distro_info()
         }
-        return table.concat(parts, " ")
+        return table.concat(parts, "")
     end
 
     ---@return table
     local function menu()
-        --conf path
-        local nvim_cfg_path = vim.fn.stdpath("config")
-        local nvim_cfg_init = nvim_cfg_path.."/init.lua"
-
         return {
-            button("n", "┃ New file", "<Cmd>enew<CR>"),
-            button("r", "┃󰈢 Recently opened files", "<Cmd>FzfLua oldfiles<CR>"),
-            button("f", "┃ File browser"),
-            button("p", "┃📁 Project", "<Cmd>FzfLua fuzzy_cd<CR>"),
-            button("s", "┃ Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
+            button("n", " New file", "<Cmd>enew<CR>"),
+            button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
+                button("f", " File browser", "<Cmd>FzfLua files<CR>"),
+            button("p", " Projects", "<Cmd>FzfLua fuzzy_cd<CR>"),
+            button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
     end
 
@@ -146,21 +207,28 @@ local function layout()
 
     ---@return table
     local function fortune()
-        return require("alpha.fortune")()
+        local rng = math.random(10)
+        if rng > 3 then return require("alpha.fortune")()
+        else            return {}
+        end
     end
 
-    math.randomseed(os.time())
-    local header_color = "AlphaCol" .. math.random(11)
 
-    local splash_keys = vim.tbl_keys(splash)
-    local rand_key = splash_keys[math.random(#splash_keys)]
+    --conf path
+    local nvim_cfg_path = vim.fn.stdpath("config")
+    local nvim_cfg_init = nvim_cfg_path.."/init.lua"
 
     return {
         { type = "padding", val = 1 },
         {
-            val  = splash[rand_key],
+            val  = splash(),
             type = "text",
-            --opts = { hl = header_color, position = "center" },
+            opts = { position = "center" },
+        },
+        {
+            val  = "───────────────────────────────────",
+            --val  = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            type = "text",
             opts = { position = "center" },
         },
 
@@ -168,13 +236,11 @@ local function layout()
         {
             val  = date(),
             type = "text",
-            --opts = { hl = header_color, position = "center" }
             opts = { position = "center" }
         },
         {
             val  = system(),
             type = "text",
-            --opts = { hl = header_color, position = "center" }
             opts = { position = "center" }
         },
 
@@ -188,8 +254,8 @@ local function layout()
         {type = "padding", val = 1 }, --
         {   --options
             val  = {
-                button("c", "┃ Config", function()vim.cmd("e "..nvim_cfg_init) vim.cmd("cd "..nvim_cfg_path) end),
-                button("e", "┃ Plugins", "<Cmd>Lazy<CR>"), --󰂖 🧩 󱁤
+                button("c", " Config", function()vim.cmd("e "..nvim_cfg_init) vim.cmd("cd "..nvim_cfg_path) end),
+                button("e", " Plugins", "<Cmd>Lazy<CR>"), --󰂖 🧩 󱁤
             },
             type = "group",
             opts = { spacing = 0 }
@@ -197,8 +263,8 @@ local function layout()
 
 
         {type = "padding", val = 2 }, --
-        {   --quit
-            val  = {button("q", "┃ Quit", "<Cmd>qa!<CR>")}, --󰅚  ⎋
+        {   --Exit
+            val  = {button("q", " Exit", "<Cmd>qa!<CR>")}, --󰅚  ⎋
             type = "group",
             opts = { spacing = 0 }
         },
@@ -227,6 +293,7 @@ return
 
     config = function()
         local alpha = require('alpha')
+
         require("alpha").setup {
             layout = layout(),
             opts = {
@@ -234,6 +301,38 @@ return
                 autostart = true,
             },
         }
+
+        vim.api.nvim_create_augroup("Alpha-nvim", { clear = true })
+        vim.api.nvim_create_autocmd("TabNewEntered", {
+            group = "Alpha-nvim",
+            callback = function()
+                vim.cmd("bd!")
+                math.randomseed(os.time())
+                require("alpha").start()
+            end,
+        })
+
+        --does not hide properly the line
+        --local statusline_def = vim.opt.statusline:get()
+        --local laststatus_def = vim.opt.laststatus:get()
+        --vim.api.nvim_create_autocmd("User", {
+        --    group = "Alpha-nvim",
+        --    pattern = "AlphaReady",
+        --    callback = function()
+        --        statusline_def = vim.opt.statusline:get()
+        --        laststatus_def = vim.opt.laststatus:get()
+
+        --        vim.opt.statusline = " "
+        --        vim.opt.laststatus = 0
+        --    end,
+        --})
+        --vim.api.nvim_create_autocmd("BufUnload", {
+        --    group = "Alpha-nvim",
+        --    callback = function()
+        --        vim.opt.statusline = statusline_def
+        --        vim.opt.laststatus = laststatus_def
+        --    end,
+        --})
     end,
 }
 

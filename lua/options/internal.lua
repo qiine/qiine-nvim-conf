@@ -3,7 +3,11 @@
 -----------
 
 
---[System]--------------------------------------------------
+
+--## [System]
+----------------------------------------------------------------------
+vim.opt.encoding = "UTF-8"
+
 vim.opt.clipboard = ''  -- "", "unnamed", "unnamedplus"
 
 --allow some type of yanking to go to sys clip
@@ -23,11 +27,13 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 --crude yank history
 vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function()
+        local old_d = vim.fn.getreg('d')
         local old_c = vim.fn.getreg('c')
         local old_b = vim.fn.getreg('b')
         local old_a = vim.fn.getreg('a')
         local new_yank = vim.fn.getreg('+')
 
+        vim.fn.setreg('e', old_d)
         vim.fn.setreg('d', old_c)
         vim.fn.setreg('c', old_b)
         vim.fn.setreg('b', old_a)

@@ -178,7 +178,7 @@ local function layout()
         local plugins = #vim.tbl_keys(require("lazy").plugins())
 
         local parts = {
-            "", plugins,
+            "󰏗", plugins,
             " | ",
             "", " ", vv.major .. "." .. vv.minor .. "." .. vv.patch,
             " | ",
@@ -192,7 +192,7 @@ local function layout()
         return {
             button("n", " New file", "<Cmd>enew<CR>"),
             button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
-                button("f", " File browser", "<Cmd>FzfLua files<CR>"),
+            button("f", " File browser", "<Cmd>FzfLua files<CR>"),
             button("p", " Projects", "<Cmd>FzfLua fuzzy_cd<CR>"),
             button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
@@ -271,7 +271,7 @@ local function layout()
         {   --options
             val  = {
                 button("c", " Config", function()vim.cmd("e "..nvim_cfg_init) vim.cmd("cd "..nvim_cfg_path) end),
-                button("e", " Plugins", "<Cmd>Lazy<CR>"), --󰂖 🧩 󱁤
+                button("e", "󰏗 Plugins", "<Cmd>Lazy<CR>"), -- 󰂖 🧩 󱁤
             },
             type = "group",
             opts = { spacing = 0 }

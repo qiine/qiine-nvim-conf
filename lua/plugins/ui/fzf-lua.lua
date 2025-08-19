@@ -175,25 +175,25 @@ return
         {silent=true, desc = "Fuzzy cd to directory"})
 
 
+        --find proj
         --TODO find project using .git
-        vim.keymap.set({"i","n","v","t"}, "<M-f>p", function()
-            require("fzf-lua").fzf_exec(
-                --&& echo {} will only output the directories that pass the test.
-                "fdfind . -t d -e .git",  -- find .git directories
-                {
-                    prompt = "Projects>",
-                    cwd = "~",
-                    actions = {
-                        ["default"] = function(selected)
-                            if selected and #selected > 0 then
-                                local proj = selected[1]:gsub("/%.git$", "")  -- strip .git
-                                vim.cmd("cd " .. vim.fn.expand(proj))
-                            end
-                        end,
-                    },
-                }
-            )
-        end, {silent=true, desc="Fuzzy cd to git projectsfp"})
+        --https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
+        fzfl.projects = function()
+            fzfl.fzf_exec("fdfind '.git$' -t d -d 20 -a -HI | xargs -I{} dirname {}", {
+                cwd = "~/Personal/",
+                actions = {
+                    ["default"] = function(selected)
+                        if selected and #selected > 0 then
+                            vim.cmd("cd " .. selected[1])
+                            print("Changed directory to: " .. selected[1])
+                        end
+                    end
+                },
+            })
+        end
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>p", function() fzfl.projects() end,
+        {silent=true, desc="Fuzzy cd to git projects"})
 
 
         --search ft and set it

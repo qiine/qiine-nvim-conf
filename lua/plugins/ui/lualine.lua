@@ -152,7 +152,7 @@ return
                             end
 
                             if m == "v" or m == "V" or m == "\22" then
-                                icon = '<>'
+                                icon = '󰅴'
                                 return icon  .. selectioncount()
                             else
                                 return icon

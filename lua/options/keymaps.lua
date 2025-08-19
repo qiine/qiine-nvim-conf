@@ -375,11 +375,11 @@ end)
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 
---### Directory nav
+--### Navigation directory
 --Move one dir up
 map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 
---to last directoy
+--to last directory
 map({"i","n","v"}, "<M-Home>", "<cmd>cd -<CR><cmd>pwd<CR>")
 
 --Interactive cd
@@ -1048,6 +1048,8 @@ map("v",       "<C-g>dg", "<cmd>:'<,'>diffget<cr>")
 --## [Version control]
 ----------------------------------------------------------------------
 map({"i","n","v"}, "<C-g>gc", "<cmd>GitCommitFile<cr>", {noremap=true})
+
+map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
 
 
 

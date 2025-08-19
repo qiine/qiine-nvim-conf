@@ -276,7 +276,7 @@ vim.api.nvim_create_user_command('SudoWrite', function()
     local edw_w = vim.o.columns
     local edw_h = vim.o.lines
 
-    local wsize = {w = 45, h = 3}
+    local wsize = { w = 45, h = 3 }
 
     local wopts = {
         title     = "Authentication required",
@@ -288,7 +288,6 @@ vim.api.nvim_create_user_command('SudoWrite', function()
         height    = wsize.h,
         col       = math.floor((edw_w - wsize.w) / 2),
         row       = math.floor((edw_h - wsize.h) / 2),
-
     }
     vim.api.nvim_open_win(0, true, wopts)
 
@@ -764,6 +763,10 @@ vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
         vim.notify("git restore failed: " .. git_res.stderr, vim.log.levels.ERROR)
     end
 end, {nargs="?"})
+
+vim.api.nvim_create_user_command("LazyGit", function(opts)
+    vim.cmd.terminal("lazygit")
+end, {})
 
 
 

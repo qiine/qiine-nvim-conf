@@ -1,4 +1,4 @@
--- _
+
 --| |
 --| | _____ _   _ _ __ ___   __ _ _ __  ___
 --| |/ / _ \ | | | '_ ` _ \ / _` | '_ \/ __|
@@ -436,7 +436,7 @@ map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
 map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 --ctrl+a select all
-map(modes, "<C-a>", "<Esc>G$vgg0")
+map({"i","n","v"}, "<C-a>", "<Esc>G$vgg0")
 
 
 --### Grow select
@@ -842,12 +842,12 @@ map("i", "<S-Tab>", "<C-d>")
 map("n", "<S-Tab>", "v<")
 map("v", "<S-Tab>", "<gv")
 
---trigger Auto ident
+--trigger Auto indent
 map({"i","n"}, "<C-=>", "<esc>==")
 map("v",       "<C-=>", "=")
 
 
---##[Line break]
+--### [Line break]
 map("n", "<cr>", "i<CR><esc>")
 
 --breakline above
@@ -874,7 +874,7 @@ map("v", "<S-M-cr>", function ()
     --vim.cmd("normal! O")
 end)
 
---##[Join]
+--### [Line join]
 --Join below
 map("i",       "<C-j>", "<C-o><S-j>")
 map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use motions
@@ -882,6 +882,7 @@ map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use motions
 --Join to upper
 map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions
 map("n", "<C-S-j>", "k<S-j>")
+
 
 --##[move text]
 --Move single char
@@ -954,18 +955,23 @@ map({'i','n'}, '<C-S-Up>', function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!=='
 map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end, {desc='Move curr line down'})
 
 
---#[Comments]
-map({"i","n"}, "<M-a>", "<cmd>norm gcc<cr>", {noremap = true})
-map("v",       "<M-a>", "gcgv", {remap = true})
+--### [Comments]
+map({"i","n"}, "<M-a>", "<cmd>norm gcc<cr>", {noremap=true})
+map("v",       "<M-a>", "gcgv", {remap=true})
 
 
---#[Macro]
---map("n", "<C-r>", "q", {remap = true})
+--### [Macro]
+map("n", "<C-r>", "q", {remap = true})
 
 
 
 --## [Text inteligence]
 ----------------------------------------------------------------------
+vim.keymap.set("n", "<C-g>s", function()
+    vim.opt.spell = not vim.opt.spell:get()
+    print("spellcheck: " .. tostring(vim.opt.spell:get()))
+end, { desc = "Toggle spell checking" })
+
 --diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 

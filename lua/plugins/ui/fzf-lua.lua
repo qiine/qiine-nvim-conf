@@ -203,11 +203,7 @@ return
             })
         end
 
-        vim.keymap.set({"i","n","v","t"}, "<M-f>p", function() fzfl.projects() end,
-        {silent=true, desc="Fuzzy cd to git projects"})
-
-
-        --search ft and set it
+        --serch ft and set it
         vim.keymap.set({"i","n","v"}, "<M-f>t", function()
             require("fzf-lua").filetypes({})
         end, {silent = true, desc = "search and set filetypes" })

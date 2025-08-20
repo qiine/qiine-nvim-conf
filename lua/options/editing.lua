@@ -157,19 +157,12 @@ vim.opt.undodir = undodir
 --## [Spellcheck]
 ----------------------------------------------------------------------
 vim.opt.spell = false
---vim.api.nvim_create_autocmd({ "FileType" }, {
---    pattern = { "markdown", "plaintext" },
---    callback = function()
---        vim.opt.spell = true
---    end,
---})
 
---vim.opt.spelllang = {
---    "en_us",
+vim.opt.spelllang = {
+    "en_us",
 --    --"en_fr"
---}
+}
 --option.spelloptions:append("noplainbuffer") --no spelling for certain buftype
-
 
 
 --## [Formating]
@@ -223,6 +216,8 @@ table.insert(formatopts, "n")
 table.insert(formatopts, "c")
 table.insert(formatopts, "j")
 table.insert(formatopts, "q")
+
+-- vim.opt.commentstring = "-- %s"
 
 --Force selected format options because it can be overwriten by other things
 vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {

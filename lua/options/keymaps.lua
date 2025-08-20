@@ -1,4 +1,5 @@
 
+-- _
 --| |
 --| | _____ _   _ _ __ ___   __ _ _ __  ___
 --| |/ / _ \ | | | '_ ` _ \ / _` | '_ \/ __|
@@ -119,8 +120,7 @@ end)
 --save as
 map(modes, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
-
---Ressource curr file
+--Resource curr file
 map(modes, "ç", function()  --"<altgr-r>"
     local cf    = vim.fn.expand("%:p")
     local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
@@ -128,8 +128,8 @@ map(modes, "ç", function()  --"<altgr-r>"
     vim.cmd("source "..cf); print("Ressourced: "..fname)
 end)
 
-map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
+map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
 
 

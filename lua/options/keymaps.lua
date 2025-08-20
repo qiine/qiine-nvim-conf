@@ -129,6 +129,7 @@ map(modes, "ç", function()  --"<altgr-r>"
 end)
 
 map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
+map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
 
 
 
@@ -158,17 +159,8 @@ map({"i","n"}, "<M-g>", function()
 end, {desc = "Toggle Gutter" })
 
 
---#[Folding]
--- vmap({"i","n","v}", "<M-f>",
---     function()
---         if v.fn.foldclosed(".") == -1 then
---             v.cmd("foldclose")
---         else
---             v.cmd("foldopen")
---         end
---     end,
--- {noremap = true, silent = true}
--- )
+--### [Folds]
+map({"i","n","v"}, "<M-S-z>", "<Cmd>norm! za<CR>")
 
 --virt lines
 map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
@@ -367,7 +359,7 @@ map({"i","n","v","c"}, "<C-f>", function()
     if vim.fn.mode() ~= "v" then
         vim.api.nvim_feedkeys([[/\V]], "n", false) --need feedkey, avoid glitchy cmd
     else
-        vim.api.nvim_feedkeys([[y/\V"]], "n", false)
+        vim.api.nvim_feedkeys([[y/\V"]], "n", false)
     end
 end)
 
@@ -967,10 +959,14 @@ map("n", "<C-r>", "q", {remap = true})
 
 --## [Text inteligence]
 ----------------------------------------------------------------------
-vim.keymap.set("n", "<C-g>s", function()
+--### [Prose]
+vim.keymap.set(modes, "<M-S-s>s", function()
     vim.opt.spell = not vim.opt.spell:get()
-    print("spellcheck: " .. tostring(vim.opt.spell:get()))
+    print("Spellchecking: " .. tostring(vim.opt.spell:get()))
 end, { desc = "Toggle spell checking" })
+
+--vim.keymap.set("n", "<M-S-s>c", zt
+
 
 --diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")

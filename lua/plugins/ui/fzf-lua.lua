@@ -5,8 +5,8 @@ return
 
     config = function()
         local fzfl = require("fzf-lua")
-        require('fzf-lua').register_ui_select()
-        require("fzf-lua").setup({
+        fzfl.register_ui_select()
+        fzfl.setup({
             defaults = {
                 actions = {
                     ["esc"] = "",  --restore esc to normal mode (now quit with C-w)
@@ -59,6 +59,15 @@ return
                 }
             },
 
+            grep = {
+                -- live_grep and then run a filter on the filenames.
+                -- Ex: Find all occurrences of "enable" but only in the "plugins" directory.
+                -- ex: > enable --*/plugins/*
+                rg_glob = true, -- enable glob parsing
+                glob_flag = "--iglob", -- case insensitive globs
+                glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
+            },
+
             keymap = {
                 ----f4 toggle prev
                 --fzf = {
@@ -90,7 +99,9 @@ return
 
         --find recent files
         vim.keymap.set({"i","n","v","t"}, "<M-f>r", function()
-            require("fzf-lua").oldfiles({ })
+            require("fzf-lua").oldfiles({
+                stat_file = true --check file still exist
+            })
         end, {silent=true, desc="Fuzzy find recent files"})
 
 

@@ -124,6 +124,7 @@ vim.api.nvim_create_user_command("BufferInfo", function(opts)
     local infos = {
         "Name:       "..vim.api.nvim_buf_get_name(inbuf),
         "Id:         "..inbuf,
+
         "Buftype:    "..vim.api.nvim_get_option_value("buftype", {buf = inbuf}),
         "Loaded:     "..tostring(vim.api.nvim_buf_is_loaded(inbuf)), --hidden
         "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = inbuf})),
@@ -295,17 +296,16 @@ vim.api.nvim_create_user_command('SudoWrite', function()
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local fname = vim.fn.fnamemodify(fpath, ":t")
-    local fdir  = vim.fn.fnamemodify(fpath, ":h")
+    local fpath  = vim.api.nvim_buf_get_name(0)
+    local fname  = vim.fn.fnamemodify(fpath, ":t")
 
     local function prompt_user()
-        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
+        vim.ui.input({prompt="Move to: ", default=vim.fn.getcwd(), completion="dir"},
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
             if     input == nil then
-                vim.notify("Move cancelled. ", vim.log.levels.INFO) return
+                vim.notify("Move canceled. ", vim.log.levels.INFO) return
             elseif input == ""  then
                 vim.notify("Input cannot be empty!", vim.log.levels.WARN)
                 return prompt_user()
@@ -313,7 +313,7 @@ vim.api.nvim_create_user_command("FileMove", function()
 
             --check target dir
             if not vim.uv.fs_stat(input) then
-                local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
+                local choice = vim.fn.confirm("Directory doesn't exist. Create it?", "&Yes\n&No", 1)
                 if choice == 1 then
                     local ret, err = vim.uv.fs_mkdir(input, tonumber("755", 8)) -- drwxr-xr-x
                     if not ret then

@@ -100,25 +100,17 @@ map("n", "<C-r>", "i<C-r>")
 --Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
-map(modes, "<C-s>", "<cmd>FileSaveInteractive<CR>")
+map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
+map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
+map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
---Save all buffers
-map(modes, "<M-S-s>", function()
-    local bufs = vim.api.nvim_list_bufs()
-    for _, buf in ipairs(bufs) do
-        if vim.api.nvim_buf_is_loaded(buf) and vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1 then
-            --nvim_buf_call Ensure proper bufs info
-            vim.api.nvim_buf_call(buf, function()
-                if vim.bo.modifiable and not vim.bo.readonly and vim.bo.buftype == "" then
-                    vim.cmd("write") --we can safely write
-                end
-            end)
-        end
-    end
-end)
+
+--### [Save]
+map(modes, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
 --save as
 map(modes, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
+
 
 --Resource curr file
 map(modes, "ç", function()  --"<altgr-r>"
@@ -127,9 +119,6 @@ map(modes, "ç", function()  --"<altgr-r>"
 
     vim.cmd("source "..cf); print("Ressourced: "..fname)
 end)
-
-map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
-map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
 
 
@@ -773,20 +762,20 @@ end)
 
 
 --### Replace
---change in word
+--Change in word
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
---replace visual selection with char
+--Replace visual selection with char
 map("v", "<M-r>", "r")
 
 
 -- Substitue mode
+map("n", "s", "<Nop>")
+
 map({"i","n"}, "<M-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]]
 ,{desc = "Enter substitue mode"})
 
-
--- Substitue word
 map({"i","n","v"}, "<C-S-s>",
 [[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
@@ -957,19 +946,20 @@ map("n", "<C-r>", "q", {remap = true})
 
 
 
---## [Text inteligence]
+--## [Text intelligence]
 ----------------------------------------------------------------------
---### [Prose]
-vim.keymap.set(modes, "<M-S-s>s", function()
+--### [Word processing]
+map("n", "<M-S-s>s", function()
     vim.opt.spell = not vim.opt.spell:get()
     print("Spellchecking: " .. tostring(vim.opt.spell:get()))
 end, { desc = "Toggle spell checking" })
 
---vim.keymap.set("n", "<M-S-s>c", zt
+map("n", "<M-S-s>c", "<Cmd>FzfLua spell_suggest<CR>")
 
 
 --diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
+
 
 --ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")

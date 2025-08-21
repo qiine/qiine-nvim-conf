@@ -2,6 +2,8 @@ return
 {
     'MeanderingProgrammer/render-markdown.nvim',
     enabled = true,
+    event = "BufEnter",
+
     dependencies = {
         'nvim-treesitter/nvim-treesitter',
         'nvim-tree/nvim-web-devicons'

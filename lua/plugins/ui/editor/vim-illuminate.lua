@@ -2,6 +2,7 @@ return
 {
     "RRethy/vim-illuminate",
     enabled = true,
+    event = "BufEnter",
     desc = "Highlight similar words",
 
     config = function()

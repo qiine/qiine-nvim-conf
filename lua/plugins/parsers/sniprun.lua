@@ -1,6 +1,8 @@
 return
 {
     "michaelb/sniprun",
+    enabled = true,
+    event = "BufEnter",
     branch = "master",
 
     build = "sh install.sh",

@@ -1,12 +1,14 @@
 return
 {
     'nvim-treesitter/nvim-treesitter',
+    event = "BufEnter",
+    version = false,
+    build = ':TSUpdate',
+
     dependencies = {
         "nvim-treesitter/nvim-treesitter-textobjects",
         "OXY2DEV/markview.nvim", --markview need to be loaded before nvim-treesitter!
     },
-    version = false,
-    build = ':TSUpdate',
 
     opts = {
         ensure_installed = {

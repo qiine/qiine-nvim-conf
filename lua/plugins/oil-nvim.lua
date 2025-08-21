@@ -1,6 +1,9 @@
 return
 {
     "stevearc/oil.nvim",
+    enabled = true,
+    event = "UIEnter",
+
     dependencies = {
         "refractalize/oil-git-status.nvim",
     },

@@ -1,7 +1,7 @@
 return
 {
     "r-pletnev/pdfreader.nvim",
-    enabled = true,
+    enabled = false,
     lazy   = false,
     dependencies = {
         "folke/snacks.nvim", -- image rendering

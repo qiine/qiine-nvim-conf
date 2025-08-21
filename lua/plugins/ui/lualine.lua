@@ -239,8 +239,8 @@ return
                             local fondisk_ic = ""
                             if not fondisk then fondisk_ic = '[!file]' end
 
-                            local fprotected_ic = ""
-                            if fprivileged then fprotected_ic = "🛡️" end
+                            local fpriviledged_ic = ""
+                            if fprivileged then fpriviledged_ic = "🛡️" end
 
                             local freadonly_ic = "🔒"
                             if not freadonly then freadonly_ic = "" end
@@ -248,7 +248,7 @@ return
                             local fexec_ic = "▶"
                             if not fexec then fexec_ic = "" end
 
-                            return fprotected_ic..freadonly_ic..fexec_ic..fname..fondisk_ic
+                            return fpriviledged_ic..freadonly_ic..fexec_ic..fname..fondisk_ic
                         end,
                         color={gui = 'none'},
                         padding={left=0,right=0},

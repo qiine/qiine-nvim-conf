@@ -1,12 +1,12 @@
 ---@return table
-local function layout()
+local function dashlayout()
 
     ---@return table
     local function button(sc, txt, keybind, keybind_opts, opts)
         local def_opts = {
             cursor   = 2,
             position = "center",
-            width    = 50,
+            width    = 45,
             align_shortcut = "right",
             hl_shortcut = "AlphaButtonShortcut",
             hl          = "AlphaButton",
@@ -57,28 +57,6 @@ local function layout()
             [[ ███████████ ███    ███ █████████ █████ █████ ████ █████ ]],
             [[██████  █████████████████████ ████ █████ █████ ████ ██████]],
         },
-        --["doombig"] =
-        --{
-        --    [[=================     ===============     ===============   ========  ========]],
-        --    [[\\ . . . . . . .\\   //. . . . . . .\\   //. . . . . . .\\  \\. . .\\// . . //]],
-        --    [[||. . ._____. . .|| ||. . ._____. . .|| ||. . ._____. . .|| || . . .\/ . . .||]],
-        --    [[|| . .||   ||. . || || . .||   ||. . || || . .||   ||. . || ||. . . . . . . ||]],
-        --    [[||. . ||   || . .|| ||. . ||   || . .|| ||. . ||   || . .|| || . | . . . . .||]],
-        --    [[|| . .||   ||. _-|| ||-_ .||   ||. . || || . .||   ||. _-|| ||-_.|\ . . . . ||]],
-        --    [[||. . ||   ||-'  || ||  `-||   || . .|| ||. . ||   ||-'  || ||  `|\_ . .|. .||]],
-        --    [[|| . _||   ||    || ||    ||   ||_ . || || . _||   ||    || ||   |\ `-_/| . ||]],
-        --    [[||_-' ||  .|/    || ||    \|.  || `-_|| ||_-' ||  .|/    || ||   | \  / |-_.||]],
-        --    [[||    ||_-'      || ||      `-_||    || ||    ||_-'      || ||   | \  / |  `||]],
-        --    [[||    `'         || ||         `'    || ||    `'         || ||   | \  / |   ||]],
-        --    [[||            .===' `===.         .==='.`===.         .===' /==. |  \/  |   ||]],
-        --    [[||         .=='   \_|-_ `===. .==='   _|_   `===. .===' _-|/   `==  \/  |   ||]],
-        --    [[||      .=='    _-'    `-_  `='    _-'   `-_    `='  _-'   `-_  /|  \/  |   ||]],
-        --    [[||   .=='    _-'          '-__\._-'         '-_./__-'         `' |. /|  |   ||]],
-        --    [[||.=='    _-'                                                     `' |  /==.||]],
-        --    [[=='    _-'                        N E O V I M                         \/   `==]],
-        --    [[\   _-'                                                                `-_   /]],
-        --    [[ `''                                                                      ``' ]],
-        --},
         ["doomsmall"] =
         {
             [[.━━━━━━. .━━━━━━..━━━━━━. .━  .━━.]],
@@ -102,22 +80,22 @@ local function layout()
             [[ ▀▄    ▄▀ █   ▄██▄   ▄  ▄  ▀▀ █ ]],
             [[  █  ▄▀  █    ▀██▀    ▀▀ ▀▀  ▄▀ ]],
         },
-        ["oddish"] =
-        {
-            [[            █░░░█▒░▒█            ]],
-            [[     █░░░░░█░░░█▒░░░▒█ █░░░░░█   ]],
-            [[   █░░░█░░█░░░█░░░░▓███░░░░░▒████]],
-            [[    █░░░░█░█░▒█▒▒▒░▓█▒████░░░░░█ ]],
-            [[      █░░▒▒▒█▒▒▒▒▒███▒▒▒▒░░░░█   ]],
-            [[        ██▒▒▒█▒▒██▓▒▒▒▒▒▒██      ]],
-            [[         █▒▒▒▒▒▒▒▒▒▓▓█           ]],
-            [[        █▒▓▒▒▒▒▒▓▒▒▓▓▓█          ]],
-            [[       █▒▒▒▒▓▓▓▒▒▒▒▓▓▓▓█         ]],
-            [[      ███▒▒▒▒▒▒▓▓▓▓▓▓▓█          ]],
-            [[     █▒▒▒▓▓█▓▓▓▓▓▓▓███           ]],
-            [[      █▓▓▓▓▓█    ██▓██           ]],
-            [[         ███    █▓▓▓▓▓█  NEOVIM  ]],
-        },
+        --["oddish"] =
+        --{
+        --    [[             █░░█▒▒█             ]],
+        --    [[     █░░░░░█░░░█▒░░░▒█ █░░░░░█   ]],
+        --    [[   █░░░█░░█░░░█░░░░▓███░░░░░▒████]],
+        --    [[    █░░░░█░█░▒█▒▒▒░▓█▒████░░░░░█ ]],
+        --    [[      █░░▒▒▒█▒▒▒▒▒███▒▒▒▒░░░░█   ]],
+        --    [[        ██▒▒▒█▒▒██▓▒▒▒▒▒▒██      ]],
+        --    [[         █▒▒▒▒▒▒▒▒▒▓▓█           ]],
+        --    [[        █▒▓▒▒▒▒▒▓▒▒▓▓▓█          ]],
+        --    [[       █▒▒▒▒▓▓▓▒▒▒▒▓▓▓▓█         ]],
+        --    [[      ███▒▒▒▒▒▒▓▓▓▓▓▓▓█          ]],
+        --    [[     █▒▒▒▓▓█▓▓▓▓▓▓▓███           ]],
+        --    [[      █▓▓▓▓▓█    ██▓██           ]],
+        --    [[         ███    █▓▓▓▓▓█  NEOVIM  ]],
+        --},
         ["floppy"] =
         {
             [[┏━━━━━━━━━━━━━━━━━┓]],
@@ -130,15 +108,24 @@ local function layout()
             [[┃   ┃┃  ┃     ┃   ┃]],
             [[\▁▁▁||▁▁|▁▁▁▁▁|▁▁▁┃]],
         },
-
+        --["n"] =
+        --{
+        --    [[  ▄▄         ▄]],
+        --    [[▄▀███▄     ▄██]],
+        --    [[██▄▀███▄   ███]],
+        --    [[███  ▀███▄ ███]],
+        --    [[███    ▀███▄▀█]],
+        --    [[███      ▀███▀]],
+        --    [[▀██       ▀█▀ ]],
+        --    [[  ▀           ]],
+        --},
     }
+
     --light (─ │ ┌ ┐ └ ┘ ┬ ┴ ├ ┤ ┼ …)
     --heavy (━ ┃ ┏ ┓ ┗ ┛ ┳ ┻ ┣ ┫ ╋ …)
     --double (═ ║ ╔ ╗ ╚ ╝ ╦ ╩ ╠ ╣ ╬ …)
 
     local function splash()
-        local header_color = "AlphaCol" .. math.random(11)
-
         local splash_keys = vim.tbl_keys(splasharts)
         local rand_key = splash_keys[math.random(#splash_keys)]
 
@@ -152,14 +139,10 @@ local function layout()
     ---@return string
     local function system()
         local function get_platform_icon()
-            if vim.fn.has("win32") == 1 then
-                return ""
-            elseif vim.fn.has("macunix") == 1 then
-                return ""
-            elseif vim.fn.has("unix") == 1 then
-                return ""
-            else
-                return "OS"
+            if     vim.fn.has("win32")   == 1 then return ""
+            elseif vim.fn.has("macunix") == 1 then return ""
+            elseif vim.fn.has("unix")    == 1 then return ""
+            else                                   return "OS"
             end
         end
 
@@ -175,14 +158,15 @@ local function layout()
 
         local vv = vim.version()
 
-        local plugins = #vim.tbl_keys(require("lazy").plugins())
+        local pluginfos = require("lazy").stats()
+        local plugloadtime = (math.floor(pluginfos.startuptime * 100) / 100)
 
         local parts = {
-            "󰏗", plugins,
-            " | ",
             "", " ", vv.major .. "." .. vv.minor .. "." .. vv.patch,
             " | ",
-            get_platform_icon(), " ", get_distro_info()
+            "󰏗 ", pluginfos.loaded, "/", pluginfos.count, " ", plugloadtime, "ms",
+            " | ",
+            get_platform_icon(), " ", get_distro_info(),
         }
         return table.concat(parts, "")
     end
@@ -190,10 +174,10 @@ local function layout()
     ---@return table
     local function menu()
         return {
-            button("n", " New file", "<Cmd>enew<CR>"),
+            button("n", " New file",     "<Cmd>enew<CR>"),
             button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
-            button("f", " File browser", "<Cmd>FzfLua files<CR>"),
-            button("p", " Projects", "<Cmd>FzfLua fuzzy_cd<CR>"),
+            button("f", " File browser", "<Cmd>oil<CR>"),
+            button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
             button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
     end
@@ -242,7 +226,7 @@ local function layout()
             opts = { position = "center" },
         },
         {
-            val  = "───────────────────────────────────",
+            val  = "────────────────────────────────────────",
             --val  = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
             type = "text",
             opts = { position = "center" },
@@ -300,6 +284,7 @@ local function layout()
     }
 end
 
+
 return
 {
     "goolord/alpha-nvim",
@@ -311,9 +296,8 @@ return
         local alpha = require('alpha')
 
         require("alpha").setup {
-            layout = layout(),
+            layout = dashlayout(),
             opts = {
-                --margin = 0,
                 autostart = true,
             },
         }
@@ -325,6 +309,13 @@ return
                 vim.cmd("bd!")
                 math.randomseed(os.time())
                 require("alpha").start()
+            end,
+        })
+
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "LazyVimStarted",
+            callback = function()
+                require("alpha").setup { layout = dashlayout()}
             end,
         })
 

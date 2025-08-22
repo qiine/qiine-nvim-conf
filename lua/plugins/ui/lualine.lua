@@ -3,6 +3,7 @@ return
     'nvim-lualine/lualine.nvim',
     enabled = true,
     event = {"VimEnter", "BufReadPost", "BufNewFile"},
+
     dependencies = { 'nvim-tree/nvim-web-devicons' },
 
     config = function()
@@ -20,9 +21,9 @@ return
                     winbar = {},
                 },
                 disabled_buftypes = {
-                    winbar = {"terminal", "neo-tree"},
+                    winbar = {},
                 },
-                ignore_focus = {"help", "nofile", "", "neo-tree", "trouble", "fzf-lua"},
+                ignore_focus = {"help", "neo-tree", "trouble", "fzf-lua"},
             },
 
             sections =
@@ -223,21 +224,17 @@ return
                 {
                     {   --filename
                         function()
-                            local file_path = vim.api.nvim_buf_get_name(0)
-
-                            local fname = vim.fn.fnamemodify(file_path, ":t")
-
-                            --file properties
-                            local fstat       = vim.uv.fs_stat(file_path)
-                            local fondisk     = vim.fn.filereadable(file_path) == 1
-                            local freadonly   = (bit.band(fstat.mode, 0x80) == 0)
+                            local fpath       = vim.fn.expand("%:")
+                            local fname       = vim.fn.expand("%:t")
+                            local fstat       = vim.uv.fs_stat(fpath)
+                            local freadonly   = fstat and (not vim.uv.fs_access(fpath, "w"))
                             local fprivileged = fstat and fstat.uid == 0
-                            local fexec       = vim.fn.executable(file_path) == 1
+                            local fexec       = vim.fn.executable(fpath) == 1
 
                             if fname == "" then fname = "[noname]" end
 
                             local fondisk_ic = ""
-                            if not fondisk then fondisk_ic = '[!file]' end
+                            if not fstat then fondisk_ic = '[!]' end
 
                             local fpriviledged_ic = ""
                             if fprivileged then fpriviledged_ic = "🛡️" end
@@ -248,7 +245,15 @@ return
                             local fexec_ic = "▶"
                             if not fexec then fexec_ic = "" end
 
-                            return fpriviledged_ic..freadonly_ic..fexec_ic..fname..fondisk_ic
+                            local finfo = {
+                                fpriviledged_ic,
+                                freadonly_ic,
+                                fexec_ic,
+                                fname,
+                                fondisk_ic,
+                            }
+
+                            return table.concat(finfo, "")
                         end,
                         color={gui = 'none'},
                         padding={left=0,right=0},

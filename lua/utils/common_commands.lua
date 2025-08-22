@@ -185,7 +185,23 @@ vim.api.nvim_create_user_command("CdFileDir", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileStat", function()
-    print(vim.inspect(vim.uv.fs_stat(vim.fn.expand("%"))))
+    local buf = vim.api.nvim_get_current_buf()
+    local fstat = vim.inspect(vim.uv.fs_stat(vim.api.nvim_buf_get_name(buf)))
+    local raw = fstat
+    local lines = vim.split(raw, "\n", { trimempty = true })
+
+    vim.cmd("vsp|enew"); vim.cmd("file! fstat")
+
+    vim.api.nvim_set_option_value("buftype", "nofile", { buf = 0 })
+    vim.api.nvim_set_option_value("buflisted", false,  { buf = 0 })
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
+
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldcolumn   = "0"
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()
@@ -400,6 +416,8 @@ vim.api.nvim_create_user_command("FileDelete", function()
     if choice == 1 then
         vim.uv.fs_unlink(fpath, function(err)
             if err then
+                --TODO rewrite this part better like the others in FileMove for
+                --ex
                 vim.schedule(function()
                     vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
                 end)
@@ -476,7 +494,7 @@ vim.api.nvim_create_user_command("SetFileWritable", function()
     local ok = os.execute("chmod +w " .. vim.fn.shellescape(path))
 
     if ok == 0 then
-        vim.print(name .. ", now writable")
+        vim.print(name .. ", now writable.")
     else
         vim.notify("Failed to set file as writable.", vim.log.levels.ERROR)
     end

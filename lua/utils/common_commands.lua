@@ -42,7 +42,13 @@ end, {})
 
 vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     local cmd_output = vim.fn.execute('messages')
-    vim.cmd("enew")
+
+    vim.cmd("new"); vim.cmd("enew") vim.cmd("file! message")
+
+    vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
 
@@ -185,23 +191,7 @@ vim.api.nvim_create_user_command("CdFileDir", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileStat", function()
-    local buf = vim.api.nvim_get_current_buf()
-    local fstat = vim.inspect(vim.uv.fs_stat(vim.api.nvim_buf_get_name(buf)))
-    local raw = fstat
-    local lines = vim.split(raw, "\n", { trimempty = true })
-
-    vim.cmd("vsp|enew"); vim.cmd("file! fstat")
-
-    vim.api.nvim_set_option_value("buftype", "nofile", { buf = 0 })
-    vim.api.nvim_set_option_value("buflisted", false,  { buf = 0 })
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
-
-    vim.opt_local.statuscolumn = ""
-    vim.opt_local.signcolumn   = "no"
-    vim.opt_local.number       = false
-    vim.opt_local.foldcolumn   = "0"
-
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+    print(vim.inspect(vim.uv.fs_stat(vim.fn.expand("%"))))
 end, {})
 
 vim.api.nvim_create_user_command("FilePicker", function()
@@ -547,14 +537,13 @@ vim.api.nvim_create_user_command("CreateFloatingWindow", function()
 
     local wopts = {
         title = "Scratchpad",
+        title_pos = "center",
         relative = "editor",
         border = "single",
         width  = wsize.w,
         height = wsize.h,
         col = math.floor((edw_w - wsize.w) / 2),
         row = math.floor((edw_h - wsize.h) / 2),
-        style  = "minimal",
-        focusable = true,
     }
     local win = vim.api.nvim_open_win(bufid, true, wopts)
 end, {})

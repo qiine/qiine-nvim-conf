@@ -19,19 +19,6 @@ end
 --    print("Not in TTY")
 --end
 
---Search selected in v mode
-function M.SearchSelected()
-    -- Get the selected text
-    local selected_text = vim.fn.getreg('"')
-    print("hello")
-    -- Search for the selected text
-    if selected_text ~= "" then
-        vim.cmd("normal! /" .. selected_text)
-    else
-        print("No text selected")
-    end
-end
-
 
 
 --[Characters]--------------------------------------------------
@@ -273,8 +260,8 @@ end
 function M.send_keystroke(key, mode, immediate)
     if immediate == nil then immediate = true end   --default val
 
-    local termkey = vapi.nvim_replace_termcodes(key, true, true, true)
-    local keystroke = vapi.nvim_feedkeys(termkey, mode, immediate)
+    local termkey = vim.api.nvim_replace_termcodes(key, true, true, true)
+    local keystroke = vim.api.nvim_feedkeys(termkey, mode, immediate)
 
     return keystroke
 end

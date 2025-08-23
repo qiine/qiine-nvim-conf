@@ -6,7 +6,7 @@ return
 
     config = function()
         require('Comment').setup({
-            padding = false,
+            padding = true,
             mappings = { basic = true, extra = false },
             ignore = '^$',
             -- extra = {

@@ -11,7 +11,6 @@ return
                 actions = {
                     ["esc"] = "",  --restore esc to normal mode (now quit with C-w)
                 },
-
             },
 
             winopts = {
@@ -80,6 +79,16 @@ return
             }
         })
 
+
+
+
+        -- ## builtins
+        --search builtins
+        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
+            require("fzf-lua").builtin({})
+        end, {silent = true, desc = "Search builtins" })
+
+
         --find files in currdir
         vim.keymap.set({"i","n","v","t"}, "<M-f>c", function()
             require("fzf-lua").files({})
@@ -126,7 +135,7 @@ return
         end)
 
 
-
+        -- ### grep
         --grep curr dir
         vim.keymap.set({"i","n","v","t"}, "<M-f><S-g>", function()
             require("fzf-lua").live_grep({})
@@ -165,6 +174,15 @@ return
             })
         end)
 
+
+        --serch ft and set it
+        vim.keymap.set({"i","n","v"}, "<M-f>t", function()
+            require("fzf-lua").filetypes({})
+        end, {silent = true, desc = "search and set filetypes" })
+
+
+
+        -- ## Custom finders
         --fuzzy cd
         fzfl.fuzzy_cd = function()
             fzfl.fzf_exec("fdfind . --type d", {     --or fd
@@ -203,15 +221,34 @@ return
             })
         end
 
-        --serch ft and set it
-        vim.keymap.set({"i","n","v"}, "<M-f>t", function()
-            require("fzf-lua").filetypes({})
-        end, {silent = true, desc = "search and set filetypes" })
+        vim.keymap.set({"i","n","v","t"}, "<M-f>p", function() fzfl.projects() end,
+        {silent=true, desc = "Search projects"})
 
-        --search builtins
-        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
-            require("fzf-lua").builtin({})
-        end, {silent = true, desc = "Search builtins" })
+        fzfl.dictionary = function()
+            fzfl.fzf_exec("cat /etc/dictionaries-common/words", {
+                prompt = "Word> ",
+                preview = "dict {}",
+                winopts = {
+                    preview = {
+                        layout = "horizontal",
+                        horizontal = "right:60%",
+                    },
+                },
+                actions = {
+                    ["default"] = function(selected)
+                        if #selected == 0 then return end
+                        local out = table.concat(selected, "")
+                        vim.cmd("norm! i"..out)
+                    end,
+                },
+            })
+        end
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>w", function() fzfl.dictionary() end,
+        {silent=true, desc = "Search dictionary"})
+
+
+
 
     end --config
 }

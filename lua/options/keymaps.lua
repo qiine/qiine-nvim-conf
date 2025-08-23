@@ -175,7 +175,7 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 map({"i","n","v"}, "<M-w>", "<esc><C-w>",   {noremap=true})
 map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
---open new win
+--Open window
 map(modes, "<M-w>n", function ()
     local wopts = {
         split = "right",
@@ -183,6 +183,24 @@ map(modes, "<M-w>n", function ()
         width = 20
     }
     vim.api.nvim_open_win(0, true, wopts)
+end)
+
+--Open floating window
+map(modes, "<M-w>nf", function ()
+    local edw_w = vim.o.columns
+    local edw_h = vim.o.lines
+
+    local wsize = {w = 66, h = 22}
+
+    local wopts = {
+        relative = "editor",
+        border = "single",
+        width  = wsize.w,
+        height = wsize.h,
+        col = math.floor((edw_w - wsize.w) / 2),
+        row = math.floor((edw_h - wsize.h) / 2),
+    }
+    local fwin = vim.api.nvim_open_win(0, true, wopts)
 end)
 
 --make ver split
@@ -772,7 +790,7 @@ map("v", "<M-r>", "r")
 -- Substitue mode
 map("n", "s", "<Nop>")
 
-map({"i","n"}, "<M-s>",
+map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]]
 ,{desc = "Enter substitue mode"})
 
@@ -781,7 +799,7 @@ map({"i","n","v"}, "<C-S-s>",
 {desc = "Substitue word under cursor" })
 
 -- Substitue in selection
-map("v", "<M-s>",
+map("v", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode in selection"})
 
@@ -949,12 +967,42 @@ map("n", "<C-r>", "q", {remap = true})
 --## [Text intelligence]
 ----------------------------------------------------------------------
 --### [Word processing]
-map("n", "<M-S-s>s", function()
+--Toggle spellcheck
+map({"i","n","v","c","t"}, "<M-s>s", function()
     vim.opt.spell = not vim.opt.spell:get()
     print("Spellchecking: " .. tostring(vim.opt.spell:get()))
 end, { desc = "Toggle spell checking" })
 
-map("n", "<M-S-s>c", "<Cmd>FzfLua spell_suggest<CR>")
+--Suggest
+map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")
+
+--quick correct
+map({"i","n","v"}, "<M-c>", "<Cmd>norm! m`1z=``<CR>")
+
+
+--Add word to dictionary
+map({"i","n"}, "<M-s>a", "<Cmd>norm! yiwzg<CR>")
+--print("add: "..)
+
+--Show definition for word
+map({"i","n","v"}, "<M-s>d", "<Cmd>norm! K<CR>")
+
+--local function show_definition()
+--    local word = vim.fn.expand("<cword>")
+--    local handle = io.popen("dict " .. word)
+--    local result = handle:read("*a")
+--    handle:close()
+
+--    if result == "" then
+--        result = "No definition found for: " .. word
+--    end
+
+--    vim.lsp.util.open_floating_preview(vim.split(result, "\n"), "text", {
+--        border = "rounded",
+--    })
+--end
+--vim.keymap.set("n", "K", show_definition, { desc = "Show dictionary definition" })
+
 
 
 --diag panel

@@ -136,6 +136,7 @@ vim.api.nvim_create_user_command("BufferInfo", function(opts)
         "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = inbuf})),
         "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", {buf = inbuf})),
         "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", {buf = inbuf})),
+        "OnHidden:   "..tostring(vim.api.nvim_get_option_value("bufhidden", {buf = inbuf})),
 
         "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = inbuf }),
         "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(inbuf))==1),

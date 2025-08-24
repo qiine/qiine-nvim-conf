@@ -49,6 +49,15 @@ local function dashlayout()
         },
         ["default3"] =
         {
+            [[                __                ]],
+            [[  ___   __  __ /\_\    ___ ___    ]],
+            [[/' _ `\/\ \/\ \\/\ \ /' __` __`\  ]],
+            [[/\ \/\ \ \ \_/ |\ \ \/\ \/\ \/\ \ ]],
+            [[\ \_\ \_\ \___/  \ \_\ \_\ \_\ \_\]],
+            [[ \/_/\/_/\/__/    \/_/\/_/\/_/\/_/]],
+        },
+        ["default4"] =
+        {
             [[      ████ ██████           █████      ██                    ]],
             [[     ███████████             █████                            ]],
             [[     █████████ ███████████████████ ███   ███████████  ]],
@@ -159,7 +168,7 @@ local function dashlayout()
         local vv = vim.version()
 
         local pluginfos = require("lazy").stats()
-        local plugloadtime = (math.floor(pluginfos.startuptime * 100) / 100)
+        local plugloadtime = math.floor(pluginfos.startuptime * 100 + 0.5) / 100
 
         local parts = {
             "", " ", vv.major .. "." .. vv.minor .. "." .. vv.patch,

@@ -22,14 +22,15 @@ return
                 col          = 0.51,         -- window col position (0=left, 1=right)
                 backdrop     = 100,  --opacity
                 preview = {
-                    --hidden = "hidden",
+                    default = "builtin",
                     border = "border",
                     layout = "horizontal",
                     horizontal = "right:47%",
+                    --hidden = "hidden",
                 },
             },
             fzf_opts = {
-                ["--layout"] = "default",  -- default, reverse
+                ["--layout"] = "default",  -- default, reverse (search bar pos)
             },
 
             files = {
@@ -79,22 +80,45 @@ return
             }
         })
 
+        -- Custom previewer
+        local builtin = require("fzf-lua.previewer.builtin")
+
+        local function make_preview(text_fn)
+            local M = builtin.base:extend()
+
+            function M:new(o, opts, fzf_win)
+                M.super.new(self, o, opts, fzf_win)
+                setmetatable(self, M)
+                return self
+            end
+
+            function M:populate_preview_buf(entry)
+                local buf = self:get_tmp_buffer()
+
+                local lines = text_fn(entry)
+                vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+                self:set_preview_buf(buf)
+                self.win:update_preview_title(tostring(entry))
+            end
+
+            return M
+        end
 
 
-
-        -- ## builtins
-        --search builtins
+        -- ## base pickers
+        -- Search builtins
         vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
             require("fzf-lua").builtin({})
         end, {silent = true, desc = "Search builtins" })
 
 
-        --find files in currdir
+        -- Find files in currdir
         vim.keymap.set({"i","n","v","t"}, "<M-f>c", function()
             require("fzf-lua").files({})
         end, {silent=true, desc="Fuzzy find dir in cwd"})
 
-        --find files in project
+        -- Find files in project
         vim.keymap.set({"i","n","v","t"}, "<C-S-f>", function()
             require("fzf-lua").files({
                 cwd = require("fzf-lua.path").git_root({}),
@@ -201,8 +225,7 @@ return
         end
 
         vim.keymap.set({"i","n","v","t"}, "<M-f>d", function() fzfl.fuzzy_cd() end,
-        {silent=true, desc = "Fuzzy cd to directory"})
-
+        {silent=true, desc="Fuzzy cd to directory"})
 
         --find proj
         --TODO find project using .git
@@ -224,19 +247,28 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>p", function() fzfl.projects() end,
         {silent=true, desc = "Search projects"})
 
+        -- Dictionary browser
         fzfl.dictionary = function()
             fzfl.fzf_exec("cat /etc/dictionaries-common/words", {
                 prompt = "Word> ",
-                preview = "dict {}",
+                previewer = function(entry)
+                    return make_preview(function(entry)
+                        -- local item = table.concat(entry, "")
+                        local res = vim.system({"dict", "-C", "-s", "exact", "-d", "gcide", entry}, { text = true }):wait()
+                        return vim.split(res.stdout, "\n")
+                    end)
+                end,
                 winopts = {
+                    height = 0.80, width = 1.00,
+                    number = false,
                     preview = {
                         layout = "horizontal",
-                        horizontal = "right:60%",
+                        horizontal = "right:75%",
+                        wrap = true,
                     },
                 },
                 actions = {
                     ["default"] = function(selected)
-                        if #selected == 0 then return end
                         local out = table.concat(selected, "")
                         vim.cmd("norm! i"..out)
                     end,
@@ -247,8 +279,9 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>w", function() fzfl.dictionary() end,
         {silent=true, desc = "Search dictionary"})
 
-
-
+        vim.api.nvim_create_user_command("OpenDictionary", function()
+            vim.cmd("FzfLua dictionary")
+        end, {})
 
     end --config
 }

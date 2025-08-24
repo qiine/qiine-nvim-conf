@@ -27,6 +27,14 @@ return
                     layout = "horizontal",
                     horizontal = "right:47%",
                     --hidden = "hidden",
+                    winopts = {                       -- builtin previewer window options
+                        number            = true,
+                        cursorline        = true,
+                        cursorlineopt     = "both",
+                        foldenable        = false,
+                        foldmethod        = "manual",
+                    },
+
                 },
             },
             fzf_opts = {
@@ -83,7 +91,7 @@ return
         -- Custom previewer
         local builtin = require("fzf-lua.previewer.builtin")
 
-        local function make_preview(text_fn)
+        local function make_preview(preview_lines)
             local M = builtin.base:extend()
 
             function M:new(o, opts, fzf_win)
@@ -95,7 +103,7 @@ return
             function M:populate_preview_buf(entry)
                 local buf = self:get_tmp_buffer()
 
-                local lines = text_fn(entry)
+                local lines = preview_lines(entry)
                 vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
                 self:set_preview_buf(buf)
@@ -251,20 +259,21 @@ return
         fzfl.dictionary = function()
             fzfl.fzf_exec("cat /etc/dictionaries-common/words", {
                 prompt = "Word> ",
-                previewer = function(entry)
+                previewer = function()
                     return make_preview(function(entry)
-                        -- local item = table.concat(entry, "")
                         local res = vim.system({"dict", "-C", "-s", "exact", "-d", "gcide", entry}, { text = true }):wait()
                         return vim.split(res.stdout, "\n")
                     end)
                 end,
                 winopts = {
                     height = 0.80, width = 1.00,
-                    number = false,
                     preview = {
                         layout = "horizontal",
                         horizontal = "right:75%",
                         wrap = true,
+                        winopts = {                       -- builtin previewer window options
+                            number = false,
+                        },
                     },
                 },
                 actions = {

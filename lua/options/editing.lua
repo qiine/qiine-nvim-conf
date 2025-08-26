@@ -127,11 +127,11 @@ end))
 
 
 
---## [Undo]
+-- ## [Undo]
 ----------------------------------------------------------------------
 vim.opt.undolevels = 2000
 
---Persistent undo
+-- Persistent undo
 vim.opt.undofile = true
 
 local undodir = vim.fn.stdpath("data") .. "/undo"
@@ -157,12 +157,31 @@ vim.opt.undodir = undodir
 --## [Spellcheck]
 ----------------------------------------------------------------------
 vim.opt.spell = false
+--TODO make it ignore fenced code in marksown
+--maybe allow only for comment for other filetypes?
+
+vim.opt.spellcapcheck = ""
+-- Pattern to locate the end of a sentence.  The following word will be
+-- checked to start with a capital letter.  If not then it is highlighted
+-- with SpellCap |hl-SpellCap| (unless the word is also badly spelled).
+-- When this check is not wanted make this option empty.
+-- Only used when 'spell' is set.
+-- Be careful with special characters, see |option-backslash| about
+-- including spaces and backslashes.
+-- To set this option automatically depending on the language, see
+-- |set-spc-auto|.
 
 vim.opt.spelllang = {
-    "en_us",
---    --"en_fr"
+    "en",
+    -- "fr",
 }
---option.spelloptions:append("noplainbuffer") --no spelling for certain buftype
+
+--TODO make it use our own custom dico
+vim.opt.spellfile = {
+    vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
+    -- vim.fn.stdpath("config") .. "/spell/fr.utf-8.add"
+}
+
 
 
 --## [Formating]

@@ -256,21 +256,23 @@ end)
 
 -- ## [Navigation]
 ----------------------------------------------------------------------
--- Threat wrapped lines as distinct lines for up/down nav
-vim.keymap.set({"i","n","v"}, "<Up>", function()
-    if vim.v.count == 0 then
-        return "g<Up>"
+-- Threat wrapped lines as distinct lines for up/down nav -- Threat wrapped lines as distinct lines for up/down nav
+map({"i","n","v"}, "<Up>", function()
+    if vim.fn.mode() == "i" then
+        return "<C-o>g<up>"
     else
-        return "<Up>"
+        return "g<up>"
     end
 end, { expr = true })
-vim.keymap.set({"i","n","v"}, "<Down>", function()
-    if vim.v.count == 0 then
+
+map({"i","n","v"}, "<Down>", function()
+    if vim.fn.mode() == "i" then
+        return "<C-o>g<Down>"
+    else
         return "g<Down>"
-    else
-        return "<Down>"
     end
 end, { expr = true })
+
 
 --Jump to next word
 map({"i","v"}, '<C-Right>', function()

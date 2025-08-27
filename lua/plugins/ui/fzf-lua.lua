@@ -21,6 +21,8 @@ return
                 row          = 0.50,         -- window row position (0=top, 1=bottom)
                 col          = 0.51,         -- window col position (0=left, 1=right)
                 backdrop     = 100,  --opacity
+
+
                 preview = {
                     default = "builtin",
                     border = "border",
@@ -39,6 +41,8 @@ return
             },
             fzf_opts = {
                 ["--layout"] = "default",  -- default, reverse (search bar pos)
+                ['--marker'] = '>',
+                -- ["--highlight-line"] = false,
             },
 
             files = {
@@ -61,9 +65,22 @@ return
                     -g '!*/steam-runtime-sniper/**' \
                     -g '!**/containers/**'
                 ]],
+
+                -- fd_opts = {"-a"},
                 case_mode = 'smart',
+                file_icons = true,
+                color_icons = false,
+
                 actions = {
                     ['default'] = require('fzf-lua.actions').file_edit, --allow open multiples
+                    --replace curr buf with pick
+                    ---https://github.com/ibhagwan/fzf-lua/discussions/1997
+                    ['alt-enter'] = function(sel, o)
+                        local entry = require('fzf-lua.path').entry_to_file(sel[1], o, o._uri)
+                        local fpath = entry.bufname or entry.uri and entry.uri:match("^%a+://(.*)") or entry.path
+
+                        vim.cmd("file! " ..fpath.."|e!")
+                    end,
                 }
             },
 
@@ -77,7 +94,8 @@ return
             },
 
             keymap = {
-                ----f4 toggle prev
+                builtin = {
+                }
                 --fzf = {
                 --    ["tab"] = function() require("fzf-lua").builtin({
                 --        winopts = {
@@ -171,7 +189,7 @@ return
         --grep curr dir
         vim.keymap.set({"i","n","v","t"}, "<M-f><S-g>", function()
             require("fzf-lua").live_grep({})
-        end, { silent = true, desc = "grep" })
+        end, { silent = true, desc = "grep curr dir" })
 
         --grep curr project
         vim.keymap.set({"i","n","v","t"}, "<C-S-g>", function()
@@ -223,8 +241,6 @@ return
                 actions = {
                     ["default"] = function(selected)
                         if selected and #selected > 0 then
-                            --local root = vim.fn.expand("~").."/"
-                            --vim.cmd("cd " .. root .. selected[1])
                             vim.cmd("cd " .. "/" .. selected[1])
                         end
                     end,
@@ -235,7 +251,7 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>d", function() fzfl.fuzzy_cd() end,
         {silent=true, desc="Fuzzy cd to directory"})
 
-        --find proj
+        -- Find proj
         --TODO find project using .git
         --https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
         fzfl.projects = function()
@@ -261,7 +277,8 @@ return
                 prompt = "Word> ",
                 previewer = function()
                     return make_preview(function(entry)
-                        local res = vim.system({"dict", "-C", "-s", "exact", "-d", "gcide", entry}, { text = true }):wait()
+                        -- local res = vim.system({"dict", "-C", "-s", "exact", "-d", "gcide", entry}, { text = true }):wait()
+                        local res = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", entry}, { text = true }):wait()
                         return vim.split(res.stdout, "\n")
                     end)
                 end,
@@ -269,9 +286,9 @@ return
                     height = 0.80, width = 1.00,
                     preview = {
                         layout = "horizontal",
-                        horizontal = "right:75%",
+                        horizontal = "right:77%",
                         wrap = true,
-                        winopts = {                       -- builtin previewer window options
+                        winopts = {
                             number = false,
                         },
                     },

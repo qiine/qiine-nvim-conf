@@ -106,10 +106,10 @@ map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
 
 --### [Save]
-map(modes, "<C-s>", "<cmd>FileSaveInteractive<CR>")
+map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
 --save as
-map(modes, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
+map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
 
 --Resource curr file
@@ -254,10 +254,23 @@ end)
 
 
 
---## [Navigation]
+-- ## [Navigation]
 ----------------------------------------------------------------------
-map("n", "<Left>",  "<Left>",  { noremap = true })  --avoid opening folds
-map("n", "<Right>", "<Right>", { noremap = true })
+-- Threat wrapped lines as distinct lines for up/down nav
+vim.keymap.set({"i","n","v"}, "<Up>", function()
+    if vim.v.count == 0 then
+        return "g<Up>"
+    else
+        return "<Up>"
+    end
+end, { expr = true })
+vim.keymap.set({"i","n","v"}, "<Down>", function()
+    if vim.v.count == 0 then
+        return "g<Down>"
+    else
+        return "<Down>"
+    end
+end, { expr = true })
 
 --Jump to next word
 map({"i","v"}, '<C-Right>', function()
@@ -794,7 +807,7 @@ map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]]
 ,{desc = "Enter substitue mode"})
 
-map({"i","n","v"}, "<C-S-s>",
+map({"i","n"}, "<C-S-s>",
 [[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
 
@@ -823,12 +836,12 @@ map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
 
---### Formating
---#### Indentation
+-- ### Formating
+-- #### Indentation
 --space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
---tab indent
+-- tab indent
 map("i", "<Tab>", function()
     local width = vim.opt.shiftwidth:get()
     vim.cmd("norm! v>")
@@ -841,20 +854,20 @@ map("i", "<S-Tab>", "<C-d>")
 map("n", "<S-Tab>", "v<")
 map("v", "<S-Tab>", "<gv")
 
---trigger Auto indent
+-- trigger Auto indent
 map({"i","n"}, "<C-=>", "<esc>==")
 map("v",       "<C-=>", "=")
 
 
---### [Line break]
+-- ### [Line break]
 map("n", "<cr>", "i<CR><esc>")
 
---breakline above
-map({"i","n"}, "<S-CR>", "<cmd>norm!O<CR>")
+-- Line break above
+map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
 map("v",       "<S-CR>", "<esc>O<esc>gv")
 
---breakline below
-map({"i","n"}, "<M-CR>", '<cmd>norm!o<CR>')
+-- Line break below
+map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
 --New line above and below
@@ -894,8 +907,8 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
 map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
 
---Move selected text
---Move left
+-- Move selected text
+-- Move left
 map("v", "<C-S-Left>", function()
     local col = vim.api.nvim_win_get_cursor(0)[2]
 
@@ -949,61 +962,104 @@ map('v', '<C-S-Down>', function ()
     end
 end)
 
---Move line
+-- Move line
 map({'i','n'}, '<C-S-Up>', function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
 map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end, {desc='Move curr line down'})
 
 
---### [Comments]
+-- ### [Comments]
 map({"i","n"}, "<M-a>", "<cmd>norm gcc<cr>", {noremap=true})
 map("v",       "<M-a>", "gcgv", {remap=true})
 
 
---### [Macro]
-map("n", "<C-r>", "q", {remap = true})
+-- ### [Macro]
+map("n", "q", "<Nop>")
+map("n", "<M-S-r>", "qq", {noremap = true})
 
 
 
---## [Text intelligence]
+-- ## [Text intelligence]
 ----------------------------------------------------------------------
---### [Word processing]
---Toggle spellcheck
+-- ### [Word processing]
+-- Toggle spellcheck
 map({"i","n","v","c","t"}, "<M-s>s", function()
     vim.opt.spell = not vim.opt.spell:get()
     print("Spellchecking: " .. tostring(vim.opt.spell:get()))
 end, { desc = "Toggle spell checking" })
 
---Suggest
+-- Suggest
 map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")
 
---quick correct
+-- Quick correct
 map({"i","n","v"}, "<M-c>", "<Cmd>norm! m`1z=``<CR>")
 
+-- Add word to dictionary
+map({"i","n"}, "<M-s>a", "<Esc>zg")
+map("v",       "<M-s>a", "zg")
+--TODO check if word already in dict
+-- map({"i","n"},       "<M-s>a", "zg")
+-- function()
+--     local word = vim.fn.expand("<cword>")
+--     vim.cmd("norm! zg")
+--     custom zg that avoids duplicates
+--     local spellf = vim.opt.spellfile:get()[1]
 
---Add word to dictionary
-map({"i","n"}, "<M-s>a", "<Cmd>norm! yiwzg<CR>")
---print("add: "..)
+--      local exists = false
+--          local lines = vim.fn.readfile(spellfile)
+--          for _, l in ipairs(lines) do
+--              if l == word then
+--                  exists = true
+--                  break
+--              end
+--          end
+--      end
 
---Show definition for word
-map({"i","n","v"}, "<M-s>d", "<Cmd>norm! K<CR>")
+--      if not exists then
+--          vim.cmd("normal! zg") -- call original zg
+--      else
+--          vim.notify("Already in dictionary: " .. word)
+--      end
+--     end, { noremap = true })
 
---local function show_definition()
---    local word = vim.fn.expand("<cword>")
---    local handle = io.popen("dict " .. word)
---    local result = handle:read("*a")
---    handle:close()
+-- Remove from dictionary
+map({"i","n"}, "<M-s>r", "<Esc>zug")
+map("v",       "<M-s>r", "zug")
 
---    if result == "" then
---        result = "No definition found for: " .. word
---    end
+-- Show definition for word
+map({"i","n","v"}, "<M-s>d", function()
+    local word = vim.fn.expand("<cword>")
 
---    vim.lsp.util.open_floating_preview(vim.split(result, "\n"), "text", {
---        border = "rounded",
---    })
---end
---vim.keymap.set("n", "K", show_definition, { desc = "Show dictionary definition" })
+    vim.cmd("vsp|enew")
 
+    vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldcolumn   = "0"
+
+    local res = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", word}, {text=true}):wait()
+    if res.code ~= 0 then vim.notify("dict error \n" .. res.stderr, vim.log.levels.ERROR) end
+
+    -- TODO thesaurus hack
+    -- local tres = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", word}, {text=true}):wait()
+    -- local lines = {}
+    -- for l in res.stdout:gmatch("[^\n]+") do
+    --     if l:match("^syn:") then
+    --         for syn in l:gmatch("%w+") do
+    --             table.insert(lines, syn)
+    --         end
+    --     end
+    -- end
+
+    local lines = vim.split(res.stdout,"\n")
+    --filter noisy info like provenance of definition
+    --lines = vim.list_slice(lines, 0)
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+end)
 
 --diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
@@ -1167,3 +1223,14 @@ end, {noremap=true})
 
 --exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+
+
+
+
+
+
+
+
+
+
+

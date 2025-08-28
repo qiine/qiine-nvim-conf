@@ -256,23 +256,12 @@ end)
 
 -- ## [Navigation]
 ----------------------------------------------------------------------
--- Threat wrapped lines as distinct lines for up/down nav -- Threat wrapped lines as distinct lines for up/down nav
-map({"i","n","v"}, "<Up>", function()
-    if vim.fn.mode() == "i" then
-        return "<C-o>g<up>"
-    else
-        return "g<up>"
-    end
-end, { expr = true })
+-- Threat wrapped lines as distinct lines for up/down nav
+map("i", "<Up>", "<cmd>norm! g<Up><CR>")
+map({"n","v"}, "<Up>", "g<up>")
 
-map({"i","n","v"}, "<Down>", function()
-    if vim.fn.mode() == "i" then
-        return "<C-o>g<Down>"
-    else
-        return "g<Down>"
-    end
-end, { expr = true })
-
+map("i", "<Down>", "<cmd>norm! g<Down><CR>")
+map({"n","v"}, "<Down>", "g<Down>")
 
 --Jump to next word
 map({"i","v"}, '<C-Right>', function()
@@ -433,11 +422,11 @@ map("i", "<S-Right>", "<Esc>v",  {noremap = true}) --note the v without l for in
 map("n", "<S-Right>", "vl",      {noremap = true})
 map("v", "<S-Right>", "<Right>")
 
-map({"i","n"}, "<S-Up>",    "<Esc>vk", {noremap=true})
-map("v",       "<S-Up>",    "k",       {noremap=true}) --avoid fast scrolling around
+map({"i","n"}, "<S-Up>",    "<Esc>vgk", {noremap=true})
+map("v",       "<S-Up>",    "gk",       {noremap=true}) --avoid fast scrolling around
 
-map({"i","n"}, "<S-Down>", "<Esc>vj",  {noremap=true})
-map("v",       "<S-Down>", "j",        {noremap=true}) --avoid fast scrolling around
+map({"i","n"}, "<S-Down>", "<Esc>vgj",  {noremap=true})
+map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling around
 
 --Select word under cursor
 map({"i","n","v"}, "<C-S-w>", "<esc>viw")

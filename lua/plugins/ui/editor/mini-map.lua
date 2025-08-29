@@ -1,5 +1,5 @@
 return {
-    "echasnovski/mini.map",
+    "nvim-mini/mini.map",
     version = "*",
     enabled = false,
 

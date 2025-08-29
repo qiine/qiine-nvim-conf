@@ -1,6 +1,7 @@
 return
 {
-    "echasnovski/mini.align",
+    "nvim-mini/mini.align",
+    enabled = false,
     version = "*",
 
     config = function()

@@ -1,6 +1,6 @@
 return
 {
-    'echasnovski/mini.keymap',
+    'nvim-mini/mini.keymap',
     version = false,
     enabled = true,
     desc = {"Smart keymaps, allow multi-step actions and configurable delay"},

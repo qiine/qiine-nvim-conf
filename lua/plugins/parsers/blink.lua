@@ -123,6 +123,11 @@ return
             min_keyword_length = 2,
             default = { 'lsp', 'path', 'snippets', 'buffer', },
             providers = {
+                -- lsp ={
+                --     name = "lsp",
+                --     enabled = true,
+                --     score_offset = 1000,
+                -- },
                 buffer = {
                     opts = {
                         --use other buffers as source
@@ -133,6 +138,11 @@ return
                         end
                     }
                 },
+                path = {
+                    opts = {
+                        show_hidden_files_by_default = true,
+                    }
+                }
             },
         },
 

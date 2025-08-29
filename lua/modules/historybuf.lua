@@ -45,8 +45,8 @@ end, {})
 vim.api.nvim_create_user_command("PickClosedBuf", function()
     if #closedbufs == 0 then vim.notify("No previous buffer") return end
 
-    vim.ui.select(closedbufs, {prompt = "Pick from closed buffer:"}
-    ,function(choice)
+    vim.ui.select(closedbufs, {prompt = "Pick from closed buffer:"},
+    function(choice)
         if choice then vim.cmd("e " .. choice) end
     end)
 end, {})

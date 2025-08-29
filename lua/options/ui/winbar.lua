@@ -73,7 +73,11 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     pattern  = "*",
     callback = function(args)
         vim.defer_fn(function()
+            --buff
             if vim.bo.buftype == 'terminal' then vim.opt_local.winbar = nil return end
+            if not vim.api.nvim_get_option_value("buflisted",  { buf = 0 }) then
+                vim.opt_local.winbar = nil return
+            end
 
             --prevent errors with very small windows
             if vim.api.nvim_win_get_height(0) < 5 then return end

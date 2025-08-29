@@ -20,7 +20,7 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 
 
---## [Settings]
+--## [Settings]
 ----------------------------------------------------------------------
 vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
 
@@ -795,15 +795,15 @@ map("v", "<M-r>", "r")
 map("n", "s", "<Nop>")
 
 map({"i","n"}, "<M-S-s>",
-[[<Esc>:%s/\V//g<Left><Left><Left>]]
-,{desc = "Enter substitue mode"})
+[[<Esc>:%s/\V//g<Left><Left><Left>]],
+{desc = "Enter substitue mode"})
 
-map({"i","n"}, "<C-S-s>",
+map({"i","n"}, "<F50>",
 [[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
 
 -- Substitue in selection
-map("v", "<M-S-s>",
+map("v", "<F2>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode in selection"})
 
@@ -1153,13 +1153,10 @@ map("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
 --run whole file until curr line and insert
 map({"i","n"},"<F20>","<cmd>SnipRunToLineInsertResult<CR>")
 
-
 --exec curr line as ex command
---map({"i","n"}, "<F56>", '<esc>0y$:<C-r>"<CR>')
-map({"i","n","v"}, "<F56>", function()
-    vim.cmd('norm! 0"zy$')
-    vim.cmd('@z')
-end)
+--F56 is <M-F8>
+map({"i","n"}, "<F56>", function() vim.cmd('norm! 0"zy$'); vim.cmd('@z') end)
+map("v", "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
 
 
 

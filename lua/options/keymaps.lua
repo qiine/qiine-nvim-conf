@@ -978,6 +978,9 @@ map({"i","n","v","c","t"}, "<M-s>s", function()
     print("Spellchecking: " .. tostring(vim.opt.spell:get()))
 end, { desc = "Toggle spell checking" })
 
+-- Pick documents language
+map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocsLanguage<CR>")
+
 -- Suggest
 map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")
 

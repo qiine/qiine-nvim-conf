@@ -1,14 +1,14 @@
 
---vim.opt_local.spell = true
+vim.opt_local.spell = true
 
 
 --[Gutter]
 vim.opt_local.signcolumn = "no"
 
---Numbers
+-- Numbers
 vim.opt_local.number = false
 
---folds
+-- folds
 vim.opt_local.foldcolumn = "1"
 vim.opt_local.foldenable = true
 

@@ -1,6 +1,8 @@
 return
 {
     "ibhagwan/fzf-lua",
+    enabled = true,
+
     dependencies = { "nvim-tree/nvim-web-devicons" },
 
     config = function()
@@ -12,6 +14,10 @@ return
                     ["esc"] = "",  --restore esc to normal mode (now quit with C-w)
                 },
             },
+            keymap = {
+                builtin = { },
+                fzf = { },
+            },
 
             winopts = {
                 title_pos    = "center",
@@ -22,23 +28,22 @@ return
                 col          = 0.51,         -- window col position (0=left, 1=right)
                 backdrop     = 100,  --opacity
 
-
                 preview = {
                     default = "builtin",
                     border = "border",
                     layout = "horizontal",
                     horizontal = "right:47%",
                     --hidden = "hidden",
-                    winopts = {                       -- builtin previewer window options
+                    winopts = {  -- builtin previewer window options
                         number            = true,
                         cursorline        = true,
                         cursorlineopt     = "both",
                         foldenable        = false,
                         foldmethod        = "manual",
                     },
-
                 },
             },
+
             fzf_opts = {
                 ["--layout"] = "default",  -- default, reverse (search bar pos)
                 ['--marker'] = '>',
@@ -93,17 +98,6 @@ return
                 glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
             },
 
-            keymap = {
-                builtin = {
-                }
-                --fzf = {
-                --    ["tab"] = function() require("fzf-lua").builtin({
-                --        winopts = {
-                --            --preview = {hidden = true}
-                --        }
-                --    }) end,
-                --},
-            }
         })
 
         -- Custom previewer
@@ -151,12 +145,12 @@ return
             })
         end, {silent=true, desc="Fuzzy find file in project" })
 
-        --find files in home
+        -- find files in home
         vim.keymap.set({"i","n","v","t"}, "<M-f>", function()
             require("fzf-lua").files({ cwd="~", })
         end, { silent=true, desc="Fuzzy find file in HOME"})
 
-        --find recent files
+        -- find recent files
         vim.keymap.set({"i","n","v","t"}, "<M-f>r", function()
             require("fzf-lua").oldfiles({
                 stat_file = true --check file still exist
@@ -164,7 +158,7 @@ return
         end, {silent=true, desc="Fuzzy find recent files"})
 
 
-        --find files in notes
+        -- find files in notes
         vim.keymap.set({"i","n","v","t"}, "<F49>", function()   --<M-F1>
             local home = vim.fn.expand("~")
             require("fzf-lua").files({
@@ -172,7 +166,7 @@ return
             })
         end)
 
-        --find selected files in notes
+        -- find selected files in notes
         vim.keymap.set("v", "<F49>", function()   --<M-F1>
             vim.cmd('norm! "zy')
             local txt = vim.trim(vim.fn.getreg("z"))
@@ -186,38 +180,38 @@ return
 
 
         -- ### grep
-        --grep curr dir
+        -- grep curr dir
         vim.keymap.set({"i","n","v","t"}, "<M-f><S-g>", function()
             require("fzf-lua").live_grep({})
         end, { silent = true, desc = "grep curr dir" })
 
-        --grep curr project
+        -- grep curr project
         vim.keymap.set({"i","n","v","t"}, "<C-S-g>", function()
             require("fzf-lua").live_grep({
                 cwd = require("fzf-lua.path").git_root({}),
             })
         end, { noremap = true, silent = true, desc = "live grep project" })
 
-        --grep curr project for selected
+        -- grep curr project for selected
         vim.keymap.set("v", "<C-S-g>", function()
             require("fzf-lua").grep_visual({
                 cwd = require("fzf-lua.path").git_root({})
             })
         end, {noremap=true, silent=true, desc="live grep selected in project"})
 
-        --grep in home
+        -- grep in home
         vim.keymap.set({"i","n","v","t"}, "<M-f>g", function()
             require("fzf-lua").live_grep({ cwd = "~" })
         end, { silent = true, desc = "Live grep in home" })
 
-        --grep in notes
+        -- grep in notes
         vim.keymap.set({"i","n","t"}, "<F13>", function()   --<S-F1>
             require("fzf-lua").live_grep({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
         end)
 
-        --grep in help for selected
+        -- grep in help for selected
         vim.keymap.set("v", "<F13>", function()   --<S-F1>
             require("fzf-lua").grep_visual({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
@@ -225,7 +219,7 @@ return
         end)
 
 
-        --serch ft and set it
+        -- Serch ft and set it
         vim.keymap.set({"i","n","v"}, "<M-f>t", function()
             require("fzf-lua").filetypes({})
         end, {silent = true, desc = "search and set filetypes" })
@@ -233,7 +227,7 @@ return
 
 
         -- ## Custom finders
-        --fuzzy cd
+        -- Fuzzy cd
         fzfl.fuzzy_cd = function()
             fzfl.fzf_exec("fdfind . --type d", {     --or fd
                 prompt = "cd ",
@@ -252,8 +246,8 @@ return
         {silent=true, desc="Fuzzy cd to directory"})
 
         -- Find proj
-        --TODO find project using .git
-        --https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
+        -- TODO find project using .git
+        -- https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
         fzfl.projects = function()
             fzfl.fzf_exec("fdfind '.git$' -t d -d 20 -a -HI | xargs -I{} dirname {}", {
                 cwd = "~/Personal/",

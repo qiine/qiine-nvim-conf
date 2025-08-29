@@ -278,7 +278,9 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
 end, {})
 
 vim.api.nvim_create_user_command('SudoWrite', function()
+    local fpath = vim.fn.shellescape(vim.fn.expand("%:p"))
     local tmp = vim.fn.tempname()
+
     vim.cmd('write! ' .. tmp)
 
     local edw_w = vim.o.columns
@@ -299,7 +301,7 @@ vim.api.nvim_create_user_command('SudoWrite', function()
     }
     vim.api.nvim_open_win(0, true, wopts)
 
-    vim.cmd('terminal sudo tee % < ' .. tmp .. ' > /dev/null')
+    vim.cmd("term sudo tee "..fpath.." < "..tmp.." > /dev/null")
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
@@ -524,6 +526,39 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
 end, {})
 
 
+-- ### Extended attributes
+vim.api.nvim_create_user_command("FileSetLangFattr", function(opts)
+    if opts.args == "" then vim.notify("cmd need a lang! ", vim.log.levels.ERROR) return end
+
+    local lang = opts.args
+    local fpath = vim.fn.expand("%:p")
+    local fname = vim.fn.expand("%:t")
+
+    local res = vim.system({"setfattr", "-n", "user.lang", "-v", '"'..lang..'"', fpath}, {text=true}):wait()
+    if res.code ~= 0 then
+        vim.notify("SetLang for file failed:\n" .. res.stderr, vim.log.levels.ERROR) return
+    else
+        vim.notify('"'..fname..'"'.." lang is now: "..lang, vim.log.levels.INFO) return
+    end
+end, {nargs = 1})
+
+vim.api.nvim_create_user_command("FileGetLangFattr", function()
+    local fpath = vim.fn.expand("%:p")
+    local fname = vim.fn.expand("%:t")
+
+    local res = vim.system({"getfattr", "--only-values", "-n", "user.lang", fpath}, {text=true}):wait()
+
+    if res.code ~= 0 then
+        vim.notify("GetLang failed:\n" .. res.stderr, vim.log.levels.ERROR)
+    else
+        local lang = vim.trim(res.stdout or "")
+        if lang == "" then vim.notify("No lang attr set", vim.log.levels.WARN)
+        else               vim.notify('"'..fname..'"'.." lang is: "..lang, vim.log.levels.INFO)
+        end
+    end
+end, {})
+
+
 
 --## [Windows]
 ----------------------------------------------------------------------
@@ -674,7 +709,6 @@ end, {})
 
 --diff curr file with given rev
 vim.api.nvim_create_user_command("DiffRevision", function(opts)
-    --Process arg
     local rev = opts.args ~= "" and opts.args or "HEAD"
 
     local prev_workdir = vim.fn.getcwd()

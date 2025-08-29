@@ -3,7 +3,7 @@ return
     "nvim-neo-tree/neo-tree.nvim",
     --branch = "v3.x",
     enabled = true,
-    event = "VimEnter",
+    event = "UIEnter",
 
     dependencies = {
         "nvim-lua/plenary.nvim",

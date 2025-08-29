@@ -113,6 +113,13 @@ return
 
                 lualine_x =
                 {
+                    { --curr writing lang
+                        function ()
+                            local lang = vim.opt.spelllang:get()
+                            return lang[1]
+                        end
+                    },
+
                     {--select count
                         function()
                             local m = vim.fn.mode()

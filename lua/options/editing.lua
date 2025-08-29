@@ -171,26 +171,42 @@ vim.opt.spellcapcheck = ""
 -- To set this option automatically depending on the language, see
 -- |set-spc-auto|.
 
-vim.opt.spelllang = {
+
+-- ### Language
+local preferedlangs = {
     "en",
-    -- "fr",
+    "fr"
 }
 
---TODO make it use our own custom dico
+vim.opt.spelllang = preferedlangs
+
+-- TODO make it use our own custom dico
 vim.opt.spellfile = {
     vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
-    -- vim.fn.stdpath("config") .. "/spell/fr.utf-8.add"
+    vim.fn.stdpath("config") .. "/spell/fr.utf-8.add"
 }
 
+vim.api.nvim_create_user_command("PickDocsLanguage", function()
+    local dictpath = vim.fn.stdpath("config").."/spell/"
+
+    vim.ui.select(preferedlangs, {prompt = "Pick documents language"},
+    function(choice)
+        if choice then
+            vim.opt.spelllang = choice
+            vim.opt.spellfile = dictpath..choice..".utf-8.add"
+        end
+    end)
+end, {})
 
 
---## [Formating]
+
+-- ## [Formatting]
 ----------------------------------------------------------------------
 local formatopts = {} --will hold all users formats opts
---View the current formatoptions with ':set verbose=1 formatoptions?'
+-- View the current formatoptions with ':set verbose=1 formatoptions?'
 
 
---### Indentation
+-- ### Indentation
 vim.opt.shiftwidth  = 4    -- Number of spaces to use for indentation
 vim.opt.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
 vim.opt.tabstop     = 4
@@ -200,21 +216,21 @@ vim.opt.expandtab   = true -- Use spaces instead of tabs
 
 vim.opt.autoindent  = true -- keep indent of prev line when making a new one
 vim.opt.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
---vim.opt.copyindent = true
---vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
---A list of keys that, when typed in Insert mode, cause reindenting of
---the current line. Only happens if 'indentexpr' isn't empty.
+-- vim.opt.copyindent = true
+-- vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
+-- A list of keys that, when typed in Insert mode, cause reindenting of
+-- the current line. Only happens if 'indentexpr' isn't empty.
 
 
---### Text Wrapping
---"t" Auto-wrap text using textwidth (for non-comments).
---"w" Auto-wrap lines in insert mode, even without spaces.
---"v" Don't auto-wrap lines in visual mode.
---table.insert(formatopts, "t")
---table.insert(formatopts, "w")
+-- ### Text Wrapping
+-- "t" Auto-wrap text using textwidth (for non-comments).
+-- "w" Auto-wrap lines in insert mode, even without spaces.
+-- "v" Don't auto-wrap lines in visual mode.
+-- table.insert(formatopts, "t")
+-- table.insert(formatopts, "w")
 vim.opt.textwidth = 80
 
---Visual only wraping
+-- Visual only wraping
 vim.opt.wrap        = false --word wrap off by default
 vim.opt.breakindent = true --wrapped lines conserve whole block identation
 

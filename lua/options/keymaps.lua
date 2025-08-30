@@ -407,13 +407,13 @@ end)
 
 
 
---## [Selection]
+-- ## [Selection]
 ----------------------------------------------------------------------
---Swap selection anchors
+-- Swap selection anchors
 map("v", "<M-v>", "o")
 
---### Visual selection
---shift+arrows visual select
+-- ### Visual selection
+-- shift+arrows visual select
 map("i", "<S-Left>", "<Esc>hv",  {noremap = true})
 map("n", "<S-Left>", "vh",       {noremap = true})
 map("v", "<S-Left>", "<Left>")
@@ -428,22 +428,23 @@ map("v",       "<S-Up>",    "gk",       {noremap=true}) --avoid fast scrolling a
 map({"i","n"}, "<S-Down>", "<Esc>vgj",  {noremap=true})
 map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling around
 
---Select word under cursor
+-- Select word under cursor
 map({"i","n","v"}, "<C-S-w>", "<esc>viw")
 
---sel in paragraph
+-- Sel in paragraph
 map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 
---Select to home/end
+-- Select to home/end
 map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
 map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
---ctrl+a select all
+
+-- ctrl+a select all
 map({"i","n","v"}, "<C-a>", "<Esc>G$vgg0")
 
 
---### Grow select
---grow horizontally TODO proper anchor logic
+-- ### Grow select
+-- Grow horizontally TODO proper anchor logic
 map("i", "<C-S-PageDown>", "<Esc>vl")
 map("n", "<C-S-PageDown>", "vl")
 map("v", "<C-S-PageDown>", "l")
@@ -452,7 +453,7 @@ map("i", "<C-S-PageUp>", "<Esc>vh")
 map("n", "<C-S-PageUp>", "vh")
 map("v", "<C-S-PageUp>", "oho")
 
---grow do end/start of line
+-- Grow do end/start of line
 map({"i","n"}, "<S-PageUp>", "<esc>Vk")
 map("v", "<S-PageUp>", function()
     if vim.fn.mode() == "V" then
@@ -472,7 +473,11 @@ map("v", "<S-PageDown>", function()
 end)
 
 
---### Visual block selection
+-- ### Visual line selection
+map({"i","n","v"}, "<C-S-a>", "<Cmd>norm! V<CR>")
+
+
+-- ### Visual block selection
 map({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
 map("v", "<S-M-Left>", function()
     if vim.fn.mode() == '\22' then  --"\22" is vis block mode

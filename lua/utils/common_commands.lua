@@ -235,6 +235,7 @@ end, {})
 
 vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
     local fpath = vim.api.nvim_buf_get_name(0)
+    if fpath == "" then fpath = vim.uv.cwd() end
 
     local function prompt_user()
         vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"},

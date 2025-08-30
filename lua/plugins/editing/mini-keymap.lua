@@ -9,26 +9,15 @@ return
         require('mini.keymap').setup()
         local combo = require('mini.keymap').map_combo
 
-        --local delay_fastline = 275
-        --combo("i", '<C-Right><Right>', '<Esc>$i', { delay = delay_fastline })
-        --combo({"n", "v"}, '<C-Right><Right>', '$', { delay = delay_fastline })
-
-        --combo("i", '<C-Left><Left>', '<Esc>0i', { delay = delay_fastline })
-        --combo({"n", "v"}, '<C-Left><Left>', '0', { delay = delay_fastline })
-
-        --quick insert
-        --combo("n", "<Left><Right>", function() vim.cmd("startinsert") end, { delay = 25 })
-        --combo("n", "<Right><Left>", function() vim.cmd("startinsert") end, { delay = 25 })
-
-        --quick normal
+        -- Quick normal
         combo("i", "<Left><Right>", "<Esc>", { delay = 25 })
         combo("i", "<Right><Left>", "<Esc>", { delay = 25 })
 
         combo("v", "<Left><Right>", "<Esc>")
         combo("v", "<Right><Left>", "<Esc>")
 
-        --quick normal while fast move
-        --only for right side
+        -- Quick normal while fast move
+        -- Only for right side
         combo("i", '<C-Down><C-Right>', '<Esc><Down><Right>', { delay = 300 })
         combo("i", '<C-Right><C-Down>', '<Esc><Down><Right>', { delay = 300 })
 
@@ -38,15 +27,11 @@ return
         combo("i", '<C-Right><C-Left>', '<Esc>', { delay = 100 })
         combo("i", '<C-Left><C-Right>', '<Esc>', { delay = 100 })
 
+        -- Select all line
+        combo({"i","n","v"}, "<S-Left><S-Right>", "<esc>0^v<Cmd>norm!$<CR>")
+        combo({"i","n","v"}, "<S-Right><S-Left>", "<esc>0^v<Cmd>norm!$<CR>")
 
-        --to line select
-        combo("i", "<S-Right><S-Left>", "<Esc>V")
-        combo("i", "<S-Left><S-Right>", "<Esc>V")
-
-        combo("n", "<S-Right><S-Left>", function() vim.cmd("norm! V") end) --need function otherwise will insert V, weird...
-        combo("n", "<S-Left><S-Right>", function() vim.cmd("norm! V") end)
-
-        combo("v", "<S-Right><S-Left>", function() vim.cmd("norm! V") end)
-        combo("v", "<S-Left><S-Right>", function() vim.cmd("norm! V") end)
+        combo({"i","n","v"}, "<C-S-Left><C-S-Right>", "<esc>V")
+        combo({"i","n","v"}, "<C-S-Right><C-S-Left>", "<esc>V")
     end
 }

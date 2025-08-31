@@ -1,14 +1,14 @@
 
-.git
-lazy-lock.json
-
-# ignore ALL .log files
-*.log
-
-# ignore ALL files in ANY directory named temp
-temp/ 
-/dev
-
 # ignore files
 TODO.txt
 session.vim
+.git
+lazy-lock.json
+
+# ignore ALL files ending with
+*.log
+
+# ignore ALL files directories
+temp/
+/nvim/spell/
+

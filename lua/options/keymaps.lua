@@ -19,7 +19,6 @@ local map = vim.keymap.set
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 
-
 --## [Settings]
 ----------------------------------------------------------------------
 vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
@@ -441,6 +440,15 @@ map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
 map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
+-- To Visual Line selection
+map("i", "<M-C-Right>", "<Esc>V")
+map({"n","v"}, "<M-C-Right>", function()
+    if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
+end)
+map("i", "<M-C-Left>", "<Esc>V")
+map({"n","v"}, "<M-C-Left>", function()
+    if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
+end)
 
 -- ctrl+a select all
 map({"i","n","v"}, "<C-a>", "<Esc>G$vgg0")

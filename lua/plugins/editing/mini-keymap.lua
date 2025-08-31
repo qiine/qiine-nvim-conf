@@ -27,11 +27,14 @@ return
         combo("i", '<C-Right><C-Left>', '<Esc>', { delay = 100 })
         combo("i", '<C-Left><C-Right>', '<Esc>', { delay = 100 })
 
-        -- Select all line
+
+        -- Select all char of line
         combo({"i","n","v"}, "<S-Left><S-Right>", "<esc>^v<Cmd>norm!g_<CR>")
         combo({"i","n","v"}, "<S-Right><S-Left>", "<esc>^v<Cmd>norm!g_<CR>")
 
-        combo({"i","n","v"}, "<C-S-Left><C-S-Right>", "<esc>V")
-        combo({"i","n","v"}, "<C-S-Right><C-S-Left>", "<esc>V")
+        -- to vis line
+        combo("i", "<C-M-Left><C-M-Right>", "<esc>V")
+        combo("i", "<C-M-Right><C-M-Left>", "<esc>V")
     end
 }
+

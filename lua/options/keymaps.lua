@@ -457,7 +457,8 @@ map("n", "<C-S-PageUp>", "vh")
 map("v", "<C-S-PageUp>", "oho")
 
 -- Grow do end/start of line
-map({"i","n"}, "<S-PageUp>", "<esc>Vk")
+map("i", "<S-PageUp>", "<Esc>Vk")
+map("n", "<S-PageUp>", function()vim.cmd('norm!V'..vim.v.count..'k')end)
 map("v", "<S-PageUp>", function()
     if vim.fn.mode() == "V" then
         vim.cmd("norm! k")
@@ -466,7 +467,8 @@ map("v", "<S-PageUp>", function()
     end
 end)
 
-map({"i","n"}, "<S-PageDown>", "<esc>Vj")
+map("i", "<S-PageDown>", "<Esc>Vj")
+map("n", "<S-PageDown>", function()vim.cmd('norm!V'..vim.v.count..'j')end)
 map("v", "<S-PageDown>", function()
     if vim.fn.mode() == "V" then
         vim.cmd("norm! j")

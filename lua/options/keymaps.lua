@@ -97,6 +97,9 @@ map("n", "<C-r>", "i<C-r>")
 
 --## [Files]
 ----------------------------------------------------------------------
+-- Open nvim native file explorer
+map(modes, "<C-e>", "<Cmd>Ex<CR>")
+
 --Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
@@ -105,14 +108,14 @@ map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
 map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
 
---### [Save]
+-- ### [Save]
 map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
---save as
+-- Save as
 map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
 
---Resource curr file
+-- Resource curr file
 map(modes, "ç", function()  --"<altgr-r>"
     local cf    = vim.fn.expand("%:p")
     local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
@@ -122,15 +125,15 @@ end)
 
 
 
---## [View]
+-- ## [View]
 ----------------------------------------------------------------------
---alt-z toggle line wrap
+-- alt-z toggle line wrap
 map({"i","n","v"}, "<A-z>", function()
     vim.opt.wrap = not vim.opt.wrap:get()
 end)
 
---Gutter on/off
-map({"i","n"}, "<M-g>", function()
+-- Gutter on/off
+map({"i","n","v"}, "<M-g>", function()
     if vim.g.gutter_show then
         vim.g.gutter_show = false
 
@@ -148,15 +151,15 @@ map({"i","n"}, "<M-g>", function()
 end, {desc = "Toggle Gutter" })
 
 
---### [Folds]
+-- ### [Folds]
 map({"i","n","v"}, "<M-S-z>", "<Cmd>norm! za<CR>")
 
---virt lines
+-- virt lines
 map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 
 
---## [Tabs]
+-- ## [Tabs]
 ----------------------------------------------------------------------
 --create new tab
 map(modes,"<C-t>", "<Cmd>tabnew<CR>")
@@ -899,64 +902,66 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 --vmap("n", "<C-S-Up>", '"zxk"zp')
 --vmap("n", "<C-S-Down>", '"zxj"zp')
 
+--use mini.move now
+
 --Move word right
-map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
-map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
+-- map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
+-- map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
 
 -- Move selected text
 -- Move left
-map("v", "<C-S-Left>", function()
-    local col = vim.api.nvim_win_get_cursor(0)[2]
+-- map("v", "<C-S-Left>", function()
+--     local col = vim.api.nvim_win_get_cursor(0)[2]
 
-    if vim.fn.mode() == 'v' and col > 0 then
-        local cmd = '"zdh"zP<esc>gvhoho'
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
+--     if vim.fn.mode() == 'v' and col > 0 then
+--         local cmd = '"zdh"zP<esc>gvhoho'
+--         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
 
-        local cursor_pos = vim.api.nvim_win_get_cursor(0)
+--         local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
-        --Tricks to refresh vim.fn.getpos("'<")
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
-        local anchor_start_pos = vim.fn.getpos("'<")
+--         --Tricks to refresh vim.fn.getpos("'<")
+--         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
+--         local anchor_start_pos = vim.fn.getpos("'<")
 
-        if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
-            vim.cmd("normal! o")
-        end
+--         if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
+--             vim.cmd("normal! o")
+--         end
 
-        --maybe wrap to next/prev line ?
-    end
-end)
+--         --maybe wrap to next/prev line ?
+--     end
+-- end)
 
 --Move selection right
-map("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
+-- map("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
 
 --move selected line verticaly
-map('v', '<C-S-Up>', function()
-    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
-    local mode = vim.fn.mode()
+-- map('v', '<C-S-Up>', function()
+--     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
+--     local mode = vim.fn.mode()
 
-    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
-    else
-        vim.cmd('normal! "zdk"zP')
+--     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+--         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
+--     else
+--         vim.cmd('normal! "zdk"zP')
 
-        local anchor_start_pos = vim.fn.getpos("'<")[3]
-        vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
-    end
-end)
+--         local anchor_start_pos = vim.fn.getpos("'<")[3]
+--         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
+--     end
+-- end)
 
-map('v', '<C-S-Down>', function ()
-    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
-    local mode = vim.fn.mode()
+-- map('v', '<C-S-Down>', function ()
+--     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
+--     local mode = vim.fn.mode()
 
-    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
-        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
-    else
-        vim.cmd('normal! "zdj"zP')
+--     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+--         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
+--     else
+--         vim.cmd('normal! "zdj"zP')
 
-        local anchor_start_pos = vim.fn.getpos("'<")[3]
-        vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
-    end
-end)
+--         local anchor_start_pos = vim.fn.getpos("'<")[3]
+--         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
+--     end
+-- end)
 
 -- Move line
 map({'i','n'}, '<C-S-Up>', function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})

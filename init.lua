@@ -49,6 +49,7 @@ module = safe_require("modules.v-enveloppe") if module then module.setup() end
 safe_require("modules.tiny-session")
 safe_require("modules.rouleau-nvim")
 safe_require("modules.historybuf")
+safe_require("modules.planv")
 
 --## Commands
 safe_require("utils.common_commands")
@@ -64,7 +65,7 @@ safe_require("options.mousemaps")
 safe_require("options.internal")
 safe_require("options.editing")
 
---### ui
+-- ### ui
 safe_require("options.ui.theme")
 safe_require("options.ui.conceal")
 safe_require("options.ui.view")

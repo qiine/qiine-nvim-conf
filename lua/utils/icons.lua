@@ -136,7 +136,9 @@ local M =
     crayon = "󰃉",
     trash  = "󰆴",
     greeterrecent = "🌺",
-
+    floppy1 = "🖬",
+    floppy2 = "💾",
+    pin = "",
 
     -- ui
     Boolean   = "󰨙",

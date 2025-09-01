@@ -25,36 +25,36 @@ vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
 
 
 
---## [Internal]
+-- ## [Internal]
 ----------------------------------------------------------------------
---Ctrl+q to quit
+-- Ctrl+q to quit
 map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 
---Quick restart nvim
+-- Quick restart nvim
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
---F5 reload buffer
+-- F5 reload buffer
 map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap=true})
 
---g
+-- g
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 
 
---## [Buffers]
+-- ## [Buffers]
 ----------------------------------------------------------------------
---Create new buffer
+-- Create new buffer
 map({"i","n","v"}, "<C-n>", function()
     local buff_count  = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
     v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
 end)
 
---reopen prev
+-- Reopen prev
 map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
 
---Omni close
+-- Omni close
 map(modes, "<C-w>", function()
     local bufid      = vim.api.nvim_get_current_buf()
     local buftype    = vim.api.nvim_get_option_value("buftype", {buf=bufid})
@@ -67,21 +67,22 @@ map(modes, "<C-w>", function()
         if choice ~= 1 then return end
     end
 
-    --close cmdline before
+    -- try close cmdline before
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("<C-L>", "n", false) end
 
-    --try :close splits first, in case both splits are same buf
-    --It avoids killing the shared buffer in this case
-    local ret, err = pcall(vim.cmd, "close")
-    if not ret then
+    -- Try :close first, in case both splits are same buf (fails if no split)
+    -- It avoids killing the shared buffer in this case
+    -- #vim.fn.win_findbuf(0)
+    local res, err = pcall(vim.cmd, "close")
+    if not res then
         if buftype == "terminal" then
             vim.cmd("bwipeout!")
         else
             vim.cmd("bwipeout!")
-            --vim.cmd("bd!")
-            --can also close tabs,
-            --bypass save warnings,
-            --not bwipeout to preserve #file
+            -- vim.cmd("bd!")
+            -- can also close tabs,
+            -- bypass save warnings,
+            -- not bwipeout to preserve alternate file '#'
         end
     end
 end, {noremap=true})
@@ -181,20 +182,24 @@ map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 map(modes, "<M-w>n", function ()
     local wopts = {
         split = "right",
-        height = 30,
-        width = 20
+        height = 33,
+        width = 25
     }
     vim.api.nvim_open_win(0, true, wopts)
 end)
 
 --Open floating window
 map(modes, "<M-w>nf", function ()
+    local fname = vim.fn.expand("%:t")
+
     local edw_w = vim.o.columns
     local edw_h = vim.o.lines
 
     local wsize = {w = 66, h = 22}
 
     local wopts = {
+        title     = fname,
+        title_pos = "center",
         relative = "editor",
         border = "single",
         width  = wsize.w,
@@ -213,7 +218,7 @@ map(modes, "<M-w>h", "<cmd>new<cr>")
 --To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
---focus split
+-- Toggle focus split
 map(modes, "<M-w>f", function()
     local win     = vim.api.nvim_get_current_win()
     local wwidth  = vim.api.nvim_win_get_width(win)
@@ -302,12 +307,12 @@ map({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
 map("n",       "<M-PageUp>",    "<C-i>")
 
 
---#[Fast cursor move]
---Fast left/right move in normal mode
+-- ### [Fast and furious cursor move]
+-- Fast left/right move in normal mode
 map('n', '<C-Right>', "m'5l")
 map('n', '<C-Left>',  "m'5h")
 
---ctrl+up/down to move fast
+-- ctrl+up/down to move fast
 map("i",       "<C-Up>", "<esc>m'3ki")
 map({"n","v"}, "<C-Up>", "m'3k")
 
@@ -315,14 +320,14 @@ map("i",       "<C-Down>", "<esc>m'3ji")
 map({"n","v"}, "<C-Down>", "m'3j")
 
 
---alt+left/right move to start/end of line
+-- alt+left/right move to start/end of line
 map("i",       "<M-Left>", "<Esc>m'0i")
 map({"n","v"}, "<M-Left>", "m'0")
 
 map("i",       "<M-Right>", "<Esc>m'$a")
 map({"n","v"}, "<M-Right>", "m'$")
 
---jump home/end
+-- Jump home/end
 map("i",       "<Home>", "<Esc>gg0i")
 map({"n","v"}, "<Home>", "gg0")
 
@@ -335,33 +340,12 @@ map({"n","v"}, "<End>", "G$")
 --kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Down>", "G$")
 
---jump to word
---function JumpToCharAcrossLines(target)
---    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
---    local lines = vim.api.nvim_buf_get_lines(0, row - 1, -1, false)
-
---    -- Adjust first line to start at current column
---    lines[1] = lines[1]:sub(col + 2)
-
---    local total_offset = col + 1
-
---    for i, line in ipairs(lines) do
---        local index = line:find(target, 1, true)
---        if index then
---            local target_row = row + i - 1
---            local target_col = (i == 1) and col + index or index - 1
---            vim.api.nvim_win_set_cursor(0, { target_row, target_col })
---            return
---        end
---    end
---end
-
 map("n", "f", function()
-    --JumpToCharAcrossLines()
+    --TODO JumpToCharAcrossLines()
 end, {remap = true})
 
 
---### search
+-- ### Search
 map({"i","n","v","c"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl
     vim.opt.hlsearch = true
@@ -376,15 +360,15 @@ map({"i","n","v","c"}, "<C-f>", function()
     end
 end)
 
---search Help for selection
+-- Search Help for selection
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 
---### Navigation directory
---Move one dir up
+-- ### Navigation directory
+-- Move one dir up
 map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 
---to last directory
+-- To last directory
 map({"i","n","v"}, "<M-Home>", "<cmd>cd -<CR><cmd>pwd<CR>")
 
 --Interactive cd
@@ -441,6 +425,7 @@ map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
 map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 -- To Visual Line selection
+-- TODO a bit hacky we would want proper <M-C-Right><M-C-Left>
 map("i", "<M-C-Right>", "<Esc>V")
 map({"n","v"}, "<M-C-Right>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
@@ -469,6 +454,7 @@ map("i", "<S-PageUp>", "<Esc>Vk")
 map("n", "<S-PageUp>", function()vim.cmd('norm!V'..vim.v.count..'k')end)
 map("v", "<S-PageUp>", function()
     if vim.fn.mode() == "V" then
+        vim.cmd("norm! k")
         vim.cmd("norm! k")
     else
         vim.cmd("norm! Vk")
@@ -579,13 +565,13 @@ map("n", "<C-i>l", "i<C-v>")
 map("n", "<C-S-k>", "i<C-S-k>")
 
 
---### Insert snipet
+-- ### Insert snipet
 --insert function()
 --kmap("i", "<C-S-i>")
 
 --map("i", "<C-i>sf", "")
 
---insert print snippet
+-- Insert print snippet
 map({"n","v"}, "Ô", function()
     local txt = ""
     if vim.fn.mode() == "n"
@@ -613,8 +599,8 @@ map({"n","v"}, "Ô", function()
 end)
 
 
---#[Copy / Paste]
---Copy whole line in insert
+-- ### [Copy / Paste]
+-- Copy whole line in insert
 map("i", "<C-c>", function()
     local line = vim.api.nvim_get_current_line()
 
@@ -637,7 +623,7 @@ map("v", "<C-c>", function()
 end, {noremap=true})
 
 
---copy append selection
+-- Copy append selection
 map("v", "<M-c>", function()
     local reg_prev = vim.fn.getreg("+")
 
@@ -664,7 +650,7 @@ map("i", "<C-S-x>", '<esc>viw"+xi')
 map("n", "<C-S-x>", 'viw"+x')
 map("v", "<C-S-x>", '<esc>m`viw"+x``:echo"Word Cut"<CR>')
 
---Paste
+-- Paste
 map({"i","n","v"}, "<C-v>", function()
     local mode = vim.fn.mode()
     if mode == "v" or mode == "V" or mode == "" then vim.cmd('norm! "_d') end
@@ -675,22 +661,21 @@ map({"i","n","v"}, "<C-v>", function()
     local ft = vim.bo.filetype
 
     if ft == "" then
-        --no formating
+        -- no formating for unknown ft
     elseif ft == "markdown" or ft == "text" then
         vim.cmd("norm! `[v`]gqw")
     else
         vim.cmd("norm! `[v`]=") --auto fix indent
     end
 
-    --proper curso placement
+    -- Proper curso placement
     vim.cmd("norm! `]")
     if mode == "i" then vim.cmd("norm! a") end
 end)
-
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
---paste replace word
+-- Paste replace word
 map("i", "<C-S-v>", '<esc>"_diw"+Pa')
 map({"n","v"}, "<C-S-v>", '<esc>"_diw"+P')
 
@@ -711,16 +696,16 @@ map("i",       "<C-S-z>", "<C-o><C-r>")
 map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 
---### Deletion
---#### Remove
---Remove char
---kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
---kmap("n", "<BS>", '<Esc>"_X<Esc>')
+-- ### Deletion
+-- #### Remove
+-- Remove char
+-- kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
+-- kmap("n", "<BS>", '<Esc>"_X<Esc>')
 map("n", "<BS>", 'r ')
 map("v", "<BS>", '"_xi')
 
---Remove word left
---<M-S-BS> instead of <C-BS> because of wezterm
+-- Remove word left
+-- <M-S-BS> instead of <C-BS> because of wezterm
 map("i", "<M-S-BS>", '<esc>"_dbi')
 map("n", "<M-S-BS>", '"_db')
 
@@ -863,7 +848,7 @@ map("i", "<S-Tab>", "<C-d>")
 map("n", "<S-Tab>", "v<")
 map("v", "<S-Tab>", "<gv")
 
--- trigger Auto indent
+-- Trigger Auto indent
 map({"i","n"}, "<C-=>", "<esc>==")
 map("v",       "<C-=>", "=")
 
@@ -905,14 +890,14 @@ map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions
 map("n", "<C-S-j>", "k<S-j>")
 
 
---##[move text]
---Move single char
+-- ### [move text]
+-- Move single char
 map("n", "<C-S-Right>", '"zx"zp')
 map("n", "<C-S-Left>",  '"zxh"zP')
---vmap("n", "<C-S-Up>", '"zxk"zp')
---vmap("n", "<C-S-Down>", '"zxj"zp')
+-- vmap("n", "<C-S-Up>", '"zxk"zp')
+-- vmap("n", "<C-S-Down>", '"zxj"zp')
 
---use mini.move now
+-- use mini.move now
 
 --Move word right
 -- map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
@@ -1081,17 +1066,16 @@ map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.b
 
 --ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
-
---Goto definition
+-- Goto definition
 map("i", "<F12>", "<Esc>gdi")
 map("n", "<F12>", "<Esc>gd")
 --map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 map("v", "<F12>", "<Esc>gd")
 
---show hover window
-map({"i","n","v"}, "<C-h>", "<cmd>lua vim.lsp.buf.hover()<CR>")
+-- Show hover window
+map({"i","n","v"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
 
---rename symbol
+-- Rename symbol
 --vmap({"i","n"}, "<F2>", function()
 --    vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
 --        callback = function()
@@ -1183,7 +1167,7 @@ map("v", "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
 
 
 
---## [vim cmd]
+-- ## [vim cmd]
 ----------------------------------------------------------------------
 --Open command line
 map("i",       "œ", "<esc>:")
@@ -1206,11 +1190,11 @@ map("c", "<S-Tab>", "<C-n>")
 --Clear cmd in insert
 map("i", "<C-l>", "<C-o><C-l>")
 
---Cmd close
+-- Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
---map("c", "<esc>", "<C-c>", {noremap=true})
+-- map("c", "<esc>", "<C-c>", {noremap=true})
 
---Easy exit command line window
+-- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     callback = function()
         vim.keymap.set("n", "<esc>", ":quit<CR>", {buffer=true})
@@ -1219,12 +1203,12 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 
 
 
---## [Terminal]
+-- ## [Terminal]
 ----------------------------------------------------------------------
---Open term
+-- Open term
 map({"i","n","v"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 
---quick split term
+-- Quick split term
 map({"i","n","v"}, "<M-w>t", function()
     vim.cmd("vsp|term")
 
@@ -1232,10 +1216,8 @@ map({"i","n","v"}, "<M-w>t", function()
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {noremap=true})
 
---exit
+-- Exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
-
-
 
 
 

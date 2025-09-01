@@ -453,9 +453,15 @@ map("v", "<C-S-PageUp>", "oho")
 map("i", "<S-PageUp>", "<Esc>Vk")
 map("n", "<S-PageUp>", function()vim.cmd('norm!V'..vim.v.count..'k')end)
 map("v", "<S-PageUp>", function()
+    local vanc_r_r = vim.fn.line("v")
+    local vhead_r_r = vim.fn.line(".")
+
     if vim.fn.mode() == "V" then
-        vim.cmd("norm! k")
-        vim.cmd("norm! k")
+        if vhead_r_r > vanc_r_r then
+            vim.cmd("norm! ok")
+        else
+            vim.cmd("norm! k")
+        end
     else
         vim.cmd("norm! Vk")
     end
@@ -464,8 +470,15 @@ end)
 map("i", "<S-PageDown>", "<Esc>Vj")
 map("n", "<S-PageDown>", function()vim.cmd('norm!V'..vim.v.count..'j')end)
 map("v", "<S-PageDown>", function()
+    local vanc_r_r = vim.fn.line("v")
+    local vhead_r_r = vim.fn.line(".")
+
     if vim.fn.mode() == "V" then
-        vim.cmd("norm! j")
+        if vhead_r_r > vanc_r_r then
+            vim.cmd("norm! j")
+        else
+            vim.cmd("norm! oj")
+        end
     else
         vim.cmd("norm! Vj")
     end
@@ -898,7 +911,7 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 -- vmap("n", "<C-S-Down>", '"zxj"zp')
 
 -- use mini.move now
-
+--TODO smartly toggle off minimove on multiline slect
 --Move word right
 -- map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
 -- map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
@@ -1060,16 +1073,17 @@ map({"i","n","v"}, "<M-s>d", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end)
 
---diag panel
+-- diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 
 
---ref panel
+-- ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
+
 -- Goto definition
 map("i", "<F12>", "<Esc>gdi")
 map("n", "<F12>", "<Esc>gd")
---map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
+-- map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 map("v", "<F12>", "<Esc>gd")
 
 -- Show hover window
@@ -1093,7 +1107,7 @@ map({"i","n"}, "<F2>", function()
     require("live-rename").rename({ insert = true })
 end)
 
---smart contextual action
+-- smart contextual action
 map({"i","n","v"}, "<C-CR>", function()
     local word = vim.fn.expand("<cfile>")
     local cchar = utils.get_char_at_cursorpos()
@@ -1111,7 +1125,7 @@ map({"i","n","v"}, "<C-CR>", function()
 end)
 
 
---### Diff
+-- ### Diff
 --next/prev diff
 map({"i","n","v","c"}, "<M-S-PageUp>", function()
     if vim.wo.diff then

@@ -98,6 +98,17 @@ return
                 glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
             },
 
+            buffers = {
+                prompt            = 'Buffers❯ ',
+                file_icons        = true,         -- show file icons (true|"devicons"|"mini")?
+                color_icons       = true,         -- colorize file|git icons
+                cwd               = nil,          -- buffers list for a given dir
+                cwd_only          = false,        -- buffers for the cwd only
+                sort_lastused     = true,         -- sort buffers() by last used
+                show_unloaded     = true,         -- show unloaded buffers
+                show_unlisted     = true,
+            },
+
         })
 
         -- Custom previewer
@@ -128,11 +139,12 @@ return
 
         -- ## base pickers
         -- Search builtins
-        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
+        vim.keymap.set({"i","n","v","t"}, "<M-f>i", function()
             require("fzf-lua").builtin({})
         end, {silent = true, desc = "Search builtins" })
 
 
+        -- ### Find files
         -- Find files in currdir
         vim.keymap.set({"i","n","v","t"}, "<M-f>c", function()
             require("fzf-lua").files({})
@@ -157,23 +169,22 @@ return
             })
         end, {silent=true, desc="Fuzzy find recent files"})
 
-
         -- find files in notes
         vim.keymap.set({"i","n","v","t"}, "<F49>", function()   --<M-F1>
-            local home = vim.fn.expand("~")
             require("fzf-lua").files({
+                prompt = "Notes> ",
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
         end)
 
-        -- find selected files in notes
+        -- find files for selected in notes
         vim.keymap.set("v", "<F49>", function()   --<M-F1>
             vim.cmd('norm! "zy')
-            local txt = vim.trim(vim.fn.getreg("z"))
             require("fzf-lua").files({
+                prompt = "Notes> ",
                 cwd = "~/Personal/KnowledgeBase/Notes/",
                 fzf_opts = {
-                    ['--query'] = txt,
+                    ['--query'] = vim.trim(vim.fn.getreg("z"))
                 },
             })
         end)
@@ -207,10 +218,18 @@ return
         -- grep in notes
         vim.keymap.set({"i","n","t"}, "<F13>", function()   --<S-F1>
             require("fzf-lua").live_grep({
+                prompt = "Notes> ",
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
         end)
 
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
+            require("fzf-lua").buffers({})
+        end, {silent=true, desc="Search buffers"})
+
+
+        -- ### Help
         -- grep in help for selected
         vim.keymap.set("v", "<F13>", function()   --<S-F1>
             require("fzf-lua").grep_visual({
@@ -218,8 +237,13 @@ return
             })
         end)
 
+        -- Search helptags
+        vim.keymap.set({"i","n","v","t"}, "<M-f>h", function()
+            require("fzf-lua").helptags({})
+        end, {silent=true, desc="search helptags"})
 
-        -- Serch ft and set it
+
+        -- Search ft and set it
         vim.keymap.set({"i","n","v"}, "<M-f>t", function()
             require("fzf-lua").filetypes({})
         end, {silent = true, desc = "search and set filetypes" })
@@ -250,6 +274,7 @@ return
         -- https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
         fzfl.projects = function()
             fzfl.fzf_exec("fdfind '.git$' -t d -d 20 -a -HI | xargs -I{} dirname {}", {
+                prompt = "Project> ",
                 cwd = "~/Personal/",
                 actions = {
                     ["default"] = function(selected)

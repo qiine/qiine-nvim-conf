@@ -59,6 +59,7 @@ end
 
 local excluded_filetype = {
     "help",
+    "vim",
     "trouble",
     "neo-tree",
     "startify",

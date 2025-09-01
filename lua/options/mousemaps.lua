@@ -3,8 +3,7 @@
 
 local v = vim
 local vapi = vim.api
-local vmap = vim.keymap.set
-local nvmap = vim.api.nvim_set_keymap
+local map = vim.keymap.set
 local vcmd = vim.cmd
 -----------------------------------------------
 
@@ -41,32 +40,32 @@ vim.opt.mousemoveevent = true
 --nvmap("i", "<ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 --nvmap("n", "<ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 
-nvmap('n', '<ScrollWheelLeft>', '<cmd>echo Scrolling left<CR>', {noremap=true})
-nvmap('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true})
+map('n', '<ScrollWheelLeft>', '<cmd>echo Scrolling left<CR>', {noremap=true})
+map('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true})
 
 
 ---Ctrl+wheel zoom
---nvmap("i", "<C-ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
---nvmap("n", "<C-ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
+--map("i", "<C-ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
+--map("n", "<C-ScrollWheelUp>", "<Nop>", {noremap=true, silent=true})
 --
---nvmap("i", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
---nvmap("n", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
+--map("i", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
+--map("n", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 
 
 --Middle click
---nvmap("i", "<MiddleMouse>", "")
---nvmap("n", "<MiddleMouse>", "")
---nvmap("v", "<MiddleMouse>", "")
+-- map("i", "<MiddleMouse>", "<MiddleMouse>")
+-- map("n", "<MiddleMouse>", "<MiddleMouse>")
+-- map("v", "<MiddleMouse>", "<MiddleMouse>")
 
---nvmap('n', '<LeftMouse>', '', {noremap=true, silent=true})
---nvmap('n', '<RightMouse>', '', { noremap=true, silent=true})
+--map('n', '<LeftMouse>', '', {noremap=true, silent=true})
+--map('n', '<RightMouse>', '', { noremap=true, silent=true})
 
 --double left click insert
-vmap("n", "<2-LeftMouse>", "i", {noremap = true})
+map("n", "<2-LeftMouse>", "i", {noremap = true})
 
 
 --show hover with ctrl+rightclick
-vmap({"i","n","v"}, '<C-RightMouse>', "<LeftMouse><cmd>lua vim.lsp.buf.hover()<CR>")
+map({"i","n","v"}, '<C-RightMouse>', "<LeftMouse><cmd>lua vim.lsp.buf.hover()<CR>")
 --function() vim.lsp.buf.hover() end)
 
 

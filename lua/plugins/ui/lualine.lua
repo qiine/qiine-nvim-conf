@@ -104,7 +104,10 @@ return
                         function() return '⌨' end, --🖵
                         on_click = function()
                             if vim.bo.filetype == "vim" then
-                                vim.api.nvim_input('<esc>:quit<cr>') else vim.api.nvim_input('<esc>q:') end
+                                vim.api.nvim_input('<esc>:quit<cr>')
+                            else
+                                vim.api.nvim_input('<esc>:')
+                            end
                         end,
                         padding = 0,
                         color = { fg = '#545454'},

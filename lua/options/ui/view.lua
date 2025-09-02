@@ -1,4 +1,4 @@
--------------------------------------------------------
+------------------------------------------------------
 -- View --
 -------------------------------------------------------
 
@@ -116,6 +116,7 @@ vim.api.nvim_create_autocmd('InsertEnter', {
     end,
 })
 
+--search text highlight col
 vim.api.nvim_set_hl(0, "IncSearch", { fg = "NONE", bg = "#bfbfbf", bold = false })
 
 
@@ -171,7 +172,7 @@ vim.opt.fillchars:append({
 
 
 
---## [Whitespace symbols]
+-- ## [Whitespace symbols]
 ----------------------------------------------------------------------
 vim.opt.list = true
 vim.opt.listchars:append({
@@ -245,9 +246,12 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 --})
 
 
-
---## [Diagnostic]
+-- ## [Text intelligence]
 ----------------------------------------------------------------------
+-- vim.opt.keywordprg = "dict"
+
+
+-- ### [Diagnostic]
 vim.diagnostic.config({
     underline = true,
     update_in_insert = false, --false so diags update on InsertLeave
@@ -289,7 +293,7 @@ vim.diagnostic.config({
     severity_sort = true,
     float = {
         focusable = false,
-        style     = "minimal",
+        style     = "normal",
         border    = "rounded",
         source    = true,
         header    = "4",
@@ -346,10 +350,43 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 
 
---## [Commandline]
+-- ## [Tabline]
+----------------------------------------------------------------------
+vim.opt.showtabline = 2  -- always show tabline
+
+-- simple tabline function
+-- function _G.PillTabline()
+--     local s = ""
+--     local tabs = vim.api.nvim_list_tabpages()
+--     local current = vim.api.nvim_get_current_tabpage()
+
+--     for i, tab in ipairs(tabs) do
+--         local is_active = (tab == current)
+
+--         local hl_left  = is_active and "%#TabLinePillActiveLeft#"   or "%#TabLinePillInactiveLeft#"
+--         local hl_text  = is_active and "%#TabLinePillActiveText#"   or "%#TabLinePillInactiveText#"
+--         local hl_right = is_active and "%#TabLinePillActiveRight#"  or "%#TabLinePillInactiveRight#"
+
+--         s = s .. hl_left .. ""
+--         s = s .. hl_text .. " " .. i .. " "
+--         s = s .. hl_right .. ""
+--         s = s .. "%#TabLine# "
+--     end
+
+--     return s
+-- end
+-- vim.opt.tabline = "%!v:lua.PillTabline()"
+
+
+
+
+--## [Command line]
 ----------------------------------------------------------------------
 vim.opt.cmdheight = 1
 vim.opt.showmode  = false --show curr mode in cmd
+
+-- cmdline window
+vim.cmd('set cedit=<C-u>')
 
 -- vim.opt.showcmd = false
 --displaying selection info. It also shows incomplete commands in the bottom-right corner.

@@ -645,7 +645,7 @@ end, {noremap=true})
 
 
 -- Copy append selection
-map("v", "<M-c>", function()
+map("v", "<S-M-c>", function()
     local reg_prev = vim.fn.getreg("+")
 
     vim.cmd('norm! mz"+y`z')
@@ -901,17 +901,17 @@ map("v", "<S-M-cr>", function ()
     --vim.cmd("normal! O")
 end)
 
---### [Line join]
---Join below
+-- ### [Line join]
+-- Join below
 map("i",       "<C-j>", "<C-o><S-j>")
 map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use motions
 
---Join to upper
+-- Join to upper
 map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions
 map("n", "<C-S-j>", "k<S-j>")
 
 
--- ### [move text]
+-- ### [Move text]
 -- Move single char
 map("n", "<C-S-Right>", '"zx"zp')
 map("n", "<C-S-Left>",  '"zxh"zP')
@@ -919,7 +919,7 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 -- map("n", "<C-S-Down>", '"zxj"zP')
 
 -- Move selection left
-map({"i","v"}, "<C-S-Left>", function()
+map({"i","x"}, "<C-S-Left>", function()
     local mode = vim.fn.mode()
 
     if mode == 'i' then
@@ -933,50 +933,44 @@ map({"i","v"}, "<C-S-Left>", function()
     vim.cmd('norm! gv')
 
     if (mode == 'v' or mode == "") and atsol > 1 then
-        local cmd = '"zdh"zPgvhoho'
+        local cmd = '"zygv"_xh"zP`[v`]' -- gvhoho
         vim.cmd("silent keepjumps norm! " .. cmd)
     end
 end)
 
 -- Move selection  right
-map("v", "<C-S-Right>",  function()
+map({"i","x"}, "<C-S-Right>",  function()
     local mode = vim.fn.mode()
 
     if mode == 'i' then
         vim.api.nvim_feedkeys("", "n", false); vim.cmd('norm! viw')
     end
     if mode == 'v' or mode == "" then
-        local cmd = '"zd"zpgvlolo'
+        local cmd = '"zygv"_x"zp`[v`]'
         vim.cmd("silent keepjumps norm! " .. cmd)
     end
 end)
 
---move selected line verticaly
-map('v', '<C-S-Up>', function()
+-- Move selected line verticaly
+map('x', '<C-S-Up>', function()
     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
-    local mode = vim.fn.mode()
+    local mode = Vim.fn.mode()
 
-    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+    if math.ABS(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('normal! "zdk"zP')
-
-        local anc_spos = vim.fn.getpos("'<")[3]
-        vim.cmd('normal! v'..anc_spos..'|') -- reselect visual selection
+        vim.cmd('normal! "zdk"zP'); vim.cmd("norm! `[v`]")
     end
 end)
 
-map('v', '<C-S-Down>', function ()
+map('x', '<C-S-Down>', function ()
     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
     local mode = vim.fn.mode()
 
-    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+    if math.abs(l1 - l2) > 0 or mode == "V" then -- move whole line if multi line select
         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
     else
-        vim.cmd('norm! "zdj"zP')
-
-        local anchor_start_pos = vim.fn.getpos("'<")[3]
-        vim.cmd('norm! v'..anchor_start_pos..'|') -- reselect visual selection
+        vim.cmd('norm! "zdj"zP'); vim.cmd("norm! `[v`]")
     end
 end)
 

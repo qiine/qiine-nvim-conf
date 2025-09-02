@@ -162,7 +162,7 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 -- ## [Tabs]
 ----------------------------------------------------------------------
 --create new tab
-map(modes,"<C-t>", "<Cmd>tabnew<CR>")
+map(modes,"<C-t>", "<Cmd>Alpha<CR>")
 
 --Tabs nav
 --next
@@ -440,16 +440,7 @@ map({"i","n","v"}, "<C-a>", "<Esc>G$vgg0")
 
 
 -- ### Grow select
--- Grow horizontally TODO proper anchor logic
-map("i", "<C-S-PageDown>", "<Esc>vl")
-map("n", "<C-S-PageDown>", "vl")
-map("v", "<C-S-PageDown>", "l")
-
-map("i", "<C-S-PageUp>", "<Esc>vh")
-map("n", "<C-S-PageUp>", "vh")
-map("v", "<C-S-PageUp>", "oho")
-
--- Grow do end/start of line
+-- Grow visual line selection up/down
 map("i", "<S-PageUp>", "<Esc>Vk")
 map("n", "<S-PageUp>", function()vim.cmd('norm!V'..vim.v.count..'k')end)
 map("v", "<S-PageUp>", function()
@@ -479,6 +470,23 @@ map("v", "<S-PageDown>", function()
         else
             vim.cmd("norm! oj")
         end
+    else
+        vim.cmd("norm! Vj")
+    end
+end)
+
+-- shrink visual line selection up/down
+map("v", "<C-S-PageUp>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd("norm! k")
+    else
+        vim.cmd("norm! Vk")
+    end
+end)
+
+map("v", "<C-S-PageDown>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd("norm! j")
     else
         vim.cmd("norm! Vj")
     end
@@ -907,73 +915,74 @@ map("n", "<C-S-j>", "k<S-j>")
 -- Move single char
 map("n", "<C-S-Right>", '"zx"zp')
 map("n", "<C-S-Left>",  '"zxh"zP')
--- vmap("n", "<C-S-Up>", '"zxk"zp')
--- vmap("n", "<C-S-Down>", '"zxj"zp')
+-- map("n", "<C-S-Up>", '"zxk"zP') -- rarely useful in practice
+-- map("n", "<C-S-Down>", '"zxj"zP')
 
--- use mini.move now
---TODO smartly toggle off minimove on multiline slect
---Move word right
--- map("i", "<C-S-Left>",  '<esc>viw"zdh"zPgvhoho')
--- map("i", "<C-S-Right>", '<esc>viw"zd"zpgvlolo')
+-- Move selection left
+map({"i","v"}, "<C-S-Left>", function()
+    local mode = vim.fn.mode()
 
--- Move selected text
--- Move left
--- map("v", "<C-S-Left>", function()
---     local col = vim.api.nvim_win_get_cursor(0)[2]
+    if mode == 'i' then
+        vim.api.nvim_feedkeys("", "n", false); vim.cmd('norm! viw')
+    end
 
---     if vim.fn.mode() == 'v' and col > 0 then
---         local cmd = '"zdh"zP<esc>gvhoho'
---         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(cmd, true, false, true), "n", false)
+    vim.cmd('norm! ') -- hack for proper vis pos
+    local va = vim.api.nvim_buf_get_mark(0, "<")[2]+1
+    local vb = vim.api.nvim_buf_get_mark(0, ">")[2]+1
+    local atsol = math.min(va, vb)
+    vim.cmd('norm! gv')
 
---         local cursor_pos = vim.api.nvim_win_get_cursor(0)
+    if (mode == 'v' or mode == "") and atsol > 1 then
+        local cmd = '"zdh"zPgvhoho'
+        vim.cmd("silent keepjumps norm! " .. cmd)
+    end
+end)
 
---         --Tricks to refresh vim.fn.getpos("'<")
---         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
---         local anchor_start_pos = vim.fn.getpos("'<")
+-- Move selection  right
+map("v", "<C-S-Right>",  function()
+    local mode = vim.fn.mode()
 
---         if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
---             vim.cmd("normal! o")
---         end
-
---         --maybe wrap to next/prev line ?
---     end
--- end)
-
---Move selection right
--- map("v", "<C-S-Right>", '"zd"zp<esc>gvlolo')
+    if mode == 'i' then
+        vim.api.nvim_feedkeys("", "n", false); vim.cmd('norm! viw')
+    end
+    if mode == 'v' or mode == "" then
+        local cmd = '"zd"zpgvlolo'
+        vim.cmd("silent keepjumps norm! " .. cmd)
+    end
+end)
 
 --move selected line verticaly
--- map('v', '<C-S-Up>', function()
---     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
---     local mode = vim.fn.mode()
+map('v', '<C-S-Up>', function()
+    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
+    local mode = vim.fn.mode()
 
---     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
---         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
---     else
---         vim.cmd('normal! "zdk"zP')
+    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
+    else
+        vim.cmd('normal! "zdk"zP')
 
---         local anchor_start_pos = vim.fn.getpos("'<")[3]
---         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
---     end
--- end)
+        local anc_spos = vim.fn.getpos("'<")[3]
+        vim.cmd('normal! v'..anc_spos..'|') -- reselect visual selection
+    end
+end)
 
--- map('v', '<C-S-Down>', function ()
---     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
---     local mode = vim.fn.mode()
+map('v', '<C-S-Down>', function ()
+    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
+    local mode = vim.fn.mode()
 
---     if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
---         vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
---     else
---         vim.cmd('normal! "zdj"zP')
+    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
+    else
+        vim.cmd('norm! "zdj"zP')
 
---         local anchor_start_pos = vim.fn.getpos("'<")[3]
---         vim.cmd('normal! v'..anchor_start_pos..'|') -- reselect visual selection
---     end
--- end)
+        local anchor_start_pos = vim.fn.getpos("'<")[3]
+        vim.cmd('norm! v'..anchor_start_pos..'|') -- reselect visual selection
+    end
+end)
 
 -- Move line
-map({'i','n'}, '<C-S-Up>', function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
-map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end, {desc='Move curr line down'})
+map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end,      {desc='Move curr line down'})
+map({'i','n'}, '<C-S-Up>',   function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
 
 
 -- ### [Comments]
@@ -982,7 +991,7 @@ map("v",       "<M-a>", "gcgv", {remap=true})
 
 
 -- ### [Macro]
-map("n", "q", "<Nop>")
+map("n", "q", "<nop>")
 map("n", "<M-S-r>", "qq", {noremap = true})
 
 
@@ -1232,10 +1241,6 @@ end, {noremap=true})
 
 -- Exit
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
-
-
-
-
 
 
 

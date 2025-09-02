@@ -222,20 +222,18 @@ return
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
         end)
-
-
-        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
-            require("fzf-lua").buffers({})
-        end, {silent=true, desc="Search buffers"})
-
-
-        -- ### Help
-        -- grep in help for selected
+        -- grep in notes for selected
         vim.keymap.set("v", "<F13>", function()   --<S-F1>
             require("fzf-lua").grep_visual({
                 cwd = "~/Personal/KnowledgeBase/Notes/"
             })
         end)
+
+        -- Search buffers
+        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
+            require("fzf-lua").buffers({})
+        end, {silent=true, desc="Search buffers"})
+
 
         -- Search helptags
         vim.keymap.set({"i","n","v","t"}, "<M-f>h", function()

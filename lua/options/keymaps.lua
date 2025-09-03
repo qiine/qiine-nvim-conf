@@ -911,52 +911,43 @@ map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions
 map("n", "<C-S-j>", "k<S-j>")
 
 
--- ### [Move text]
+-- ### [Text move]
 -- Move single char
 map("n", "<C-S-Right>", '"zx"zp')
 map("n", "<C-S-Left>",  '"zxh"zP')
 -- map("n", "<C-S-Up>", '"zxk"zP') -- rarely useful in practice
 -- map("n", "<C-S-Down>", '"zxj"zP')
 
--- Move selection left
-map({"i","x"}, "<C-S-Left>", function()
+---@param dir string
+---@param amount number
+local function move_selected(dir, amount)
     local mode = vim.fn.mode()
 
-    if mode == 'i' then
-        vim.api.nvim_feedkeys("", "n", false); vim.cmd('norm! viw')
-    end
+    if mode == 'i' then vim.api.nvim_feedkeys("viw", "n", true) end
 
-    vim.cmd('norm! ') -- hack for proper vis pos
-    local va = vim.api.nvim_buf_get_mark(0, "<")[2]+1
-    local vb = vim.api.nvim_buf_get_mark(0, ">")[2]+1
-    local atsol = math.min(va, vb)
+    vim.cmd('norm! ') -- hack to refresh vis pos
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+    local atsol = math.min((vst[2]+1), (vsh[2]+1))
     vim.cmd('norm! gv')
 
-    if (mode == 'v' or mode == "") and atsol > 1 then
-        local cmd = '"zygv"_xh"zP`[v`]' -- gvhoho
-        vim.cmd("silent keepjumps norm! " .. cmd)
-    end
-end)
+    if (atsol < 2) and dir == "h" then return end
 
--- Move selection  right
-map({"i","x"}, "<C-S-Right>",  function()
-    local mode = vim.fn.mode()
+    local cmd = '"zygv"_x'..dir..'"zP'
+    if mode == "v"  then cmd = cmd.."`[v`]"  end
+    if mode == "" then cmd = cmd.."`[`]" end
+    vim.cmd("silent keepjumps norm! " .. cmd)
+end
 
-    if mode == 'i' then
-        vim.api.nvim_feedkeys("", "n", false); vim.cmd('norm! viw')
-    end
-    if mode == 'v' or mode == "" then
-        local cmd = '"zygv"_x"zp`[v`]'
-        vim.cmd("silent keepjumps norm! " .. cmd)
-    end
-end)
+-- Move selected text
+map({"i","x"}, "<C-S-Left>",  function() move_selected("h", 0) end)
+map({"i","x"}, "<C-S-Right>", function() move_selected("l", 0) end)
 
--- Move selected line verticaly
+-- Move selected line vertically
 map('x', '<C-S-Up>', function()
     local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
-    local mode = Vim.fn.mode()
+    local mode = vim.fn.mode()
 
-    if math.ABS(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
+    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
     else
         vim.cmd('normal! "zdk"zP'); vim.cmd("norm! `[v`]")
@@ -1184,27 +1175,30 @@ map("v", "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
 
 
 
--- ## [vim cmd]
+-- ## [Vim Command]
 ----------------------------------------------------------------------
---Open command line
+-- Open command line
 map("i",       "œ", "<esc>:")
 map({"n","v"}, "œ", ":")
 map("t",       "œ", "<Esc><C-\\><C-n>:")
 
---Open command line in term mode
+-- Open command line window
+vim.cmd('set cedit=<C-u>')
+
+-- Open command line in term mode
 map({"i","c"}, "<S-Œ>", "<esc>:!")
 map({"n","v"}, "<S-Œ>", ":!")
 
---cmd completion menu
---vmap("c", "<C-d>", "<C-d>")
+-- cmd completion menu
+-- vmap("c", "<C-d>", "<C-d>")
 
---Cmd menu nav
+-- Cmd menu nav
 map("c", "<Up>", "<C-p>")
 map("c", "<Down>", "<C-n>")
 
 map("c", "<S-Tab>", "<C-n>")
 
---Clear cmd in insert
+-- Clear cmd in insert
 map("i", "<C-l>", "<C-o><C-l>")
 
 -- Cmd close

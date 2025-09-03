@@ -127,9 +127,15 @@ end)
 
 -- ## [View]
 ----------------------------------------------------------------------
--- alt-z toggle line wrap
+-- alt-z toggle line virtual wrap
 map({"i","n","v"}, "<A-z>", function()
     vim.opt.wrap = not vim.opt.wrap:get()
+end)
+
+-- toggle auto wrap lines
+map({"i","n","v"}, "M-C-z", function()
+    -- "t" Auto-wrap text using textwidth (for non-comments).
+    -- "w" Auto-wrap lines in insert mode, even without spaces.
 end)
 
 -- Gutter on/off
@@ -923,12 +929,17 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 local function move_selected(dir, amount)
     local mode = vim.fn.mode()
 
-    if mode == 'i' then vim.api.nvim_feedkeys("viw", "n", true) end
+    if mode == 'i' then vim.cmd("stopinsert") vim.cmd("norm! viw") end
 
     vim.cmd('norm! ') -- hack to refresh vis pos
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
     local atsol = math.min((vst[2]+1), (vsh[2]+1))
     vim.cmd('norm! gv')
+
+    if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then
+        if dir == "k" then vim.cmd("'<,'>m '<-2|norm!gv=gv") return end
+        if dir == "j" then vim.cmd("'<,'>m '>+1|norm!gv=gv") return end
+    end
 
     if (atsol < 2) and dir == "h" then return end
 
@@ -941,29 +952,8 @@ end
 -- Move selected text
 map({"i","x"}, "<C-S-Left>",  function() move_selected("h", 0) end)
 map({"i","x"}, "<C-S-Right>", function() move_selected("l", 0) end)
-
--- Move selected line vertically
-map('x', '<C-S-Up>', function()
-    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
-    local mode = vim.fn.mode()
-
-    if math.abs(l1 - l2) > 0 or mode == "V" then --move whole line if multi line select
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(":m '<-2<cr>gv=gv", true, false, true), "n", false)
-    else
-        vim.cmd('normal! "zdk"zP'); vim.cmd("norm! `[v`]")
-    end
-end)
-
-map('x', '<C-S-Down>', function ()
-    local l1 = vim.fn.line("v") local l2 = vim.fn.line(".")
-    local mode = vim.fn.mode()
-
-    if math.abs(l1 - l2) > 0 or mode == "V" then -- move whole line if multi line select
-        vim.api.nvim_feedkeys( vim.api.nvim_replace_termcodes(":m '>+1<cr>gv=gv", true, false, true), "n", false)
-    else
-        vim.cmd('norm! "zdj"zP'); vim.cmd("norm! `[v`]")
-    end
-end)
+map({"i","x"}, "<C-S-Up>",    function() move_selected("k", 0) end)
+map({"i","x"}, "<C-S-Down>",  function() move_selected("j", 0) end)
 
 -- Move line
 map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end,      {desc='Move curr line down'})

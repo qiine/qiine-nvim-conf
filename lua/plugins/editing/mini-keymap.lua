@@ -28,9 +28,28 @@ return
         combo("i", '<C-Left><C-Right>', '<Esc>', { delay = 100 })
 
 
-        -- Select all char of line
-        combo({"i","n","v"}, "<S-Left><S-Right>", "<esc>^v<Cmd>norm!g_<CR>")
-        combo({"i","n","v"}, "<S-Right><S-Left>", "<esc>^v<Cmd>norm!g_<CR>")
+        -- Expand visual selection
+        combo({"i","n","v"}, "<S-Left><S-Right>", function()
+            vim.cmd('norm! ') -- hack for proper vis pos
+            local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+            if math.abs(vst[1] - vsh[1]) > 0 then
+                vim.cmd(((vst[2]+1) < (vsh[2]+1)) and "norm!`>^v`<g_" or "norm!`<^v`>g_")
+            else
+                vim.api.nvim_feedkeys("^vg_", "n", true)
+            end
+        end)
+        combo({"i","n","v"}, "<S-Right><S-Left>", function()
+            vim.cmd('norm! ') -- hack for proper vis pos
+            local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+            if math.abs(vst[1] - vsh[1]) > 0 then
+                vim.cmd(((vst[2]+1) < (vsh[2]+1)) and "norm!`>^v`<g_" or "norm!`<^v`>g_")
+            else
+                vim.api.nvim_feedkeys("^vg_", "n", true)
+            end
+        end)
+
 
         -- to vis line
         combo("i", "<C-M-Left><C-M-Right>", "<esc>V")

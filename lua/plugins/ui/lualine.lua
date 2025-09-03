@@ -94,13 +94,13 @@ return
                             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
                             local lines = vim.fn.line('$')
-                            local new_height = math.floor(lines / 2)
+                            local new_height = math.floor(lines / 2)+3
                             vim.cmd('resize ' .. new_height)
                         end,
                         left_padding = 1,
                         --color = { fg = '#0c0c0c'},
                     },
-                    { --cmdwin
+                    { --cmd win
                         function() return '⌨' end, --🖵
                         on_click = function()
                             if vim.bo.filetype == "vim" then

@@ -8,10 +8,14 @@ vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#595959", bg = "#e6e6e6" })
 --    print("You clicked the 📁 icon!")
 --end
 
+local function nvim_logo()
+    return '' --
+end
+
 local function toggle_filebrowser() --toggle neotree
     --return "%@v:lua.require('config.ui.winbar').on_click_handler@%"..">>"
     --return "%@v:lua.print('hello')@%T".."⇥"
-    return "⇥"
+    return " ⇥ "
     --on_click=function() vim.cmd("Neotree toggle") end,
 end
 
@@ -44,8 +48,9 @@ end
 local function render()
     return table.concat({
         " ",
+        nvim_logo(),
+        " ",
         toggle_filebrowser(),
-        "    ",
         path_bar(),
 
         "%=", --middle split

@@ -6,19 +6,19 @@ local utils = require("utils.utils")
 local v = vim
 
 
---## [General]
+-- ## [General]
 ----------------------------------------------------------------------
---Smart start insert
+-- Smart start insert
 vim.g.autostartinsert = true
 
 
---Virtual Edit
+-- Virtual Edit
 vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
---"none" → Default, disables virtual editing.
---"onemore" → Allows the cursor to move one character past the end of a line.
---"block"   → Allows cursor to move where there is no actual text in visual block mode.
---"insert"  → Allows inserting in positions where there is no actual text.
---"all"     → Enables virtual editing in all modes.
+-- "none"    -- Default, disables virtual editing.
+-- "onemore" -- Allows the cursor to move one character past the end of a line.
+-- "block"   -- Allows cursor to move where there is no actual text in visual block mode.
+-- "insert"  -- Allows inserting in positions where there is no actual text.
+-- "all"     -- Enables virtual editing in all modes.
 
 --Smart virt edit
 --vim.api.nvim_create_autocmd("ModeChanged", {
@@ -39,6 +39,7 @@ vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
 --        end
 --    end,
 --})
+
 vim.api.nvim_create_autocmd("ModeChanged", {
     group = "UserAutoCmds",
     pattern = "*",
@@ -52,10 +53,10 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     end,
 })
 
---Define what a word is
+-- Define what a word is
 vim.opt.iskeyword = "@,48-57,192-255,-,_"
--- @ -> alphabet,
--- 48-57 -> 0-9 numbers,
+-- @       -> alphabet,
+-- 48-57   -> 0-9 numbers,
 -- 192-255 -> extended Latin chars
 
 
@@ -65,20 +66,34 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --"eol   " -- Allows Backspace to delete past line breaks.
 --"start"  -- Allows Backspace at the start of insert mode.
 
+-- Auto go to last saved loc for opened buffer
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = "UserAutoCmds",
+    callback = function()
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        local lcount = vim.api.nvim_buf_line_count(0)
+
+        if mark[1] > 0 and mark[1] <= lcount then
+            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+        end
+    end,
+    desc = "go to last saved loc for opened buffer",
+})
 
 
---## [Save]
+
+-- ## [Save]
 ----------------------------------------------------------------------
---Smart autosave
+-- Smart autosave
 vim.g.autosave_enabled = true
 
 ---@return boolean
 local function file_was_saved_manually(path)
     if vim.fn.filereadable(path) == 1 then
         --A file can be readable but fs_stat can still fail in some case:
-        --Race condition: file was deleted after the readable check.
-        --Permissions issues.
-        --Path is a symlink to a broken target.
+        -- - Race condition: file was deleted after the readable check.
+        -- - Permissions issues.
+        -- - Path is a symlink to a broken target.
         local stat = vim.uv.fs_stat(path)
 
         if stat then
@@ -154,11 +169,38 @@ vim.opt.undodir = undodir
 
 
 
---## [Spellcheck]
+-- ## [Spell]
 ----------------------------------------------------------------------
 vim.opt.spell = false
 --TODO make it ignore fenced code in marksown
 --maybe allow only for comment for other filetypes?
+
+-- SpellIgnore rules
+-- vim.api.nvim_create_autocmd("Syntax", {
+--     group = vim.api.nvim_create_augroup("SpellIgnore", {clear=true}),
+--     callback = function()
+--         -- Make URL tokens spell-ignored
+--         vim.cmd [[
+--             syn match UrlNoSpell /http\S\+/ contains=@NoSpell containedin=@AllSpell transparent
+--         ]]
+
+--         -- Abbreviations in ALLCAPS (2+ letters/digits)
+--         vim.cmd [[
+--             syn match AbbrevNoSpell /\<[A-Z][A-Z0-9]\+\>/ contains=@NoSpell containedin=@AllSpell transparent
+--         ]]
+--     end,
+-- })
+
+-- Define a highlight group for URLs
+vim.api.nvim_set_hl(0, "MyUrl", { fg = "#6aafc1", bold = true })
+
+-- Apply the syntax match
+-- vim.cmd [[
+--     syntax match MyUrl /.*/
+-- ]]
+
+
+
 
 vim.opt.spellcapcheck = ""
 -- Pattern to locate the end of a sentence.  The following word will be
@@ -274,12 +316,10 @@ vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {
                     table.remove(formatopts, i)
                 end
             end
-
         end
 
         local fopts = table.concat(formatopts)
         vim.opt.formatoptions = fopts
-
     end,
 })
 

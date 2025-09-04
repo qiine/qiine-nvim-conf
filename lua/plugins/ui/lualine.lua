@@ -322,9 +322,21 @@ return
                             end
                             print("LSPs: "..table.concat(names, ", "))
                         end,
-
                         padding = 0
                     },
+
+                    {
+                        -- --"os"
+                        -- function()
+                        --     if     vim.fn.has("win32")   == 1 then return ""
+                        --     elseif vim.fn.has("macunix") == 1 then return ""
+                        --     elseif vim.fn.has("unix")    == 1 then return ""
+                        --     else                                   return "OS"
+                        --     end
+                        -- end,
+                        -- padding = 0,
+                        -- color={fg = "#1f1f1f", bg = '#e6e6e6'},
+                    }
                 },
             },
 

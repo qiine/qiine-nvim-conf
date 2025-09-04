@@ -65,9 +65,10 @@ local M =
     folderempty = "",
 
     --file
-    file = "󰈙",
-    fileempty = "󰈔",
-    greeternew = "📄",
+    file           = "󰈙",
+    fileemptywhite = "",
+    fileemptyblack = "󰈔",
+    papersheet     = "📄",
 
     -- git
     git = "󰊢",
@@ -148,24 +149,30 @@ local M =
     reload    = "⟳",
     bookmark  = "󰃀",
 
+    -- logo
+    vim = "",
+    neovim = "",
+
+    apple = "",
 
     -- animals
     duck = "🦆",
     bug  = "",
 
-    apple = "",
 
 
     -- letters
     alphabet      = "",
     typeParameter = "󰗴",
+    stylisedn1    = "𝑵",
     null          = "󰟢",
-    escape = "󱊷",
+    escape        = "󱊷",
 
     lightning     = "",
 
 }
 
 return M
+
 
 

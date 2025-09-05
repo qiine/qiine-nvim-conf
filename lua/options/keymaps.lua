@@ -504,41 +504,17 @@ map({"i","n","v"}, "<C-S-a>", "<Cmd>norm! V<CR>")
 
 
 -- ### Visual block selection
-map({"i","n"}, "<S-M-Left>", "<Esc><C-v>h")
-map("v", "<S-M-Left>", function()
-    if vim.fn.mode() == '\22' then  --"\22" is vis block mode
-        vim.cmd("norm! h")
-    else
-        vim.cmd("norm! h")
+-- Move to visual block selection
+local function move_vis_blockselect(dir)
+    if vim.fn.mode() == "" then vim.cmd("norm! "              ..dir)
+    else                          vim.cmd("stopinsert|norm!"..dir)
     end
-end)
+end
 
-map({"i","n"}, "<S-M-Right>", "<Esc><C-v>l")
-map("v", "<S-M-Right>", function()
-    if vim.fn.mode() == '\22' then
-        vim.cmd("norm! l")
-    else
-        vim.cmd("norm! l")
-    end
-end)
-
-map({"i","n"}, "<S-M-Up>", "<Esc><C-v>k")
-map("v", "<S-M-Up>", function()
-    if vim.fn.mode() == '\22' then
-        vim.cmd("norm! k")
-    else
-        vim.cmd("norm! k")
-    end
-end)
-
-map({"i","n"}, "<S-M-Down>", "<Esc><C-v>j")
-map("v", "<S-M-Down>", function()
-    if vim.fn.mode() == '\22' then
-        vim.cmd("norm! j")
-    else
-        vim.cmd("norm! j")
-    end
-end)
+map({"i","n","v"}, "<S-M-Left>",  function() move_vis_blockselect("h") end)
+map({"i","n","v"}, "<S-M-Right>", function() move_vis_blockselect("l") end)
+map({"i","n","v"}, "<S-M-Up>",    function() move_vis_blockseletc("k") end)
+map({"i","n","v"}, "<S-M-Down>",  function() move_vis_blockselect("j") end)
 
 
 

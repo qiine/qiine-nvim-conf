@@ -9,7 +9,7 @@ local utils = require("utils.utils")
 
 
 
---## [Common]
+-- ## [Common]
 ----------------------------------------------------------------------
 --Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
@@ -124,28 +124,29 @@ end, {})
 
 --## [Buffers]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("BufferInfo", function(opts)
-    local inbuf = tonumber(opts.args) or vim.api.nvim_get_current_buf()
+vim.api.nvim_create_user_command("BuffInfo", function(opts)
+    local buf = tonumber(opts.args) or vim.api.nvim_get_current_buf()
+    -- local buf = tonumber(opts.args) or 0
 
     local infos = {
-        "Name:       "..vim.api.nvim_buf_get_name(inbuf),
-        "Id:         "..inbuf,
+        "Name:       "..vim.api.nvim_buf_get_name(buf),
+        "Id:         "..buf,
 
-        "Buftype:    "..vim.api.nvim_get_option_value("buftype", {buf = inbuf}),
-        "Loaded:     "..tostring(vim.api.nvim_buf_is_loaded(inbuf)), --hidden
-        "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = inbuf})),
-        "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", {buf = inbuf})),
-        "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", {buf = inbuf})),
-        "OnHidden:   "..tostring(vim.api.nvim_get_option_value("bufhidden", {buf = inbuf})),
+        "Buftype:    "..vim.api.nvim_get_option_value("buftype", {buf = buf}),
+        "Loaded:     "..tostring(vim.api.nvim_buf_is_loaded(buf)), --hidden
+        "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = buf})),
+        "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", {buf = buf})),
+        "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", {buf = buf})),
+        "OnHidden:   "..tostring(vim.api.nvim_get_option_value("bufhidden", {buf = buf})),
 
-        "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = inbuf }),
-        "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(inbuf))==1),
-        "linecount:  "..vim.api.nvim_buf_line_count(inbuf),
+        "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = buf }),
+        "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(buf))==1),
+        "linecount:  "..vim.api.nvim_buf_line_count(buf),
 
         "PrevBuf:    "..vim.api.nvim_buf_get_name(vim.fn.bufnr("#")),
         "PrevBufId:  "..vim.fn.bufnr("#"),
 
-        "windowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(inbuf)), ", "),
+        "windowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(buf)), ", "),
     }
 
     vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
@@ -362,8 +363,8 @@ end, {})
 
 vim.api.nvim_create_user_command("FileRename", function()
     local old_fpath = vim.api.nvim_buf_get_name(0)
-    local old_dir  = vim.fn.fnamemodify(old_fpath, ":h")
-    local old_name = vim.fn.fnamemodify(old_fpath, ":t")
+    local old_dir   = vim.fn.fnamemodify(old_fpath, ":h")
+    local old_name  = vim.fn.fnamemodify(old_fpath, ":t")
 
     local function prompt_user()
         vim.ui.input({prompt="New name = ", default=old_name, completion="file"},
@@ -379,7 +380,7 @@ vim.api.nvim_create_user_command("FileRename", function()
 
             local new_fpath = vim.fs.joinpath(old_dir,input)
 
-            --check target for existing file
+            -- Check target for existing file
             if vim.uv.fs_stat(new_fpath) then
                 local choice = vim.fn.confirm("Already a file with same name. Overwrite?", "&Yes\n&No", 1)
                 if choice ~= 1 then
@@ -388,12 +389,13 @@ vim.api.nvim_create_user_command("FileRename", function()
                 end
             end
 
+            -- Now rename
             local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
             if not ret then
                 vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
             end
 
-            --Reload buffer with new file
+            -- Need to reload buffer with new file
             vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
             vim.notify('Renamed to: "'..input..'"', vim.log.levels.INFO)
         end)
@@ -829,9 +831,9 @@ vim.api.nvim_create_user_command("ToggleColorcolumn", function()
     local col = vim.opt.colorcolumn:get()
 
     if #col > 0 then
-        vim.opt_local.colorcolumn = {}
+        vim.opt.colorcolumn = {}
     else
-        vim.opt_local.colorcolumn = { vim.opt.textwidth:get() }
+        vim.opt.colorcolumn = { vim.opt.textwidth:get() }
     end
 end, {})
 

@@ -224,7 +224,7 @@ map(modes, "<M-w>h", "<cmd>new<cr>")
 --To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
--- Toggle focus split
+-- Toggle focus for split
 map(modes, "<M-w>f", function()
     local win     = vim.api.nvim_get_current_win()
     local wwidth  = vim.api.nvim_win_get_width(win)
@@ -276,7 +276,7 @@ map({"n","v"}, "<Up>", "g<up>")
 map("i", "<Down>", "<cmd>norm! g<Down><CR>")
 map({"n","v"}, "<Down>", "g<Down>")
 
---Jump to next word
+-- Jump to next word
 map({"i","v"}, '<C-Right>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
@@ -291,7 +291,7 @@ map({"i","v"}, '<C-Right>', function()
     end
 end)
 
---Jump to previous word
+-- Jump to previous word
 map({"i","v"}, '<C-Left>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
@@ -306,7 +306,7 @@ map({"i","v"}, '<C-Left>', function()
     end
 end)
 
---to next/prev cursor jump loc
+-- To next/prev cursor jump loc
 map({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
 map("n",       "<M-PageDown>",  "<C-o>")
 map({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
@@ -343,11 +343,11 @@ map({"n","v"}, "<Home>", "gg0")
 map("i",       "<End>", "<Esc>G$a")
 map({"n","v"}, "<End>", "G$")
 
---kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
---kmap({"n","v"}, "<M-Down>", "G$")
+-- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
+-- kmap({"n","v"}, "<M-Down>", "G$")
 
 map("n", "f", function()
-    --TODO JumpToCharAcrossLines()
+    -- TODO JumpToCharAcrossLines()
 end, {remap = true})
 
 
@@ -377,16 +377,16 @@ map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 -- To last directory
 map({"i","n","v"}, "<M-Home>", "<cmd>cd -<CR><cmd>pwd<CR>")
 
---Interactive cd
+-- Interactive cd
 map({"i","n","v","c"}, "<C-End>", function()
     vim.api.nvim_feedkeys(":cd ", "n", false)
     vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
 end)
 
---cd file dir
+-- cd file dir
 map(modes, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
 
---cd project root
+-- cd project root
 map(modes, "<C-p>p", function()
     local res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
     if res.code ~= 0 then
@@ -542,9 +542,9 @@ end)
 
 
 
---## [Editing]
+-- ## [Editing]
 ----------------------------------------------------------------------
---toggle insert/normal with insert key
+-- Toggle insert/normal with insert key
 map("i", "<Ins>", "<Esc>")
 map("n", "<Ins>", "i")
 map("v", "<Ins>", function ()
@@ -552,22 +552,22 @@ map("v", "<Ins>", function ()
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>i", true, false, true), "n", false)
 end)
 map("c", "<Ins>", "<C-c>i")
+map("t", "<Ins>", "<Esc> <C-\\><C-n>")
 
 
 --To Visual insert mode
 map("v", "<M-i>", "I")
 
+-- insert at end of each lines
 map("v", "î", function()
     if vim.fn.mode() == '\22' then  --"\22" is vis block mode
-        --"$A" insert at end of each lines from vis block mode
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
+        vim.api.nvim_feedkeys("$A", "n", false)
     else
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-v>", true, false, true), "n", false)
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("$A", true, false, true), "n", false)
+        vim.cmd("norm! "); vim.api.nvim_feedkeys("$A", "n", false)
     end
 end)
 
---Insert chars in visual mode
+-- Insert chars in visual mode
 local chars = utils.table_flatten(
     {
         utils.alphabet_lowercase,
@@ -933,7 +933,8 @@ local function move_selected(dir, amount)
 
     vim.cmd('norm! ') -- hack to refresh vis pos
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
-    local atsol = math.min((vst[2]+1), (vsh[2]+1))
+    local atsol = math.min((vst[2]), (vsh[2]))
+    -- TODO detect sof and eof
     vim.cmd('norm! gv')
 
     if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then
@@ -941,7 +942,7 @@ local function move_selected(dir, amount)
         if dir == "j" then vim.cmd("'<,'>m '>+1|norm!gv=gv") return end
     end
 
-    if (atsol < 2) and dir == "h" then return end
+    if (atsol < 1) and dir == "h" then return end
 
     local cmd = '"zygv"_x'..dir..'"zP'
     if mode == "v"  then cmd = cmd.."`[v`]"  end

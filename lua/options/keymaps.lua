@@ -450,14 +450,11 @@ map({"i","n","v"}, "<C-a>", "<Esc>G$vgg0")
 map("i", "<S-PageUp>", "<Esc>Vk")
 map("n", "<S-PageUp>", function()vim.cmd('norm!V'..vim.v.count..'k')end)
 map("v", "<S-PageUp>", function()
-    local vanc_r_r = vim.fn.line("v")
-    local vhead_r_r = vim.fn.line(".")
+    local vst_l, vsh_l = vim.fn.line("v"), vim.fn.line(".")
 
     if vim.fn.mode() == "V" then
-        if vhead_r_r > vanc_r_r then
-            vim.cmd("norm! ok")
-        else
-            vim.cmd("norm! k")
+        if vsh_l > vst_l then vim.cmd("norm! ok")
+        else                  vim.cmd("norm! k")
         end
     else
         vim.cmd("norm! Vk")
@@ -467,14 +464,11 @@ end)
 map("i", "<S-PageDown>", "<Esc>Vj")
 map("n", "<S-PageDown>", function()vim.cmd('norm!V'..vim.v.count..'j')end)
 map("v", "<S-PageDown>", function()
-    local vanc_r_r = vim.fn.line("v")
-    local vhead_r_r = vim.fn.line(".")
+    local vst_l, vsh_l = vim.fn.line("v"), vim.fn.line(".")
 
     if vim.fn.mode() == "V" then
-        if vhead_r_r > vanc_r_r then
-            vim.cmd("norm! j")
-        else
-            vim.cmd("norm! oj")
+        if vsh_l > vst_l then vim.cmd("norm! j")
+        else                  vim.cmd("norm! oj")
         end
     else
         vim.cmd("norm! Vj")
@@ -504,7 +498,7 @@ map({"i","n","v"}, "<C-S-a>", "<Cmd>norm! V<CR>")
 
 
 -- ### Visual block selection
--- Move to visual block selection
+-- Move to visual block selection regardless of mode
 local function move_vis_blockselect(dir)
     if vim.fn.mode() == "" then vim.cmd("norm! "              ..dir)
     else                          vim.cmd("stopinsert|norm!"..dir)
@@ -536,35 +530,57 @@ map("v", "<M-i>", "I")
 
 -- insert at end of each lines
 map("v", "î", function()
-    if vim.fn.mode() == '\22' then  --"\22" is vis block mode
+    if vim.fn.mode() == '\22' then
         vim.api.nvim_feedkeys("$A", "n", false)
     else
         vim.cmd("norm! "); vim.api.nvim_feedkeys("$A", "n", false)
     end
 end)
 
+
 -- Insert chars in visual mode
-local chars = utils.table_flatten(
-    {
-        utils.alphabet_lowercase,
-        utils.alphabet_uppercase,
+vim.g.visualreplace = true
+
+---@param active bool
+local function set_visualreplace(active)
+    local chars = vim.iter({
+        utils.alphabet_lowercase, utils.alphabet_uppercase,
         utils.numbers,
         utils.punctuation,
-    }
-)
-for _, char in ipairs(chars) do
-    map('v', char, '"_d<esc>i'..char, {noremap=true})
+    }):flatten(1):totable()
+
+    for _, char in ipairs(chars) do
+        if active then
+            map('v', char, '"_d<esc>i'..char, {noremap=true})
+        else
+            pcall(vim.keymap.del, 'v', char)
+        end
+    end
 end
+
+local function toggle_visualreplace()
+    vim.g.visualreplace = not vim.g.visualreplace
+
+    set_visualreplace(vim.g.visualreplacee)
+
+    vim.notify("Visual replace: ".. tostring(vim.g.visualreplace))
+end
+
+-- visual replace on by default
+set_visualreplace(vim.g.visualreplace)
+
 map("v", "<space>", '"_di<space>', {noremap=true})
 map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
+vim.keymap.set({"i","n","v"}, "<S-M-v>", function() toggle_visualreplace() end)
 
---Insert literal
---TODO update wezterm? so we can use C-i again without coliding with Tab
---map("i", "<C-i>l", "<C-v>", {noremap=true})
+
+-- Insert literal
+-- TODO update wezterm? so we can use C-i again without coliding with Tab
+-- map("i", "<C-i>l", "<C-v>", {noremap=true})
 map("n", "<C-i>l", "i<C-v>")
 
---Insert digraph
+-- Insert digraph
 map("n", "<C-S-k>", "i<C-S-k>")
 
 

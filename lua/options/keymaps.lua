@@ -929,24 +929,24 @@ local function move_selected(dir, amount)
     -- TODO detect sof and eof
     vim.cmd('norm! gv')
 
-    if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then
-        if dir == "k" then vim.cmd("'<,'>m '<-2|norm!gv=gv") return end
-        if dir == "j" then vim.cmd("'<,'>m '>+1|norm!gv=gv") return end
+    if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then -- multilines move
+        if dir == "k" then vim.cmd("'<,'>m '<-"..(amount+1).."|norm!gv=gv") return end
+        if dir == "j" then vim.cmd("'<,'>m '>+"..amount.."|norm!gv=gv")     return end
     end
 
     if (atsol < 1) and dir == "h" then return end
 
-    local cmd = '"zygv"_x'..dir..'"zP'
+    local cmd = '"zygv"_x' .. amount .. dir .. '"zP'
     if mode == "v"  then cmd = cmd.."`[v`]"  end
     if mode == "" then cmd = cmd.."`[`]" end
     vim.cmd("silent keepjumps norm! " .. cmd)
 end
 
 -- Move selected text
-map({"i","x"}, "<C-S-Left>",  function() move_selected("h", 0) end)
-map({"i","x"}, "<C-S-Right>", function() move_selected("l", 0) end)
-map({"i","x"}, "<C-S-Up>",    function() move_selected("k", 0) end)
-map({"i","x"}, "<C-S-Down>",  function() move_selected("j", 0) end)
+map({"i","x"}, "<C-S-Left>",  function() move_selected("h", vim.v.count1) end)
+map({"i","x"}, "<C-S-Right>", function() move_selected("l", vim.v.count1) end)
+map({"i","x"}, "<C-S-Up>",    function() move_selected("k", vim.v.count1) end)
+map({"i","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) end)
 
 -- Move line
 map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end,      {desc='Move curr line down'})

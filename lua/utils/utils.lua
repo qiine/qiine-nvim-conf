@@ -71,7 +71,7 @@ function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
 
---TODO fancy make table from string func
+--TODO fancy make spreadshit from string func
 --local function format_to_table(str, delimiter, row, col)
 --    local entries = vim.split(str, delimiter)
 --    local out = {}
@@ -94,7 +94,7 @@ end
 
 --Get selected text
 -- -@return table
-function M.get_selectedtext()
+function M.get_slectedtext()
     local mode = vim.fn.mode()
     --if mode ~= 'v' and mode ~= 'V' and mode ~= '\22' then
     --    return ""
@@ -123,7 +123,8 @@ end
 
 
 
---[Tables]--------------------------------------------------
+-- ## [Tables]
+----------------------------------------------------------------------
 function M.tables_append(ta, tb)
     local res = {}
     for _, t in ipairs(ta) do table.insert(res, t) end
@@ -131,20 +132,7 @@ function M.tables_append(ta, tb)
     return res
 end
 
-function M.table_flatten(t)
-    local result = {}
-
-    for _, subtable in ipairs(t) do
-        -- Append each nested table's contents into the result
-        for _, value in ipairs(subtable) do
-            table.insert(result, value)
-        end
-    end
-
-    return result
-end
-
---Insert unique value
+-- Insert unique value
 ---@table
 function M.insert_unique(t, val)
     for _, v in ipairs(t) do

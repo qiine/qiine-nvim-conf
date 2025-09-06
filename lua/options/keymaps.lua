@@ -502,7 +502,7 @@ end
 
 map({"i","n","v"}, "<S-M-Left>",  function() move_vis_blockselect("h") end)
 map({"i","n","v"}, "<S-M-Right>", function() move_vis_blockselect("l") end)
-map({"i","n","v"}, "<S-M-Up>",    function() move_vis_blockseletc("k") end)
+map({"i","n","v"}, "<S-M-Up>",    function() move_vis_blockselect("k") end)
 map({"i","n","v"}, "<S-M-Down>",  function() move_vis_blockselect("j") end)
 
 
@@ -907,22 +907,19 @@ map("n", "<C-S-j>", "k<S-j>")
 
 
 -- ### [Text move]
--- Move single char
-map("n", "<C-S-Right>", '"zx"zp')
-map("n", "<C-S-Left>",  '"zxh"zP')
--- map("n", "<C-S-Up>", '"zxk"zP') -- rarely useful in practice
--- map("n", "<C-S-Down>", '"zxj"zP')
-
 ---@param dir string
 ---@param amount number
 local function move_selected(dir, count)
     local mode = vim.fn.mode()
 
-    if mode == 'i' and dir:match("[hl]") then vim.cmd("stopinsert|norm! viw") end
+    if mode == 'i' and dir:match("[hl]") then vim.cmd("stopinsert|norm! viw") return end
 
     if (mode == 'i' and dir:match("[jk]")) or mode == "n" then
-        if dir == "k" then vim.cmd('m.'..vim.v.count1..'|norm!==')      return end
-        if dir == "j" then vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==') return end
+        if dir == "h" then vim.cmd('norm! "zxh"zP')              return end
+        if dir == "l" then vim.cmd('norm! "zxl"zP')              return end
+
+        if dir == "k" then vim.cmd('m.-'..(count+1)..'|norm!==') return end
+        if dir == "j" then vim.cmd('m.'..count..'|norm!==')      return end
     end
 
     if mode == "v" or "V" or "" then
@@ -934,10 +931,17 @@ local function move_selected(dir, count)
         local atsol = (math.min((vst[2]), (vsh[2])) < 1)
 
         if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then -- multilines move
+            local defsw = vim.opt.shiftwidth:get()
+            vim.opt.shiftwidth = 1
+
+            if dir == "h" then vim.cmd("norm! <`[v`]") vim.opt.shiftwidth=defsw return end
+            if dir == "l" then vim.cmd("norm! >`[v`]") vim.opt.shiftwidth=defsw return end
+
             if dir == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
             if dir == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
         end
 
+        -- single line selection move
         if  atsol and dir == "h" then return end
 
         local cmd = '"zygv"_x' .. count .. dir .. '"zP'
@@ -948,14 +952,10 @@ local function move_selected(dir, count)
 end
 
 -- Move selected text
-map({"i","x"}, "<C-S-Left>",  function() move_selected("h", vim.v.count1) end)
-map({"i","x"}, "<C-S-Right>", function() move_selected("l", vim.v.count1) end)
-map({"i","x"}, "<C-S-Up>",    function() move_selected("k", vim.v.count1) end)
-map({"i","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) end)
-
--- Move line
--- map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end,      {desc='Move curr line down'})
--- map({'i','n'}, '<C-S-Up>',   function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
+map({"i","n","x"}, "<C-S-Left>",  function() move_selected("h", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Right>", function() move_selected("l", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Up>",    function() move_selected("k", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) end)
 
 
 -- ### [Comments]

@@ -15,18 +15,15 @@ local map = vim.keymap.set
 ----------------------------------------
 
 
---modes helpers
+-- Modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
-
-
---## [Settings]
-----------------------------------------------------------------------
-vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
 
 
 
 -- ## [Internal]
 ----------------------------------------------------------------------
+vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
+
 -- Ctrl+q to quit
 map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 
@@ -61,7 +58,7 @@ map(modes, "<C-w>", function()
     local bufmodif   = vim.api.nvim_get_option_value("modified", {buf=bufid})
     local bufwindows = vim.fn.win_findbuf(bufid)
 
-    --custom save warning if buf modified and it is it's last win
+    -- custom save warning if buf modified and it is it's last win
     if bufmodif and #bufwindows <= 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
         if choice ~= 1 then return end
@@ -89,18 +86,18 @@ end, {noremap=true})
 
 
 
---## [Register]
+-- ## [Register]
 ----------------------------------------------------------------------
 map("n", "<C-r>", "i<C-r>")
 
 
 
---## [Files]
+-- ## [Files]
 ----------------------------------------------------------------------
 -- Open nvim native file explorer
 map(modes, "<C-e>", "<Cmd>Ex<CR>")
 
---Open file picker
+-- Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
 map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
@@ -128,9 +125,7 @@ end)
 -- ## [View]
 ----------------------------------------------------------------------
 -- alt-z toggle line virtual wrap
-map({"i","n","v"}, "<A-z>", function()
-    vim.opt.wrap = not vim.opt.wrap:get()
-end)
+map({"i","n","v"}, "<A-z>", function() vim.opt.wrap = not vim.opt.wrap:get() end)
 
 -- toggle auto wrap lines
 map({"i","n","v"}, "M-C-z", function()
@@ -178,23 +173,23 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
---## [Windows]
+-- ## [Windows]
 ----------------------------------------------------------------------
---rebind win prefix
+-- Rebind win prefix
 map({"i","n","v"}, "<M-w>", "<esc><C-w>",   {noremap=true})
 map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
---Open window
+-- Open window
 map(modes, "<M-w>n", function ()
     local wopts = {
         split = "right",
         height = 33,
-        width = 25
+        width = 38
     }
     vim.api.nvim_open_win(0, true, wopts)
 end)
 
---Open floating window
+-- Open floating window
 map(modes, "<M-w>nf", function ()
     local fname = vim.fn.expand("%:t")
 
@@ -219,7 +214,7 @@ end)
 --make ver split
 map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
 --make hor split
-map(modes, "<M-w>h", "<cmd>new<cr>")
+map(modes, "<M-w>h", "<cmd>sp<cr>")
 
 --To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
@@ -537,44 +532,6 @@ map("v", "î", function()
     end
 end)
 
-
--- Insert chars in visual mode
-vim.g.visualreplace = true
-
----@param active bool
-local function set_visualreplace(active)
-    local chars = vim.iter({
-        utils.alphabet_lowercase, utils.alphabet_uppercase,
-        utils.numbers,
-        utils.punctuation,
-    }):flatten(1):totable()
-
-    for _, char in ipairs(chars) do
-        if active then
-            map('v', char, '"_d<esc>i'..char, {noremap=true})
-        else
-            pcall(vim.keymap.del, 'v', char)
-        end
-    end
-end
-
-local function toggle_visualreplace()
-    vim.g.visualreplace = not vim.g.visualreplace
-
-    set_visualreplace(vim.g.visualreplacee)
-
-    vim.notify("Visual replace: ".. tostring(vim.g.visualreplace))
-end
-
--- visual replace on by default
-set_visualreplace(vim.g.visualreplace)
-
-map("v", "<space>", '"_di<space>', {noremap=true})
-map("v", "<cr>",    '"_di<cr>',    {noremap=true})
-
-vim.keymap.set({"i","n","v"}, "<S-M-v>", function() toggle_visualreplace() end)
-
-
 -- Insert literal
 -- TODO update wezterm? so we can use C-i again without coliding with Tab
 -- map("i", "<C-i>l", "<C-v>", {noremap=true})
@@ -805,46 +762,86 @@ map("v",       "<S-Del>", function()
 end)
 
 
---### Replace
---Change in word
+-- ### Replace
+-- Change in word
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
---Replace visual selection with char
+-- Replace selected char
 map("v", "<M-r>", "r")
 
+-- Replace visual selection with key
+vim.g.visualreplace = true
 
--- Substitue mode
+---@param active bool
+local function set_visualreplace(active)
+    local chars = vim.iter({
+        utils.alphabet_lowercase, utils.alphabet_uppercase,
+        utils.numbers,
+        utils.punctuation,
+    }):flatten(1):totable()
+
+    for _, char in ipairs(chars) do
+        if active then
+            map('v', char, '"_d<esc>i'..char, {noremap=true})
+        else
+            pcall(vim.keymap.del, 'v', char)
+        end
+    end
+end
+
+local function toggle_visualreplace()
+    vim.g.visualreplace = not vim.g.visualreplace
+
+    set_visualreplace(vim.g.visualreplacee)
+
+    vim.notify("Visual replace: ".. tostring(vim.g.visualreplace))
+end
+
+-- visual replace on by default
+set_visualreplace(vim.g.visualreplace)
+
+map("v", "<space>", '"_di<space>', {noremap=true})
+map("v", "<cr>",    '"_di<cr>',    {noremap=true})
+
+vim.keymap.set({"i","n","v"}, "<S-M-v>", function() toggle_visualreplace() end)
+
+
+-- ### Substitue mode
 map("n", "s", "<Nop>")
 
 map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode"})
 
+-- Substitue in selection
+map("v", "<M-S-s>",
+[[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
+{desc = "Enter substitue mode in selection"})
+
 map({"i","n"}, "<F50>",
 [[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
 
--- Substitue in selection
 map("v", "<F2>",
-[[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
-{desc = "Enter substitue mode in selection"})
+[[y:%s/\V<C-r>"//g<Left><Left>]],
+{desc = "Substitue selected" })
 
 
---### Incrementing
+-- ### Incrementing
 --vmap("n", "+", "<C-a>")
 map("v", "+", "<C-a>gv")
 
 --vmap("n", "-", "<C-x>") --Decrement
 map("v", "-", "<C-x>gv") --Decrement
 
---To upper/lower case
+-- To upper/lower case
 map("n", "<M-+>", "vgU<esc>")
 map("v", "<M-+>", "gUgv")
 
 map("n", "<M-->", "vgu<esc>")
 map("v", "<M-->", "gugv")
 
---Smart increment/decrement
+-- Smart increment/decrement
 map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
@@ -896,7 +893,7 @@ map("v", "<S-M-cr>", function ()
     end
     vim.cmd("norm! gv")
 
-    --vim.cmd("normal! O")
+    -- vim.cmd("normal! O")
 end)
 
 -- ### [Line join]
@@ -918,28 +915,36 @@ map("n", "<C-S-Left>",  '"zxh"zP')
 
 ---@param dir string
 ---@param amount number
-local function move_selected(dir, amount)
+local function move_selected(dir, count)
     local mode = vim.fn.mode()
 
-    if mode == 'i' then vim.cmd("stopinsert") vim.cmd("norm! viw") end
+    if mode == 'i' and dir:match("[hl]") then vim.cmd("stopinsert|norm! viw") end
 
-    vim.cmd('norm! ') -- hack to refresh vis pos
-    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
-    local atsol = math.min((vst[2]), (vsh[2]))
-    -- TODO detect sof and eof
-    vim.cmd('norm! gv')
-
-    if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then -- multilines move
-        if dir == "k" then vim.cmd("'<,'>m '<-"..(amount+1).."|norm!gv=gv") return end
-        if dir == "j" then vim.cmd("'<,'>m '>+"..amount.."|norm!gv=gv")     return end
+    if (mode == 'i' and dir:match("[jk]")) or mode == "n" then
+        if dir == "k" then vim.cmd('m.'..vim.v.count1..'|norm!==')      return end
+        if dir == "j" then vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==') return end
     end
 
-    if (atsol < 1) and dir == "h" then return end
+    if mode == "v" or "V" or "" then
+        vim.cmd('norm! ') -- hack to refresh vis pos
+        local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+        vim.cmd('norm! gv')
 
-    local cmd = '"zygv"_x' .. amount .. dir .. '"zP'
-    if mode == "v"  then cmd = cmd.."`[v`]"  end
-    if mode == "" then cmd = cmd.."`[`]" end
-    vim.cmd("silent keepjumps norm! " .. cmd)
+        -- TODO detect sof and eof
+        local atsol = (math.min((vst[2]), (vsh[2])) < 1)
+
+        if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then -- multilines move
+            if dir == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
+            if dir == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
+        end
+
+        if  atsol and dir == "h" then return end
+
+        local cmd = '"zygv"_x' .. count .. dir .. '"zP'
+        if mode == "v"  then cmd = cmd.."`[v`]"  end
+        if mode == "" then cmd = cmd.."`[`]" end
+        vim.cmd("silent keepjumps norm! " .. cmd)
+    end
 end
 
 -- Move selected text
@@ -949,8 +954,8 @@ map({"i","x"}, "<C-S-Up>",    function() move_selected("k", vim.v.count1) end)
 map({"i","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) end)
 
 -- Move line
-map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end,      {desc='Move curr line down'})
-map({'i','n'}, '<C-S-Up>',   function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
+-- map({'i','n'}, '<C-S-Down>', function()vim.cmd('m.'..vim.v.count1..'|norm!==')end,      {desc='Move curr line down'})
+-- map({'i','n'}, '<C-S-Up>',   function()vim.cmd('m.-'..(vim.v.count1+1)..'|norm!==')end, {desc='Move curr line up'})
 
 
 -- ### [Comments]

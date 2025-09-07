@@ -23,7 +23,7 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - with Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
 - and Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
-- Built-in Whitespace trimming on save (+custom command)  
+- Built-in whitespaces trimming on save (+custom command)  
 - Completion via **blink.cmp**, with extensive config including cmdline 
   completion
 - Built-in auto save with a timer every 7min
@@ -33,10 +33,10 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 ## 🧠 Text inteligence
 ---
 **Supported languages**:
-- Lua  
-- Markdown  
-- YAML  
-- TOML
+- lua  
+- markdown  
+- yaml  
+- toml
 - bash
 
 **Tools**:
@@ -52,7 +52,7 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 ---
 - **neo-tree**  
 - **oil.nvim**  
-- custom files user commands like delete current file, set readonly, move etc...
+- custom user commands, delete current file, set readonly, move dir etc...
 
 
 ---
@@ -60,9 +60,10 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 ---
 - **lualine** with **many** custom components  
 - **barbar.nvim** for tabs  
+- custom winbar, displaying curr file path
+
 - **trouble.nvim**  
 - **indent-blankline.nvim**
-- custom winbar, displaying curr file path
 
 
 ---

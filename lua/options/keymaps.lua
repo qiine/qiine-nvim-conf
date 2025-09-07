@@ -1,4 +1,3 @@
-
 -- _
 --| |
 --| | _____ _   _ _ __ ___   __ _ _ __  ___
@@ -127,7 +126,7 @@ end)
 -- alt-z toggle line virtual wrap
 map({"i","n","v"}, "<A-z>", function() vim.opt.wrap = not vim.opt.wrap:get() end)
 
--- toggle auto wrap lines
+-- Toggle auto wrap lines
 map({"i","n","v"}, "M-C-z", function()
     -- "t" Auto-wrap text using textwidth (for non-comments).
     -- "w" Auto-wrap lines in insert mode, even without spaces.
@@ -162,13 +161,13 @@ map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 -- ## [Tabs]
 ----------------------------------------------------------------------
---create new tab
+-- Create new tab
 map(modes,"<C-t>", "<Cmd>Alpha<CR>")
 
---Tabs nav
---next
+-- Tabs nav
+-- next
 map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
---prev
+-- Prev
 map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
@@ -512,10 +511,7 @@ map({"i","n","v"}, "<S-M-Down>",  function() move_vis_blockselect("j") end)
 -- Toggle insert/normal with insert key
 map("i", "<Ins>", "<Esc>")
 map("n", "<Ins>", "i")
-map("v", "<Ins>", function ()
-    --seems to be more reliable
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>i", true, false, true), "n", false)
-end)
+map("v", "<Ins>", function () vim.api.nvim_feedkeys("i", "n", false) end)
 map("c", "<Ins>", "<C-c>i")
 map("t", "<Ins>", "<Esc> <C-\\><C-n>")
 
@@ -655,7 +651,7 @@ map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 map("i", "<C-S-v>", '<esc>"_diw"+Pa')
 map({"n","v"}, "<C-S-v>", '<esc>"_diw"+P')
 
---Duplicate
+-- Duplicate
 map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})
 map("v", "<C-d>", '"zy"zP', {desc="dup sel"})
 
@@ -685,36 +681,36 @@ map("v", "<BS>", '"_xi')
 map("i", "<M-S-BS>", '<esc>"_dbi')
 map("n", "<M-S-BS>", '"_db')
 
---Remove to start of line
+-- Remove to start of line
 map("i",       "<M-BS>", '<esc>"_d0i')
 map({"n","v"}, "<M-BS>", '<esc>"_d0')
 
 
---Clear selected char
+-- Clear selected char
 map("v", "<M-S-BS>", 'r ') --TODO better keybind hack with westerm
 
---Clear from cursor to sol
+-- Clear from cursor to sol
 --kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"
 
---Clear line
+-- Clear line
 map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 
---### Del
-map("n", "<Del>", 'v"_d<esc>')
+-- ### Del
+map("n", "<Del>", 'v"_d<esc>') -- avoids poluting " register
 map("v", "<Del>", '"_di')
 
---Delete right word
+-- Delete right word
 map("i",       "<C-Del>", '<C-o>"_dw')
 map({"n","v"}, "<C-Del>", '"_dw')
 --map("c",       "<C-Del>", '"_dw') does not work in cmd bc not a buf
 
---Delete in word
+-- Delete in word
 map({"i","n"}, "<C-S-Del>", '<cmd>norm!"_diw<CR>')
-map("v",       "<C-S-Del>", '<esc>"_diwgv')
+map("v",       "<C-S-Del>", '<esc>"_diw')
 
---Smart delete in
+-- Smart delete in
 map({"i","n"}, "<C-M-Del>", function()
     local delete_commands = {
         ["("] = '"_di(', [")"] = '"_di(',
@@ -726,7 +722,6 @@ map({"i","n"}, "<C-M-Del>", function()
         ["'"] = '"_di',
         ["`"] = '"_di`',
     }
-
     local crow, ccol = unpack(vim.api.nvim_win_get_cursor(0))
     local cline = vim.fn.getline(crow)
 
@@ -738,20 +733,24 @@ map({"i","n"}, "<C-M-Del>", function()
     local ccommand = delete_commands[cchar]
     local ncommand = delete_commands[nchar]
 
-    if ccommand then
-        vim.cmd("normal! " .. ccommand ) return
-    elseif pcommand then
-        vim.cmd("normal! h" .. pcommand ) return
-    elseif ncommand then
-        vim.cmd("normal! l" .. ncommand ) return
-    end
+    vim.cmd('norm! "zy')
+    txt = vim.trim(vim.fn.getreg("z"))
+    print(tostring(vim.fn.match(txt, [[\k]])) )
+
+    -- if ccommand then
+    --     vim.cmd("normal! " .. ccommand ) return
+    -- elseif pcommand then
+    --     vim.cmd("normal! h" .. pcommand ) return
+    -- elseif ncommand then
+    --     vim.cmd("normal! l" .. ncommand ) return
+    -- end
 end)
 
---del to end of line
+-- Del to end of line
 map({"i","n"}, "<M-Del>", '<cmd>norm!"_d$<CR>')
 map("v",       "<M-Del>", '<esc>"_d$')
 
---Delete line
+-- Delete line
 map({"i","n"}, "<S-Del>", '<cmd>norm!"_dd<CR>')
 map("v",       "<S-Del>", function()
     if vim.fn.mode() == "V" then
@@ -806,7 +805,7 @@ map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 vim.keymap.set({"i","n","v"}, "<S-M-v>", function() toggle_visualreplace() end)
 
 
--- ### Substitue mode
+-- ### Substitue mode
 map("n", "s", "<Nop>")
 
 map({"i","n"}, "<M-S-s>",
@@ -848,14 +847,14 @@ map({"n"}, "-", function() utils.smartdecrement() end)
 
 -- ### Formating
 -- #### Indentation
---space bar in normal mode
+-- space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
 -- tab indent
 map("i", "<Tab>", function()
     local width = vim.opt.shiftwidth:get()
     vim.cmd("norm! v>")
-    vim.cmd("norm! ".. width .. "l") --smartly move cursor
+    vim.cmd("norm! ".. width .. "l") -- smartly move cursor
 end)
 map("n", "<Tab>", "v>")
 map("v", "<Tab>", ">gv")
@@ -896,13 +895,14 @@ map("v", "<S-M-cr>", function ()
     -- vim.cmd("normal! O")
 end)
 
+
 -- ### [Line join]
 -- Join below
 map("i",       "<C-j>", "<C-o><S-j>")
-map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use motions
+map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use count
 
 -- Join to upper
-map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use motions
+map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use count
 map("n", "<C-S-j>", "k<S-j>")
 
 
@@ -934,8 +934,8 @@ local function move_selected(dir, count)
             local defsw = vim.opt.shiftwidth:get()
             vim.opt.shiftwidth = 1
 
-            if dir == "h" then vim.cmd("norm! <`[v`]") vim.opt.shiftwidth=defsw return end
-            if dir == "l" then vim.cmd("norm! >`[v`]") vim.opt.shiftwidth=defsw return end
+            if dir == "h" then vim.cmd("norm! <gvh") vim.opt.shiftwidth=defsw return end
+            if dir == "l" then vim.cmd("norm! >gvl") vim.opt.shiftwidth=defsw return end
 
             if dir == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
             if dir == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
@@ -944,7 +944,7 @@ local function move_selected(dir, count)
         -- single line selection move
         if  atsol and dir == "h" then return end
 
-        local cmd = '"zygv"_x' .. count .. dir .. '"zP'
+        local cmd = '"zygv"_x' .. count .. dir .. '"zP' -- "zy avoids polluting "reg
         if mode == "v"  then cmd = cmd.."`[v`]"  end
         if mode == "" then cmd = cmd.."`[`]" end
         vim.cmd("silent keepjumps norm! " .. cmd)
@@ -1055,11 +1055,18 @@ map({"i","n","v"}, "<M-s>d", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end)
 
--- diag panel
+-- Diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 
+map({"i","n","v"}, "<F9>", function ()
+    local vt = vim.diagnostic.config().virtual_text
+    local enabled = (vt ~= false) -- true if not explicitly false
 
--- ref panel
+    vim.diagnostic.config({ virtual_text = not enabled })
+    vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
+end, { desc = "Toggle diagnostic virtual text" })
+
+-- Ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
 
 -- Goto definition
@@ -1083,9 +1090,9 @@ map({"i","n","v"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
 --    vim.lsp.buf.rename()
 --end)
 
---lsp rename
+-- lsp rename
 map({"i","n"}, "<F2>", function()
-    --live-rename is a plugin for fancy in buffer rename preview
+    -- live-rename is a plugin for fancy in buffer rename preview
     require("live-rename").rename({ insert = true })
 end)
 
@@ -1108,7 +1115,7 @@ end)
 
 
 -- ### Diff
---next/prev diff
+-- next/prev diff
 map({"i","n","v","c"}, "<M-S-PageUp>", function()
     if vim.wo.diff then
         vim.cmd("norm! [cz.")
@@ -1125,17 +1132,17 @@ map({"i","n","v","c"}, "<M-S-PageDown>", function()
 end)
 
 
---diff put
+-- Diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")
 map("v",       "<C-g>dp", "<cmd>:'<,'>diffput<cr>")
 
---diff get
+-- Diff get
 map({"i","n"}, "<C-g>dg", "<cmd>.diffget<cr>")
 map("v",       "<C-g>dg", "<cmd>:'<,'>diffget<cr>")
 
 
 
---## [Version control]
+-- ## [Version control]
 ----------------------------------------------------------------------
 map({"i","n","v"}, "<C-g>gc", "<cmd>GitCommitFile<cr>", {noremap=true})
 
@@ -1143,21 +1150,24 @@ map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
 
 
 
---## [Code runner]
+-- ## [Code runner]
 ----------------------------------------------------------------------
---run code at cursor with sniprun
---run curr line only and insert res below
+-- run current
+-- map({"i","n","v"}, "", )
+
+-- run code at cursor with sniprun
+-- run curr line only and insert res below
 map({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 
---<F20> equivalent to <S-F8>
---run selected code in visual mode
-map("v", "<F20>","<cmd>SnipRunSelectedInsertResult<CR>")
+-- Run selected code in visual mode
+-- <F20> equivalent to <S-F8>
+map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
 
---run whole file until curr line and insert
-map({"i","n"},"<F20>","<cmd>SnipRunToLineInsertResult<CR>")
+-- Run whole file until curr line and insert
+map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
---exec curr line as ex command
---F56 is <M-F8>
+-- exec curr line as ex command
+-- F56 is <M-F8>
 map({"i","n"}, "<F56>", function() vim.cmd('norm! 0"zy$'); vim.cmd('@z') end)
 map("v", "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
 
@@ -1170,15 +1180,12 @@ map("i",       "œ", "<esc>:")
 map({"n","v"}, "œ", ":")
 map("t",       "œ", "<Esc><C-\\><C-n>:")
 
--- Open command line window
-vim.cmd('set cedit=<C-u>')
-
 -- Open command line in term mode
 map({"i","c"}, "<S-Œ>", "<esc>:!")
 map({"n","v"}, "<S-Œ>", ":!")
 
 -- cmd completion menu
--- vmap("c", "<C-d>", "<C-d>")
+-- map("c", "<C-d>", "<C-d>")
 
 -- Cmd menu nav
 map("c", "<Up>", "<C-p>")
@@ -1193,8 +1200,14 @@ map("i", "<C-l>", "<C-o><C-l>")
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 -- map("c", "<esc>", "<C-c>", {noremap=true})
 
+
+-- Cmd win
+-- Open command line window
+vim.cmd('set cedit=<C-u>')
+
 -- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
+    group = "UserAutoCmds",
     callback = function()
         vim.keymap.set("n", "<esc>", ":quit<CR>", {buffer=true})
     end,
@@ -1215,7 +1228,7 @@ map({"i","n","v"}, "<M-w>t", function()
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {noremap=true})
 
--- Exit
+-- Exit term mode
 map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
 
 

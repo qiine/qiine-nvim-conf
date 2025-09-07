@@ -594,9 +594,9 @@ end, {})
 
 
 
---## [Editing]
+-- ## [Editing]
 --------------------------------------------------
---Trim select, include tab and break lines
+-- Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimWhitespacesLine", function(opts)
     vim.cmd("s/\\s//g")
     vim.cmd("norm! i")
@@ -662,9 +662,38 @@ vim.api.nvim_create_user_command("OpenDigraph", function()
     vim.opt_local.foldcolumn   = "0"
 end, {})
 
+vim.api.nvim_create_user_command("ShowHex", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+
+    local res = vim.system({"xxd", "-g", "1", "-u", fpath}, {text=true}):wait()
+
+    if res.code ~= 0 then vim.notify(res.stderr, vim.log.levels.ERROR) return end
+
+    vim.cmd("enew")
+    vim.bo.buftype   = "nofile"
+    vim.bo.filetype  = "hex"
+    vim.bo.bufhidden = "wipe"
+    vim.bo.buflisted = false
+
+    local lines = vim.split(res.stdout, "\n", { trimempty = true })
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+end, {desc = "Show current file's hex representation in another buffer" })
+
+vim.api.nvim_create_user_command("ToggleHexMode", function()
+    local ft = vim.bo.filetype
+
+    if ft ~= "hex" then
+        vim.cmd("%!xxd")
+        vim.bo.filetype = "hex"
+    else
+        vim.cmd("%!xxd -r")
+        vim.bo.filetype = ft
+    end
+end, { desc = "Toggle between hex view and normal view" })
 
 
---## [Version control]
+
+-- ## [Version control]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("PrintGitRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
@@ -815,7 +844,7 @@ end, {})
 
 
 
---## [View]
+-- ## [View]
 --------------------------------------------------
 vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
     local listchars = vim.opt.listchars:get()

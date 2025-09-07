@@ -707,11 +707,11 @@ map({"n","v"}, "<C-Del>", '"_dw')
 --map("c",       "<C-Del>", '"_dw') does not work in cmd bc not a buf
 
 -- Delete in word
-map({"i","n"}, "<C-S-Del>", '<cmd>norm!"_diw<CR>')
-map("v",       "<C-S-Del>", '<esc>"_diw')
+-- map({"i","n"}, "<C-S-Del>", '<cmd>norm!"_diw<CR>')
+-- map("v",       "<C-S-Del>", '<esc>"_diw')
 
--- Smart delete in
-map({"i","n"}, "<C-M-Del>", function()
+-- Smart delete
+map({"i","n"}, "<C-S-Del>", function()
     local delete_commands = {
         ["("] = '"_di(', [")"] = '"_di(',
         ["["] = '"_di[', ["]"] = '"_di[',
@@ -733,17 +733,21 @@ map({"i","n"}, "<C-M-Del>", function()
     local ccommand = delete_commands[cchar]
     local ncommand = delete_commands[nchar]
 
-    vim.cmd('norm! "zy')
-    txt = vim.trim(vim.fn.getreg("z"))
-    print(tostring(vim.fn.match(txt, [[\k]])) )
+    vim.cmd('norm! m`viw"zy``')
+    local txt = vim.trim(vim.fn.getreg("z"))
+    local isword = vim.fn.match(txt, [[\k]]) == 0
 
-    -- if ccommand then
-    --     vim.cmd("normal! " .. ccommand ) return
-    -- elseif pcommand then
-    --     vim.cmd("normal! h" .. pcommand ) return
-    -- elseif ncommand then
-    --     vim.cmd("normal! l" .. ncommand ) return
-    -- end
+    if isword then
+        vim.cmd('norm! "_diw')
+    else
+        if ccommand then
+            vim.cmd("normal! " .. ccommand ) return
+        elseif pcommand then
+            vim.cmd("normal! h" .. pcommand ) return
+        elseif ncommand then
+            vim.cmd("normal! l" .. ncommand ) return
+        end
+    end
 end)
 
 -- Del to end of line
@@ -1062,7 +1066,12 @@ map({"i","n","v"}, "<F9>", function ()
     local vt = vim.diagnostic.config().virtual_text
     local enabled = (vt ~= false) -- true if not explicitly false
 
+    vim.diagnostic.show(nil, 0)
+    vim.diagnostic.hide(nil, 0)
+    vim.diagnostic.show(nil, 0)
+
     vim.diagnostic.config({ virtual_text = not enabled })
+    -- vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
     vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
 end, { desc = "Toggle diagnostic virtual text" })
 

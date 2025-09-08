@@ -696,7 +696,6 @@ map("v", "<M-S-BS>", 'r ') --TODO better keybind hack with westerm
 map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
-
 -- ### Delete
 map("n", "<Del>", 'v"_d<esc>') -- avoids poluting " register
 map("v", "<Del>", '"_di')
@@ -704,11 +703,26 @@ map("v", "<Del>", '"_di')
 -- Delete right word
 map("i",       "<C-Del>", '<C-o>"_dw')
 map({"n","v"}, "<C-Del>", '"_dw')
---map("c",       "<C-Del>", '"_dw') does not work in cmd bc not a buf
+-- map("c",       "<C-Del>", '"_dw') does not work in cmd bc not a buf
 
--- Delete in word
--- map({"i","n"}, "<C-S-Del>", '<cmd>norm!"_diw<CR>')
--- map("v",       "<C-S-Del>", '<esc>"_diw')
+-- Del to end of line
+map({"i","n","v"}, "<M-Del>", function()
+    if vim.fn.mode() == "" then
+        vim.cmd('norm! $"_d')
+    else
+        vim.cmd('norm! v$h"_d')
+    end
+end)
+
+-- Delete line
+map({"i","n","v"}, "<S-Del>", function()
+    if vim.fn.mode() == "V" then
+        vim.cmd('norm!"_d')
+    else
+        vim.cmd('norm!V"_d')
+    end
+end)
+
 
 -- Smart delete
 map({"i","n"}, "<C-S-Del>", function()
@@ -721,20 +735,10 @@ map({"i","n"}, "<C-S-Del>", function()
     if isword then
         vim.cmd('norm! "_diw')
     else
-        local obj = vim.fn.strcharpart(vim.getline('.'), vim.fn.col('.') - 1, 1)
-        -- vim.cmd('norm! "zyl')
-        -- local obj = vim.fn.getreg("z")
-        vim.cmd('norm! "_di'..obj)
-        -- vim.fn.getchar()
+        vim.cmd('norm! `z"zyl')
+        vim.cmd('norm! "_di'..vim.fn.getreg("z"))
     end
 end)
-
--- Del to end of line
-map({"i","n"}, "<M-Del>", '<cmd>norm!"_d$<CR>')
-map("v",       "<M-Del>", '<esc>"_d$')
-
--- Delete line
-map({"i","n","v"}, "<S-Del>", function() vim.cmd('norm! V"_d') end)
 
 
 -- ### Replace

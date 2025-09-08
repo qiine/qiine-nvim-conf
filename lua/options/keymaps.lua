@@ -697,7 +697,7 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 
--- ### Del
+-- ### Delete
 map("n", "<Del>", 'v"_d<esc>') -- avoids poluting " register
 map("v", "<Del>", '"_di')
 
@@ -712,41 +712,20 @@ map({"n","v"}, "<C-Del>", '"_dw')
 
 -- Smart delete
 map({"i","n"}, "<C-S-Del>", function()
-    local delete_commands = {
-        ["("] = '"_di(', [")"] = '"_di(',
-        ["["] = '"_di[', ["]"] = '"_di[',
-        ["{"] = '"_di{', ["}"] = '"_di{',
-        ["<"] = '"_di<', [">"] = '"_di<',
+    vim.cmd('norm! mz')
 
-        ['"'] = '"_di"',
-        ["'"] = '"_di',
-        ["`"] = '"_di`',
-    }
-    local crow, ccol = unpack(vim.api.nvim_win_get_cursor(0))
-    local cline = vim.fn.getline(crow)
-
-    local pchar =  cline:sub(ccol, ccol)
-    local cchar =  cline:sub(ccol+1, ccol+1)
-    local nchar =  cline:sub(ccol+2, ccol+2)
-
-    local pcommand = delete_commands[pchar]
-    local ccommand = delete_commands[cchar]
-    local ncommand = delete_commands[nchar]
-
-    vim.cmd('norm! m`viw"zy``')
-    local txt = vim.trim(vim.fn.getreg("z"))
+    vim.cmd('norm! viw"zy')
+    local txt = vim.fn.getreg("z")
     local isword = vim.fn.match(txt, [[\k]]) == 0
 
     if isword then
         vim.cmd('norm! "_diw')
     else
-        if ccommand then
-            vim.cmd("normal! " .. ccommand ) return
-        elseif pcommand then
-            vim.cmd("normal! h" .. pcommand ) return
-        elseif ncommand then
-            vim.cmd("normal! l" .. ncommand ) return
-        end
+        local obj = vim.fn.strcharpart(vim.getline('.'), vim.fn.col('.') - 1, 1)
+        -- vim.cmd('norm! "zyl')
+        -- local obj = vim.fn.getreg("z")
+        vim.cmd('norm! "_di'..obj)
+        -- vim.fn.getchar()
     end
 end)
 
@@ -755,14 +734,7 @@ map({"i","n"}, "<M-Del>", '<cmd>norm!"_d$<CR>')
 map("v",       "<M-Del>", '<esc>"_d$')
 
 -- Delete line
-map({"i","n"}, "<S-Del>", '<cmd>norm!"_dd<CR>')
-map("v",       "<S-Del>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd('norm!"_d')
-    else
-        vim.cmd('norm!V"_d')
-    end
-end)
+map({"i","n","v"}, "<S-Del>", function() vim.cmd('norm! V"_d') end)
 
 
 -- ### Replace
@@ -884,7 +856,7 @@ map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
 --New line above and below
-map({"i","n"}, "<S-M-cr>", "<cmd>norm!m`o<CR><cmd>norm!kO<CR><cmd>norm!``<CR>")
+map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
 map("v", "<S-M-cr>", function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
 
@@ -968,8 +940,8 @@ map("v",       "<M-a>", "gcgv", {remap=true})
 
 
 -- ### [Macro]
-map("n", "q", "<nop>")
-map("n", "<M-S-r>", "qq", {noremap = true})
+map("n", "qq", '<nop>')
+map("n", "q", '<nop>')
 
 
 
@@ -1105,7 +1077,7 @@ map({"i","n"}, "<F2>", function()
     require("live-rename").rename({ insert = true })
 end)
 
--- smart contextual action
+-- smart goto
 map({"i","n","v"}, "<C-CR>", function()
     local word = vim.fn.expand("<cfile>")
     local cchar = utils.get_char_at_cursorpos()
@@ -1212,7 +1184,9 @@ map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves
 
 -- Cmd win
 -- Open command line window
-vim.cmd('set cedit=<C-u>')
+vim.cmd('set cedit=') -- avoids interferances
+
+map("n", "q:", 'q:')
 
 -- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {

@@ -1112,13 +1112,15 @@ end)
 
 -- Diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")
-map("v",       "<C-g>dp", "<cmd>:'<,'>diffput<cr>")
+map("v",       "<C-g>dp", ":diffput<cr>")
 
 -- Diff get
 map({"i","n"}, "<C-g>dg", "<cmd>.diffget<cr>")
-map("v",       "<C-g>dg", "<cmd>:'<,'>diffget<cr>")
+map("v",       "<C-g>dg", ":diffget<cr>")
 
-
+-- test
+-- test
+-- test
 
 -- ## [Version control]
 ----------------------------------------------------------------------

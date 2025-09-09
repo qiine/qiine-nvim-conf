@@ -243,7 +243,7 @@ map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
 map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
 map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
 
---detach win
+-- Detach win
 map(modes, "<M-w>d", function()
     --TODO
     --the idea would be to close curr win save its buff and reopen as split and carry prev settings
@@ -320,12 +320,9 @@ map("i",       "<C-Down>", "<esc>m'3ji")
 map({"n","v"}, "<C-Down>", "m'3j")
 
 
--- alt+left/right move to start/end of line
-map("i",       "<M-Left>", "<Esc>m'0i")
-map({"n","v"}, "<M-Left>", "m'0")
-
-map("i",       "<M-Right>", "<Esc>m'$a")
-map({"n","v"}, "<M-Right>", "m'$")
+-- Jump to start/end of line
+map({"i","n","v"}, "<M-Left>", "<cmd>norm! 0<cr>")
+map({"i","n","v"}, "<M-Right>", "<cmd>norm! $<cr>")
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>gg0i")

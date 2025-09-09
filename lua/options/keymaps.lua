@@ -347,11 +347,11 @@ map({"i","n","v","c"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl
     vim.opt.hlsearch = true
 
-    --proper clear and exit cmd mode
+    -- Proper clear and exit cmd mode
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "n", false) end
 
     if vim.fn.mode() ~= "v" then
-        vim.api.nvim_feedkeys([[/\V]], "n", false) --need feedkey, avoid glitchy cmd
+        vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
     else
         vim.api.nvim_feedkeys([[y/\V"]], "n", false)
     end
@@ -423,12 +423,10 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 -- To Visual Line selection
 -- TODO a bit hacky we would want proper <M-C-Right><M-C-Left>
-map("i", "<M-C-Right>", "<Esc>V")
-map({"n","v"}, "<M-C-Right>", function()
+map({"i","n","v"}, "<C-M-Right>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
-map("i", "<M-C-Left>", "<Esc>V")
-map({"n","v"}, "<M-C-Left>", function()
+map({"i","n","v"}, "<M-C-Left>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
 
@@ -466,7 +464,7 @@ map("v", "<S-PageDown>", function()
     end
 end)
 
--- shrink visual line selection up/down
+-- Shrink visual line selection up/down
 map("v", "<C-S-PageUp>", function()
     if vim.fn.mode() == "V" then
         vim.cmd("norm! k")
@@ -490,16 +488,16 @@ map({"i","n","v"}, "<C-S-a>", "<Cmd>norm! V<CR>")
 
 -- ### Visual block selection
 -- Move to visual block selection regardless of mode
-local function move_vis_blockselect(dir)
+local function move_blockselect(dir)
     if vim.fn.mode() == "" then vim.cmd("norm! "              ..dir)
     else                          vim.cmd("stopinsert|norm!"..dir)
     end
 end
 
-map({"i","n","v"}, "<S-M-Left>",  function() move_vis_blockselect("h") end)
-map({"i","n","v"}, "<S-M-Right>", function() move_vis_blockselect("l") end)
-map({"i","n","v"}, "<S-M-Up>",    function() move_vis_blockselect("k") end)
-map({"i","n","v"}, "<S-M-Down>",  function() move_vis_blockselect("j") end)
+map({"i","n","v"}, "<S-M-Left>",  function() move_blockselect("h") end)
+map({"i","n","v"}, "<S-M-Right>", function() move_blockselect("l") end)
+map({"i","n","v"}, "<S-M-Up>",    function() move_blockselect("k") end)
+map({"i","n","v"}, "<S-M-Down>",  function() move_blockselect("j") end)
 
 
 
@@ -535,10 +533,10 @@ map("n", "<C-S-k>", "i<C-S-k>")
 
 
 -- ### Insert snipet
---insert function()
---kmap("i", "<C-S-i>")
+-- Insert function()
+-- map("i", "<C-S-i>")
 
---map("i", "<C-i>sf", "")
+-- map("i", "<C-i>sf", "")
 
 -- Insert print snippet
 map({"n","v"}, "Ô", function()
@@ -604,20 +602,19 @@ map("v", "<S-M-c>", function()
 end)
 
 
---Copy word
+-- Copy word
 map({"i","n","v"}, "<C-S-c>", function()
     vim.cmd('norm! m`viw"+y``'); print("Word Copied")
 end, {noremap=true})
 
---cut
+-- cut
 map("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true}) --cut line
 map("n", "<C-x>", '"+x',             {noremap = true})
 map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy so..
 
---cut word
-map("i", "<C-S-x>", '<esc>viw"+xi')
-map("n", "<C-S-x>", 'viw"+x')
-map("v", "<C-S-x>", '<esc>m`viw"+x``:echo"Word Cut"<CR>')
+-- cut word
+map({"i","n"}, "<C-S-x>", '<cmd>norm! viw"+x<cr>')
+map("v", "<C-S-x>", '<esc>viw"+x')
 
 -- Paste
 map({"i","n","v"}, "<C-v>", function()
@@ -645,20 +642,19 @@ map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
 -- Paste replace word
-map("i", "<C-S-v>", '<esc>"_diw"+Pa')
-map({"n","v"}, "<C-S-v>", '<esc>"_diw"+P')
+map({"i","n","v"}, "<C-S-v>", '<cmd>norm! "_diw"+P<CR>')
 
 -- Duplicate
 map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})
 map("v", "<C-d>", '"zy"zP', {desc="dup sel"})
 
 
---#[Undo/redo]
---ctrl+z to undo
+-- ### [Undo/redo]
+-- ctrl+z to undo
 map("i",       "<C-z>",   "<C-o>u", {noremap = true})
 map({"n","v"}, "<C-z>",   "<esc>u", {noremap = true})
 
---redo
+-- Redo
 map("i",       "<C-y>",   "<C-o><C-r>")
 map({"n","v"}, "<C-y>",   "<esc><C-r>")
 map("i",       "<C-S-z>", "<C-o><C-r>")

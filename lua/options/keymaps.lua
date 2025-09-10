@@ -807,9 +807,11 @@ map("v", "+", "<C-a>gv")
 map("v", "-", "<C-x>gv") --Decrement
 
 -- To upper/lower case
+map("i", "<M-+>", "<cmd>norm! mzviwgU`z<CR>")
 map("n", "<M-+>", "vgU<esc>")
 map("v", "<M-+>", "gUgv")
 
+map("i", "<M-->", "<cmd>norm! mzviwgu`z<CR>")
 map("n", "<M-->", "vgu<esc>")
 map("v", "<M-->", "gugv")
 
@@ -903,18 +905,18 @@ local function move_selected(dir, count)
         -- TODO detect sof and eof
         local atsol = (math.min((vst[2]), (vsh[2])) < 1)
 
-        if math.abs(vst[1] - vsh[1]) > 0 or mode == "V" then -- multilines move
-            local defsw = vim.opt.shiftwidth:get()
-            vim.opt.shiftwidth = 1
+        if (math.abs(vst[1] - vsh[1]) > 0 or mode == "V") and not "" then -- multilines move
+            local basesw = vim.opt_local.shiftwidth:get()
+            vim.opt_local.shiftwidth = 1
 
-            if dir == "h" then vim.cmd("norm! <gvh") vim.opt.shiftwidth=defsw return end
-            if dir == "l" then vim.cmd("norm! >gvl") vim.opt.shiftwidth=defsw return end
+            if dir == "h" then vim.cmd("norm! <gvh") vim.opt_local.shiftwidth=basesw return end
+            if dir == "l" then vim.cmd("norm! >gvl") vim.opt_local.shiftwidth=basesw return end
 
             if dir == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
             if dir == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
         end
 
-        -- single line selection move
+        -- Single line selection move
         if  atsol and dir == "h" then return end
 
         local cmd = '"zygv"_x' .. count .. dir .. '"zP' -- "zy avoids polluting "reg
@@ -1108,7 +1110,6 @@ map({"i","n","v","c"}, "<M-S-PageDown>", function()
         require('gitsigns').nav_hunk('next')
     end
 end)
-
 
 -- Diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")

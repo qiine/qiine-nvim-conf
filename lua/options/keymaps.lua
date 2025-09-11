@@ -322,7 +322,9 @@ map({"n","v"}, "<C-Down>", "m'3j")
 
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>", "<cmd>norm! 0<cr>")
-map({"i","n","v"}, "<M-Right>", "<cmd>norm! $<cr>")
+
+map("i", "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
+map({"n","v"}, "<M-Right>", "<cmd>norm! $<cr>")
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>gg0i")
@@ -383,7 +385,7 @@ map(modes, "<C-p>p", function()
     if res.code ~= 0 then
         vim.notify("Not inside a Git repo:"..res.stderr, vim.log.levels.ERROR) return
     end
-    local groot = vim.trim(res.stdout) --trim white space to avoid surprises
+    local groot = vim.trim(res.stdout) -- trim white space to avoid surprises
 
     vim.cmd("cd " .. groot); vim.cmd("pwd")
 end)
@@ -403,7 +405,7 @@ map("v", "<S-Left>", "<Left>")
 
 map("i", "<S-Right>", "<Esc>v",  {noremap = true}) --note the v without l for insert only
 map("n", "<S-Right>", "vl",      {noremap = true})
-map("v", "<S-Right>", "<Right>")
+map("v", "<S-Right>", "<Right>", {noremap = true})
 
 map({"i","n"}, "<S-Up>",    "<Esc>vgk", {noremap=true})
 map("v",       "<S-Up>",    "gk",       {noremap=true}) --avoid fast scrolling around
@@ -572,13 +574,13 @@ map("i", "<C-c>", function()
     local line = vim.api.nvim_get_current_line()
 
     if line ~= "" then
-        vim.cmd([[norm! m`0"+y$``]])
-        vim.cmd("echo 'line copied'")
+        vim.cmd('norm! mz0"+y$`z')
+        print("Line copied.")
     end
 end, {noremap=true})
 
 map("n", "<C-c>", function()
-    local char = utils.get_char_at_cursorpos()
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     if char ~= " " and char ~= "" then
         vim.cmd('norm! "+yl')
@@ -586,7 +588,7 @@ map("n", "<C-c>", function()
 end, {noremap = true})
 
 map("v", "<C-c>", function()
-    vim.cmd('norm! m`"+y``'); print("selection copied")
+    vim.cmd('norm! mz"+y`z'); print("selection copied")
 end, {noremap=true})
 
 
@@ -604,15 +606,15 @@ end)
 
 -- Copy word
 map({"i","n","v"}, "<C-S-c>", function()
-    vim.cmd('norm! m`viw"+y``'); print("Word Copied")
+    vim.cmd('norm! mzviw"+y`z'); print("Word Copied")
 end, {noremap=true})
 
--- cut
-map("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true}) --cut line
+-- Cut
+map("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true}) --cut line, avoids reg"
 map("n", "<C-x>", '"+x',             {noremap = true})
 map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy so..
 
--- cut word
+-- Cut word
 map({"i","n"}, "<C-S-x>", '<cmd>norm! viw"+x<cr>')
 map("v", "<C-S-x>", '<esc>viw"+x')
 
@@ -621,9 +623,9 @@ map({"i","n","v"}, "<C-v>", function()
     local mode = vim.fn.mode()
     if mode == "v" or mode == "V" or mode == "" then vim.cmd('norm! "_d') end
 
-    vim.cmd('norm! "+P') --paste from clipboard
+    vim.cmd('norm! "+P') -- paste from sys clipboard
 
-    --Format after paste
+    -- Format after paste
     local ft = vim.bo.filetype
 
     if ft == "" then
@@ -635,8 +637,7 @@ map({"i","n","v"}, "<C-v>", function()
     end
 
     -- Proper curso placement
-    vim.cmd("norm! `]")
-    if mode == "i" then vim.cmd("norm! a") end
+    vim.cmd("norm! `]"); if mode == "i" then vim.cmd("norm! a") end
 end)
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
@@ -680,7 +681,7 @@ map({"n","v"}, "<M-BS>", '<esc>"_d0')
 
 
 -- Clear selected char
-map("v", "<M-S-BS>", 'r ') --TODO better keybind hack with westerm
+map("v", "<M-S-BS>", 'r ') -- TODO better keybind hack with westerm
 
 -- Clear from cursor to sol
 --kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"
@@ -690,7 +691,7 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 -- ### Delete
-map("n", "<Del>", 'v"_d<esc>') -- avoids poluting " register
+map("n", "<Del>", 'v"_d<esc>') -- avoids poluting  reg"
 map("v", "<Del>", '"_di')
 
 -- Delete right word
@@ -721,15 +722,15 @@ end)
 map({"i","n"}, "<C-S-Del>", function()
     vim.cmd('norm! mz')
 
-    vim.cmd('norm! viw"zy')
+    vim.cmd('norm! viw"zy`z')
     local txt = vim.fn.getreg("z")
-    local isword = vim.fn.match(txt, [[\k]]) == 0
 
+    local isword = vim.fn.match(txt, [[\k]]) == 0
     if isword then
         vim.cmd('norm! "_diw')
     else
-        vim.cmd('norm! `z"zyl')
-        vim.cmd('norm! "_di'..vim.fn.getreg("z"))
+        local obj = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+        vim.cmd('norm! "_di'..obj)
     end
 end)
 
@@ -769,7 +770,7 @@ local function toggle_visualreplace()
     vim.notify("Visual replace: ".. tostring(vim.g.visualreplace))
 end
 
--- visual replace on by default
+-- Visual replace on by default
 set_visualreplace(vim.g.visualreplace)
 
 map("v", "<space>", '"_di<space>', {noremap=true})
@@ -800,10 +801,10 @@ map("v", "<F2>",
 
 
 -- ### Incrementing
---vmap("n", "+", "<C-a>")
+-- map("n", "+", "<C-a>")
 map("v", "+", "<C-a>gv")
 
---vmap("n", "-", "<C-x>") --Decrement
+-- map("n", "-", "<C-x>") --Decrement
 map("v", "-", "<C-x>gv") --Decrement
 
 -- To upper/lower case
@@ -822,7 +823,7 @@ map({"n"}, "-", function() utils.smartdecrement() end)
 
 -- ### Formating
 -- #### Indentation
--- space bar in normal mode
+-- Space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
 -- tab indent
@@ -854,21 +855,9 @@ map("v",       "<S-CR>", "<esc>O<esc>gv")
 map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
---New line above and below
-map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
-map("v", "<S-M-cr>", function ()
-    local cursor_pos = vim.api.nvim_win_get_cursor(0)
-
-    vim.api.nvim_feedkeys("\27", "n", false)
-    local anchor_start_pos = vim.fn.getpos("'<")
-
-    if (anchor_start_pos[3]-1) ~= cursor_pos[2] then
-        vim.cmd("normal! o")
-    end
-    vim.cmd("norm! gv")
-
-    -- vim.cmd("normal! O")
-end)
+-- New line above and below
+-- map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
+map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
 
 
 -- ### [Line join]
@@ -905,12 +894,12 @@ local function move_selected(dir, count)
         -- TODO detect sof and eof
         local atsol = (math.min((vst[2]), (vsh[2])) < 1)
 
-        if (math.abs(vst[1] - vsh[1]) > 0 or mode == "V") and not "" then -- multilines move
-            local basesw = vim.opt_local.shiftwidth:get()
-            vim.opt_local.shiftwidth = 1
+        if (math.abs(vst[1] - vsh[1]) > 0 or mode == "V") and mode ~= "" then -- multilines move
+            local defsw = vim.opt.shiftwidth:get()
+            local vo = vim.opt_local
 
-            if dir == "h" then vim.cmd("norm! <gvh") vim.opt_local.shiftwidth=basesw return end
-            if dir == "l" then vim.cmd("norm! >gvl") vim.opt_local.shiftwidth=basesw return end
+            if dir == "h" then vo.shiftwidth = 1; vim.cmd("norm! <gvh"); vo.shiftwidth = defsw; return end
+            if dir == "l" then vo.shiftwidth = 1; vim.cmd("norm! >gvl"); vo.shiftwidth = defsw; return end
 
             if dir == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
             if dir == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
@@ -1030,6 +1019,8 @@ map({"i","n","v"}, "<M-s>d", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end)
 
+
+-- ### [LSP]
 -- Diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 

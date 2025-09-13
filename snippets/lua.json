@@ -55,8 +55,18 @@
         "prefix": "for each table",
         "body": [
             "for _, item in pairs(table) do",
-            "\t--stuff",
+                "\t--stuff",
             "end"
+        ]
+    },
+
+    "flatten table": {
+        "prefix": "flatten table",
+        "body": [
+            "local table = vim.iter({",
+                "\t${1:table1}",
+                "\t${2:table2}",
+            "}):flatten(1):totable()"
         ]
     },
 
@@ -110,6 +120,13 @@
     "set nvim cursor position": {
         "prefix": "set_nvim_cursor_position",
         "body": [ "vim.api.nvim_win_set_cursor(0, cpos)" ]
+    },
+
+    "get nvim word under cursor": {
+        "prefix": "get nvim word under cursor",
+        "body": [
+            "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
+        ]
     },
 
     "get nvim working directorie": {

@@ -22,7 +22,7 @@ My text editor journey:
 - with Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
 - and Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
-- Built-in whitespaces trimming on save (+custom command)  
+- Built-in white spaces trimming on save (+custom command)  
 - Completion via **blink.cmp**, with extensive config including cmdline 
   completion
 - Built-in auto save with a timer every 7min
@@ -50,7 +50,7 @@ My text editor journey:
 ---
 - **neo-tree**  
 - **oil.nvim**  
-- custom user commands, delete current file, set readonly, move dir etc...
+- custom user commands and keymaps, delete current file, set readonly, move dir etc...
 
 
 ### 🖼 UI
@@ -58,8 +58,10 @@ My text editor journey:
 - **lualine** with **many** custom components  
 - **barbar.nvim** for tabs  
 - custom winbar, displaying curr file path
-
+* customized statuscolumn thanks to gitsign, statuscol-nvim and some 
+  tweaking  
 - **trouble.nvim**  
+
 - **indent-blankline.nvim**
 
 

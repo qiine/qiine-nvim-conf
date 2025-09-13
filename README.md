@@ -89,13 +89,18 @@ Currently only supports **one global session**
 
 ## Installation
 ---
-Install latest neovim version with your package manager of choice.
-Backup your existing config files if any.
-Clone the repo:
-`git clone https://github.com/qiine/qiine-nvim-conf.git`
-Open Neovim.
-`nvim`
-plugins will install automatically thanks to lazy.nvim
+Install latest neovim version with your package manager of choice.  
+Backup your existing config files if any.  
+Clone the repo:  
+```sh
+git clone https://github.com/qiine/qiine-nvim-conf.git
+```
+Open Neovim.  
+```sh
+nvim  
+```
+plugins will install automatically thanks to lazy.nvim  
+
 
 ### 🧪 Requirements
 * fzf

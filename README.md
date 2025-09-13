@@ -89,8 +89,15 @@ Currently only supports **one global session**
 
 ## Installation
 ---
-Install latest neovim version with your package manager of choice.  
-Backup your existing config files if any.  
+Install the latest version neovim with your package manager of choice.  
+Backup existing config files if applicable.  
+```sh
+mv ~/.config/nvim ~/.config/nvim.bak
+```    
+Go to config files location
+```sh
+cd ~/.config/nvim/
+```
 Clone the repo:  
 ```sh
 git clone https://github.com/qiine/qiine-nvim-conf.git
@@ -99,10 +106,21 @@ Open Neovim.
 ```sh
 nvim  
 ```
-plugins will install automatically thanks to lazy.nvim  
+Plugins will install automatically thanks to lazy.nvim  
 
 
 ### 🧪 Requirements
+* Terminal
+  I choosed wezterm, 
+  config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
+
+  As neovim is a terminal centered application and I use a very complex sets 
+  of keybinds, a terminal supporting kitty keyboard reporting protocol or 
+  similar is a must.
+
+  I have not spent any time making my nvim config usable 
+  with other terminal and don't plan to. (I know Konsol struggles)
+
 * fzf
 * fd
 * ripgrep
@@ -115,9 +133,6 @@ optional
 - eslint_d
 
 
-
+## 📜 License
 ---
-
-- Tested with latest **Neovim**  
-- Using **WezTerm**, config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
-
+This project is licensed under the MIT License.

@@ -89,7 +89,7 @@ Currently only supports **one global session**
 
 ## Installation
 ---
-Install the latest version neovim with your package manager of choice.  
+Install the latest version of neovim with your package manager of choice.  
 Backup existing config files if applicable.  
 ```sh
 mv ~/.config/nvim ~/.config/nvim.bak
@@ -110,7 +110,7 @@ Plugins will install automatically thanks to lazy.nvim
 
 
 ### 🧪 Requirements
-* Terminal
+* Terminal  
   I choosed wezterm, 
   config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
 

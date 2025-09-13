@@ -8,22 +8,22 @@ local utils = require("utils.utils")
 
 
 
---## [Rendering]
+-- ## [Rendering]
 ----------------------------------------------------------------------
-vim.opt.updatetime = 200 --screen redraw speed in ms
+vim.o.updatetime = 150 --screen redraw speed in ms
 
 --v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
 -- Allow scrolling beyond the end of the file
-vim.opt.scrolloff     = 2
-vim.opt.sidescrolloff = 5
+vim.o.scrolloff     = 2
+vim.o.sidescrolloff = 5
 --v.opt.sidescroll = 1
 
---colorcolumn
+-- colorcolumn
 --vim.opt.colorcolumn="80"
 
 
---shortmess
-vim.opt.shortmess = "astFTIcC"
+-- Shortmess
+vim.o.shortmess = "astFTIcC"
 --l	use "999L, 888B" instead of "999 lines, 888 bytes"
 --m	use "[+]" instead of "[Modified]"
 --r	use "[RO]" instead of "[readonly]"
@@ -68,15 +68,15 @@ vim.opt.shortmess = "astFTIcC"
 
 
 
---## [Windows]
+-- ## [Windows]
 ----------------------------------------------------------------------
 --Splits
-vim.opt.splitbelow = true -- Open new hor split windows below the current window
-vim.opt.splitright = true -- Open new ver split windows to the right of the current window
+vim.o.splitbelow = true -- Open new hor split windows below the current window
+vim.o.splitright = true -- Open new ver split windows to the right of the current window
 
 
 
---## [Cursor]
+-- ## [Cursor]
 ----------------------------------------------------------------------
 --{modes}:{shape}-{blinking options}
 local cursor_styles = {
@@ -100,14 +100,14 @@ vim.opt.cursorcolumn = false
 
 
 
---## [Search]
+-- ## [Search]
 ----------------------------------------------------------------------
-vim.opt.ignorecase = true
-vim.opt.smartcase  = true --case-sensitive only if uppercase letters are typed
-vim.opt.hlsearch   = true --Highlight all matches
-vim.opt.incsearch  = true --Highlight as you type
+vim.o.ignorecase = true
+vim.o.smartcase  = true --case-sensitive only if uppercase letters are typed
+vim.o.hlsearch   = true --Highlight all matches
+vim.o.incsearch  = true --Highlight as you type
 
---revert search highlight
+-- Stop search highlight
 vim.api.nvim_create_autocmd('InsertEnter', {
     group = "UserAutoCmds",
     pattern = '*',
@@ -116,49 +116,49 @@ vim.api.nvim_create_autocmd('InsertEnter', {
     end,
 })
 
---search text highlight col
+-- search text highlight col
 vim.api.nvim_set_hl(0, "IncSearch", { fg = "NONE", bg = "#bfbfbf", bold = false })
 
 
 
---## [Gutter]
+-- ## [Gutter]
 ----------------------------------------------------------------------
 vim.g.gutter_show = true
 
-vim.opt.signcolumn = "no" --show error/warning/hint and others
+vim.o.signcolumn = "no" --show error/warning/hint and others
 --"yes"    → Always keeps the sign column visible (prevents text movement).
 --"no"     → Disables the sign column.
 --"auto"   → Only shows the sign column when needed. (jiterry)
 --"auto:X" → Keeps the column visible when up to X signs are present
 --"number" → Merges the sign column with the number column.
 
+-- Cursor line
+vim.o.cursorline    = true   --highlight gutter at curso pos
+vim.o.cursorlineopt = "both" --highlight numbers as well
 
-vim.opt.cursorline    = true   --highlight gutter at curso pos
-vim.opt.cursorlineopt = "both" --highlight numbers as well
-
---line Numbers
-vim.opt.number         = true
-vim.opt.relativenumber = false
-vim.opt.numberwidth    = 1
+-- line Numbers
+vim.o.number         = true
+vim.o.relativenumber = false
+vim.o.numberwidth    = 1
 
 
---### [Folds]
-vim.opt.foldcolumn = "1"
+-- ### [Folds]
+vim.o.foldcolumn = "1"
 --"0" Hides fold numbers
 --"1" Show dedicated fold column and numbers in the gutter
 
-vim.opt.foldenable = true --see actual folds in gutter,
+vim.o.foldenable = true --see actual folds in gutter,
 --if false but foldcolumn=1, there will simply be an empty column
 
-vim.opt.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
-vim.opt.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
+vim.o.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
+vim.o.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
 
-vim.opt.foldlevel      = 99 --hack to Keep folds open by default
-vim.opt.foldlevelstart = 99
-vim.opt.foldnestmax    = 7
+vim.o.foldlevel      = 99 --hack to Keep folds open by default
+vim.o.foldlevelstart = 99
+vim.o.foldnestmax    = 7
 
 
---fillchars
+-- fillchars
 vim.opt.fillchars:append({
     fold      = ".", --in place of the folded text
     foldopen  = "⌄", --   ⌄ ▾
@@ -174,7 +174,7 @@ vim.opt.fillchars:append({
 
 -- ## [Whitespace symbols]
 ----------------------------------------------------------------------
-vim.opt.list = true
+vim.o.list = true
 vim.opt.listchars:append({
     tab="▸▸",
     eol=" ",
@@ -192,8 +192,8 @@ else
     vim.opt.listchars:remove({"eol"})
 end
 
---line wrap symbol
-vim.opt.showbreak = "↳"
+-- line wrap symbol
+vim.o.showbreak = "↳"
 
 --Show/hide whitespace symbols when selecting
 vim.api.nvim_create_autocmd("ModeChanged", {
@@ -300,17 +300,17 @@ vim.diagnostic.config({
     },
 })
 
---Manual diag show
+-- Manual diag show
 vim.api.nvim_create_user_command("DiagnosticShow", function()
     vim.diagnostic.show(nil, 0)
 end, {})
 
---Manual diag hide
+-- Manual diag hide
 vim.api.nvim_create_user_command("DiagnosticHide", function()
     vim.diagnostic.hide(nil,0)
 end, {})
 
---Auto show
+-- Auto show
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = "UserAutoCmds",
     pattern = "*",
@@ -352,7 +352,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 -- ## [Tabline]
 ----------------------------------------------------------------------
-vim.opt.showtabline = 2  -- always show tabline
+-- vim.opt.showtabline = 2  -- always show tabline
 
 -- simple tabline function
 -- function _G.PillTabline()
@@ -380,13 +380,11 @@ vim.opt.showtabline = 2  -- always show tabline
 
 
 
---## [Command line]
+-- ## [Command line]
 ----------------------------------------------------------------------
-vim.opt.cmdheight = 1
-vim.opt.showmode  = false --show curr mode in cmd
+vim.o.cmdheight = 1
+vim.o.showmode = false --show curr mode in cmd
 
--- cmdline window
-vim.cmd('set cedit=<C-u>')
 
 -- vim.opt.showcmd = false
 --displaying selection info. It also shows incomplete commands in the bottom-right corner.
@@ -427,7 +425,7 @@ vim.opt.wildoptions = "pum"
 
 
 
---## [Statusline]
+-- ## [Statusline]
 ----------------------------------------------------------------------
 vim.opt.laststatus = 3
 --0 → Never show the statusline.

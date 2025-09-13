@@ -33,7 +33,6 @@ My text editor journey:
 
 
 ### 🧠 Text intelligence
----
 **Supported languages**:
 - lua  
 - markdown  
@@ -50,15 +49,13 @@ My text editor journey:
 * sniprun
 
 
-## 📂 File Management
----
+### 📂 File Management
 - **neo-tree**  
 - **oil.nvim**  
 - custom user commands, delete current file, set readonly, move dir etc...
 
 
-## 🖼 UI
----
+### 🖼 UI
 - **lualine** with **many** custom components  
 - **barbar.nvim** for tabs  
 - custom winbar, displaying curr file path
@@ -67,8 +64,7 @@ My text editor journey:
 - **indent-blankline.nvim**
 
 
-## 💾 Session Management
----
+### 💾 Session Management
 Tiny helpers:
 - Auto save on `VimLeavePre`  
 - Command to save/edit session  
@@ -77,15 +73,13 @@ Tiny helpers:
 Currently only supports **one global session**
 
 
-## 🎨 Theme
----
+### 🎨 Theme
 - Based on **Nightfox**  
 - Custom highlight groups  
 - Tweaked for a **black & white eInk monitor** -- no proper colors for now
 
 
-## 📦 Plugin Management
----
+### 📦 Plugin Management
 - Managed via **lazy.nvim**
 
 

@@ -215,7 +215,7 @@ map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want tha
 --make hor split
 map(modes, "<M-w>h", "<cmd>sp<cr>")
 
---To next window (include splits)
+-- To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
 -- Toggle focus for split
@@ -765,7 +765,7 @@ end
 local function toggle_visualreplace()
     vim.g.visualreplace = not vim.g.visualreplace
 
-    set_visualreplace(vim.g.visualreplacee)
+    set_visualreplace(vim.g.visualreplace)
 
     vim.notify("Visual replace: ".. tostring(vim.g.visualreplace))
 end
@@ -791,12 +791,14 @@ map("v", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode in selection"})
 
-map({"i","n"}, "<F50>",
-[[<esc>yiw:%s/\V<C-r>"//g<Left><Left>]],
+-- sub word (exact)
+map({"i","n"}, "<F50>", -- <M-F2>
+[[<esc>yiw:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
 
+-- sub selected (exact)
 map("v", "<F2>",
-[[y:%s/\V<C-r>"//g<Left><Left>]],
+[[y:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitue selected" })
 
 
@@ -863,7 +865,7 @@ map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
 -- ### [Line join]
 -- Join below
 map("i",       "<C-j>", "<C-o><S-j>")
-map({"n","v"}, "<C-j>", "<S-j>") --this syntax allow to use count
+map({"n","v"}, "<C-j>", "<S-j>") -- this syntax allow to use count
 
 -- Join to upper
 map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use count
@@ -1033,7 +1035,6 @@ map({"i","n","v"}, "<F9>", function ()
     vim.diagnostic.show(nil, 0)
 
     vim.diagnostic.config({ virtual_text = not enabled })
-    -- vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
     vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
 end, { desc = "Toggle diagnostic virtual text" })
 
@@ -1086,7 +1087,7 @@ end)
 
 
 -- ### Diff
--- next/prev diff
+-- next/prev diff or local modification
 map({"i","n","v","c"}, "<M-S-PageUp>", function()
     if vim.wo.diff then
         vim.cmd("norm! [cz.")
@@ -1101,6 +1102,7 @@ map({"i","n","v","c"}, "<M-S-PageDown>", function()
         require('gitsigns').nav_hunk('next')
     end
 end)
+
 
 -- Diff put
 map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")

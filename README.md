@@ -1,9 +1,4 @@
 
-# ✨ My Fancy Neovim Config ✨
-
-
-## About 
----
 Surely     **overcomplicated**  
 Absolutely **not finished**  
 Extremely  **heretical** ;p
@@ -20,6 +15,7 @@ My text editor journey:
 ## Features
 ---
 ### ✏️Editing
+---
 - Hundreds of custom keymaps (I am unable to stop myself ;p)  
 - Extensive mouse support! (°)°) with mouse binds! 
 - Native Word "speed dial" in normal mode with `+` / `-`  
@@ -33,6 +29,7 @@ My text editor journey:
 
 
 ### 🧠 Text intelligence
+---
 **Supported languages**:
 - lua  
 - markdown  
@@ -46,16 +43,18 @@ My text editor journey:
 - Custom snippets  
 - **nvim-lint**, 
 - **conform.nvim**  
-* sniprun
+* sniprun  
 
 
 ### 📂 File Management
+---
 - **neo-tree**  
 - **oil.nvim**  
 - custom user commands, delete current file, set readonly, move dir etc...
 
 
 ### 🖼 UI
+---
 - **lualine** with **many** custom components  
 - **barbar.nvim** for tabs  
 - custom winbar, displaying curr file path
@@ -65,6 +64,7 @@ My text editor journey:
 
 
 ### 💾 Session Management
+---
 Tiny helpers:
 - Auto save on `VimLeavePre`  
 - Command to save/edit session  
@@ -74,12 +74,14 @@ Currently only supports **one global session**
 
 
 ### 🎨 Theme
+---
 - Based on **Nightfox**  
 - Custom highlight groups  
 - Tweaked for a **black & white eInk monitor** -- no proper colors for now
 
 
 ### 📦 Plugin Management
+---
 - Managed via **lazy.nvim**
 
 

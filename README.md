@@ -1,22 +1,25 @@
 
 # ✨ My Fancy Neovim Config ✨
 
-Surely **overcomplicated**  
-Absolutely **not finished**  
-Extremely **heretical** ;p
 
-My text editor journey:  
-`Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
+## About 
+---
+Surely     **overcomplicated**  
+Absolutely **not finished**  
+Extremely  **heretical** ;p
 
 I was aware of vim/nvim for years, after switching to linux I figured It was  
 finally time to try it out.  
 At first I hesitated between nvim and emacs, but lua and the motions intrigued me...  
 I am still in the "hjkl? hu no? arrow's fine" phase though, haha.  
 
+My text editor journey:  
+`Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
 
-  ---
-## ✏️Editing
+
+## Features
 ---
+### ✏️Editing
 - Hundreds of custom keymaps (I am unable to stop myself ;p)  
 - Extensive mouse support! (°)°) with mouse binds! 
 - Native Word "speed dial" in normal mode with `+` / `-`  
@@ -29,8 +32,7 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - Built-in auto save with a timer every 7min
 
 
----
-## 🧠 Text inteligence
+### 🧠 Text intelligence
 ---
 **Supported languages**:
 - lua  
@@ -45,9 +47,9 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - Custom snippets  
 - **nvim-lint**, 
 - **conform.nvim**  
+* sniprun
 
 
----
 ## 📂 File Management
 ---
 - **neo-tree**  
@@ -55,7 +57,6 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - custom user commands, delete current file, set readonly, move dir etc...
 
 
----
 ## 🖼 UI
 ---
 - **lualine** with **many** custom components  
@@ -66,7 +67,6 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 - **indent-blankline.nvim**
 
 
----
 ## 💾 Session Management
 ---
 Tiny helpers:
@@ -77,7 +77,6 @@ Tiny helpers:
 Currently only supports **one global session**
 
 
----
 ## 🎨 Theme
 ---
 - Based on **Nightfox**  
@@ -85,17 +84,22 @@ Currently only supports **one global session**
 - Tweaked for a **black & white eInk monitor** -- no proper colors for now
 
 
----
 ## 📦 Plugin Management
 ---
 - Managed via **lazy.nvim**
 
 
+## Installation
 ---
-## 🧪 Environment
----
-### Dependencies
+Install latest neovim version with your package manager of choice.
+Backup your existing config files if any.
+Clone the repo:
+`git clone https://github.com/qiine/qiine-nvim-conf.git`
+Open Neovim.
+`nvim`
+plugins will install automatically thanks to lazy.nvim
 
+### 🧪 Requirements
 * fzf
 * fd
 * ripgrep
@@ -106,6 +110,7 @@ optional
 - lua_ls
 - luacheck
 - eslint_d
+
 
 
 ---

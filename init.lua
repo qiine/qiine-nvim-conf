@@ -27,7 +27,7 @@ end
 
 -------------------------------
 
---this avoid breaking everything when a lua modules has errors
+-- This avoid breaking everything when a lua modules has errors
 local function safe_require(module_name)
     local status, module = pcall(require, module_name)
     if not status then
@@ -41,27 +41,28 @@ local function safe_require(module_name)
     return module
 end
 
---## Custom modules
+-- ## Custom modules
 local module   --will hold special local modules
 
 module = safe_require("modules.v-enveloppe") if module then module.setup() end
---module = safe_require("modules.dialeur.dialeur") if module then module.setup() end
+-- module = safe_require("modules.dialeur.dialeur") if module then module.setup() end
 safe_require("modules.tiny-session")
 safe_require("modules.rouleau-nvim")
 safe_require("modules.historybuf")
 safe_require("modules.planv")
 
---## Commands
+-- ## Commands
 safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
 safe_require("utils.common_autocmds")
 
-safe_require("options.lazy") --plugins
+-- ## Plugins
+safe_require("options.lazy")
 
 safe_require("options.keymaps")
 safe_require("options.mousemaps")
 
---## options
+-- ## options
 safe_require("options.internal")
 safe_require("options.editing")
 
@@ -74,41 +75,11 @@ safe_require("options.ui.winbar")
 safe_require("options.ui.statusline")
 
 
---debug messages
+-- Debug messages on errors
 vim.api.nvim_create_autocmd("Vimenter", {
      pattern = "*",
      callback = function()
          vim.cmd("messages")
      end,
 })
-
--------------------------------
-
-
---neovide
--- if vim.g.neovide then
---     vim.g.neovide_position_animation_length = 0
---     vim.g.neovide_cursor_animation_length = 0.00
---     vim.g.neovide_cursor_trail_size = 0
---     vim.g.neovide_cursor_animate_in_insert_mode = false
---     vim.g.neovide_cursor_animate_command_line = false
---     vim.g.neovide_scroll_animation_far_lines = 0
---     vim.g.neovide_scroll_animation_length = 0.00
---
---
---     vim.g.neovide_scale_factor = 1.0
---
---     local change_scale_factor = function(delta)
---         vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
---     end
---
---     vim.keymap.set("n", "<C-+>", function()
---         change_scale_factor(1.25)
---     end)
---
---     vim.keymap.set("n", "<C--", function()
---         change_scale_factor(1/1.25)
---     end)
--- end
-
 

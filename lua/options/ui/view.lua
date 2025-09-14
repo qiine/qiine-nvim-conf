@@ -107,16 +107,15 @@ vim.o.smartcase  = true --case-sensitive only if uppercase letters are typed
 vim.o.hlsearch   = true --Highlight all matches
 vim.o.incsearch  = true --Highlight as you type
 
--- Stop search highlight
-vim.api.nvim_create_autocmd('InsertEnter', {
-    group = "UserAutoCmds",
-    pattern = '*',
+-- Stop search highlight when editing
+vim.api.nvim_create_autocmd("InsertEnter", {
     callback = function()
-        vim.opt.hlsearch = false
+        vim.o.hlsearch = false
     end,
+    group = 'UserAutoCmds',
 })
 
--- search text highlight col
+-- Search text highlight col
 vim.api.nvim_set_hl(0, "IncSearch", { fg = "NONE", bg = "#bfbfbf", bold = false })
 
 

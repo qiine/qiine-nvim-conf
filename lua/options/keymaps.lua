@@ -21,7 +21,7 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 -- ## [Internal]
 ----------------------------------------------------------------------
-vim.opt.timeoutlen = 375 --delay between key press to register shortcuts
+vim.o.timeoutlen = 375 --delay between key press to register shortcuts
 
 -- Ctrl+q to quit
 map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
@@ -67,7 +67,7 @@ map(modes, "<C-w>", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("<C-L>", "n", false) end
 
     -- Try :close first, in case both splits are same buf (fails if no split)
-    -- It avoids killing the shared buffer in this case
+    -- It avoids wiping the shared buffer in this case
     -- #vim.fn.win_findbuf(0)
     local res, err = pcall(vim.cmd, "close")
     if not res then
@@ -87,24 +87,27 @@ end, {noremap=true})
 
 -- ## [Register]
 ----------------------------------------------------------------------
+-- insert given register content
 map("n", "<C-r>", "i<C-r>")
 
 
 
 -- ## [Files]
 ----------------------------------------------------------------------
--- Open nvim native file explorer
-map(modes, "<C-e>", "<Cmd>Ex<CR>")
+-- Open file manager
+map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
+-- File action
 map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
 map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
 map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
 
--- ### [Save]
+-- ### [File Save]
+-- Save current
 map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
 -- Save as
@@ -114,9 +117,9 @@ map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 -- Resource curr file
 map(modes, "ç", function()  --"<altgr-r>"
     local cf    = vim.fn.expand("%:p")
-    local fname = '"'..vim.fn.fnamemodify(cf, ":t")..'"'
+    vim.cmd("source "..cf)
 
-    vim.cmd("source "..cf); print("Ressourced: "..fname)
+    print("Ressourced: "..'"'..vim.fn.fnamemodify(cf, ":t")..'"')
 end)
 
 
@@ -156,19 +159,6 @@ map({"i","n","v"}, "<M-S-z>", "<Cmd>norm! za<CR>")
 
 -- virt lines
 map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
-
-
-
--- ## [Tabs]
-----------------------------------------------------------------------
--- Create new tab
-map(modes,"<C-t>", "<Cmd>Alpha<CR>")
-
--- Tabs nav
--- next
-map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
--- Prev
-map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
@@ -261,6 +251,19 @@ end)
 
 
 
+-- ## [Tabs]
+----------------------------------------------------------------------
+-- Create new tab
+map(modes,"<C-t>", "<Cmd>Alpha<CR>")
+
+-- Tabs nav
+-- next
+map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
+-- Prev
+map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
+
+
+
 -- ## [Navigation]
 ----------------------------------------------------------------------
 -- Threat wrapped lines as distinct lines for up/down nav
@@ -278,7 +281,7 @@ map({"i","v"}, '<C-Right>', function()
     else                          vim.cmd("normal! w") end
 
     if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
-        vim.cmd("normal! b")
+        vim.cmd("norm! b")
         local m = vim.fn.mode()
         if   m == "v" or m == "V" then vim.cmd("norm! $")
         else                           vim.cmd("norm! A") end
@@ -289,14 +292,15 @@ end)
 map({"i","v"}, '<C-Left>', function()
     local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
-    if vim.fn.mode() == "" then vim.cmd("norm! 5h")
+    if vim.fn.mode() == "" then
+        vim.cmd("norm! 5h")
     else
-        vim.cmd("normal! b")
+        vim.cmd("norm! b")
     end
 
     if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
-        vim.cmd("normal! w")
-        vim.cmd("normal! 0")
+        vim.cmd("norm! w")
+        vim.cmd("norm! 0")
     end
 end)
 
@@ -347,7 +351,7 @@ end, {remap = true})
 -- ### Search
 map({"i","n","v","c"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl
-    vim.opt.hlsearch = true
+    vim.o.hlsearch = true
 
     -- Proper clear and exit cmd mode
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "n", false) end
@@ -363,15 +367,15 @@ end)
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 
--- ### Navigation directory
+-- ### Directory navigation
 -- Move one dir up
 map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
 
--- To last directory
-map({"i","n","v"}, "<M-Home>", "<cmd>cd -<CR><cmd>pwd<CR>")
+-- To prev directory
+map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR><cmd>pwd<CR>")
 
 -- Interactive cd
-map({"i","n","v","c"}, "<C-End>", function()
+map({"i","n","v","c"}, "<M-Home>", function()
     vim.api.nvim_feedkeys(":cd ", "n", false)
     vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
 end)
@@ -415,9 +419,6 @@ map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling a
 
 -- Select word under cursor
 map({"i","n","v"}, "<C-S-w>", "<esc>viw")
-
--- Sel in paragraph
-map({"i","n","v"}, "<C-S-p>", "<esc>vip")
 
 -- Select to home/end
 map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
@@ -571,9 +572,7 @@ end)
 -- ### [Copy / Paste]
 -- Copy whole line in insert
 map("i", "<C-c>", function()
-    local line = vim.api.nvim_get_current_line()
-
-    if line ~= "" then
+    if vim.fn.getline(".")  ~= "" then
         vim.cmd('norm! mz0"+y$`z')
         print("Line copied.")
     end
@@ -828,7 +827,7 @@ map({"n"}, "-", function() utils.smartdecrement() end)
 -- Space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
--- tab indent
+-- Indent inc
 map("i", "<Tab>", function()
     local width = vim.opt.shiftwidth:get()
     vim.cmd("norm! v>")
@@ -837,6 +836,7 @@ end)
 map("n", "<Tab>", "v>")
 map("v", "<Tab>", ">gv")
 
+-- Indent decrease
 map("i", "<S-Tab>", "<C-d>")
 map("n", "<S-Tab>", "v<")
 map("v", "<S-Tab>", "<gv")

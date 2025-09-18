@@ -129,8 +129,8 @@
         ]
     },
 
-    "get nvim working directorie": {
-        "prefix": "get_nvim_working_directorie",
+    "get nvim working directory": {
+        "prefix": "get_nvim_working_directory",
         "body": [ "vim.fn.getcwd()" ]
     },
 

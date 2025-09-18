@@ -24,7 +24,7 @@ return
                     functions = "bold",
                     keywords = "NONE",
                     numbers = "NONE",
-  operators = "NONE",
+                    operators = "NONE",
                     strings = "NONE",
                     types = "NONE",
                     variables = "NONE",

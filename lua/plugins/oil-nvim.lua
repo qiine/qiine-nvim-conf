@@ -9,12 +9,21 @@ return
     },
 
     config = function()
+        function _G.get_oil_winbar()
+            local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+            local dir = require("oil").get_current_dir(bufnr)
+            if dir then
+                return vim.fn.fnamemodify(dir, ":~")
+            else
+                -- If there is no current directory (e.g. over ssh), just show the buffer name
+                return vim.api.nvim_buf_get_name(0)
+            end
+        end
+
         require("oil").setup({
             default_file_explorer = false,
 
             delete_to_trash = true,
-
-            --View
             prompt_save_on_select_new_entry = true,
             skip_confirm_for_simple_edits = true,
 
@@ -30,20 +39,21 @@ return
                 --"size",
                 --"mtime",
             },
-
             view_options = {
                 show_hidden = true,
                 spell = true,
             },
             win_options = {
-                --wrap          = false,
-                signcolumn    = "yes:2",
+                --wrap       = false,
+                signcolumn   = "yes:2",
                 cursorcolumn = false,
-                foldcolumn = "0",
-                spell = false,
-                list = false,
+                foldcolumn   = "0",
+                number       = false,
+                spell = true,
+                list  = false,
                 conceallevel = 3,
                 concealcursor = "nvic",
+                -- winbar = "%!v:lua.get_oil_winbar()",
             },
             preview_win = {
                 update_on_cursor_moved = true,
@@ -67,16 +77,30 @@ return
             keymaps = {
                 ["?"] = { "actions.show_help", mode = "n" },
 
-                ["<CR>"] = { function() vim.cmd("Neotree close") require("oil").select() end, mode="n" },
+                ["<CR>"] = {
+                    callback = function()
+                        local oil = require("oil")
+                        local entry = oil.get_cursor_entry()
+                        if entry and entry.type == "directory" then
+                            oil.select({}, function()
+                                require("oil.actions").cd.callback()
+                            end)
+                        else
+                            require("oil.actions").select.callback()
+                        end
+                    end,
+                    desc = "Open entry, and cd if directory",
+                    mode = "n",
+                },
                 ["<2-LeftMouse>"] = {"actions.select", mode = "n"},
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
 
-                ["q"] = { function() vim.cmd("Neotree close") require("oil").close() end, mode="n" },
+                ["q"] = { function() require("oil").close() end, mode="n" },
                 ["<F5>"] = "actions.refresh",
                 ["gx"] = "actions.open_external",
 
                 ["-"] = { "actions.parent", mode = "n" },
-                ["`"] = { "actions.cd", mode = "n" },
+                ["`"] = { "actions.cd",     mode = "n" },
                 ["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
 
                 ["gs"] = { "actions.change_sort", mode = "n" },
@@ -85,64 +109,52 @@ return
 
                 ["n"] = {
                     function()
-                        vim.cmd("normal! o")
+                        vim.cmd("norm! o")
                         vim.cmd("startinsert")
                         vim.api.nvim_put({ "new_file.txt" }, "", false, true)
-                        vim.cmd("normal! 0")
-                        vim.cmd("normal! v$")
+                        vim.cmd("norm! 0")
+                        vim.cmd("norm! v$")
                     end
                 },
                 ["N"] = {
                     function()
-                        vim.cmd("normal! o")
+                        vim.cmd("norm! o")
                         vim.cmd("startinsert")
                         vim.api.nvim_put({ "new_folder/" }, "", false, true)
-                        vim.cmd("normal! 0")
-                        vim.cmd("normal! v$")
+                        vim.cmd("norm! 0")
+                        vim.cmd("norm! v$")
                     end
                 },
-                ["<Del>"] = { function() vim.cmd("normal! dd") end, mode = "n" },
-                ["<F2>"] = { function() vim.cmd("normal! cc") vim.cmd("startinsert") end, mode = "n" },
+                ["<Del>"] = { function() vim.cmd("norm! dd") end, mode = "n" },
+                ["<F2>"] = { function() vim.cmd("norm! cc") vim.cmd("startinsert") end, mode = "n" },
             },
         })
 
-        --Quick open
-        --vim.keymap.set({ "i", "n", "v" }, "*-", function()
-        --    if vim.bo.filetype == "oil" then return end
+        -- Close Neotree in this context
+        -- vim.api.nvim_create_autocmd('BufDelete', {
+        --     group = 'UserAutoCmds',
+        --     callback = function()
+                -- if vim.bo.filetype == "oil" then
+            --         vim.cmd("Neotree close")
+            --     end
+        --     end,
+        -- })
 
-        --    vim.cmd("stopinsert")
-
-        --    local fp = vim.fn.expand("%:p")
-        --    local fd = fp:match("^(.*)/")
-        --    if not fd then fd = vim.fn.expand("~") end --fallback
-        --    vim.cmd('cd ' .. fd) --ensure proper path
-
-        --    local oil = require("oil")
-        --    local util = require("oil.util")
-        --    oil.open()
-        --    util.run_after_load(0, function()
-        --        vim.cmd("stopinsert")
-        --        --oil.open_preview()
-        --    end)
-
-        --    --if vim.bo.filetype ~= "" then
-        --    vim.cmd("bp")
-        --    vim.cmd("bd")
-
-        --    --vim.cmd("Neotree")
-        --    --vim.cmd("wincmd p")
-        --end)
-        --vim.keymap.set({"i","n","v"}, "<C-o>", "<esc><cmd>Oil --float<CR>")
-
-        --Close Neotree in this context
-        vim.api.nvim_create_autocmd('BufDelete', {
-            pattern = '*oil*',
+        -- Follow cwd changes
+        vim.api.nvim_create_autocmd('DirChanged', {
+            group = 'UserAutoCmds',
             callback = function()
-                vim.cmd("Neotree close")
+                if vim.bo.filetype == "oil" then
+                    vim.defer_fn(function()
+                        require("oil").open(vim.fn.getcwd())
+                    end, 20)
+                    -- print(vim.fn.getcwd())
+                end
             end,
         })
 
-        --For git signs
+
+        -- For git signs
         require("oil-git-status").setup()
     end,
 }

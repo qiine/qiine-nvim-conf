@@ -686,15 +686,16 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 -- ### Delete
+-- Smart del char
 map("n", "<Del>", function()
     local obj = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    local objs = [=[[(){}'"%[%]]]=]
+    local objs = "[(){}'\"%[%]<>]"
 
     if obj:match(objs) then
         vim.cmd('norm! mz"zyi'..obj)
-        vim.cmd('norm! "_da'..obj)
-        vim.cmd('norm! "zP`z')
+        vim.cmd('norm! "_di'..obj..'"_xh"_x')
+        vim.cmd('norm! "zP`zh')
     else
         vim.cmd('norm! "_x')
     end
@@ -725,7 +726,7 @@ map({"i","n","v"}, "<S-Del>", function()
 end)
 
 
--- Smart delete
+-- Smart delete string
 map({"i","n"}, "<C-S-Del>", function()
     vim.cmd('norm! mz')
 

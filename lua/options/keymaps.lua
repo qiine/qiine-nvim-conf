@@ -126,10 +126,10 @@ end)
 
 -- ## [View]
 ----------------------------------------------------------------------
--- alt-z toggle line virtual wrap
+-- alt-z toggle line soft wrap
 map({"i","n","v"}, "<A-z>", function() vim.opt.wrap = not vim.opt.wrap:get() end)
 
--- Toggle auto wrap lines
+-- Toggle auto hard wrap lines
 map({"i","n","v"}, "M-C-z", function()
     -- "t" Auto-wrap text using textwidth (for non-comments).
     -- "w" Auto-wrap lines in insert mode, even without spaces.
@@ -156,9 +156,6 @@ end, {desc = "Toggle Gutter" })
 
 -- ### [Folds]
 map({"i","n","v"}, "<M-S-z>", "<Cmd>norm! za<CR>")
-
--- virt lines
-map("n", "gl", "<cmd>Toggle_VirtualLines<CR>", {noremap=true})
 
 
 
@@ -219,17 +216,17 @@ map(modes, "<M-w>f", function()
 
     local focused = wwidth >= tab_width * 0.9 and wheight >= tab_height * 0.9
     if focused then
-        vim.cmd("wincmd =") --equalize all win size
+        vim.cmd("wincmd =") -- equalize all win size
     else
-        vim.cmd("wincmd |")
+        vim.cmd("wincmd |") -- try focus
         vim.cmd("wincmd _")
     end
 end)
 
---resize hor
+-- Resize hor
 map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
 map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
---resize vert
+-- Resize vert
 map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
 map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
 
@@ -263,7 +260,6 @@ map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
 map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
-
 -- ## [Navigation]
 ----------------------------------------------------------------------
 -- Threat wrapped lines as distinct lines for up/down nav
@@ -283,8 +279,8 @@ map({"i","v"}, '<C-Right>', function()
     if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
         vim.cmd("norm! b")
         local m = vim.fn.mode()
-        if   m == "v" or m == "V" then vim.cmd("norm! $")
-        else                           vim.cmd("norm! A") end
+        if m == "v" or m == "V" then vim.cmd("norm! $")
+        else                         vim.cmd("norm! A") end
     end
 end)
 
@@ -327,7 +323,7 @@ map({"n","v"}, "<C-Down>", "m'3j")
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>", "<cmd>norm! 0<cr>")
 
-map("i", "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
+map("i", "<M-Right>",       "<cmd>norm! $a<cr>") -- notice the 'a'
 map({"n","v"}, "<M-Right>", "<cmd>norm! $<cr>")
 
 -- Jump home/end
@@ -369,19 +365,19 @@ map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 -- ### Directory navigation
 -- Move one dir up
-map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR><cmd>pwd<CR>")
+map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR>")
 
 -- To prev directory
-map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR><cmd>pwd<CR>")
+map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR>")
 
 -- Interactive cd
-map({"i","n","v","c"}, "<M-Home>", function()
+map({"i","n","v","c"}, "<M-End>", function()
     vim.api.nvim_feedkeys(":cd ", "n", false)
     vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
 end)
 
 -- cd file dir
-map(modes, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
+map(modes, "<C-p>f", "<cmd>cd %:p:h<CR>")
 
 -- cd project root
 map(modes, "<C-p>p", function()
@@ -391,7 +387,7 @@ map(modes, "<C-p>p", function()
     end
     local groot = vim.trim(res.stdout) -- trim white space to avoid surprises
 
-    vim.cmd("cd " .. groot); vim.cmd("pwd")
+    vim.cmd("cd " .. groot)
 end)
 
 
@@ -615,7 +611,7 @@ map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy 
 
 -- Cut word
 map({"i","n"}, "<C-S-x>", '<cmd>norm! viw"+x<cr>')
-map("v", "<C-S-x>", '<esc>viw"+x')
+map("v",       "<C-S-x>", '<esc>viw"+x')
 
 -- Paste
 map({"i","n","v"}, "<C-v>", function()
@@ -646,7 +642,7 @@ map({"i","n","v"}, "<C-S-v>", '<cmd>norm! "_diw"+P<CR>')
 
 -- Duplicate
 map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})
-map("v", "<C-d>", '"zy"zP', {desc="dup sel"})
+map("v",      "<C-d>", '"zy"zP', {desc="dup sel"})
 
 
 -- ### [Undo/redo]
@@ -690,7 +686,19 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 -- ### Delete
-map("n", "<Del>", 'v"_d<esc>') -- avoids poluting  reg"
+map("n", "<Del>", function()
+    local obj = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    local objs = [=[[(){}'"%[%]]]=]
+
+    if obj:match(objs) then
+        vim.cmd('norm! mz"zyi'..obj)
+        vim.cmd('norm! "_da'..obj)
+        vim.cmd('norm! "zP`z')
+    else
+        vim.cmd('norm! "_x')
+    end
+end)
 map("v", "<Del>", '"_di')
 
 -- Delete right word
@@ -858,7 +866,7 @@ map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
 -- New line above and below
--- map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
+map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
 map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
 
 

@@ -1,5 +1,5 @@
 
---winbar
+-- Winbar --
 
 vim.api.nvim_set_hl(0, "WinBar", { fg = "#595959", bg = "#e6e6e6", bold = false })
 vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#595959", bg = "#e6e6e6" })
@@ -20,8 +20,11 @@ local function toggle_filebrowser() --toggle neotree
 end
 
 local function path_bar() --path
-    local cf = vim.fn.expand("%:p")
-    local dir = vim.fn.fnamemodify(cf, ":h")
+    local fpath = vim.fn.expand("%:p")
+    local dir = vim.fn.fnamemodify(fpath, ":h")
+    if vim.bo.filetype == "oil" then
+        dir = vim.fn.getcwd()
+    end
 
     local shortened = ""
     if #dir > 75 then
@@ -81,6 +84,7 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
         vim.defer_fn(function()
             --buff
             if vim.bo.buftype == 'terminal' then vim.opt_local.winbar = nil return end
+
             if not vim.api.nvim_get_option_value("buflisted",  { buf = 0 }) then
                 vim.opt_local.winbar = nil return
             end
@@ -88,7 +92,7 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
             --prevent errors with very small windows
             if vim.api.nvim_win_get_height(0) < 5 then return end
 
-            --avoid floatwin
+            --off in floatwin
             local wcfg = vim.api.nvim_win_get_config(vim.api.nvim_get_current_win())
             if wcfg.relative ~= "" then vim.opt_local.winbar = nil return end
 

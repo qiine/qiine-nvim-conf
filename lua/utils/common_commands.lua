@@ -11,13 +11,13 @@ local utils = require("utils.utils")
 
 -- ## [Common]
 ----------------------------------------------------------------------
---Quick ressource curr
+-- Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")
     vim.cmd("source " ..currf)
 end, {})
 
---Restart nvim
+-- Restart nvim
 vim.api.nvim_create_user_command("Restart", function()
     local curfile = vim.fn.expand("%:p") --Get curr file location
     local curdir  = vim.fn.fnamemodify(curfile, ':h')
@@ -52,7 +52,7 @@ vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
 
---insert today
+-- Insert today
 vim.api.nvim_create_user_command("Today", function()
     local date  = os.date("*t")
     local today = string.format("%04d/%02d/%02d %02d:%02d", date.year, date.month, date.day, date.hour, date.min)
@@ -68,9 +68,13 @@ vim.api.nvim_create_user_command("WebSearch", function()
     )
 end, {range=true})
 
+vim.api.nvim_create_user_command("OpenCmdlineWin", function()
+    vim.api.nvim_feedkeys("q:", "n", false)
+end, {})
 
 
---## [Registers]
+
+-- ## [Registers]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("ClearClipboard", function()
     vim.fn.setreg("+", " ") --need white space here
@@ -122,7 +126,7 @@ end, {})
 
 
 
---## [Buffers]
+-- ## [Buffers]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("BuffInfo", function(opts)
     local buf = tonumber(opts.args) or vim.api.nvim_get_current_buf()
@@ -175,7 +179,7 @@ end, {})
 
 
 
---## [Files]
+-- ## [Files]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("CopyFilePath", function()
     vim.fn.setreg("+", vim.fn.expand("%:p"))
@@ -597,7 +601,7 @@ end, {})
 -- ## [Editing]
 --------------------------------------------------
 -- Trim select, include tab and break lines
-vim.api.nvim_create_user_command("TrimWhitespacesLine", function(opts)
+vim.api.nvim_create_user_command("TrimWhitespaces", function(opts)
     vim.cmd("s/\\s//g")
     vim.cmd("norm! i")
 end, {range=true})
@@ -607,6 +611,42 @@ vim.api.nvim_create_user_command("TrimTrailSpacesBuffer", function()
     vim.cmd([[keeppatterns %s/\s\+$//e]])
     vim.api.nvim_win_set_cursor(0, curpos)
 end, {})
+
+vim.api.nvim_create_user_command("TrimExtraSpaces", function()
+    local start_line, end_line
+
+    local mode = vim.fn.mode()
+    if mode == "v" or mode == "V" or mode == "\22" then
+        vim.cmd("norm! ")
+        start_line = vim.fn.getpos("'<")[2] - 1
+        end_line = vim.fn.getpos("'>")[2]
+    else
+        start_line = 0
+        end_line = vim.api.nvim_buf_line_count(0)
+    end
+
+    local lines = vim.api.nvim_buf_get_lines(0, start_line, end_line, false)
+    for i, line in ipairs(lines) do
+        local leading = line:match("^%s*")
+        local rest = line:sub(#leading + 1)
+        rest = rest:gsub("%s+", " ")
+        lines[i] = leading .. rest
+    end
+
+    vim.api.nvim_buf_set_lines(0, start_line, end_line, false, lines)
+end, {})
+
+vim.api.nvim_create_user_command("TrimEmptyLines", function(opts)
+    local range = nil
+    if opts.count == -1 then
+        range = "%"
+    else
+        range = string.format("%d,%d", opts.line1, opts.line2)
+    end
+
+    vim.cmd(range .. "g/^$/d")
+end, {range = true})
+
 
 --Append underline unicode character to each selected chars
 vim.api.nvim_create_user_command("UnderlineSelected", function(opts)
@@ -690,6 +730,27 @@ vim.api.nvim_create_user_command("ToggleHexMode", function()
         vim.bo.filetype = ft
     end
 end, { desc = "Toggle between hex view and normal view" })
+
+
+-- ### Tables
+vim.api.nvim_create_user_command("CSVAppendColumnEnd", function(opts)
+    local val = opts.args ~= "" and opts.args or "New"
+
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local input = table.concat(lines, "\n")
+
+    local res = vim.system(
+        {"awk", "-F|", "BEGIN{OFS=\"|\"} {$(NF+1)=\""..val.."\"}1"},
+        {stdin=input, text=true}
+    ):wait()
+
+    if res.code == 0 then
+        local output_lines = vim.split(res.stdout, "\n", {plain=true})
+        vim.api.nvim_buf_set_lines(0, 0, -1, false, output_lines)
+    else
+        vim.notify("awk failed: " .. res.stderr, vim.log.levels.ERROR)
+    end
+end, {nargs="?"})
 
 
 

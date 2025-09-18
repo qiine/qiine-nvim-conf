@@ -14,38 +14,17 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 
 
---## [File]
+-- ## [File]
 ----------------------------------------------------------------------
 
 
 
---## [Editing]
+-- ## [Editing]
 ----------------------------------------------------------------------
---Prevent cursor left offseting when going from insert to normal mode
+-- Prevent cursor left offsetting when going from insert to normal mode
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        vim.cmd("norm! `^")
-    end,
-})
-
---Auto Trim trail spaces in Curr Buffer on save
-vim.api.nvim_create_autocmd("BufWritePre", {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        if vim.bo.filetype == "markdown" then return end
-        if
-            vim.bo.modifiable         and
-            vim.bo.buftype      == "" and
-            vim.bo.buflisted          and
-            not vim.bo.readonly
-        then
-            local ok, err = pcall(vim.cmd, "TrimTrailSpacesBuffer")
-            if not ok then vim.notify("Trim failed: " .. err, vim.log.levels.WARN) end
-        end
-    end
+    command = "norm! `^",
 })
 
 
@@ -65,9 +44,9 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --})
 
 
---## [View]
+-- ## [View]
 ----------------------------------------------------------------------
---highlight yanked text
+-- Highlight yanked text
 vim.api.nvim_create_autocmd("TextYankPost", {
     group = "UserAutoCmds",
     pattern = "*",
@@ -77,7 +56,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 
---no gutter for terms
+-- No gutter for terms
 vim.api.nvim_create_autocmd('TermOpen', {
     group    = 'UserAutoCmds',
     pattern  = '*',
@@ -90,11 +69,16 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end,
 })
 
+vim.api.nvim_create_autocmd('DirChanged', {
+    group = 'UserAutoCmds',
+    callback = function()
+        print(vim.fn.getcwd())
+    end,
+})
 
-
---## [Buffers]
+-- ## [Buffers]
 ----------------------------------------------------------------------
---Smart enter Auto Insert when appropriate
+-- Smart enter Auto Insert when appropriate
 vim.api.nvim_create_autocmd({"BufEnter"}, {
     group = "UserAutoCmds",
     pattern = "*",
@@ -103,8 +87,8 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
 
         vim.defer_fn(function() --delay to ensure correct buf properties detect
             local vbuf = vim.bo[vim.api.nvim_get_current_buf()]
-            local ft   = vbuf.filetype
-            local bt   = vbuf.buftype
+            local ft   = vim.bo.filetype
+            local bt   = vim.bo.buftype
 
             if
                 ((bt == "" and vbuf.buflisted and vbuf.modifiable)
@@ -120,5 +104,6 @@ vim.api.nvim_create_autocmd({"BufEnter"}, {
         end, 5)
     end,
 })
+
 
 

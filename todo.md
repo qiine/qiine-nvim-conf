@@ -48,10 +48,9 @@
 
 ## ui
 ---
-* [ ] uderstand how to add rightclick menu items properly  
-* [ ] learn alpha.nvim  
+* [ ] understand how to add rightclick menu items properly  
 * [ ] proper toggle virtual lines  
-* [ ] show white space when normal curosr on them  
+* [ ] show white space when normal cursor on them  
 * [ ] test buferline plugin for tabs  
 * [ ] middle click close tab  
 
@@ -59,25 +58,18 @@
 
 * [ ] learn neogit  
 
-* [ ] sync neotreee and oil nvim  
+* [ ] sync neotree and oil nvim  
 
 * [ ] img support  
-* [ ] add some padlock icon when buffer is not modifyable
 
 * [ ] Make gutter adapt to filetype for ex no line numbers for md or empty files
 * [ ] add search in browser menu item
 
 
 
-## window manager
----
-* [ ] add focus curr win bind
-
-
-
 ## proj
 ----
-* [ ] proper project management, idealy with stats
+* [ ] proper project management, ideally with stats
 * [ ] find a way to smartly save session in project  
 
 
@@ -85,21 +77,16 @@
 ## writing
 ----
 * [x] Install wsywyg markdonw plugin  
-* [x] activate auto wrap on 80+ line for comment and non code text  
 * [ ] understand spellchecking  
 * [ ] use code action to suggest spelling  
     https://www.rockyourcode.com/write-better-in-neovim-with-languagetool/
-* [ ] use hover to show definition of words like from a dictionary only in text 
-  files ?
 
 
 
 ## refactor
   ----
-* [ ] Use 'keymaps.lua' only for pure shortcuts def, move all logic to dedicated library or 
-  modules.
 * [ ] learn how to write test in lua and for nvim  
-
+* remove gitignored files from repo upstream
 
 
 

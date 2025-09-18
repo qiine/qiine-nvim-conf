@@ -12,7 +12,7 @@ My text editor journey:
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
 
 
-## Features
+## ✨ Features
 ---
 ### ✏️Editing
 ---
@@ -87,7 +87,7 @@ Currently only supports **one global session**
 - Managed via **lazy.nvim**
 
 
-## Installation
+## 🚀 Installation
 ---
 Install the latest version of neovim with your package manager of choice.  
 Backup existing config files if applicable.  
@@ -119,11 +119,12 @@ Plugins will install automatically thanks to lazy.nvim
   similar is a must.
 
   I have not spent any time making my nvim config usable 
-  with other terminal and don't plan to. (I know Konsol struggles)
+  with other terminals and don't plan to. (I know Konsol struggles)
 
-* fzf
-* fd
+* git
 * ripgrep
+* fd
+* fzf
 
 optional
 - stylua

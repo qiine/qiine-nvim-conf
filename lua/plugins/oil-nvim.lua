@@ -9,17 +9,6 @@ return
     },
 
     config = function()
-        function _G.get_oil_winbar()
-            local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
-            local dir = require("oil").get_current_dir(bufnr)
-            if dir then
-                return vim.fn.fnamemodify(dir, ":~")
-            else
-                -- If there is no current directory (e.g. over ssh), just show the buffer name
-                return vim.api.nvim_buf_get_name(0)
-            end
-        end
-
         require("oil").setup({
             default_file_explorer = false,
 
@@ -92,7 +81,21 @@ return
                     desc = "Open entry, and cd if directory",
                     mode = "n",
                 },
-                ["<2-LeftMouse>"] = {"actions.select", mode = "n"},
+                ["<2-LeftMouse>"] = {
+                    callback = function()
+                        local oil = require("oil")
+                        local entry = oil.get_cursor_entry()
+                        if entry and entry.type == "directory" then
+                            oil.select({}, function()
+                                require("oil.actions").cd.callback()
+                            end)
+                        else
+                            require("oil.actions").select.callback()
+                        end
+                    end,
+                    desc = "Open entry, and cd if directory",
+                    mode = "n",
+                },
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
 
                 ["q"] = { function() require("oil").close() end, mode="n" },
@@ -148,7 +151,6 @@ return
                     vim.defer_fn(function()
                         require("oil").open(vim.fn.getcwd())
                     end, 20)
-                    -- print(vim.fn.getcwd())
                 end
             end,
         })

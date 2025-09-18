@@ -688,16 +688,23 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 -- ### Delete
 -- Smart del char
 map("n", "<Del>", function()
-    local obj = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     local objs = "[(){}'\"%[%]<>]"
 
-    if obj:match(objs) then
-        vim.cmd('norm! mz"zyi'..obj)
-        vim.cmd('norm! "_di'..obj..'"_xh"_x')
-        vim.cmd('norm! "zP`zh')
-    else
+    if not char:match(objs) then
         vim.cmd('norm! "_x')
+    else
+        local cursopos = vim.api.nvim_win_get_cursor(0)
+        vim.cmd('norm! "zdi'..char)
+
+        vim.cmd('norm! "_xh')
+        local otherchar = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+        if otherchar:match(objs) then
+            vim.cmd('norm! "_x')
+            vim.cmd('norm! "zP')
+        end
+        vim.api.nvim_win_set_cursor(0, cursopos)
     end
 end)
 map("v", "<Del>", '"_di')
@@ -803,7 +810,6 @@ map("v", "<M-S-s>",
 map({"i","n"}, "<F50>", -- <M-F2>
 [[<esc>yiw:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
-
 -- sub selected (exact)
 map("v", "<F2>",
 [[y:%s/\V\<<C-r>"\>//g<Left><Left>]],

@@ -15,6 +15,7 @@ return
             delete_to_trash = true,
             prompt_save_on_select_new_entry = true,
             skip_confirm_for_simple_edits = true,
+            watch_for_changes = true,
 
             buf_options = {
                 buflisted = true,
@@ -30,19 +31,17 @@ return
             },
             view_options = {
                 show_hidden = true,
-                spell = true,
             },
             win_options = {
-                --wrap       = false,
-                signcolumn   = "yes:2",
-                cursorcolumn = false,
-                foldcolumn   = "0",
-                number       = false,
-                spell = true,
-                list  = false,
-                conceallevel = 3,
+                wrap          = false,
+                signcolumn    = "yes:2",
+                cursorcolumn  = false,
+                foldcolumn    = "0",
+                number        = false,
+                spell         = true,
+                list          = false,
+                conceallevel  = 3,
                 concealcursor = "nvic",
-                -- winbar = "%!v:lua.get_oil_winbar()",
             },
             preview_win = {
                 update_on_cursor_moved = true,
@@ -55,6 +54,7 @@ return
             float = {
                 padding = 5,
             },
+
             git = {
                 -- Return true to automatically git add/mv/rm files
                 add = function(path) return true end,
@@ -157,7 +157,7 @@ return
 
 
         -- For git signs
-        require("oil-git-status").setup()
+        -- require("oil-git-status").setup()
     end,
 }
 

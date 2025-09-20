@@ -96,6 +96,21 @@ map("n", "<C-r>", "i<C-r>")
 ----------------------------------------------------------------------
 -- Open file manager
 map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
+-- map(modes, "<C-e>", function()
+--     local home = vim.fn.expand("~")
+--     local cdir = vim.fn.getcwd()
+
+--     require("neo-tree.command").execute({
+--         action = "show",
+--         dir = cdir,
+--         position = "left",
+--         reveal = true,
+--         window = { width = 20 },
+--         filesystem = {bind_to_cwd = false}
+--     })
+
+--     require("oil").open(cdir)
+-- end)
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
@@ -258,6 +273,7 @@ map(modes,"<C-t>", "<Cmd>Alpha<CR>")
 map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
 -- Prev
 map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
+
 
 
 -- ## [Navigation]
@@ -510,10 +526,10 @@ map("c", "<Ins>", "<C-c>i")
 map("t", "<Ins>", "<Esc> <C-\\><C-n>")
 
 
---To Visual insert mode
+-- To Visual insert mode
 map("v", "<M-i>", "I")
 
--- insert at end of each lines
+-- Insert at end of each lines
 map("v", "î", function()
     if vim.fn.mode() == '\22' then
         vim.api.nvim_feedkeys("$A", "n", false)
@@ -696,14 +712,22 @@ map("n", "<Del>", function()
         vim.cmd('norm! "_x')
     else
         local cursopos = vim.api.nvim_win_get_cursor(0)
-        vim.cmd('norm! "zdi'..char)
 
-        vim.cmd('norm! "_xh')
-        local otherchar = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-        if otherchar:match(objs) then
-            vim.cmd('norm! "_x')
+        if char:match("[(){}%[%]]") then
+            vim.cmd('norm! "zdi'..char)
+            vim.cmd('norm! "_d%')
             vim.cmd('norm! "zP')
+        else
+            vim.cmd('norm! "zdi'..char)
+
+            vim.cmd('norm! "_xh')
+            local otherchar = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+            if otherchar:match(objs) then
+                vim.cmd('norm! "_x')
+                vim.cmd('norm! "zP')
+            end
         end
+
         vim.api.nvim_win_set_cursor(0, cursopos)
     end
 end)

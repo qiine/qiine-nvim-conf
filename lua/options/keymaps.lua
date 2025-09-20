@@ -703,34 +703,7 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 -- ### Delete
 -- Smart del char
-map("n", "<Del>", function()
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-
-    local objs = "[(){}'\"%[%]<>]"
-
-    if not char:match(objs) then
-        vim.cmd('norm! "_x')
-    else
-        local cursopos = vim.api.nvim_win_get_cursor(0)
-
-        if char:match("[(){}%[%]]") then
-            vim.cmd('norm! "zdi'..char)
-            vim.cmd('norm! "_d%')
-            vim.cmd('norm! "zP')
-        else
-            vim.cmd('norm! "zdi'..char)
-
-            vim.cmd('norm! "_xh')
-            local otherchar = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-            if otherchar:match(objs) then
-                vim.cmd('norm! "_x')
-                vim.cmd('norm! "zP')
-            end
-        end
-
-        vim.api.nvim_win_set_cursor(0, cursopos)
-    end
-end)
+map("n", "<Del>", '"_x')
 map("v", "<Del>", '"_di')
 
 -- Delete right word

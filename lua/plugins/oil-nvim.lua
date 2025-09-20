@@ -31,17 +31,19 @@ return
             },
             view_options = {
                 show_hidden = true,
+                -- natural_order = "fast",
             },
             win_options = {
-                wrap          = false,
                 signcolumn    = "yes:2",
-                cursorcolumn  = false,
+                foldenable    = false,
                 foldcolumn    = "0",
                 number        = false,
+                wrap          = false,
                 spell         = true,
-                list          = false,
+                list          = true,
                 conceallevel  = 3,
                 concealcursor = "nvic",
+                cursorcolumn  = false,
             },
             preview_win = {
                 update_on_cursor_moved = true,

@@ -703,7 +703,7 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 -- ### Delete
 -- Smart del char
-map("n", "<Del>", '"_x')
+map("n", "<Del>", 'v"_d')
 map("v", "<Del>", '"_di')
 
 -- Delete right word

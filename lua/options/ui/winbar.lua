@@ -21,6 +21,7 @@ end
 
 local function path_bar() --path
     local fpath = vim.fn.expand("%:p")
+
     local dir = vim.fn.fnamemodify(fpath, ":h")
     if vim.bo.filetype == "oil" then
         dir = vim.fn.getcwd()

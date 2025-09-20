@@ -40,7 +40,8 @@ vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
 
 
 
---[Gutter]--------------------------------------------------
+-- [Gutter]
+----------------------------------------------------------------------
 --vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#ff8800", bg = "NONE" })
 
 

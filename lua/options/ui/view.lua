@@ -52,7 +52,7 @@ vim.o.shortmess = "astFTIcC"
 --  items, for instance "scanning tags"
 --q	do not show "recording @a" when recording a macro	*shm-q*
 --F	don't give the file info when editing a file, like
---  `:silent` was used for the command; note that this also
+--  `:silent` was <used for the command; note that this also
 --  affects messages from 'autoread' reloading
 
 --s	don't give "search hit BOTTOM, continuing at TOP" or
@@ -92,7 +92,7 @@ local cursor_styles = {
 }
 vim.opt.guicursor = table.concat(cursor_styles, ",")
 
-vim.opt.cursorcolumn = false
+vim.o.cursorcolumn = false
 
 --stopsel: Stop selection when leaving visual mode.
 --v.opt.keymodel=startsel

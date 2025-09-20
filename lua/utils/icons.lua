@@ -140,6 +140,8 @@ local M =
     floppy1 = "🖬",
     floppy2 = "💾",
     pin = "",
+    keyboard = "⌨",
+    starts =  "✨",
 
     -- ui
     Boolean   = "󰨙",
@@ -168,8 +170,8 @@ local M =
     null          = "󰟢",
     escape        = "󱊷",
 
-    lightning     = "",
-
+    lightning     = "⚡️",
+    lightningnerd = "",
 }
 
 return M

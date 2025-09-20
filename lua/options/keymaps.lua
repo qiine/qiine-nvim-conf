@@ -87,8 +87,6 @@ end, {noremap=true})
 
 -- ## [Register]
 ----------------------------------------------------------------------
--- insert given register content
-map("n", "<C-r>", "i<C-r>")
 
 
 
@@ -702,7 +700,7 @@ map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
 -- ### Delete
--- Smart del char
+-- Del char
 map("n", "<Del>", 'v"_d')
 map("v", "<Del>", '"_di')
 
@@ -759,10 +757,17 @@ end)
 
 -- ### Replace
 -- Change in word
-map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
+-- map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
-map({"i","n"}, "<C-S-r>", function()
+map("n", "<C-r>", function()
+    vim.opt.guicursor = "n:hor20"
+    local c = vim.fn.nr2char(vim.fn.getchar())
 
+
+    vim.cmd('norm! mz%')
+    vim.cmd('norm! r' .. c)
+    vim.cmd('norm! `z')
+    vim.cmd('norm! r' .. c)
 end)
 
 -- Replace selected char

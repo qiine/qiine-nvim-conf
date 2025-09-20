@@ -729,13 +729,23 @@ map({"i","n","v"}, "<S-Del>", function()
     end
 end)
 
+-- Delete empty line without affecting reg
+map("n", "dd", function()
+    if vim.fn.getline(".") == "" then
+        vim.cmd('norm! "_dd')
+    else
+        vim.cmd('norm! dd')
+    end
+end)
 
 -- Smart delete string
 map({"i","n"}, "<C-S-Del>", function()
-    vim.cmd('norm! mz')
+    local cursopos = vim.api.nvim_win_get_cursor(0)
 
-    vim.cmd('norm! viw"zy`z')
+    vim.cmd('norm! viw"zy')
     local txt = vim.fn.getreg("z")
+
+    vim.api.nvim_win_set_cursor(0, cursopos)
 
     local isword = vim.fn.match(txt, [[\k]]) == 0
     if isword then
@@ -750,6 +760,10 @@ end)
 -- ### Replace
 -- Change in word
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
+
+map({"i","n"}, "<C-S-r>", function()
+
+end)
 
 -- Replace selected char
 map("v", "<M-r>", "r")

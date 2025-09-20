@@ -1,6 +1,7 @@
 return
 {
     "rachartier/tiny-code-action.nvim",
+    enabled = false,
     dependencies = { "nvim-lua/plenary.nvim",},
     event = "LspAttach",
 

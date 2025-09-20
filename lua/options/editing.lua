@@ -69,15 +69,8 @@ vim.opt.backspace = { "indent", "eol", "start" }
 -- Auto go to last saved loc for opened buffer
 vim.api.nvim_create_autocmd("BufReadPost", {
     group = "UserAutoCmds",
-    callback = function()
-        local mark = vim.api.nvim_buf_get_mark(0, '"')
-        local lcount = vim.api.nvim_buf_line_count(0)
-
-        if mark[1] > 0 and mark[1] <= lcount then
-            pcall(vim.api.nvim_win_set_cursor, 0, mark)
-        end
-    end,
-    desc = "go to last saved loc for opened buffer",
+    command = 'silent! norm! g`"zv',
+    desc = "Go to last saved loc for opened buffer",
 })
 
 
@@ -140,6 +133,25 @@ timer_autosave:start(420000, 420000, vim.schedule_wrap(function ()
     end
 end))
 
+-- Pre-process file before saving
+-- Auto Trim trail spaces in Curr Buffer on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+    group = "UserAutoCmds",
+    pattern = "*",
+    callback = function()
+        if vim.bo.filetype == "markdown" then return end
+        if
+            vim.bo.modifiable         and
+            vim.bo.buftype      == "" and
+            vim.bo.buflisted          and
+            not vim.bo.readonly
+        then
+            local ok, err = pcall(vim.cmd, "TrimTrailSpacesBuffer")
+            if not ok then vim.notify("Trim failed: " .. err, vim.log.levels.WARN) end
+        end
+    end
+})
+
 
 
 -- ## [Undo]
@@ -166,6 +178,16 @@ vim.opt.undodir = undodir
 --        os.remove(undo_path)
 --    end
 --end
+
+
+
+-- ## [Text inteligence]
+----------------------------------------------------------------------
+vim.lsp.enable({
+    "lua-ls",
+    "ts-ls",
+    "rust-analyzer",
+})
 
 
 
@@ -201,7 +223,6 @@ vim.api.nvim_set_hl(0, "MyUrl", { fg = "#6aafc1", bold = true })
 
 
 
-
 vim.opt.spellcapcheck = ""
 -- Pattern to locate the end of a sentence.  The following word will be
 -- checked to start with a capital letter.  If not then it is highlighted
@@ -220,12 +241,11 @@ local preferedlangs = {
     "fr"
 }
 
-vim.opt.spelllang = preferedlangs
+vim.opt.spelllang = "en"
 
 -- TODO make it use our own custom dico
 vim.opt.spellfile = {
     vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
-    vim.fn.stdpath("config") .. "/spell/fr.utf-8.add"
 }
 
 vim.api.nvim_create_user_command("PickDocsLanguage", function()

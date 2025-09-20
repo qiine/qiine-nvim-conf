@@ -3,7 +3,7 @@ return
     "williamboman/mason.nvim",
     enabled = true,
     dependencies = {
-        "neovim/nvim-lspconfig",        
+        "neovim/nvim-lspconfig",
         "williamboman/mason-lspconfig.nvim",
         "WhoIsSethDaniel/mason-tool-installer.nvim",
     },
@@ -33,7 +33,7 @@ return
         -- Auto-install additional tools (optional)
         require("mason-tool-installer").setup({
             ensure_installed = {
-                --"prettier",
+                "prettier",
                 "stylua",
                 "eslint_d",
             },

@@ -75,6 +75,7 @@ safe_require("options.ui.winbar")
 safe_require("options.ui.statusline")
 
 
+
 -- Debug messages on errors
 vim.api.nvim_create_autocmd("Vimenter", {
      pattern = "*",

@@ -7,7 +7,6 @@ return
 
     dependencies = {
         --'rafamadriz/friendly-snippets',
-        --"moyiz/blink-emoji.nvim",
     },
 
     opts =
@@ -22,7 +21,7 @@ return
             keyword = { range = "prefix" },
 
             list = {
-                selection = { preselect = true, auto_insert = true },
+                 selection = { preselect = true, auto_insert = true },
                 cycle     = { from_bottom = true, from_top = true, },
             },
             menu = {
@@ -72,6 +71,12 @@ return
             },
         },
 
+        snippets = {
+            -- Function to use when expanding LSP provided snippets
+            expand = function(snippet) vim.snippet.expand(snippet) end,
+        },
+
+
         cmdline = {
             keymap = {
                 preset = 'inherit',  --inherit
@@ -100,14 +105,12 @@ return
                 },
                 list = {
                     selection = {
-                        --auto select first item in completion list
-                        preselect = true,
-                        --Auto inserts completion item when selecting it
-                        auto_insert = true,
+                        preselect = true, -- auto pick first item
+                        auto_insert = true, -- Auto inserts item when selecting it
                     },
                 },
                 menu = {
-                    --auto_show = true,
+                    -- auto_show = true,
                     auto_show = function(ctx)
                         --show comp menu fo ":" and vim.ui.input but not "/"
                         local t = vim.fn.getcmdtype()

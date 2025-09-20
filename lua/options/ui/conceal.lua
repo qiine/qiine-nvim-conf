@@ -50,7 +50,7 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
---test::do
+-- test::do
 --⛬ ⫶ ∴ ⋮ ▪ ∷ ⁘ ᠅⸭  ⁖  ᐧ 𝋣
 --  ⏺   🞄 ᭼ 𝀝 𝀛  •
 --§class

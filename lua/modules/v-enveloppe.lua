@@ -3,48 +3,133 @@
 
 local M = {}
 
-function M.enveloppe_select(schar, echar)
-    vim.cmd('norm! m`') -- save curso pos
-    vim.cmd('norm! ') -- update `>`< proper pos
-    vim.cmd('norm! `>a'..echar) -- "a" first, order matter
-    vim.cmd('norm! `<i'..schar)
-    vim.cmd('norm! ``') -- Restore curso pos
+local enveloppe_pairs = {
+    singlequotes   = { open = "'", close = "'" },
+    doublequotes   = { open = '"', close = '"' },
+
+    parentheses    = { open = "(", close = ")" },
+    brackets       = { open = "{", close = "}" },
+    -- squarebrackets = { open = "[", close = "]" }, --collide with esc mapping
+
+    pipes          = { open = "|", close = "|" },
+    slashes        = { open = "/", close = "/" },
+
+    chevrons       = { open = "<", close = ">" },
+    asterisks      = { open = "*", close = "*" },
+
+    dashes         = { open = "-", close = "-" },
+    underscore     = { open = "_", close = "_" },
+}
+
+local function jumptomatch(char)
+    if char:match("['\"`]") then
+        local curso_spos = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm! v2i"..char)
+
+        local curso_epos = vim.api.nvim_win_get_cursor(0)
+
+        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+            vim.cmd('norm! o')
+        end
+
+        vim.cmd('norm! ')
+
+    elseif char:match("[<>]") then
+        local cstart = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm! vi"..char)
+
+        local cend = vim.api.nvim_win_get_cursor(0)
+
+        if cend[2] > cstart[2] then
+            vim.cmd("norm! l")
+        elseif cend[2] < cstart[2] then
+            vim.cmd("norm! oh")
+        end
+
+        vim.cmd('norm! ')
+    else
+        -- vim.api.nvim_feedkeys("%", "n", false)
+        vim.cmd("norm! %")
+    end
 end
 
+local function enveloppe_selection(open, close)
+    vim.cmd('norm! ') -- trick for correct `<`> pos
+    vim.cmd('norm! `>a'..close) -- "a" first, order matter
+    vim.cmd('norm! `<i'..open)
+    vim.cmd('norm! `>')
+end
+
+---@ param char string
+local function find_matchingpair(char)
+    for _, pair in pairs(enveloppe_pairs) do
+        if     char == pair.open  then return pair.close
+        elseif char == pair.close then return pair.open
+        end
+    end
+    return nil
+end
+
+-- map("n", "<Del>", function()
+--     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+--     local objs = "[(){}'\"%[%]<>]"
+
+--     if not char:match(objs) then
+--         vim.cmd('norm! "_x')
+--     else
+--         local cursopos = vim.api.nvim_win_get_cursor(0)
+
+--         if char:match("[(){}%[%]]") then
+--             vim.cmd('norm! "zdi'..char)
+--             vim.cmd('norm! "_d%')
+--             vim.cmd('norm! "zP')
+--         else
+--             vim.cmd('norm! "zdi'..char)
+
+--             vim.cmd('norm! "_xh')
+--             local otherchar = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+--             if otherchar:match(objs) then
+--                 vim.cmd('norm! "_x')
+--                 vim.cmd('norm! "zP')
+--             end
+--         end
+
+--         vim.api.nvim_win_set_cursor(0, cursopos)
+--     end
+-- end)
+
 function M.setup()
-    --paren
-    vim.keymap.set("i", "<C-(>", '<esc>m`"_diwi(<esc>P`]a)``')
-    vim.keymap.set("n", "<C-(>", 'm`"_diwi(<esc>P`]a)``' )
-    vim.keymap.set("x", '<C-(>', function() M.enveloppe_select('(',')') end)
+    -- enveloppe sel
+    for _, pair in pairs(enveloppe_pairs) do
+        vim.keymap.set({"i","n","x"}, '<C-'..pair.open..'>', function()
+            local m = vim.fn.mode()
+            if m == "v" or m == "V" or m == "\22" then
+                enveloppe_selection(pair.open, pair.close)
+            else
+                vim.cmd("norm! viw")
+                enveloppe_selection(pair.open, pair.close)
+            end
+        end)
+    end
 
-    --vim.keymap.set("v", '<C-[>', function() M.enveloppe_selection('[',']') end)
 
-    vim.keymap.set("x", '<C-{>', function() M.enveloppe_select('{','}') end)
+    -- replace pair
+    vim.keymap.set("n", "<C-r>", function()
+        -- vim.opt.guicursor = "n:hor20"
+        local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+        local inchar = vim.fn.nr2char(vim.fn.getchar())
+        local matchchar = find_matchingpair(inchar)
+        print(matchchar)
 
-    --chevron
-    vim.keymap.set("i", '<C-<>', "<esc>mzdiwi<<esc>P`]a><esc>`zli",      { desc = "enveloppe word angled brackets" })
-    vim.keymap.set("n", '<C-<>', "mzdiwi<<esc>P`]a><esc>`zl",            { desc = "enveloppe word angled brackets" })
-    vim.keymap.set("x", '<C-<>', function() M.enveloppe_select("<",">") end)
+        vim.cmd('norm! mz'); jumptomatch(char)
+        vim.cmd('norm! r' .. matchchar)
+        vim.cmd('norm! `z')
+        vim.cmd('norm! r' .. inchar)
+    end)
 
-    --single quotes
-    vim.keymap.set("i", "<C-'>", [[<esc>m`"zdiwi'<esc>"zP`]a'<esc>``li]], { desc = "Surround visual selection with char" })
-    vim.keymap.set("n", "<C-'>", [[m`"zdiwi'<esc>"zP`]a'<esc>``l]], { desc = "Surround visual selection with char" })
-    vim.keymap.set("x", "<C-'>", function() M.enveloppe_select("'","'") end)
-
-    --double quote
-    vim.keymap.set("i", '<C-">', '<esc>m`"zdiwi"<esc>"zP`]a"<esc>``li', {desc = "Surround visual selection with char" })
-    vim.keymap.set("n", '<C-">', 'm`"zdiwi"<esc>"zP`]a"<esc>``l',       {desc = "Surround visual selection with char" })
-    vim.keymap.set("x", '<C-">', function() M.enveloppe_select('"','"') end)
-
-    vim.keymap.set("x", '<C-|>', function() M.enveloppe_select('|','|') end)
-
-    --*
-    vim.keymap.set("x", '<C-*>', function() M.enveloppe_select('*','*') end)
-
-    vim.keymap.set("x", '<C-->', function() M.enveloppe_select('-','-') end)
-
-    -- /
-    vim.keymap.set("x", '<C-/>', function() M.enveloppe_select('/','/') end)
 
 end
 

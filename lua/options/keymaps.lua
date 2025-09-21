@@ -314,6 +314,42 @@ map({"i","v"}, '<C-Left>', function()
     end
 end)
 
+-- Jump matching pair
+map("n", "%", function()
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    if char:match("['\"`]") then
+        local curso_spos = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm! v2i"..char)
+
+        local curso_epos = vim.api.nvim_win_get_cursor(0)
+
+        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+            vim.cmd('norm! o')
+        end
+
+        vim.cmd('norm! ')
+
+    elseif char:match("[<>]") then
+        local cstart = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm! vi"..char)
+
+        local cend = vim.api.nvim_win_get_cursor(0)
+
+        if cend[2] > cstart[2] then
+            vim.cmd("norm! l")
+        elseif cend[2] < cstart[2] then
+            vim.cmd("norm! oh")
+        end
+
+        vim.cmd('norm! ')
+    else
+        vim.api.nvim_feedkeys("%", "n", false)
+    end
+end, {noremap=true})
+
 -- To next/prev cursor jump loc
 map({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
 map("n",       "<M-PageDown>",  "<C-o>")
@@ -757,18 +793,7 @@ end)
 
 -- ### Replace
 -- Change in word
--- map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
-
-map("n", "<C-r>", function()
-    vim.opt.guicursor = "n:hor20"
-    local c = vim.fn.nr2char(vim.fn.getchar())
-
-
-    vim.cmd('norm! mz%')
-    vim.cmd('norm! r' .. c)
-    vim.cmd('norm! `z')
-    vim.cmd('norm! r' .. c)
-end)
+map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
 -- Replace selected char
 map("v", "<M-r>", "r")
@@ -1079,7 +1104,11 @@ map("n", "<F12>", "<Esc>gd")
 map("v", "<F12>", "<Esc>gd")
 
 -- Show hover window
-map({"i","n","v"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
+map({"i","n"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
+
+-- Show signature
+map({"i","n"}, "<C-S-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
+
 
 -- Rename symbol
 --vmap({"i","n"}, "<F2>", function()
@@ -1100,20 +1129,24 @@ map({"i","n"}, "<F2>", function()
 end)
 
 -- smart goto
-map({"i","n","v"}, "<C-CR>", function()
-    local word = vim.fn.expand("<cfile>")
-    local cchar = utils.get_char_at_cursorpos()
-    local filetype = vim.bo.filetype
+map({"i","n"}, "<C-CR>", function()
+    local word = vim.fn.expand("<cword>")
+    local WORD = vim.fn.expand("<cWORD>")
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    if word:match("^https?://") then
-        vim.cmd("norm! gx")
-    elseif vim.fn.filereadable(word) == 1 then
-        vim.cmd("norm! gf")
-    else
-        vim.cmd("norm! %")
+    if WORD:match("^https?://") then
+        vim.cmd("!" .. "xdg-open " .. WORD)
+        return
     end
-    --to tag
-    --<C-]>
+
+    if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
+
+    if char:match("[(){}%[%]'\"`<>]") then
+        vim.cmd("norm %") --no bang ! to use custom keymap
+        return
+    end
+
+    vim.cmd("lua vim.lsp.buf.implementation()")
 end)
 
 

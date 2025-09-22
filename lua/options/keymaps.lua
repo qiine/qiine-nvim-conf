@@ -405,7 +405,8 @@ map({"i","n","v","c"}, "<C-f>", function()
     if vim.fn.mode() ~= "v" then
         vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
     else
-        vim.api.nvim_feedkeys([[y/\V"]], "n", false)
+        vim.api.nvim_feedkeys([[y/\V"
+]], "n", false)
     end
 end)
 
@@ -1242,12 +1243,15 @@ map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves
 vim.cmd('set cedit=') -- avoids interferances
 
 map("n", "q:", 'q:')
+map({"i","n","v","c"}, "“", '<esc>q:')
+map("t", "“", '<Esc><C-\\><C-n>q:')
 
 -- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     group = "UserAutoCmds",
     callback = function()
         vim.keymap.set("n", "<esc>", ":quit<CR>", {buffer=true})
+        vim.keymap.set("n", "“", ':quit<CR>' , {buffer=true})
     end,
 })
 

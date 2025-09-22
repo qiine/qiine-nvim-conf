@@ -117,17 +117,22 @@ function M.setup()
 
 
     -- replace pair
-    vim.keymap.set("n", "<C-r>", function()
-        -- vim.opt.guicursor = "n:hor20"
-        local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-        local inchar = vim.fn.nr2char(vim.fn.getchar())
-        local matchchar = find_matchingpair(inchar)
-        print(matchchar)
+    vim.keymap.set('n', "<C-r>", function()
+        local baseguicursor = vim.opt.guicursor:get()
+        vim.opt_local.guicursor = { "n:hor90", "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor" }
 
-        vim.cmd('norm! mz'); jumptomatch(char)
-        vim.cmd('norm! r' .. matchchar)
-        vim.cmd('norm! `z')
-        vim.cmd('norm! r' .. inchar)
+        local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+        local inchar = vim.fn.getcharstr()
+        local matchchar = find_matchingpair(inchar)
+
+        if matchchar then
+            vim.cmd('norm! mz'); jumptomatch(char)
+            vim.cmd('norm! r' .. matchchar)
+            vim.cmd('norm! `z')
+            vim.cmd('norm! r' .. inchar)
+        end
+
+        vim.opt.guicursor = baseguicursor --reset
     end)
 
 

@@ -55,6 +55,8 @@ local function jumptomatch(char)
     end
 end
 
+---@ param open string
+---@ param close string
 local function enveloppe_selection(open, close)
     vim.cmd('norm! ') -- trick for correct `<`> pos
     vim.cmd('norm! `>a'..close) -- "a" first, order matter
@@ -69,6 +71,11 @@ local function find_matchingpair(char)
         elseif char == pair.close then return pair.open
         end
     end
+
+    if char:match("[%a%p]") then
+        return char
+    end
+
     return nil
 end
 

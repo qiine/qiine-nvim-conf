@@ -318,7 +318,7 @@ end)
 map("n", "%", function()
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    if char:match("['\"`]") then
+    if char:match("['\"]") then  --`
         local curso_spos = vim.api.nvim_win_get_cursor(0)
 
         vim.cmd("norm! v2i"..char)
@@ -327,21 +327,6 @@ map("n", "%", function()
 
         if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
             vim.cmd('norm! o')
-        end
-
-        vim.cmd('norm! ')
-
-    elseif char:match("[<>]") then
-        local cstart = vim.api.nvim_win_get_cursor(0)
-
-        vim.cmd("norm! vi"..char)
-
-        local cend = vim.api.nvim_win_get_cursor(0)
-
-        if cend[2] > cstart[2] then
-            vim.cmd("norm! l")
-        elseif cend[2] < cstart[2] then
-            vim.cmd("norm! oh")
         end
 
         vim.cmd('norm! ')

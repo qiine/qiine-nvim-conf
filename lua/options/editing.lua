@@ -12,47 +12,6 @@ local v = vim
 vim.g.autostartinsert = true
 
 
--- Virtual Edit
-vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
--- "none"    -- Default, disables virtual editing.
--- "onemore" -- Allows the cursor to move one character past the end of a line.
--- "block"   -- Allows cursor to move where there is no actual text in visual block mode.
--- "insert"  -- Allows inserting in positions where there is no actual text.
--- "all"     -- Enables virtual editing in all modes.
-
---Smart virt edit
---vim.api.nvim_create_autocmd("ModeChanged", {
---    group = "UserAutoCmds",
---    pattern = "*",
---    callback = function(args)
---        local to = args.match:match(":%s*(.*)")
---        if to == "n" then
---            vim.opt.virtualedit = "all"
---        elseif to == "" then  -- vis block
---            vim.opt.virtualedit = "block"
---        elseif to == "v" or to == "V" then
---            vim.opt.virtualedit = "none"
---        elseif to == "i" then
---            vim.opt.virtualedit = "none"
---        else
---            vim.opt.virtualedit = "none"
---        end
---    end,
---})
-
-vim.api.nvim_create_autocmd("ModeChanged", {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        local mode = vim.fn.mode()
-        if mode == "n"  then vim.opt.virtualedit = "all"     return end
-        if mode == "i"  then vim.opt.virtualedit = "none"    return end
-        if mode == "v"  then vim.opt.virtualedit = "onemore" return end
-        if mode == "V"  then vim.opt.virtualedit = "onemore" return end
-        if mode == "" then vim.opt.virtualedit = "block"   return end
-    end,
-})
-
 -- Define what a word is
 vim.opt.iskeyword = "@,48-57,192-255,-,_"
 -- @       -> alphabet,
@@ -66,12 +25,35 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --"eol   " -- Allows Backspace to delete past line breaks.
 --"start"  -- Allows Backspace at the start of insert mode.
 
--- Auto go to last saved loc for opened buffer
-vim.api.nvim_create_autocmd("BufReadPost", {
+
+
+-- Virtual Edit
+vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
+-- "none"    -- Default, disables virtual editing.
+-- "onemore" -- Allows the cursor to move one character past the end of a line.
+-- "block"   -- Allows cursor to move where there is no actual text in visual block mode.
+-- "insert"  -- Allows inserting in positions where there is no actual text.
+-- "all"     -- Enables virtual editing in all modes.
+
+
+
+-- ## [Nav]
+----------------------------------------------------------------------
+vim.api.nvim_create_autocmd("ModeChanged", {
     group = "UserAutoCmds",
-    command = 'silent! norm! g`"zv',
-    desc = "Go to last saved loc for opened buffer",
+    pattern = "*",
+    callback = function()
+        local mode = vim.fn.mode()
+        if mode == "n"  then vim.opt.virtualedit = "all"     return end
+        if mode == "i"  then vim.opt.virtualedit = "none"    return end
+        if mode == "v"  then vim.opt.virtualedit = "onemore" return end
+        if mode == "V"  then vim.opt.virtualedit = "onemore" return end
+        if mode == "" then vim.opt.virtualedit = "block"   return end
+    end,
 })
+
+-- define % motion /matching/
+vim.opt.matchpairs:append({"<:>"})
 
 
 
@@ -191,8 +173,7 @@ vim.lsp.enable({
 
 
 
--- ## [Spell]
-----------------------------------------------------------------------
+-- ### [Spell]
 vim.opt.spell = false
 --TODO make it ignore fenced code in marksown
 --maybe allow only for comment for other filetypes?

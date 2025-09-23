@@ -6,10 +6,11 @@ local M = {}
 local enveloppe_pairs = {
     singlequotes   = { open = "'", close = "'" },
     doublequotes   = { open = '"', close = '"' },
+    backtick       = { open = '`', close = '`' },
 
     parentheses    = { open = "(", close = ")" },
     brackets       = { open = "{", close = "}" },
-    -- squarebrackets = { open = "[", close = "]" }, --collide with esc mapping
+    -- squarebrackets = { open = "[", [close] = "]" }, --collide with esc mapping
 
     pipes          = { open = "|", close = "|" },
     slashes        = { open = "/", close = "/" },
@@ -17,7 +18,7 @@ local enveloppe_pairs = {
     chevrons       = { open = "<", close = ">" },
     asterisks      = { open = "*", close = "*" },
 
-    dashes         = { open = "-", close = "-" },
+    -- dashes         = { open = "-", close = "-" }, -- collide with zoomout
     underscore     = { open = "_", close = "_" },
 }
 
@@ -31,21 +32,6 @@ local function jumptomatch(char)
 
         if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
             vim.cmd('norm! o')
-        end
-
-        vim.cmd('norm! ')
-
-    elseif char:match("[<>]") then
-        local cstart = vim.api.nvim_win_get_cursor(0)
-
-        vim.cmd("norm! vi"..char)
-
-        local cend = vim.api.nvim_win_get_cursor(0)
-
-        if cend[2] > cstart[2] then
-            vim.cmd("norm! l")
-        elseif cend[2] < cstart[2] then
-            vim.cmd("norm! oh")
         end
 
         vim.cmd('norm! ')
@@ -72,7 +58,7 @@ local function find_matchingpair(char)
         end
     end
 
-    if char:match("[%a%p]") then
+    if char:match("[%a%p]") then -- any letters any punctuation
         return char
     end
 
@@ -139,7 +125,7 @@ function M.setup()
             vim.cmd('norm! r' .. inchar)
         end
 
-        vim.opt.guicursor = baseguicursor --reset
+        vim.opt.guicursor = baseguicursor --reset curso
     end)
 
 

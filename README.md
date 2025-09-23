@@ -1,7 +1,12 @@
 
-Surely     **overcomplicated**  
-Absolutely **not finished**  
-Extremely  **heretical** ;p
+# 
+
+
+## About
+---
+Probably **overcomplicated**   
+Certainly   **not finished**    
+Definitively  **heretical** ;p  
 
 I was aware of vim/nvim for years, after switching to linux I figured It was  
 finally time to try it out.  
@@ -10,6 +15,7 @@ I am still in the "hjkl? hu no? arrow's fine" phase though, haha.
 
 My text editor journey:  
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
+
 
 
 ## ✨ Features
@@ -92,7 +98,7 @@ Currently only supports **one global session**
 Install the latest version of neovim with your package manager of choice.  
 Backup existing config files if applicable.  
 ```sh
-mv ~/.config/nvim ~/.config/nvim.bak
+mv ~/.config/nvim ~/.config/nvim_bak
 ```    
 Go to config files location
 ```sh

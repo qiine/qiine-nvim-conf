@@ -1,8 +1,6 @@
 
 # 
-
-
-## About
+# About
 ---
 Probably **overcomplicated**   
 Certainly   **not finished**    
@@ -67,7 +65,6 @@ My text editor journey:
 * customized statuscolumn thanks to gitsign, statuscol-nvim and some 
   tweaking  
 - **trouble.nvim**  
-
 - **indent-blankline.nvim**
 
 
@@ -125,7 +122,7 @@ Plugins will install automatically thanks to lazy.nvim
   similar is a must.
 
   I have not spent any time making my nvim config usable 
-  with other terminals and don't plan to. (I know Konsol struggles)
+  with other terminals and don't plan to. (I know Konsole struggles)
 
 * git
 * ripgrep

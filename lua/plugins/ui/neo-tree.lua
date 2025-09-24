@@ -51,7 +51,7 @@ return
 
             window = {
                 position = "left", --left, right, top, bottom, float, current
-                width = 28, -- applies to left and right positions
+                width = 26, -- applies to left and right positions
                 height = 15, -- applies to top and bottom positions
                 auto_expand_width = false, -- expand the window when file exceeds the window width. does not work with position = "float"
             },
@@ -61,7 +61,7 @@ return
                 bind_to_cwd = true,  -- Enable 2-way binding between Neovim's cwd and Neo-tree's root
                 cwd_target = {
                   sidebar = "global",   --"global", "tab"
-                  current = "cwd"
+                  current = "global"
                 },
                 hijack_netrw = false,
 

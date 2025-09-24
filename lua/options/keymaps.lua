@@ -274,6 +274,23 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
+-- ## [Custom motions]
+----------------------------------------------------------------------
+-- map({"x","o"}, "il", "<Cmd>norm! V<CR>")
+
+local function select_pair(char)
+    vim.fn.search(char, 'bcWs')
+    vim.cmd("norm! v")
+    vim.fn.search(char, 'zWs')
+end
+
+-- |word|
+map({"x","o"}, 'ik', function()
+    select_pair('|')
+end)
+
+
+
 -- ## [Navigation]
 ----------------------------------------------------------------------
 -- Threat wrapped lines as distinct lines for up/down nav
@@ -427,8 +444,7 @@ map(modes, "<C-p>p", function()
 end)
 
 
-
--- ## [Selection]
+-- ## [Selections]
 ----------------------------------------------------------------------
 -- Swap selection anchors
 map("v", "<M-v>", "o")
@@ -1121,7 +1137,7 @@ map({"i","n"}, "<C-CR>", function()
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     if WORD:match("^https?://") then
-        vim.cmd("!" .. "xdg-open " .. WORD)
+        vim.cmd("silent! !" .. "xdg-open " .. WORD)
         return
     end
 

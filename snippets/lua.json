@@ -1,4 +1,10 @@
 {
+    "lua variable~": {
+        "prefix": "var lua",
+        "body": [ "local ${1:name} = ${2:value}" ],
+        "description": "Create a new variable in lua"
+    },
+
     "vscode snippet": {
         "prefix": "vscode_snippet",
         "description": "Create a new VSCode snippet",

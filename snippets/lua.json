@@ -1,8 +1,22 @@
 {
-    "lua variable~": {
-        "prefix": "var lua",
-        "body": [ "local ${1:name} = ${2:value}" ],
-        "description": "Create a new variable in lua"
+    "new variable": {
+        "prefix": "var",
+        "body": [ "local ${1:name} = ${2:value}" ]
+    },
+
+    "new function": {
+        "prefix": "func",
+        "body": [ "function ${1:name}() ${2:} end" ]
+    },
+
+    "new if": {
+        "prefix": "if",
+        "body": [ "if ${1:name} then ${2:} end" ]
+    },
+
+    "print": {
+        "prefix": "print",
+        "body": [ "print(\"${1:print}\")" ]
     },
 
     "vscode snippet": {

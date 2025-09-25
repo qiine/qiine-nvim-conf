@@ -114,25 +114,31 @@ function M.setup()
         local baseguicursor = vim.opt.guicursor:get()
         vim.opt_local.guicursor = { "n:hor90", "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor" }
 
-        local cchar      = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-        local inchar    = vim.fn.getcharstr()
-
+        local cchar  = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+        local inchar = vim.fn.getcharstr()
+print(inchar)
         if inchar ~= vim.keycode("<Esc>") then
-            local matchchar = find_matchingpair(inchar)
-
-            if matchchar then
+            if inchar == vim.keycode("<Del>") then
                 vim.cmd('norm! mz'); jumptomatch(cchar)
-                vim.cmd('norm! r' .. matchchar)
+                vim.cmd('norm! "_x')
                 vim.cmd('norm! `z')
-                vim.cmd('norm! r' .. inchar)
+                vim.cmd('norm! "_x')
+            else
+                local matchchar = find_matchingpair(inchar)
+
+                if matchchar then
+                    vim.cmd('norm! mz'); jumptomatch(cchar)
+                    vim.cmd('norm! r' .. matchchar)
+                    vim.cmd('norm! `z')
+                    vim.cmd('norm! r' .. inchar)
+                end
             end
         end
 
         vim.opt.guicursor = baseguicursor --reset curso
     end)
 
-
-end
+end -- setup
 
 
 --------

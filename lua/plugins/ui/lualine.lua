@@ -106,7 +106,7 @@ return
                             if vim.bo.filetype == "vim" then
                                 vim.api.nvim_input('<esc>:quit<cr>')
                             else
-                                vim.api.nvim_input('<esc>:')
+                                vim.api.nvim_input('<esc>q:')
                             end
                         end,
                         padding = 0,

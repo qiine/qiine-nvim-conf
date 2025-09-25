@@ -3,7 +3,7 @@
 
 local M = {}
 
-local enveloppe_pairs = {
+local matching_pairs = {
     singlequotes   = { open = "'", close = "'" },
     doublequotes   = { open = '"', close = '"' },
     backtick       = { open = '`', close = '`' },
@@ -37,7 +37,7 @@ local function jumptomatch(char)
         vim.cmd('norm! ')
     else
         -- vim.api.nvim_feedkeys("%", "n", false)
-        vim.cmd("norm! %")
+        vim.cmd("norm %")
     end
 end
 
@@ -52,7 +52,7 @@ end
 
 ---@ param char string
 local function find_matchingpair(char)
-    for _, pair in pairs(enveloppe_pairs) do
+    for _, pair in pairs(matching_pairs) do
         if     char == pair.open  then return pair.close
         elseif char == pair.close then return pair.open
         end
@@ -96,7 +96,7 @@ end
 
 function M.setup()
     -- enveloppe sel
-    for _, pair in pairs(enveloppe_pairs) do
+    for _, pair in pairs(matching_pairs) do
         vim.keymap.set({"i","n","x"}, '<C-'..pair.open..'>', function()
             local m = vim.fn.mode()
             if m == "v" or m == "V" or m == "\22" then
@@ -114,15 +114,18 @@ function M.setup()
         local baseguicursor = vim.opt.guicursor:get()
         vim.opt_local.guicursor = { "n:hor90", "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor" }
 
-        local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-        local inchar = vim.fn.getcharstr()
-        local matchchar = find_matchingpair(inchar)
+        local cchar      = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+        local inchar    = vim.fn.getcharstr()
 
-        if matchchar then
-            vim.cmd('norm! mz'); jumptomatch(char)
-            vim.cmd('norm! r' .. matchchar)
-            vim.cmd('norm! `z')
-            vim.cmd('norm! r' .. inchar)
+        if inchar ~= vim.keycode("<Esc>") then
+            local matchchar = find_matchingpair(inchar)
+
+            if matchchar then
+                vim.cmd('norm! mz'); jumptomatch(cchar)
+                vim.cmd('norm! r' .. matchchar)
+                vim.cmd('norm! `z')
+                vim.cmd('norm! r' .. inchar)
+            end
         end
 
         vim.opt.guicursor = baseguicursor --reset curso

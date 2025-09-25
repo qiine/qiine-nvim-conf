@@ -9,9 +9,14 @@ return
         require("luasnip").setup()
         local ls = require("luasnip")
 
-        -- vim.keymap.set({"i"}, "<C-K>", function() ls.expand() end, {silent = true})
-        -- vim.keymap.set({"i", "s"}, "<C-L>", function() ls.jump( 1) end, {silent = true})
-        -- vim.keymap.set({"i", "s"}, "<C-J>", function() ls.jump(-1) end, {silent = true})
+        -- fetch user custom snips
+        require('luasnip.loaders.from_vscode').lazy_load {
+            paths = vim.fn.stdpath('config') .. '/snippets',
+        }
+
+        vim.keymap.set({"i","n"}, "<C-S-e>", function() ls.expand() end, {silent = true})
+        vim.keymap.set("s", "<Tab>", function() ls.jump( 1) end, {silent = true})
+        vim.keymap.set("s", "<S-Tab>", function() ls.jump(-1) end, {silent = true})
 
         -- vim.keymap.set({"i", "s"}, "<C-E>", function()
         --     if ls.choice_active() then

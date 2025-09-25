@@ -36,6 +36,17 @@ map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
+-- super esc
+map({'i','n','s'}, '<esc>', function()
+    if require('luasnip').expand_or_jumpable() then
+        require('luasnip').unlink_current()
+    end
+
+    vim.cmd('noh')
+
+    return '<esc>'
+end, { desc = 'Escape, clear hlsearch, and stop snippet session', expr = true })
+
 
 
 -- ## [Buffers]
@@ -82,11 +93,6 @@ map(modes, "<C-w>", function()
         end
     end
 end, {noremap=true})
-
-
-
--- ## [Register]
-----------------------------------------------------------------------
 
 
 
@@ -137,6 +143,11 @@ end)
 
 
 
+-- ## [Register]
+----------------------------------------------------------------------
+
+
+
 -- ## [View]
 ----------------------------------------------------------------------
 -- alt-z toggle line soft wrap
@@ -158,11 +169,16 @@ map({"i","n","v"}, "<M-g>", function()
         vim.wo.number         = false
         vim.wo.relativenumber = false
         vim.wo.foldcolumn     = "0"
+
+        vim.notify("Hide gutter")
     else
+        vim.g.gutter_show = true
+
         local confp = vim.fn.stdpath("config")
+        vim.cmd("so ".. confp .."/lua/options/ui/view.lua")
         vim.cmd("so ".. confp .."/lua/plugins/ui/editor/statuscol.lua")
-        vim.cmd("so ".. confp .."/init.lua")
-        vim.cmd("so ".. confp .."/lua/config/ui/view.lua")
+
+        vim.notify("Show gutter")
     end
 end, {desc = "Toggle Gutter" })
 
@@ -200,8 +216,8 @@ map(modes, "<M-w>nf", function ()
     local wopts = {
         title     = fname,
         title_pos = "center",
-        relative = "editor",
-        border = "single",
+        relative  = "editor",
+        border    = "single",
         width  = wsize.w,
         height = wsize.h,
         col = math.floor((edw_w - wsize.w) / 2),
@@ -291,20 +307,39 @@ map({"x","o"}, 'AP', function() select_texobj_paired('|') end, {noremap=true, si
 -- ## [Navigation]
 ----------------------------------------------------------------------
 -- Threat wrapped lines as distinct lines for up/down nav
-map("i", "<Up>", "<cmd>norm! g<Up><CR>")
+map("i",       "<Up>", "<cmd>norm! g<Up><CR>") -- use norm to avoid visual glitch
 map({"n","v"}, "<Up>", "g<up>")
 
-map("i", "<Down>", "<cmd>norm! g<Down><CR>")
+map("i",       "<Down>", "<cmd>norm! g<Down><CR>")
 map({"n","v"}, "<Down>", "g<Down>")
 
+--maybe?
+-- vim.keymap.set('n', 'j', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'j']], { expr = true })
+-- vim.keymap.set('n', 'k', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'k']], { expr = true })
+
+-- ### [Fast and furious cursor move]
+-- m' is used to write into jump list
+-- Fast left/right move in normal mode
+map('n', '<C-Right>', "m'5l")
+map('n', '<C-Left>',  "m'5h")
+
+-- ctrl+up/down to move fast
+map("i",       "<C-Up>", "<esc>m'3ki")
+map({"n","v"}, "<C-Up>", "m'3k")
+
+map("i",       "<C-Down>", "<esc>m'3ji")
+map({"n","v"}, "<C-Down>", "m'3j")
+
+
+-- ### [Jump]
 -- Jump to next word
 map({"i","v"}, '<C-Right>', function()
-    local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
+    local curso_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
     if vim.fn.mode() == "" then vim.cmd("norm! 5l")
-    else                          vim.cmd("normal! w") end
+    else                          vim.cmd("norm! w") end
 
-    if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
+    if curso_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
         vim.cmd("norm! b")
         local m = vim.fn.mode()
         if m == "v" or m == "V" then vim.cmd("norm! $")
@@ -314,17 +349,14 @@ end)
 
 -- Jump to previous word
 map({"i","v"}, '<C-Left>', function()
-    local cursr_prevrow = vim.api.nvim_win_get_cursor(0)[1]
+    local curso_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
-    if vim.fn.mode() == "" then
-        vim.cmd("norm! 5h")
-    else
-        vim.cmd("norm! b")
+    if vim.fn.mode() == "" then vim.cmd("norm! 5h")
+    else                          vim.cmd("norm! b")
     end
 
-    if cursr_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
-        vim.cmd("norm! w")
-        vim.cmd("norm! 0")
+    if curso_prevrow ~= vim.api.nvim_win_get_cursor(0)[1] then
+        vim.cmd("norm! w0")
     end
 end)
 
@@ -364,30 +396,13 @@ map("n", "%", function()
 end, {noremap=true})
 
 -- To next/prev cursor jump loc
-map({"i","v"}, "<M-PageDown>",  "<Esc><C-o>")
-map("n",       "<M-PageDown>",  "<C-o>")
-map({"i","v"}, "<M-PageUp>",    "<Esc><C-i>")
-map("n",       "<M-PageUp>",    "<C-i>")
-
-
--- ### [Fast and furious cursor move]
--- Fast left/right move in normal mode
-map('n', '<C-Right>', "m'5l")
-map('n', '<C-Left>',  "m'5h")
-
--- ctrl+up/down to move fast
-map("i",       "<C-Up>", "<esc>m'3ki")
-map({"n","v"}, "<C-Up>", "m'3k")
-
-map("i",       "<C-Down>", "<esc>m'3ji")
-map({"n","v"}, "<C-Down>", "m'3j")
-
+map({"i","n","v"}, "<M-PageDown>",  "<Esc><C-o>")
+map({"i","n","v"}, "<M-PageUp>",    "<Esc><C-i>")
 
 -- Jump to start/end of line
-map({"i","n","v"}, "<M-Left>", "<cmd>norm! 0<cr>")
-
-map("i", "<M-Right>",       "<cmd>norm! $a<cr>") -- notice the 'a'
-map({"n","v"}, "<M-Right>", "<cmd>norm! $<cr>")
+map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
+map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
+map({"n","v"},     "<M-Right>", "<cmd>norm! $<cr>")
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>gg0i")
@@ -402,9 +417,17 @@ map({"n","v"}, "<End>", "G$")
 -- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
 -- kmap({"n","v"}, "<M-Down>", "G$")
 
-map("n", "f", function()
-    -- TODO JumpToCharAcrossLines()
-end, {remap = true})
+-- Jump search
+map({"n","v"}, "f", function()
+    local c1 = vim.fn.getcharstr()
+    if c1 == vim.keycode("<Esc>") then return end
+
+    local c2 = vim.fn.getcharstr()
+    if c2 == vim.keycode("<Esc>") then return end
+
+    local seq = vim.pesc(c1 .. c2) -- escape so special chars work
+    vim.fn.search(c1..c2, 'Ws')
+end)
 
 
 -- ### Search
@@ -418,8 +441,8 @@ map({"i","n","v","c"}, "<C-f>", function()
     if vim.fn.mode() ~= "v" then
         vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
     else
-        vim.api.nvim_feedkeys([[y/\V"
-]], "n", false)
+        vim.cmd("norm! y")
+        vim.api.nvim_feedkeys([[/\V"]], "c", false)
     end
 end)
 
@@ -595,11 +618,29 @@ map("n", "<C-i>l", "i<C-v>")
 map("n", "<C-S-k>", "i<C-S-k>")
 
 
--- ### Insert snipet
+-- ### Insert snippet
 -- Insert function()
 -- map("i", "<C-S-i>")
 
--- map("i", "<C-i>sf", "")
+-- Insert var
+map({"i","n","v"}, "<C-Insert>v", function()
+    local ls = require("luasnip")
+
+    require("luasnip.loaders.from_vscode").lazy_load({
+        paths = { vim.fn.stdpath("config") .. "/snippets" },
+    })
+
+    local ft = vim.bo.filetype
+    local snips = ls.get_snippets(ft)
+
+    if not snips then return end
+
+    for _, s in ipairs(snips) do
+        if s.trigger == "variable lua" then
+            ls.snip_expand(s) return
+        end
+    end
+end)
 
 -- Insert print snippet
 map({"n","v"}, "Ô", function()
@@ -648,7 +689,7 @@ map("n", "<C-c>", function()
 end, {noremap = true})
 
 map("v", "<C-c>", function()
-    vim.cmd('norm! mz"+y`z'); print("selection copied")
+    vim.cmd('norm! mz"+y`z'); print("Selection copied")
 end, {noremap=true})
 
 
@@ -1150,15 +1191,13 @@ map({"i","n"}, "<C-CR>", function()
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     if WORD:match("^https?://") then
-        vim.cmd("silent! !" .. "xdg-open " .. WORD)
-        return
+        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
     end
 
     if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
 
     if char:match("[(){}%[%]'\"`<>|]") then
-        vim.cmd("norm %") --no bang ! to use custom keymap
-        return
+        vim.cmd("norm %") return --no bang ! to use custom keymap
     end
 
     vim.cmd("lua vim.lsp.buf.implementation()")

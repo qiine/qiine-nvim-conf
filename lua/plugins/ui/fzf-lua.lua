@@ -22,31 +22,38 @@ return
             winopts = {
                 title_pos    = "center",
                 border       = "rounded", --single
-                height       = 0.75,         -- window height
-                width        = 1,            -- window width
-                row          = 0.50,         -- window row position (0=top, 1=bottom)
-                col          = 0.51,         -- window col position (0=left, 1=right)
-                backdrop     = 100,  --opacity
+                height       = 0.75,      -- window height
+                width        = 1,         -- window width
+                row          = 0.50,      -- window row position (0=top, 1=bottom)
+                col          = 0.51,      -- window col position (0=left, 1=right)
+                backdrop     = 100,       --opacity
 
                 preview = {
                     default = "builtin",
-                    border = "border",
+                    border = "border", -- single, border
                     layout = "horizontal",
                     horizontal = "right:47%",
                     --hidden = "hidden",
                     winopts = {  -- builtin previewer window options
-                        number            = true,
-                        cursorline        = true,
-                        cursorlineopt     = "both",
-                        foldenable        = false,
-                        foldmethod        = "manual",
+                        signcolumn    = "no",
+                        number        = true,
+                        cursorline    = true,
+                        cursorlineopt = "both",
+                        list          = true, --list chars
+                        foldcolumn    = "0",
+                        foldenable    = false,
+                        foldmethod    = "manual",
+                        foldlevel     = 99
                     },
                 },
             },
 
             fzf_opts = {
                 ["--layout"] = "default",  -- default, reverse (search bar pos)
-                ['--marker'] = '>',
+                -- ["--marker"] = '>',
+                -- ["--with-nth"] = "1..",
+                -- ["--info"]     = "inline-right",
+                -- ["--prompt"] = "", --hide >
                 -- ["--highlight-line"] = false,
             },
 
@@ -138,7 +145,7 @@ return
 
 
         -- ## base pickers
-        -- Search builtins
+        -- Search builtin's
         vim.keymap.set({"i","n","v","t"}, "<M-f>i", function()
             require("fzf-lua").builtin({})
         end, {silent = true, desc = "Search builtins" })

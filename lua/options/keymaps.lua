@@ -7,7 +7,8 @@
 --           __/ |               | |
 --          |___/                |_|
 
-local utils = require("utils.utils")
+local utils  = require("utils.utils")
+local lsnip = require("luasnip")
 
 local v   = vim
 local map = vim.keymap.set
@@ -36,16 +37,11 @@ map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
--- super esc
+-- Super esc
 map({'i','n','s'}, '<esc>', function()
-    if require('luasnip').expand_or_jumpable() then
-        require('luasnip').unlink_current()
-    end
-
     vim.cmd('noh')
-
     return '<esc>'
-end, { desc = 'Escape, clear hlsearch, and stop snippet session', expr = true })
+end, {expr = true, desc = "Escape, clear hlsearch"})
 
 
 
@@ -618,31 +614,43 @@ map("n", "<C-i>l", "i<C-v>")
 map("n", "<C-S-k>", "i<C-S-k>")
 
 
--- ### Insert snippet
--- Insert function()
--- map("i", "<C-S-i>")
-
--- Insert var
-map({"i","n","v"}, "<C-Insert>v", function()
-    local ls = require("luasnip")
-
-    require("luasnip.loaders.from_vscode").lazy_load({
-        paths = { vim.fn.stdpath("config") .. "/snippets" },
-    })
-
-    local ft = vim.bo.filetype
-    local snips = ls.get_snippets(ft)
+-- ### Insert snippets
+---@ param prefix string
+local function try_insert_snippet(prefix)
+    local ft    = vim.bo.filetype
+    local snips = lsnip.get_snippets(ft)
 
     if not snips then return end
 
-    for _, s in ipairs(snips) do
-        if s.trigger == "variable lua" then
-            ls.snip_expand(s) return
+    for _, snip in ipairs(snips) do
+        if snip.trigger == prefix then
+            lsnip.snip_expand(snip) return
         end
     end
+end
+
+-- Insert var
+map({"i","n","v"}, "<C-Insert>v", function()
+    try_insert_snippet("var")
 end)
 
--- Insert print snippet
+-- Insert func
+map({"i","n","v"}, "<C-Insert>f", function()
+    try_insert_snippet("func")
+end)
+
+-- Insert if
+map({"i","n","v"}, "<C-Insert>if", function()
+    try_insert_snippet("if")
+end)
+
+-- Insert print
+map({"i","n","v"}, "<C-Insert>p", function()
+    try_insert_snippet("print")
+end)
+
+
+-- Surround print snippet
 map({"n","v"}, "Ô", function()
     local txt = ""
     if vim.fn.mode() == "n"
@@ -732,7 +740,7 @@ map({"i","n","v"}, "<C-v>", function()
     if ft == "" then
         -- no formating for unknown ft
     elseif ft == "markdown" or ft == "text" then
-        vim.cmd("norm! `[v`]gqw")
+        vim.cmd("norm! `[v`]gqq")
     else
         vim.cmd("norm! `[v`]=") --auto fix indent
     end
@@ -946,16 +954,16 @@ map("i", "<Tab>", function()
     vim.cmd("norm! ".. width .. "l") -- smartly move cursor
 end)
 map("n", "<Tab>", "v>")
-map("v", "<Tab>", ">gv")
+map("x", "<Tab>", ">gv")
 
 -- Indent decrease
 map("i", "<S-Tab>", "<C-d>")
 map("n", "<S-Tab>", "v<")
-map("v", "<S-Tab>", "<gv")
+map("x", "<S-Tab>", "<gv")
 
 -- Trigger Auto indent
 map({"i","n"}, "<C-=>", "<esc>==")
-map("v",       "<C-=>", "=")
+map("x",       "<C-=>", "=")
 
 
 -- ### [Line break]
@@ -1185,7 +1193,7 @@ map({"i","n"}, "<F2>", function()
 end)
 
 -- Smart goto
-map({"i","n"}, "<C-CR>", function()
+map({"i","n","v"}, "<C-CR>", function()
     local word = vim.fn.expand("<cword>")
     local WORD = vim.fn.expand("<cWORD>")
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]

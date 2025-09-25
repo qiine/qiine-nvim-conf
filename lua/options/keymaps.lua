@@ -274,20 +274,17 @@ map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
 
 
 
--- ## [Custom motions]
+-- ## [Custom Text objects]
 ----------------------------------------------------------------------
--- map({"x","o"}, "il", "<Cmd>norm! V<CR>")
-
-local function select_pair(char)
+local function select_texobj_paired(char)
+    vim.cmd('norm! ')
     vim.fn.search(char, 'bcWs')
-    vim.cmd("norm! v")
+    vim.cmd('norm! v')
     vim.fn.search(char, 'zWs')
 end
 
--- |word|
-map({"x","o"}, 'ik', function()
-    select_pair('|')
-end)
+-- Arround pipe
+map({"x","o"}, 'AP', function() select_texobj_paired('|') end, {noremap=true, silent=true})
 
 
 
@@ -335,10 +332,24 @@ end)
 map("n", "%", function()
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
+    print(char)
     if char:match("['\"]") then  --`
         local curso_spos = vim.api.nvim_win_get_cursor(0)
 
         vim.cmd("norm! v2i"..char)
+
+        local curso_epos = vim.api.nvim_win_get_cursor(0)
+
+        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+            vim.cmd('norm! o')
+        end
+
+        vim.cmd('norm! ')
+
+    elseif char:match("[|]") then
+        local curso_spos = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm vAP")
 
         local curso_epos = vim.api.nvim_win_get_cursor(0)
 
@@ -442,6 +453,7 @@ map(modes, "<C-p>p", function()
 
     vim.cmd("cd " .. groot)
 end)
+
 
 
 -- ## [Selections]
@@ -622,6 +634,7 @@ end)
 map("i", "<C-c>", function()
     if vim.fn.getline(".")  ~= "" then
         vim.cmd('norm! mz0"+y$`z')
+        vim.cmd('stopinsert')
         print("Line copied.")
     end
 end, {noremap=true})
@@ -657,7 +670,7 @@ map({"i","n","v"}, "<C-S-c>", function()
 end, {noremap=true})
 
 -- Cut
-map("i", "<C-x>", '<esc>0"+y$"_ddi', {noremap = true}) --cut line, avoids reg"
+map("i", "<C-x>", '<esc>0"+y$"_dd', {noremap = true}) --cut line, avoids reg"
 map("n", "<C-x>", '"+x',             {noremap = true})
 map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy so..
 
@@ -1130,7 +1143,7 @@ map({"i","n"}, "<F2>", function()
     require("live-rename").rename({ insert = true })
 end)
 
--- smart goto
+-- Smart goto
 map({"i","n"}, "<C-CR>", function()
     local word = vim.fn.expand("<cword>")
     local WORD = vim.fn.expand("<cWORD>")
@@ -1143,7 +1156,7 @@ map({"i","n"}, "<C-CR>", function()
 
     if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
 
-    if char:match("[(){}%[%]'\"`<>]") then
+    if char:match("[(){}%[%]'\"`<>|]") then
         vim.cmd("norm %") --no bang ! to use custom keymap
         return
     end
@@ -1190,11 +1203,14 @@ map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
 
 -- ## [Code runner]
 ----------------------------------------------------------------------
--- run current
+-- run project
+-- map({"i","n","v","c"}, "F8", )
+
+-- run curretn file
 -- map({"i","n","v"}, "", )
 
 -- run code at cursor with sniprun
--- run curr line only and insert res below
+-- run curr line only and insert res below (<C-F8>)
 map({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 
 -- Run selected code in visual mode

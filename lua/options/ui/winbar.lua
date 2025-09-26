@@ -77,26 +77,35 @@ local excluded_filetype = {
     "Outline"
 }
 
+local excluded_buftype = {
+    "terminal",
+    "quickfix",
+}
+
 --cond attach
 vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     group    = "UserAutoCmds",
     pattern  = "*",
     callback = function(args)
         vim.defer_fn(function()
-            --buff
-            if vim.bo.buftype == 'terminal' then vim.opt_local.winbar = nil return end
-
-            if not vim.api.nvim_get_option_value("buflisted",  { buf = 0 }) then
-                vim.opt_local.winbar = nil return
-            end
-
-            --prevent errors with very small windows
+            -- win
+            -- prevent errors with very small windows
             if vim.api.nvim_win_get_height(0) < 5 then return end
 
             --off in floatwin
             local wcfg = vim.api.nvim_win_get_config(vim.api.nvim_get_current_win())
             if wcfg.relative ~= "" then vim.opt_local.winbar = nil return end
 
+            --buff
+            if vim.tbl_contains(excluded_buftype, vim.bo.buftype) then
+                vim.opt_local.winbar = nil return
+            end
+
+            if not vim.api.nvim_get_option_value("buflisted",  { buf = 0 }) then
+                vim.opt_local.winbar = nil return
+            end
+
+            --ft
             if vim.tbl_contains(excluded_filetype, vim.bo.filetype) then
                 vim.opt_local.winbar = nil return
             end

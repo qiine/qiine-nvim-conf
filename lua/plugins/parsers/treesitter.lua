@@ -63,8 +63,32 @@ return
             -- Treesitter unindents Yaml lists for some reason.
             disable = { 'yaml' },
         },
+
+        textobjects = {
+            select = {
+                enable = true,
+
+                -- Automatically jump forward to textobj, similar to targets.vim
+                lookahead = true,
+
+                keymaps = {
+                    -- You can use the capture groups defined in textobjects.scm
+                    ["if"] = "@function.inner",
+                    ["af"] = "@function.outer",
+                    ["ii"] = "@conditional.outer",
+                    ["ai"] = "@conditional.inner",
+                    ["il"] = "@loop.inner",
+                    ["al"] = "@loop.outer",
+                    -- ["ic"] = "@comment.inner",
+                    -- ["ac"] = "@comment.outer",
+                },
+            },
+        },
+
     },
+
     config = function(_, opts)
         require('nvim-treesitter.configs').setup(opts)
     end
+
 }

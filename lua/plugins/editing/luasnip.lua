@@ -14,8 +14,23 @@ return
             paths = vim.fn.stdpath('config') .. '/snippets',
         }
 
+        ---@ param prefix string
+        function ls.try_insert_snippet(prefix)
+            local ft    = vim.bo.filetype
+            local snips = ls.get_snippets(ft)
+
+            if not snips then return end
+
+            for _, snip in ipairs(snips) do
+                if snip.trigger == prefix then
+                    ls.snip_expand(snip) return
+                end
+            end
+        end
+
         vim.keymap.set({"i","n"}, "<C-S-e>", function() ls.expand() end, {silent = true})
-        vim.keymap.set("s", "<Tab>", function() ls.jump( 1) end, {silent = true})
+
+        vim.keymap.set("s", "<Tab>",   function() ls.jump( 1) end, {silent = true})
         vim.keymap.set("s", "<S-Tab>", function() ls.jump(-1) end, {silent = true})
 
         -- vim.keymap.set({"i", "s"}, "<C-E>", function()
@@ -23,6 +38,7 @@ return
         --         ls.change_choice(1)
         --     end
         -- end, {silent = true})
+
     end
 }
 

@@ -1,4 +1,5 @@
 -- _
+-- _
 --| |
 --| | _____ _   _ _ __ ___   __ _ _ __  ___
 --| |/ / _ \ | | | '_ ` _ \ / _` | '_ \/ __|
@@ -490,8 +491,8 @@ map("i", "<S-Right>", "<Esc>v",  {noremap = true}) --note the v without l for in
 map("n", "<S-Right>", "vl",      {noremap = true})
 map("v", "<S-Right>", "<Right>", {noremap = true})
 
-map({"i","n"}, "<S-Up>",    "<Esc>vgk", {noremap=true})
-map("v",       "<S-Up>",    "gk",       {noremap=true}) --avoid fast scrolling around
+map({"i","n"}, "<S-Up>",   "<Esc>vgk", {noremap=true})
+map("v",       "<S-Up>",   "gk",       {noremap=true}) --avoid fast scrolling around
 
 map({"i","n"}, "<S-Down>", "<Esc>vgj",  {noremap=true})
 map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling around
@@ -615,38 +616,29 @@ map("n", "<C-S-k>", "i<C-S-k>")
 
 
 -- ### Insert snippets
----@ param prefix string
-local function try_insert_snippet(prefix)
-    local ft    = vim.bo.filetype
-    local snips = lsnip.get_snippets(ft)
-
-    if not snips then return end
-
-    for _, snip in ipairs(snips) do
-        if snip.trigger == prefix then
-            lsnip.snip_expand(snip) return
-        end
-    end
-end
-
 -- Insert var
-map({"i","n","v"}, "<C-Insert>v", function()
-    try_insert_snippet("var")
+map({"i","n","v"}, "<C-S-n>v", function()
+    lsnip.try_insert_snippet("var")
 end)
 
 -- Insert func
-map({"i","n","v"}, "<C-Insert>f", function()
-    try_insert_snippet("func")
+map({"i","n","v"}, "<C-S-n>f", function()
+    lsnip.try_insert_snippet("func")
 end)
 
 -- Insert if
-map({"i","n","v"}, "<C-Insert>if", function()
-    try_insert_snippet("if")
+map({"i","n","v"}, "<C-S-n>if", function()
+    lsnip.try_insert_snippet("if")
 end)
 
+-- Insert loop
+-- map({"i","n","v"}, "<C-S-n>p", function()
+    --     lsnip.try_insert_snippet("print")
+-- end)
+
 -- Insert print
-map({"i","n","v"}, "<C-Insert>p", function()
-    try_insert_snippet("print")
+map({"i","n","v"}, "<C-S-n>p", function()
+    lsnip.try_insert_snippet("print")
 end)
 
 
@@ -907,16 +899,17 @@ map({"i","n"}, "<M-S-s>",
 {desc = "Enter substitue mode"})
 
 -- Substitue in selection
-map("v", "<M-S-s>",
+map("x", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode in selection"})
 
--- sub word (exact)
+-- sub word (exclusive)
 map({"i","n"}, "<F50>", -- <M-F2>
 [[<esc>yiw:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitue word under cursor" })
--- sub selected (exact)
-map("v", "<F2>",
+
+-- sub selected (exclusive)
+map("x", "<F2>",
 [[y:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitue selected" })
 

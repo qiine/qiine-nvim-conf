@@ -58,12 +58,12 @@ return
 
                 lualine_b =
                 {
-                    {
-                        function() return " 📂" end,
-                        on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
-                        padding=0,
-                        color = { bg = 'NONE'},
-                    },
+                    -- {
+                    --     function() return " 📂" end,
+                    --     on_click=function() vim.cmd("echo '"..vim.fn.getcwd().."'") end,
+                    --     padding=0,
+                    --     color = { bg = 'NONE'},
+                    -- },
 
                     {
                         "branch", -- git ""
@@ -87,12 +87,10 @@ return
                         function() return ' ' end, --[] 💻   🖳
                         on_click = function()
                             vim.cmd('below split')
-                            --local cwd = vim.fn.getcwd()
-                            --local excwd = vim.fn.expand(cwd)
+
                             vim.cmd("term")
                             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
                             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-
                             local lines = vim.fn.line('$')
                             local new_height = math.floor(lines / 2)+3
                             vim.cmd('resize ' .. new_height)

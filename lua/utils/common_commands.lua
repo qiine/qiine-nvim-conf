@@ -8,7 +8,6 @@ local utils = require("utils.utils")
 -------------------------
 
 
-
 -- ## [Common]
 ----------------------------------------------------------------------
 -- Quick ressource curr
@@ -48,6 +47,7 @@ vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+    vim.api.nvim_win_set_height(0, 40)
 
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
@@ -228,8 +228,8 @@ vim.api.nvim_create_user_command("FileSaveInteractive", function()
         end
     end
 
-    if fstat and not fprivileged and not freadonly then vim.cmd("write") return end
-    if fstat and fprivileged and not freadonly then vim.cmd("SudoWrite") return end
+    if fstat and not fprivileged and not freadonly then vim.cmd("write")     return end
+    if fstat and fprivileged     and not freadonly then vim.cmd("SudoWrite") return end
     if fstat and freadonly then
         local choice = vim.fn.confirm("Can't write, file is readonly! Try force?", "&Yes\n&No", 1)
         if choice == 1 then vim.cmd("SudoWrite")                                      return

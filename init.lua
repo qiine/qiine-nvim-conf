@@ -23,6 +23,14 @@ else
     vim.opt.termguicolors = false --for tty
 end
 
+-- Highlight yanked text
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+    callback = function()
+        vim.highlight.on_yank({higroup='Visual', timeout = 185})
+    end,
+})
+
 
 
 -------------------------------
@@ -44,7 +52,7 @@ end
 -- ## Custom modules
 local module   --will hold special local modules
 
-module = safe_require("modules.v-enveloppe") if module then module.setup() end
+module = safe_require("modules.nenveloppe") if module then module.setup() end
 -- module = safe_require("modules.dialeur.dialeur") if module then module.setup() end
 safe_require("modules.tiny-session")
 safe_require("modules.rouleau-nvim")

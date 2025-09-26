@@ -21,7 +21,7 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 -- ## [Editing]
 ----------------------------------------------------------------------
--- Prevent cursor left offsetting when going from insert to normal mode
+-- Prevent cursor left offsetting when going from insert to normal mode and back to insert
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = "UserAutoCmds",
     command = "norm! `^",
@@ -46,16 +46,6 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 
 -- ## [View]
 ----------------------------------------------------------------------
--- Highlight yanked text
-vim.api.nvim_create_autocmd("TextYankPost", {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        vim.hl.on_yank({higroup = 'IncSearch', timeout = 200})
-    end,
-})
-
-
 -- No gutter for terms
 vim.api.nvim_create_autocmd('TermOpen', {
     group    = 'UserAutoCmds',

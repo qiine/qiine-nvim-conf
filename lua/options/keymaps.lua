@@ -416,14 +416,21 @@ map({"n","v"}, "<End>", "G$")
 
 -- Jump search
 map({"n","v"}, "f", function()
+    vim.api.nvim_echo({{"f"}}, false, {})
+
     local c1 = vim.fn.getcharstr()
-    if c1 == vim.keycode("<Esc>") then return end
+    if c1 == vim.keycode("<Esc>") then
+        vim.api.nvim_echo({{""}}, false, {}) return
+    end
+    vim.api.nvim_echo({{"f"..c1}}, false, {})
 
     local c2 = vim.fn.getcharstr()
     if c2 == vim.keycode("<Esc>") then return end
 
     local seq = vim.pesc(c1 .. c2) -- escape so special chars work
     vim.fn.search(c1..c2, 'Ws')
+
+    vim.api.nvim_echo({{""}}, false, {})
 end)
 
 

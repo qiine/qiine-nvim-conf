@@ -8,7 +8,7 @@
 --           __/ |               | |
 --          |___/                |_|
 
-local utils  = require("utils.utils")
+local utils = require("utils.utils")
 local lsnip = require("luasnip")
 
 local v   = vim
@@ -296,7 +296,7 @@ local function select_texobj_paired(char)
     vim.fn.search(char, 'zWs')
 end
 
--- Arround pipe
+-- Around pipe
 map({"x","o"}, 'AP', function() select_texobj_paired('|') end, {noremap=true, silent=true})
 
 
@@ -642,34 +642,6 @@ map({"i","n","v"}, "<C-S-n>p", function()
 end)
 
 
--- Surround print snippet
-map({"n","v"}, "Ô", function()
-    local txt = ""
-    if vim.fn.mode() == "n"
-    then txt = '""'
-    else
-        vim.cmd('norm! "zy')
-        txt = vim.trim(vim.fn.getreg("z"))
-        vim.cmd('norm! o')
-    end
-
-    local snip
-    local ft = vim.bo.filetype
-    if ft == "lua" then
-        snip = string.format('print(%s)', txt)
-    elseif ft == "python" then
-        snip = string.format('print(%s)', txt)
-    elseif ft == "javascript" or ft == "typescript"
-    then
-        snip = string.format('console.log(%s);', txt)
-    elseif ft == "c" or ft == "cpp" then
-        snip = string.format('printf("%s\\n"); // %s', txt, txt)
-    end
-
-    vim.cmd('norm! i' .. snip)
-end)
-
-
 -- ### [Copy / Paste]
 -- Copy whole line in insert
 map("i", "<C-c>", function()
@@ -888,17 +860,18 @@ set_visualreplace(vim.g.visualreplace)
 map("v", "<space>", '"_di<space>', {noremap=true})
 map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
+-- TODO maybe we could simply watch for key map and ignore arrow key for ex
 vim.keymap.set({"i","n","v"}, "<S-M-v>", function() toggle_visualreplace() end)
 
 
--- ### Substitue mode
+-- ### Substitute mode
 map("n", "s", "<Nop>")
 
 map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode"})
 
--- Substitue in selection
+-- Substitute in selection
 map("x", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitue mode in selection"})
@@ -935,7 +908,7 @@ map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
 
--- ### Formating
+-- ### Formatting
 -- #### Indentation
 -- Space bar in normal mode
 map("n", "<space>", "i<space><esc>")
@@ -1043,6 +1016,7 @@ map("v",       "<M-a>", "gcgv", {remap=true})
 
 
 -- ### [Macro]
+-- collide with wincmd
 map("n", "qq", '<nop>')
 map("n", "q", '<nop>')
 
@@ -1297,7 +1271,7 @@ map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves
 
 -- Cmd win
 -- Open command line window
-vim.cmd('set cedit=') -- avoids interferances
+vim.cmd('set cedit=') -- avoids interferences
 
 map("n", "q:", 'q:')
 map({"i","n","v","c"}, "“", '<esc>q:')

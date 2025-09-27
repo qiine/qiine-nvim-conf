@@ -99,17 +99,18 @@ local M =
     enter = "󰌑",
 
     -- math
-    Number        = "󰎠",
+    Numbers       = "󰎠",
     Variable      = "󰀫",
     Constant      = "󰏿",
     Operator      = "󰆕",
+    pi            = "π",
 
     -- geometry
-    dot = "",
-    circle = "◌",
+    dot      = "",
+    circle   = "◌",
     squares4 = "",
-    cube  = "",
-    star = "★",
+    cube     = "",
+    star     = "★",
 
     -- code
     func      = "󰊕",

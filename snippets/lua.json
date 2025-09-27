@@ -1,22 +1,26 @@
 {
     "new variable": {
         "prefix": "var",
-        "body": [ "local ${1:name} = ${2:value}" ]
+        "body": [ "local ${1:newvar} = ${2:}" ]
     },
 
     "new function": {
         "prefix": "func",
-        "body": [ "function ${1:name}() ${2:} end" ]
+        "body": [ "function ${1:newfunc}() ${2:} end" ]
     },
 
     "new if": {
         "prefix": "if",
-        "body": [ "if ${1:name} then ${2:} end" ]
+        "body": [
+            "if ${1:cond} then",
+            "\t${2:}",
+            "end"
+        ]
     },
 
     "print": {
         "prefix": "print",
-        "body": [ "print(\"${1:print}\")" ]
+        "body": [ "print(\"${1:hello!}\")" ]
     },
 
     "vscode snippet": {
@@ -146,6 +150,18 @@
         "prefix": "get nvim word under cursor",
         "body": [
             "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
+        ]
+    },
+
+    "set nvim text at position": {
+        "prefix": "set nvim text at position",
+        "body": [
+            "vim.api.nvim_buf_set_text(",
+            "    0,",
+            "    startrow, startcol,",
+            "    endrow,   endcol,",
+            "    {\"text\"}",
+            ")"
         ]
     },
 

@@ -1,0 +1,30 @@
+{
+    "new variable": {
+        "prefix": "var",
+        "body": [ "${1:newvar}=${2:value}" ]
+    },
+
+    "new function": {
+        "prefix": "func",
+        "body": [
+            "${1:newfunc}() {",
+                "\t${2:}",
+                "}"
+        ]
+    },
+
+    "new if": {
+        "prefix": "if",
+        "body": [
+            "if [[ ${1:cond} ]]; then",
+            "\t${2:}",
+            "fi"
+        ]
+    },
+
+    "print": {
+        "prefix": "print",
+        "body": [ "echo \"${1:hello!}\"" ]
+    }
+}
+

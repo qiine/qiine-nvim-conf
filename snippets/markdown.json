@@ -4,6 +4,14 @@
         "body": [
             "[ ]"
         ]
+    },
+
+    "add codeblock": {
+        "prefix": "codeblock",
+        "body": [
+            "```${1:lang}",
+            "```"
+        ]
     }
 
 }

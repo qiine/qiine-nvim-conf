@@ -414,7 +414,7 @@ map({"n","v"}, "<End>", "G$")
 -- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
 -- kmap({"n","v"}, "<M-Down>", "G$")
 
--- Jump search
+-- Jump seek
 map({"n","v"}, "f", function()
     vim.api.nvim_echo({{"f"}}, false, {})
 
@@ -431,6 +431,25 @@ map({"n","v"}, "f", function()
     vim.fn.search(c1..c2, 'Ws')
 
     vim.api.nvim_echo({{""}}, false, {})
+end)
+
+-- Super enter
+map({"i","n","v"}, "<C-CR>", function()
+    local word = vim.fn.expand("<cword>")
+    local WORD = vim.fn.expand("<cWORD>")
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    if WORD:match("^https?://") then
+        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
+    end
+
+    if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
+
+    if char:match("[(){}%[%]'\"`<>|]") then
+        vim.cmd("norm %") return --no bang ! to use custom keymap
+    end
+
+    vim.cmd("lua vim.lsp.buf.implementation()")
 end)
 
 
@@ -647,6 +666,7 @@ end)
 map({"i","n","v"}, "<C-S-n>p", function()
     lsnip.try_insert_snippet("print")
 end)
+
 
 
 -- ### [Copy / Paste]
@@ -1164,25 +1184,6 @@ map({"i","n"}, "<C-S-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
 map({"i","n"}, "<F2>", function()
     -- live-rename is a plugin for fancy in buffer rename preview
     require("live-rename").rename({ insert = true })
-end)
-
--- Smart goto
-map({"i","n","v"}, "<C-CR>", function()
-    local word = vim.fn.expand("<cword>")
-    local WORD = vim.fn.expand("<cWORD>")
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-
-    if WORD:match("^https?://") then
-        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
-    end
-
-    if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
-
-    if char:match("[(){}%[%]'\"`<>|]") then
-        vim.cmd("norm %") return --no bang ! to use custom keymap
-    end
-
-    vim.cmd("lua vim.lsp.buf.implementation()")
 end)
 
 

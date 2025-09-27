@@ -3,22 +3,12 @@
 local M = {}
 
 local matching_pairs = {
-    singlequotes   = { open = "'", close = "'" },
-    doublequotes   = { open = '"', close = '"' },
-    backtick       = { open = '`', close = '`' },
+    parentheses          = { open = "(", close = ")"   },
+    brackets             = { open = "{", close = "}"   },
+    squarebrackets       = { open = "[", close = "]"   },
+    doublesquarebrackets = { open = "[[", close = "]]" },
 
-    parentheses    = { open = "(", close = ")" },
-    brackets       = { open = "{", close = "}" },
-    squarebrackets = { open = "[", close = "]" }, --collide with esc mapping
-
-    pipes          = { open = "|", close = "|" },
-    slashes        = { open = "/", close = "/" },
-
-    chevrons       = { open = "<", close = ">" },
-    asterisks      = { open = "*", close = "*" },
-
-    dashes         = { open = "-", close = "-" }, -- collide with zoomout
-    underscore     = { open = "_", close = "_" },
+    chevrons             = { open = "<", close = ">"   },
 }
 
 local function jumptomatch(char)
@@ -78,7 +68,7 @@ end
 ---@ param close string
 local function enveloppe_selection(open, close)
     vim.cmd('norm! ') -- trick for correct `<`> pos
-    vim.cmd('norm! `>a'..close) -- "a" first, order matter
+    vim.cmd('norm! `>a'..close) -- "a" first, order matter because whe del chars which triggers reorders
     vim.cmd('norm! `<i'..open)
     vim.cmd('norm! `>')
 end

@@ -1,10 +1,12 @@
 
-vim.opt_local.signcolumn = "no"
-
--- unbind Indent inc
+--[.csv]
+----------------------------------------------------------------------
+-- Unbind indent inc
 vim.keymap.set({"i","n","v"}, "<Tab>", "", {buffer=true})
 
--- unbind Indent decrease
+-- Unbind indent decrease
 vim.keymap.set({"i","n","v"}, "<S-Tab>", "", {buffer=true})
 
+-- Trigger csv
+vim.cmd("CsvViewEnable")
 

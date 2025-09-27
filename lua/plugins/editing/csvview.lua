@@ -1,8 +1,9 @@
+
 return
 {
     "hat0uma/csvview.nvim",
-    event = "BufEnter",
-    -- cmd = { "CsvViewEnable", "CsvViewDisable", "CsvViewToggle" },
+    -- event = "BufEnter",
+    cmd = { "CsvViewEnable", "CsvViewDisable", "CsvViewToggle" },
 
     config = function ()
         require("csvview").setup({
@@ -27,8 +28,8 @@ return
 
             keymaps = {
                 -- Text objects for selecting fields
-                textobject_field_inner = { "if", mode = { "o", "x" } },
-                textobject_field_outer = { "af", mode = { "o", "x" } },
+                textobject_field_inner = { "icl", mode = { "o", "x" } },
+                textobject_field_outer = { "acl", mode = { "o", "x" } },
 
                 -- Excel-like navigation:
                 jump_next_field_end = { "<Tab>", mode = { "i", "n", "v" } },
@@ -40,13 +41,5 @@ return
 
         -- highlight header row
         vim.api.nvim_set_hl(0, "CsvViewHeaderLine", { fg = "#595959", bg = "#D1D1D1", bold = false })
-
-        vim.api.nvim_create_autocmd("BufEnter", {
-            group = "UserAutoCmds",
-            pattern = { "*.csv", "*.tsv" },
-            callback = function()
-                vim.cmd("CsvViewEnable")
-            end,
-        })
     end
 }

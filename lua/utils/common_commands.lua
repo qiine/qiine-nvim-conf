@@ -239,8 +239,12 @@ vim.api.nvim_create_user_command("FileSaveInteractive", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    if fpath == "" then fpath = vim.uv.cwd() end
+    local cwd = vim.fn.getcwd()
+
+    local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t")
+    if name == "" then name = "newfile" end
+
+    local fpath = cwd.."/"..name
 
     local function prompt_user()
         vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"},
@@ -268,7 +272,7 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
                 end
             end
 
-            --check target path for existing file
+            -- Check target path for existing file
             if vim.uv.fs_stat(input) then
                 local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
                 if choice ~= 1 then

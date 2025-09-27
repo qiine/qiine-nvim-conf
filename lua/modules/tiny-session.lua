@@ -66,7 +66,7 @@ end
 --cmd create/save session
 vim.api.nvim_create_user_command("SaveGlobalSession", function()
     M.globalsession_save()
-    --print("global session saved: " .. GLOBAL_SESSION)
+    -- print("global session saved: " .. GLOBAL_SESSION)
 end, {})
 
 --edit global session file
@@ -77,7 +77,7 @@ end, {})
 --Load session
 vim.api.nvim_create_user_command("LoadGlobalSession", function()
     --vim.cmd("silent! source " .. GLOBAL_SESSION)
-    print("Loading last global session")
+    -- print("Loading last global session")
     vim.cmd("source " .. GLOBAL_SESSION)
 end, {})
 

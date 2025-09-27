@@ -1,6 +1,9 @@
 
 # ignore files
+todo.txt
+todo.md
 TODO.txt
+TODO.md
 session.vim
 .git
 lazy-lock.json

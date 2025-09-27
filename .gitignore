@@ -10,5 +10,5 @@ lazy-lock.json
 
 # ignore ALL files directories
 temp/
-/nvim/spell/
+nvim/spell/*
 

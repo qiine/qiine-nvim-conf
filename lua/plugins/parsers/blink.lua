@@ -2,7 +2,7 @@ return
 {
     'saghen/blink.cmp',
     enabled = true,
-    event = {"InsertEnter","CmdlineEnter"},
+    event = {"BufEnter","CmdlineEnter"},
     version = '*',  -- use a release tag to download pre-built binaries
 
     dependencies = {

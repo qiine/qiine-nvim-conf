@@ -188,8 +188,8 @@ map({"i","n","v"}, "<M-S-z>", "<Cmd>norm! za<CR>")
 -- ## [Windows]
 ----------------------------------------------------------------------
 -- Rebind win prefix
-map({"i","n","v"}, "<M-w>", "<esc><C-w>",   {noremap=true})
-map("t", "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
+map({"i","n","v"}, "<M-w>", "<esc><C-w>", {noremap=true})
+map("t",           "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 -- Open window
 map(modes, "<M-w>n", function ()
@@ -223,9 +223,9 @@ map(modes, "<M-w>nf", function ()
     local fwin = vim.api.nvim_open_win(0, true, wopts)
 end)
 
---make ver split
+-- Make ver split
 map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
---make hor split
+-- Make hor split
 map(modes, "<M-w>h", "<cmd>sp<cr>")
 
 -- To next window (include splits)
@@ -418,18 +418,33 @@ map({"n","v"}, "<End>", "G$")
 map({"n","v"}, "f", function()
     vim.api.nvim_echo({{"f"}}, false, {})
 
+    -- Gather first char
     local c1 = vim.fn.getcharstr()
+
     if c1 == vim.keycode("<Esc>") then
         vim.api.nvim_echo({{""}}, false, {}) return
     end
     vim.api.nvim_echo({{"f"..c1}}, false, {})
 
+    -- Gather sec char
     local c2 = vim.fn.getcharstr()
     if c2 == vim.keycode("<Esc>") then return end
 
-    local seq = vim.pesc(c1 .. c2) -- escape so special chars work
-    vim.fn.search(c1..c2, 'Ws')
+    -- Seek until last visible line
+    -- Prevent messing with scrolling while seeking
+    local defscrollo = vim.opt.scrolloff:get()
+    vim.opt_local.scrolloff = 0
 
+    -- Start search from the first visible row/col
+    local strtline = vim.fn.line("w0")
+    local endline  = vim.fn.line("w$")
+    vim.api.nvim_win_set_cursor(0, {strtline, 0})
+
+    local seq = vim.pesc(c1 .. c2) -- escape so special chars work
+    vim.fn.search(seq, 'cWzs', endline)
+
+    -- reset
+    vim.o.scrolloff = defscrollo
     vim.api.nvim_echo({{""}}, false, {})
 end)
 

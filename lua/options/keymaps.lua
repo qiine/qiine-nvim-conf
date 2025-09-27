@@ -632,10 +632,16 @@ map("v", "î", function()
     end
 end)
 
+-- Insert raw escape seq for key
+map({"i","n"}, "<C-S-i>", function()
+    vim.cmd([[norm! i\]] .. vim.fn.getchar())
+end, {noremap=true})
+
 -- Insert literal
 -- TODO update wezterm? so we can use C-i again without coliding with Tab
 -- map("i", "<C-i>l", "<C-v>", {noremap=true})
 map("n", "<C-i>l", "i<C-v>")
+
 
 -- Insert digraph
 map("n", "<C-S-k>", "i<C-S-k>")

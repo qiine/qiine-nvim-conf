@@ -132,7 +132,7 @@ map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
 -- Resource curr file
 map(modes, "ç", function()  --"<altgr-r>"
-    local cf    = vim.fn.expand("%:p")
+    local cf = vim.fn.expand("%:p")
     vim.cmd("source "..cf)
 
     print("Ressourced: "..'"'..vim.fn.fnamemodify(cf, ":t")..'"')
@@ -422,9 +422,10 @@ map({"n","v"}, "f", function()
     local c1 = vim.fn.getcharstr()
 
     if c1 == vim.keycode("<Esc>") then
-        vim.api.nvim_echo({{""}}, false, {}) return
+        vim. api.nvim_echo({{""}}, false, {}) return
     end
     vim.api.nvim_echo({{"f"..c1}}, false, {})
+
 
     -- Gather sec char
     local c2 = vim.fn.getcharstr()
@@ -454,11 +455,13 @@ map({"i","n","v"}, "<C-CR>", function()
     local WORD = vim.fn.expand("<cWORD>")
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
+    print(WORD)
     if WORD:match("^https?://") then
         vim.cmd("silent! !" .. "xdg-open " .. WORD) return
     end
 
-    if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
+    local path = vim.fn.expand(WORD)
+    if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
 
     if char:match("[(){}%[%]'\"`<>|]") then
         vim.cmd("norm %") return --no bang ! to use custom keymap
@@ -468,6 +471,7 @@ map({"i","n","v"}, "<C-CR>", function()
 end)
 
 
+    local WORD = vim.fn.expand("<cWORD>")
 -- ### Search
 map({"i","n","v","c"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl

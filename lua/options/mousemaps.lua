@@ -3,9 +3,8 @@
 
 local v = vim
 local vapi = vim.api
+
 local map = vim.keymap.set
-local vcmd = vim.cmd
------------------------------------------------
 
 
 
@@ -59,27 +58,8 @@ map('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true})
 -- map('n', '<LeftMouse>', '', {noremap=true, silent=true})
 -- map('n', '<RightMouse>', '', { noremap=true, silent=true})
 
-map({"i","n","v"}, '<C-LeftMouse>', function()
-    vim.api.nvim_feedkeys("<LeftMouse>", "n", false)
 
-    local word = vim.fn.expand("<cword>")
-    local WORD = vim.fn.expand("<cWORD>")
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-
-    if WORD:match("^https?://") then
-        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
-    end
-
-    local path = vim.fn.expand(WORD)
-    if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
-
-    if char:match("[(){}%[%]'\"`<>|]") then
-        vim.cmd("norm %") return --no bang ! to use custom keymap
-    end
-
-    vim.cmd("lua vim.lsp.buf.implementation()")
-end)
-
+map({"i","n","v"}, '<C-LeftMouse>', "<esc><LeftMouse><Cmd>HyperAct<CR>", {noremap=true})
 
 -- vis
 map({"i","n","v"}, "<M-LeftMouse>", "<esc><C-v><LeftMouse>", {noremap = true})

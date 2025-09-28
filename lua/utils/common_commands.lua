@@ -10,6 +10,33 @@ local utils = require("utils.utils")
 
 -- ## [Common]
 ----------------------------------------------------------------------
+-- Hyper act
+vim.api.nvim_create_user_command("HyperAct", function()
+    local mode = vim.fn.mode()
+    if mode == "v" or mode == "V" or mode == "" then
+        vim.cmd("norm! ")
+    end
+
+    local word = vim.fn.expand("<cword>")
+    local WORD = vim.fn.expand("<cWORD>")
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    if WORD:match("^https?://") then
+        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
+    end
+
+    local ok, path = pcall(vim.fn.expand, WORD)
+    if ok and type(path) == "string" then
+        if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
+    end
+
+    if char:match("[(){}%[%]'\"`<>|]") then
+        vim.cmd("norm %") return --no bang ! to use custom keymap
+    end
+
+    vim.cmd("lua vim.lsp.buf.implementation()")
+end, {})
+
 -- Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
     local currf = vim.fn.expand("%:p")

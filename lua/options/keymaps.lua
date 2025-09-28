@@ -72,7 +72,7 @@ map(modes, "<C-w>", function()
     end
 
     -- try close cmdline before
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("<C-L>", "n", false) end
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
     -- Try :close first, in case both splits are same buf (fails if no split)
     -- It avoids wiping the shared buffer in this case
@@ -95,27 +95,6 @@ end, {noremap=true})
 
 -- ## [Files]
 ----------------------------------------------------------------------
--- Open file manager
-map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
--- map(modes, "<C-e>", function()
---     local home = vim.fn.expand("~")
---     local cdir = vim.fn.getcwd()
-
---     require("neo-tree.command").execute({
---         action = "show",
---         dir = cdir,
---         position = "left",
---         reveal = true,
---         window = { width = 20 },
---         filesystem = {bind_to_cwd = false}
---     })
-
---     require("oil").open(cdir)
--- end)
-
--- Open file picker
-map(modes, "<C-o>", "<cmd>FilePicker<CR>")
-
 -- File action
 map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
 map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
@@ -137,6 +116,28 @@ map(modes, "ç", function()  --"<altgr-r>"
 
     print("Ressourced: "..'"'..vim.fn.fnamemodify(cf, ":t")..'"')
 end)
+
+
+-- Open file manager
+map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
+-- map(modes, "<C-e>", function()
+--     local home = vim.fn.expand("~")
+--     local cdir = vim.fn.getcwd()
+
+--     require("neo-tree.command").execute({
+--         action = "show",
+--         dir = cdir,
+--         position = "left",
+--         reveal = true,
+--         window = { width = 20 },
+--         filesystem = {bind_to_cwd = false}
+--     })
+
+--     require("oil").open(cdir)
+-- end)
+
+-- Open file picker
+map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
 
 
@@ -448,35 +449,33 @@ map({"n","v"}, "f", function()
     vim.api.nvim_echo({{""}}, false, {})
 end)
 
--- Super enter
-map({"i","n","v"}, "<C-CR>", function()
-    local word = vim.fn.expand("<cword>")
-    local WORD = vim.fn.expand("<cWORD>")
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-
-    print(WORD)
-    if WORD:match("^https?://") then
-        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
-    end
-
-    local path = vim.fn.expand(WORD)
-    if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
-
-    if char:match("[(){}%[%]'\"`<>|]") then
-        vim.cmd("norm %") return --no bang ! to use custom keymap
-    end
-
-    vim.cmd("lua vim.lsp.buf.implementation()")
-end)
+-- Hyper act
+map({"i","n","v"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
 
 -- Open quickfix list
 map({"i","n","v","c","t"}, "<F9>", function()
-    if vim.bo.buftype == "quickfix" then
-        vim.cmd("cclose")
-    else
-        vim.cmd("copen")
-    end
+    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
+
+    -- proper cmd close
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+    vim.cmd("copen")
+
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end)
+
+
+-- Open task
+-- General task
+map({"i","n","v","c","t"}, "<F4>", "<Cmd>Planv<CR>")
+
+-- Project task
+-- map({"i","n","v","c","t"}, "<F16>", "<Cmd>Planv<CR>")
+
+
+-- open curr proj doc
+-- map({"i","n","v","c","t"}, "<F3>", function()
 
 
 -- ### Search
@@ -485,7 +484,7 @@ map({"i","n","v","c"}, "<C-f>", function()
     vim.o.hlsearch = true
 
     -- Proper clear and exit cmd mode
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "n", false) end
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
     if vim.fn.mode() ~= "v" then
         vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
@@ -964,8 +963,8 @@ map("n", "<M-->", "vgu<esc>")
 map("v", "<M-->", "gugv")
 
 -- Smart increment/decrement
-map({"n"}, "+", function() utils.smartincrement() end)
-map({"n"}, "-", function() utils.smartdecrement() end)
+map({"n"}, "+", function() --[[ utils.smartincrement() ]] end)
+map({"n"}, "-", function() --[[ utils.smartdecrement() ]] end)
 
 
 -- ### Formatting
@@ -1278,7 +1277,7 @@ map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 -- exec curr line as ex command
 -- F56 is <M-F8>
 map({"i","n"}, "<F56>", function() vim.cmd('norm! 0"zy$'); vim.cmd('@z') end)
-map("v", "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
+map("v",       "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
 
 
 

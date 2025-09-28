@@ -64,8 +64,25 @@ map('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true})
 map("n", "<2-LeftMouse>", "i", {noremap = true})
 
 
---show hover with ctrl+rightclick
+--show hover with ctrl+rightclick, <LeftMouse> is use to force focus of the word
 map({"i","n","v"}, '<C-RightMouse>', "<LeftMouse><cmd>lua vim.lsp.buf.hover()<CR>")
---function() vim.lsp.buf.hover() end)
 
+
+map({"i","n","v"}, '<C-LeftMouse>', function()
+    local word = vim.fn.expand("<cword>")
+    local WORD = vim.fn.expand("<cWORD>")
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    if WORD:match("^https?://") then
+        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
+    end
+
+    if vim.fn.filereadable(WORD) == 1 then vim.cmd("norm! gf") return end
+
+    if char:match("[(){}%[%]'\"`<>|]") then
+        vim.cmd("norm %") return --no bang ! to use custom keymap
+    end
+
+    vim.cmd("lua vim.lsp.buf.implementation()")
+end)
 

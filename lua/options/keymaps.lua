@@ -426,7 +426,6 @@ map({"n","v"}, "f", function()
     end
     vim.api.nvim_echo({{"f"..c1}}, false, {})
 
-
     -- Gather sec char
     local c2 = vim.fn.getcharstr()
     if c2 == vim.keycode("<Esc>") then return end
@@ -470,8 +469,16 @@ map({"i","n","v"}, "<C-CR>", function()
     vim.cmd("lua vim.lsp.buf.implementation()")
 end)
 
+-- Open quickfix list
+map({"i","n","v","c","t"}, "<F9>", function()
+    if vim.bo.buftype == "quickfix" then
+        vim.cmd("cclose")
+    else
+        vim.cmd("copen")
+    end
+end)
 
-    local WORD = vim.fn.expand("<cWORD>")
+
 -- ### Search
 map({"i","n","v","c"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl
@@ -1166,7 +1173,7 @@ end)
 -- Diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 
-map({"i","n","v"}, "<F9>", function ()
+map({"i","n","v"}, "<F22>", function ()
     local vt = vim.diagnostic.config().virtual_text
     local enabled = (vt ~= false) -- true if not explicitly false
 

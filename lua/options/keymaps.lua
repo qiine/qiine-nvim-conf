@@ -480,7 +480,8 @@ map({"i","n","v","c"}, "<C-f>", function()
         vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
     else
         vim.cmd("norm! y")
-        vim.api.nvim_feedkeys([[/\V"]], "c", false)
+        vim.api.nvim_feedkeys([[/\V"
+]], "c", false)
     end
 end)
 
@@ -1277,10 +1278,6 @@ map("i",       "œ", "<esc>:")
 map({"n","v"}, "œ", ":")
 map("t",       "œ", "<Esc><C-\\><C-n>:")
 
--- Open command line in term mode
-map({"i","c"}, "<S-Œ>", "<esc>:!")
-map({"n","v"}, "<S-Œ>", ":!")
-
 -- cmd completion menu
 -- map("c", "<C-d>", "<C-d>")
 
@@ -1290,12 +1287,12 @@ map("c", "<Down>", "<C-n>")
 
 map("c", "<S-Tab>", "<C-n>")
 
--- Clear cmd in insert
-map("i", "<C-l>", "<C-o><C-l>")
-
 -- Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 -- map("c", "<esc>", "<C-c>", {noremap=true})
+
+-- Clear cmd in insert
+map("i", "<C-l>", "<C-o><C-l>")
 
 
 -- Cmd win
@@ -1303,17 +1300,22 @@ map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves
 vim.cmd('set cedit=') -- avoids interferences
 
 map("n", "q:", 'q:')
-map({"i","n","v","c"}, "“", '<esc>q:')
-map("t", "“", '<Esc><C-\\><C-n>q:')
+map({"i","n","v","c"}, "<M-`>", '<esc>q:')
+map("t", "<M-`>", '<Esc><C-\\><C-n>q:')
 
 -- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     group = "UserAutoCmds",
     callback = function()
-        vim.keymap.set("n", "<esc>", ":quit<CR>", {buffer=true})
-        vim.keymap.set("n", "“", ':quit<CR>' , {buffer=true})
+        vim.keymap.set("n", "<esc>", ":quit<CR>",  {buffer=true})
+        vim.keymap.set("n", "<M-`>", ':quit<CR>' , {buffer=true})
     end,
 })
+
+
+-- Open command line in term mode
+map({"i","c"}, "<S-Œ>", "<esc>:!")
+map({"n","v"}, "<S-Œ>", ":!")
 
 
 

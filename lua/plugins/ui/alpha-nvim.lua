@@ -312,18 +312,17 @@ return
         }
 
         vim.api.nvim_create_augroup("Alpha-nvim", { clear = true })
-        vim.api.nvim_create_autocmd("TabNewEntered", {
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "AlphaReady",
             group = "Alpha-nvim",
             callback = function()
-                -- vim.cmd("bd!")
-                -- math.randomseed(os.time())
-                -- require("alpha").start()
-            end,
-        })
+                vim.opt_local.statuscolumn   = ""
+                vim.opt_local.signcolumn     = "no"
+                vim.opt_local.number         = false
+                vim.opt_local.relativenumber = false
+                vim.opt_local.foldcolumn     = "0"
 
-        vim.api.nvim_create_autocmd("User", {
-            pattern = "LazyVimStarted",
-            callback = function()
+                -- require("alpha").start()
                 require("alpha").setup { layout = dashlayout()}
             end,
         })

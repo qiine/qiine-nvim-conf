@@ -300,6 +300,15 @@ end
 -- Around pipe
 map({"x","o"}, 'AP', function() select_texobj_paired('|') end, {noremap=true, silent=true})
 
+map({"x","o"}, '%', function()
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    if char:match("['\"`]") then
+        vim.cmd("norm! v2i"..char)
+    else
+        vim.cmd('norm! v%')
+    end
+end)
+
 
 
 -- ## [Navigation]
@@ -363,7 +372,7 @@ map("n", "%", function()
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     print(char)
-    if char:match("['\"]") then  --`
+    if char:match("['\"`]") then  --`
         local curso_spos = vim.api.nvim_win_get_cursor(0)
 
         vim.cmd("norm! v2i"..char)
@@ -403,13 +412,13 @@ map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
 map({"n","v"},     "<M-Right>", "<cmd>norm! $<cr>")
 
 -- Jump home/end
-map("i",       "<Home>", "<Esc>gg0i")
+map("i",       "<Home>", "<Esc>ggI")
 map({"n","v"}, "<Home>", "gg0")
 
 --kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
 --kmap({"n","v"}, "<M-Up>", "gg0")
 
-map("i",       "<End>", "<Esc>G$a")
+map("i",       "<End>", "<Esc>GA")
 map({"n","v"}, "<End>", "G$")
 
 -- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
@@ -638,6 +647,7 @@ map({"i","n","v"}, "<S-M-Down>",  function() move_blockselect("j") end)
 
 -- ## [Editing]
 ----------------------------------------------------------------------
+-- ### Insert
 -- Toggle insert/normal with insert key
 map("i", "<Ins>", "<Esc>")
 map("n", "<Ins>", "i")
@@ -794,7 +804,7 @@ map("i",       "<C-S-z>", "<C-o><C-r>")
 map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 
--- ### Deletion
+-- ### [Deletion]
 -- #### Remove
 -- Remove char
 -- kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
@@ -822,7 +832,7 @@ map("v", "<M-S-BS>", 'r ') -- TODO better keybind hack with westerm
 map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
 
 
--- ### Delete
+-- #### Delete
 -- Del char
 map("n", "<Del>", 'v"_d')
 map("v", "<Del>", '"_di')
@@ -855,7 +865,7 @@ map("n", "dd", function()
     if vim.fn.getline(".") == "" then
         vim.cmd('norm! "_dd')
     else
-        vim.cmd('norm! dd')
+        vim.cmd('norm! 0d$"_dd') -- avoids yanking \n
     end
 end)
 
@@ -878,7 +888,7 @@ map({"i","n"}, "<C-S-Del>", function()
 end)
 
 
--- ### Replace
+-- ### [Replace]
 -- Change in word
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
@@ -888,7 +898,7 @@ map("v", "<M-r>", "r")
 -- Replace visual selection with key
 vim.g.visualreplace = true
 
----@param active bool
+---@param active boolean
 local function set_visualreplace(active)
     local chars = vim.iter({
         utils.alphabet_lowercase, utils.alphabet_uppercase,
@@ -963,8 +973,8 @@ map("n", "<M-->", "vgu<esc>")
 map("v", "<M-->", "gugv")
 
 -- Smart increment/decrement
-map({"n"}, "+", function() --[[ utils.smartincrement() ]] end)
-map({"n"}, "-", function() --[[ utils.smartdecrement() ]] end)
+map({"n"}, "+", function() utils.smartincrement() end)
+map({"n"}, "-", function() utils.smartdecrement() end)
 
 
 -- ### Formatting
@@ -1079,6 +1089,8 @@ map("v",       "<M-a>", "gcgv", {remap=true})
 map("n", "qq", '<nop>')
 map("n", "q", '<nop>')
 
+map("n", "<M-m>", 'q')
+
 
 
 -- ## [Text intelligence]
@@ -1172,17 +1184,7 @@ end)
 -- Diag panel
 map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 
-map({"i","n","v"}, "<F22>", function ()
-    local vt = vim.diagnostic.config().virtual_text
-    local enabled = (vt ~= false) -- true if not explicitly false
-
-    vim.diagnostic.show(nil, 0)
-    vim.diagnostic.hide(nil, 0)
-    vim.diagnostic.show(nil, 0)
-
-    vim.diagnostic.config({ virtual_text = not enabled })
-    vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
-end, { desc = "Toggle diagnostic virtual text" })
+map({"i","n","v"}, "<F22>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
 -- Ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")

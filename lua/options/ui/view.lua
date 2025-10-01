@@ -113,6 +113,7 @@ vim.api.nvim_create_autocmd("InsertEnter", {
         vim.o.hlsearch = false
     end,
     group = 'UserAutoCmds',
+    desc = "Handle large file",
 })
 
 -- Search text highlight col
@@ -147,19 +148,17 @@ vim.o.foldcolumn = "1"
 --"1" Show dedicated fold column and numbers in the gutter
 
 vim.o.foldenable = true --see actual folds in gutter,
---if false but foldcolumn=1, there will simply be an empty column
-
 vim.o.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
 vim.o.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
 
 vim.o.foldlevel      = 99 --hack to Keep folds open by default
 vim.o.foldlevelstart = 99
-vim.o.foldnestmax    = 7
+vim.o.foldnestmax    = 10
 
 
 -- fillchars
 vim.opt.fillchars:append({
-    fold      = ".", --in place of the folded text
+    fold      = " ", --in place of the folded text
     foldopen  = "⌄", --   ⌄ ▾
     foldclose = ">", -- > ▸
     foldsep   = " ", -- │  --separate folds (for open folds)

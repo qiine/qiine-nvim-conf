@@ -119,22 +119,26 @@ end)
 
 
 -- Open file manager
-map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
--- map(modes, "<C-e>", function()
---     local home = vim.fn.expand("~")
---     local cdir = vim.fn.getcwd()
+-- map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
+map(modes, "<C-e>", function()
+    local home = vim.fn.expand("~")
+    local cdir = vim.fn.getcwd()
+    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
+    local cur_win = vim.api.nvim_get_current_win()
 
---     require("neo-tree.command").execute({
---         action = "show",
---         dir = cdir,
---         position = "left",
---         reveal = true,
---         window = { width = 20 },
---         filesystem = {bind_to_cwd = false}
---     })
+    -- require("neo-tree.command").execute({
+    --     action = "show",
+    --     dir = rootdir,
+    --     position = "left",
+    --     reveal = true,
+    --     focus = false,
+    --     window = { width = 20 },
+    --     filesystem = {bind_to_cwd = false}
+    -- })
 
---     require("oil").open(cdir)
--- end)
+    vim.api.nvim_set_current_win(cur_win)  -- restore focus
+    require("oil").open(cdir)
+end)
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
@@ -1089,7 +1093,8 @@ map("v",       "<M-a>", "gcgv", {remap=true})
 map("n", "qq", '<nop>')
 map("n", "q", '<nop>')
 
-map("n", "<M-m>", 'q')
+map({"i","n","v"}, "<S-M-m>", '<esc>qq')
+map("n", "<M-m>", '@q')
 
 
 

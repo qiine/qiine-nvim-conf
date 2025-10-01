@@ -143,6 +143,17 @@ vim.opt.undolevels = 2000
 -- Persistent undo
 vim.opt.undofile = true
 
+vim.api.nvim_create_autocmd("BufReadPre", {
+    group = "UserAutoCmds",
+    callback = function(args)
+        local fsize = vim.fn.getfsize(args.file)
+        if fsize > 2048*2048 then
+            vim.opt_local.undolevels = -1
+            vim.opt_local.undofile   = false
+        end
+    end,
+}, {desc = "Handle large file"})
+
 local undodir = vim.fn.stdpath("data") .. "/undo"
 
 if vim.fn.isdirectory(undodir) == 0 then

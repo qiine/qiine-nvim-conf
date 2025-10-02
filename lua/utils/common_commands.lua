@@ -15,11 +15,14 @@ vim.api.nvim_create_user_command("HyperAct", function()
     local mode = vim.fn.mode()
     if mode == "v" or mode == "V" or mode == "" then
         vim.cmd("norm! ")
+
     end
 
+    local buft = vim.bo.buftype
+
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
     local word = vim.fn.expand("<cword>")
     local WORD = vim.fn.expand("<cWORD>")
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     if WORD:match("^https?://") then
         vim.cmd("silent! !" .. "xdg-open " .. WORD) return
@@ -34,7 +37,11 @@ vim.api.nvim_create_user_command("HyperAct", function()
         vim.cmd("norm %") return --no bang ! to use custom keymap
     end
 
-    vim.cmd("lua vim.lsp.buf.implementation()")
+    if vim.lsp.get_clients({bufnr=0})[1] or buft ~= "help" then
+        vim.cmd("lua vim.lsp.buf.implementation()")
+    else
+        vim.cmd("norm! \29")
+    end
 end, {})
 
 -- Quick ressource curr
@@ -708,7 +715,7 @@ end, {desc = "Delete all marks in the current buffer"})
 
 --Open code action floating win
 vim.api.nvim_create_user_command("CodeAction", function()
-    require("tiny-code-action").code_action()
+    vim.cmd("lua vim.lsp.buf.code_action()")
 end, {})
 
 vim.api.nvim_create_user_command("PrintCharInfo", function()
@@ -750,7 +757,7 @@ vim.api.nvim_create_user_command("ShowHex", function()
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end, {desc = "Show current file's hex representation in another buffer" })
 
-vim.api.nvim_create_user_command("ToggleHexMode", function()
+vim.api.nvim_create_user_command("HexModeToggle", function()
     local ft = vim.bo.filetype
 
     if ft ~= "hex" then
@@ -762,8 +769,35 @@ vim.api.nvim_create_user_command("ToggleHexMode", function()
     end
 end, { desc = "Toggle between hex view and normal view" })
 
+-- Manage large files
+vim.api.nvim_create_user_command("LargeFileModeToggle", function()
+    local deffoldm = vim.opt.foldmethod:get()
+    local defundol = vim.opt.undolevels:get()
+    local defundof = vim.opt.undofile:get()
 
--- ### Tables
+    if not vim.g.largefilemode then
+        vim.g.largefilemode = true
+
+        vim.opt_local.foldmethod = "manual"
+        vim.opt_local.undolevels = -1
+        vim.opt_local.undofile   = false
+        vim.cmd("LspStop")
+        vim.cmd("DiagnosticVirtualTextToggle")
+    else
+        vim.g.largefilemode = false
+
+        vim.opt.foldmethod = deffoldm
+        vim.opt.undolevels = defundol
+        vim.opt.undofile   = defundof
+        vim.cmd("LspRestart")
+        vim.cmd("DiagnosticVirtualTextToggle")
+    end
+
+    vim.notify("Large file mode: " .. tostring(vim.g.largefilemode))
+end, {})
+
+
+-- ### calc
 vim.api.nvim_create_user_command("CSVAppendColumnEnd", function(opts)
     local val = opts.args ~= "" and opts.args or "New"
 
@@ -1000,5 +1034,15 @@ vim.api.nvim_create_user_command("FacingPages", function()
         end,
     })
 end, {})
+
+vim.api.nvim_create_user_command("DiagnosticVirtualTextToggle", function()
+    local vt = vim.diagnostic.config().virtual_text
+    local enabled = (vt ~= false)
+    vim.diagnostic.config({ virtual_text = not enabled })
+
+    vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
+end, { desc = "Toggle diagnostic virtual text" })
+
+
 
 

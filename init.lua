@@ -31,10 +31,14 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 
+-- Leader key
+vim.g.mapleader = "<S-Space>"
+-- vim.g.maplocalleader = "\\"
 
 
--------------------------------
 
+-- [Modules]
+----------------------------------------------------------------------
 -- This avoid breaking everything when a lua modules has errors
 local function safe_require(module_name)
     local status, module = pcall(require, module_name)

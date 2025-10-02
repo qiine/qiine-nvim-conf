@@ -64,10 +64,14 @@ return
                 rm = function(path) return true end,
             },
 
+            -- lsp_file_methods = {
+            --     enabled = true,
+            --     timeout_ms = 1000,
+            --     autosave_changes = true,
+            -- },
+
             use_default_keymaps = false,
             keymaps = {
-                ["?"] = { "actions.show_help", mode = "n" },
-
                 ["<CR>"] = {
                     callback = function()
                         local oil = require("oil")
@@ -81,7 +85,7 @@ return
                         end
                     end,
                     desc = "Open entry, and cd if directory",
-                    mode = "n",
+                    mode = {"i","n"},
                 },
                 ["<2-LeftMouse>"] = {
                     callback = function()
@@ -96,21 +100,34 @@ return
                         end
                     end,
                     desc = "Open entry, and cd if directory",
-                    mode = "n",
+                    mode = {"i","n"},
                 },
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
-
-                ["q"] = { function() require("oil").close() end, mode="n" },
-                ["<F5>"] = "actions.refresh",
                 ["gx"] = "actions.open_external",
 
-                ["-"] = { "actions.parent", mode = "n" },
-                ["`"] = { "actions.cd",     mode = "n" },
-                ["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
+                ["<C-w>"] = { "actions.close", mode = {"i","n","v"}, },
+                ["<C-e>"] = { "actions.close", mode = {"i","n","v"}, },
+
+                ["<C-Home>"] = {
+                    callback = function()
+                        require("oil.actions").parent.callback()
+                        require("oil.actions").cd.callback()
+                    end,
+                    mode = {"i","n","v"},
+                },
+                ["<C-End>"] = {
+                    callback = function()
+                        require("oil").select({}, function() -- select curr
+                            require("oil.actions").cd.callback()
+                        end)
+                    end,
+                    mode = {"i","n","v"}
+                },
 
                 ["gs"] = { "actions.change_sort", mode = "n" },
                 ["gp"] = "actions.preview",
                 ["gh"] = { "actions.toggle_hidden", mode = "n" },
+                ["<F5>"] = "actions.refresh",
 
                 ["n"] = {
                     function()
@@ -131,35 +148,15 @@ return
                     end
                 },
                 ["<Del>"] = { function() vim.cmd("norm! dd") end, mode = "n" },
-                ["<F2>"] = { function() vim.cmd("norm! cc") vim.cmd("startinsert") end, mode = "n" },
+                ["<F2>"] = { function() vim.cmd('norm! "_cc') vim.cmd("startinsert") end, mode = "n" },
+
+                ["?"] = { "actions.show_help", mode = "n" },
             },
-        })
-
-        -- Close Neotree in this context
-        -- vim.api.nvim_create_autocmd('BufDelete', {
-        --     group = 'UserAutoCmds',
-        --     callback = function()
-                -- if vim.bo.filetype == "oil" then
-            --         vim.cmd("Neotree close")
-            --     end
-        --     end,
-        -- })
-
-        -- Follow cwd changes
-        vim.api.nvim_create_autocmd('DirChanged', {
-            group = 'UserAutoCmds',
-            callback = function()
-                if vim.bo.filetype == "oil" then
-                    vim.defer_fn(function()
-                        require("oil").open(vim.fn.getcwd())
-                    end, 20)
-                end
-            end,
         })
 
 
         -- For git signs
-        -- require("oil-git-status").setup()
+        require("oil-git-status").setup()
     end,
 }
 

@@ -41,22 +41,21 @@
         "prefix": "nvim user command",
         "body": [
             "vim.api.nvim_create_user_command(\"${1:NewUserCmd}\", function()",
-                "\t${0}",
+                "\t${2:}",
             "end, {})"
         ],
-        "description": "Create a new user command in Neovim"
+        "description": ""
     },
 
     "nvim autocommand": {
         "prefix": "nvim autocommand",
-        "description": "Create a new nvim auto command",
         "body": [
-            "vim.api.nvim_create_autocmd('BufEnter', {",
-            "\tgroup = 'UserAutoCmds',",
-            "\tpattern = '*',",
-            "\tcallback = function()",
-                "\t\t--do stuff",
-            "\tend,",
+            "vim.api.nvim_create_autocmd('${1:BufEnter}', {",
+                "\tgroup = 'UserAutoCmds',",
+                "\tpattern = '*',",
+                "\tcallback = function()",
+                    "\t\t${0:stuff}",
+                "\tend,",
             "})"
         ]
     },
@@ -128,7 +127,7 @@
 
     "vim cmd": {
         "prefix": "vim.cmd",
-        "body": [ "vim.cmd(\"\")" ]
+        "body": [ "vim.cmd(\"${1:}\")" ]
     },
 
     "get nvim mode": {
@@ -150,6 +149,13 @@
         "prefix": "get nvim word under cursor",
         "body": [
             "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
+        ]
+    },
+
+    "get nvim region": {
+        "prefix": "get nvim region",
+        "body": [
+            "vim.fn.getregion(${1:startpos}, ${2:endpos})[1]"
         ]
     },
 

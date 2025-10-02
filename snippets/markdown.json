@@ -1,6 +1,13 @@
 {
-    "Add checkbox": {
-        "prefix": "add checkbox",
+    "heading": {
+        "prefix": "heading",
+        "body": [
+            "## ${1:lang}"
+        ]
+    },
+
+    "add checkbox": {
+        "prefix": "checkbox",
         "body": [
             "[ ]"
         ]
@@ -11,6 +18,22 @@
         "body": [
             "```${1:lang}",
             "```"
+        ]
+    },
+
+    "add pipetable": {
+        "prefix": "pipetable",
+        "body": [
+            "| ${1:} | ${2:} |",
+            "| - | - |",
+            "| | |"
+        ]
+    },
+
+    "new task": {
+        "prefix": "task",
+        "body": [
+            "- [ ] ${1:new_task} [p1] [#tag] [01/01/1970]"
         ]
     }
 

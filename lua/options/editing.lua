@@ -27,6 +27,8 @@ vim.opt.backspace = { "indent", "eol", "start" }
 
 
 
+-- ## [Nav]
+----------------------------------------------------------------------
 -- Virtual Edit
 vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
 -- "none"    -- Default, disables virtual editing.
@@ -35,10 +37,6 @@ vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
 -- "insert"  -- Allows inserting in positions where there is no actual text.
 -- "all"     -- Enables virtual editing in all modes.
 
-
-
--- ## [Nav]
-----------------------------------------------------------------------
 vim.api.nvim_create_autocmd("ModeChanged", {
     group = "UserAutoCmds",
     pattern = "*",
@@ -57,7 +55,7 @@ vim.opt.matchpairs:append({"<:>"})
 
 
 
--- ## [Save]
+-- ## [File]
 ----------------------------------------------------------------------
 -- Smart autosave
 vim.g.autosave_enabled = true
@@ -134,6 +132,16 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
 })
 
+-- Handle Large file
+vim.api.nvim_create_autocmd('BufReadPost', {
+    group = 'UserAutoCmds',
+    callback = function(args)
+        if vim.b[args.buf].is_bigfile then
+            vim.cmd("BigfileMode")
+        end
+    end,
+})
+
 
 
 -- ## [Undo]
@@ -152,7 +160,8 @@ vim.api.nvim_create_autocmd("BufReadPre", {
             vim.opt_local.undofile   = false
         end
     end,
-}, {desc = "Handle large file"})
+    desc = "Handle large file",
+})
 
 local undodir = vim.fn.stdpath("data") .. "/undo"
 
@@ -184,7 +193,7 @@ vim.lsp.enable({
 
 
 
--- ### [Spell]
+-- ### [Spelling]
 vim.opt.spell = false
 --TODO make it ignore fenced code in marksown
 --maybe allow only for comment for other filetypes?
@@ -335,4 +344,23 @@ vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {
     end,
 })
 
+-- Detect binary files
+-- vim.api.nvim_create_autocmd("BufReadPost", {
+--     group = "UserAutoCmds",
+--     callback = function(args)
+--        local path = args.file
+--        if path == "" then return end
+
+--         local result = vim.system(
+--             { "file", "--mime-type", "-b", path },
+--             { text = true }
+--         ):wait()
+--         if result.code ~= 0 then return end
+
+--         local mime = vim.trim(result.stdout or "")
+--         if not mime:match("^text/") then
+--             vim.cmd("%!xxd")
+--         end
+--     end,
+-- })
 

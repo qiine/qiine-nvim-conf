@@ -769,31 +769,37 @@ vim.api.nvim_create_user_command("HexModeToggle", function()
     end
 end, { desc = "Toggle between hex view and normal view" })
 
--- Manage large files
-vim.api.nvim_create_user_command("LargeFileModeToggle", function()
+-- Manage big files
+vim.api.nvim_create_user_command("BigfileMode", function()
+    vim.opt_local.foldmethod = "manual"
+    vim.opt_local.undolevels = -1
+    vim.opt_local.undofile   = false
+
+    vim.cmd("LspStop")
+    vim.cmd("silent! DiagnosticVirtualTextToggle")
+
+    vim.b.is_bigfile = true
+    vim.notify("Bigfile mode: true")
+end, {})
+
+vim.api.nvim_create_user_command("BigfileModeToggle", function()
     local deffoldm = vim.opt.foldmethod:get()
     local defundol = vim.opt.undolevels:get()
     local defundof = vim.opt.undofile:get()
 
-    if not vim.g.largefilemode then
-        vim.g.largefilemode = true
-
-        vim.opt_local.foldmethod = "manual"
-        vim.opt_local.undolevels = -1
-        vim.opt_local.undofile   = false
-        vim.cmd("LspStop")
-        vim.cmd("DiagnosticVirtualTextToggle")
+    if not vim.b.is_bigfile then
+        vim.cmd("BigfileMode")
     else
-        vim.g.largefilemode = false
+        vim.b.is_bigfile = false
 
         vim.opt.foldmethod = deffoldm
         vim.opt.undolevels = defundol
         vim.opt.undofile   = defundof
         vim.cmd("LspRestart")
-        vim.cmd("DiagnosticVirtualTextToggle")
+        vim.cmd("silent! DiagnosticVirtualTextToggle")
     end
 
-    vim.notify("Large file mode: " .. tostring(vim.g.largefilemode))
+    vim.notify("Bigfile mode: " .. tostring(vim.b.is_bigfile))
 end, {})
 
 

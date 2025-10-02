@@ -59,12 +59,6 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end,
 })
 
-vim.api.nvim_create_autocmd('DirChanged', {
-    group = 'UserAutoCmds',
-    callback = function()
-        print(vim.fn.getcwd())
-    end,
-})
 
 
 

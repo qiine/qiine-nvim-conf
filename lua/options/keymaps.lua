@@ -19,6 +19,14 @@ local map = vim.keymap.set
 -- Modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
+map("v", "<M-o>", function()
+    vim.cmd("norm! ")
+
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+    local text = vim.fn.getregion({vst[1],vst[2]}, {vsh[1],vsh[2]})[1]
+    print(text)
+end)
 
 
 -- ## [Internal]
@@ -119,9 +127,7 @@ end)
 
 
 -- Open file manager
--- map(modes, "<C-e>", '<Cmd>lua require("oil").open(vim.fn.getcwd())<CR>')
 map(modes, "<C-e>", function()
-    local home = vim.fn.expand("~")
     local cdir = vim.fn.getcwd()
     local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
     local cur_win = vim.api.nvim_get_current_win()
@@ -153,10 +159,10 @@ map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 -- ## [View]
 ----------------------------------------------------------------------
 -- alt-z toggle line soft wrap
-map({"i","n","v"}, "<A-z>", function() vim.opt.wrap = not vim.opt.wrap:get() end)
+map({"i","n","v"}, "<C-g>z", function() vim.opt.wrap = not vim.opt.wrap:get() end)
 
 -- Toggle auto hard wrap lines
-map({"i","n","v"}, "M-C-z", function()
+map({"i","n","v"}, "<C-g>Z", function()
     -- "t" Auto-wrap text using textwidth (for non-comments).
     -- "w" Auto-wrap lines in insert mode, even without spaces.
 end)
@@ -186,8 +192,22 @@ end, {desc = "Toggle Gutter" })
 
 
 -- ### [Folds]
-map({"i","n","v"}, "<M-S-z>", "<Cmd>norm! za<CR>")
+map({"i","n","v"}, "<M-z>", "<Cmd>norm! za<CR>")
+vim.keymap.set({"i","n","v"}, "<M-S-z>", function()
+    local folded = false
+    for lnum = 1, vim.api.nvim_buf_line_count(0) do
+        if vim.fn.foldclosed(lnum) > 0 then
+            folded = true
+            break
+        end
+    end
 
+    if folded then
+        vim.cmd("norm! zR")  -- open all
+    else
+        vim.cmd("norm! zM")  -- close all
+    end
+end)
 
 
 -- ## [Windows]
@@ -198,34 +218,34 @@ map("t",           "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 -- Open window
 map(modes, "<M-w>n", function ()
-    local wopts = {
-        split = "right",
-        height = 33,
-        width = 38
-    }
-    vim.api.nvim_open_win(0, true, wopts)
+    -- local wopts = {
+    --     split = "right",
+    --     height = 33,
+    --     width = 38
+    -- }
+    -- vim.api.nvim_open_win(0, true, wopts)
 end)
 
 -- Open floating window
 map(modes, "<M-w>nf", function ()
-    local fname = vim.fn.expand("%:t")
+    -- local fname = vim.fn.expand("%:t")
 
-    local edw_w = vim.o.columns
-    local edw_h = vim.o.lines
+    -- local edw_w = vim.o.columns
+    -- local edw_h = vim.o.lines
 
-    local wsize = {w = 66, h = 22}
+    -- local wsize = {w = 66, h = 22}
 
-    local wopts = {
-        title     = fname,
-        title_pos = "center",
-        relative  = "editor",
-        border    = "single",
-        width  = wsize.w,
-        height = wsize.h,
-        col = math.floor((edw_w - wsize.w) / 2),
-        row = math.floor((edw_h - wsize.h) / 2),
-    }
-    local fwin = vim.api.nvim_open_win(0, true, wopts)
+    -- local wopts = {
+    --     title     = fname,
+    --     title_pos = "center",
+    --     relative  = "editor",
+    --     border    = "single",
+    --     width  = wsize.w,
+    --     height = wsize.h,
+    --     col = math.floor((edw_w - wsize.w) / 2),
+    --     row = math.floor((edw_h - wsize.h) / 2),
+    -- }
+    -- local fwin = vim.api.nvim_open_win(0, true, wopts)
 end)
 
 -- Make ver split
@@ -481,7 +501,17 @@ end)
 
 -- Open task
 -- General task
-map({"i","n","v","c","t"}, "<F4>", "<Cmd>Planv<CR>")
+map({"i","n","v","c","t"}, "<F4>", function()
+    local fname = vim.fn.expand("%:t")
+
+    if fname ~= "plan.md" then
+        vim.cmd("enew")
+        vim.cmd("e /home/qm/Personal/KnowledgeBase/Org/plan.md")
+        vim.cmd("e!")
+    else
+        vim.cmd("bwipeout")
+    end
+end)
 
 -- Project task
 -- map({"i","n","v","c","t"}, "<F16>", "<Cmd>Planv<CR>")
@@ -514,19 +544,25 @@ map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 -- ### Directory navigation
 -- Move one dir up
-map({"i","n","v"}, "<C-Home>", "<cmd>cd ..<CR>")
+map({"i","n","v"}, "<C-Home>", "<cmd>cd .. | pwd<CR>")
 
 -- To prev directory
-map({"i","n","v"}, "<C-End>", "<cmd>cd -<CR>")
+map({"i","n","v"}, "<C-End>", "<cmd>cd - | pwd<CR>")
 
 -- Interactive cd
 map({"i","n","v","c"}, "<M-End>", function()
     vim.api.nvim_feedkeys(":cd ", "n", false)
     vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
+    -- vim.api.nvim_create_autocmd('DirChanged', {
+    --     group = 'UserAutoCmds',
+    --     callback = function()
+    --         print(vim.fn.getcwd())
+    --     end,
+    -- })
 end)
 
 -- cd file dir
-map(modes, "<C-p>f", "<cmd>cd %:p:h<CR>")
+map(modes, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
 
 -- cd project root
 map(modes, "<C-p>p", function()
@@ -536,7 +572,7 @@ map(modes, "<C-p>p", function()
     end
     local groot = vim.trim(res.stdout) -- trim white space to avoid surprises
 
-    vim.cmd("cd " .. groot)
+    vim.cmd("cd " .. groot); print("pwd")
 end)
 
 
@@ -714,7 +750,6 @@ map({"i","n","v"}, "<C-S-n>p", function()
 end)
 
 
-
 -- ### [Copy / Paste]
 -- Copy whole line in insert
 map("i", "<C-c>", function()
@@ -754,6 +789,9 @@ end)
 map({"i","n","v"}, "<C-S-c>", function()
     vim.cmd('norm! mzviw"+y`z'); print("Word Copied")
 end, {noremap=true})
+
+-- yank line but not newline char
+map("n", "yy", "0y$")
 
 -- Cut
 map("i", "<C-x>", '<esc>0"+y$"_dd', {noremap = true}) --cut line, avoids reg"
@@ -888,6 +926,7 @@ map({"i","n"}, "<C-S-Del>", function()
     else
         local obj = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
         vim.cmd('norm! "_di'..obj)
+        -- if function dif
     end
 end)
 

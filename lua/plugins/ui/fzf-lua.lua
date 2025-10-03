@@ -146,38 +146,44 @@ return
 
         -- ## base pickers
         -- Search builtin's
-        vim.keymap.set({"i","n","v","t"}, "<M-f>i", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>i", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").builtin({})
         end, {silent = true, desc = "Search builtins" })
 
 
         -- ### Find files
         -- Find files in currdir
-        vim.keymap.set({"i","n","v","t"}, "<M-f>c", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>c", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({})
         end, {silent=true, desc="Fuzzy find dir in cwd"})
 
         -- Find files in project
-        vim.keymap.set({"i","n","v","t"}, "<C-S-f>", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<C-S-f>", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({
                 cwd = require("fzf-lua.path").git_root({}),
             })
         end, {silent=true, desc="Fuzzy find file in project" })
 
         -- find files in home
-        vim.keymap.set({"i","n","v","t"}, "<M-f>", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({ cwd="~", })
         end, { silent=true, desc="Fuzzy find file in HOME"})
 
         -- find recent files
-        vim.keymap.set({"i","n","v","t"}, "<M-f>r", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>r", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").oldfiles({
                 stat_file = true --check file still exist
             })
         end, {silent=true, desc="Fuzzy find recent files"})
 
         -- find files in notes
-        vim.keymap.set({"i","n","v","t"}, "<F49>", function()   --<M-F1>
+        vim.keymap.set({"i","n","v","c","t"}, "<F49>", function()  --<M-F1>
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({
                 prompt = "Notes> ",
                 cwd = "~/Personal/KnowledgeBase/Notes/"
@@ -199,12 +205,14 @@ return
 
         -- ### grep
         -- grep curr dir
-        vim.keymap.set({"i","n","v","t"}, "<M-f><S-g>", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f><S-g>", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({})
         end, { silent = true, desc = "grep curr dir" })
 
         -- grep curr project
-        vim.keymap.set({"i","n","v","t"}, "<C-S-g>", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<C-S-g>", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
                 cwd = require("fzf-lua.path").git_root({}),
             })
@@ -218,12 +226,14 @@ return
         end, {noremap=true, silent=true, desc="live grep selected in project"})
 
         -- grep in home
-        vim.keymap.set({"i","n","v","t"}, "<M-f>g", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>g", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({ cwd = "~" })
         end, { silent = true, desc = "Live grep in home" })
 
         -- grep in notes
-        vim.keymap.set({"i","n","t"}, "<F13>", function()   --<S-F1>
+        vim.keymap.set({"i","n","c","t"}, "<F13>", function()   --<S-F1>
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
                 prompt = "Notes> ",
                 cwd = "~/Personal/KnowledgeBase/Notes/"
@@ -237,19 +247,22 @@ return
         end)
 
         -- Search buffers
-        vim.keymap.set({"i","n","v","t"}, "<M-f>b", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>b", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").buffers({})
         end, {silent=true, desc="Search buffers"})
 
 
         -- Search helptags
-        vim.keymap.set({"i","n","v","t"}, "<M-f>h", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>h", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").helptags({})
         end, {silent=true, desc="search helptags"})
 
 
         -- Search ft and set it
-        vim.keymap.set({"i","n","v"}, "<M-f>t", function()
+        vim.keymap.set({"i","n","v","c"}, "<M-f>t", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").filetypes({})
         end, {silent = true, desc = "search and set filetypes" })
 
@@ -294,6 +307,54 @@ return
 
         vim.keymap.set({"i","n","v","t"}, "<M-f>p", function() fzfl.projects() end,
         {silent=true, desc = "Search projects"})
+
+        -- Symbol explorer
+        fzfl.snippet = function()
+            local snips = require("luasnip").get_snippets(vim.bo.filetype)
+
+            local items = {}
+            local lookup = {}
+            for _, snip in ipairs(snips) do
+                local label = snip.name or snip.trigger
+                table.insert(items, label)
+                lookup[label] = snip
+            end
+
+            fzfl.fzf_exec(items, {
+                prompt = "insert snippet> ",
+                actions = {
+                    ["default"] = function(selected)
+                        if selected and #selected > 0 then
+                            local label = selected[1]
+                            local snip = lookup[label]
+                            if snip then
+                                require("luasnip").snip_expand(snip)
+                            end
+                        end
+                    end,
+                },
+            })
+        end
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>s", function() fzfl.snippet() end,
+        {silent=true, desc="Fuzzy find snippets"})
+
+        -- API explorer
+        fzfl.api = function()
+            fzfl.fzf_exec(vim.tbl_keys(vim.api), {
+                prompt = "insert api> ",
+                actions = {
+                    ["default"] = function(selected)
+                        if selected and #selected > 0 then
+                            vim.api.nvim_put({ "vim.api."..selected[1].."()"}, "c", false, true)
+                        end
+                    end,
+                },
+            })
+        end
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>a", function() fzfl.api() end,
+        {silent=true, desc="Fuzzy find "})
 
         -- Dictionary browser
         fzfl.dictionary = function()

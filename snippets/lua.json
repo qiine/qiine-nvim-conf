@@ -54,7 +54,7 @@
                 "\tgroup = 'UserAutoCmds',",
                 "\tpattern = '*',",
                 "\tcallback = function()",
-                    "\t\t${0:stuff}",
+                    "\t\t${0:}",
                 "\tend,",
             "})"
         ]
@@ -153,9 +153,16 @@
     },
 
     "get nvim region": {
-        "prefix": "get nvim region",
+        "prefix": "nvim region",
         "body": [
             "vim.fn.getregion(${1:startpos}, ${2:endpos})[1]"
+        ]
+    },
+
+    "get nvim visual selection text": {
+        "prefix": "nvim visual selection text",
+        "body": [
+            "vim.fn.getregion(vim.fn.getpos(\".\"), vim.fn.getpos(\"v\"))[1]"
         ]
     },
 

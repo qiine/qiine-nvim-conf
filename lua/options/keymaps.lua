@@ -995,10 +995,10 @@ map("v", "<F2>",
 [[y:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitute selected" })
 
--- Filter buffer by word
-map({"i","n"}, "sf",
-[[:%s/\v(?!word)[^ \n]+//g]],
-{desc = "inverse filter" })
+-- Filter buffer content by word
+map({"i","n"}, "F",
+[[<Esc>:%s/\v(word)|./\1/g<Left><Left>]],
+{desc = "Inverse filter" })
 
 
 -- ### Incrementing

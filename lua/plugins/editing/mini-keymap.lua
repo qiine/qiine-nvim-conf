@@ -10,11 +10,8 @@ return
         local combo = require('mini.keymap').map_combo
 
         -- Quick normal
-        combo("i", "<Left><Right>", "<Esc>", { delay = 25 })
-        combo("i", "<Right><Left>", "<Esc>", { delay = 25 })
-
-        combo("v", "<Left><Right>", "<Esc>")
-        combo("v", "<Right><Left>", "<Esc>")
+        combo({"i","n","o","v","c","t"}, "<Left><Right>", "<Esc>", { delay = 25 })
+        combo({"i","n","o","v","c","t"}, "<Right><Left>", "<Esc>", { delay = 25 })
 
         -- Quick normal while fast move
         -- Only for right side

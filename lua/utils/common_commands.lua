@@ -12,17 +12,19 @@ local utils = require("utils.utils")
 ----------------------------------------------------------------------
 -- Hyper act
 vim.api.nvim_create_user_command("HyperAct", function()
-    local mode = vim.fn.mode()
-    if mode == "v" or mode == "V" or mode == "" then
-        vim.cmd("norm! ")
-
-    end
-
     local buft = vim.bo.buftype
 
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
     local word = vim.fn.expand("<cword>")
     local WORD = vim.fn.expand("<cWORD>")
+
+    local mode = vim.fn.mode()
+    local vs = mode == "v" or mode == "V" or mode == ""
+
+    if vs then
+        word = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+        WORD = word
+    end
 
     if WORD:match("^https?://") then
         vim.cmd("silent! !" .. "xdg-open " .. WORD) return
@@ -34,6 +36,13 @@ vim.api.nvim_create_user_command("HyperAct", function()
     end
 
     if char:match("[(){}%[%]'\"`<>|]") then
+        if vs then
+            vim.cmd("norm! mz")
+            vim.cmd("norm %")
+            vim.cmd("norm! v`zo")
+            return
+        end
+
         vim.cmd("norm %") return --no bang ! to use custom keymap
     end
 

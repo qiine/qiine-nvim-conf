@@ -1,4 +1,4 @@
--- _
+
 -- _
 --| |
 --| | _____ _   _ _ __ ___   __ _ _ __  ___
@@ -19,17 +19,9 @@ local map = vim.keymap.set
 -- Modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
-map("v", "<M-o>", function()
-    vim.cmd("norm! ")
-
-    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
-
-    local text = vim.fn.getregion({vst[1],vst[2]}, {vsh[1],vsh[2]})[1]
-    print(text)
-end)
 
 
--- ## [Internal]
+-- ## [General]
 ----------------------------------------------------------------------
 vim.o.timeoutlen = 375 --delay between key press to register shortcuts
 
@@ -89,7 +81,7 @@ map(modes, "<C-w>", function()
     if not res then
         if buftype == "terminal" then
             vim.cmd("bwipeout!")
-        else
+else
             vim.cmd("bwipeout!")
             -- vim.cmd("bd!")
             -- can also close tabs,
@@ -118,7 +110,7 @@ map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
 
 -- Resource curr file
-map(modes, "ç", function()  --"<altgr-r>"
+map(modes, "<C-ç>", function()  --"<altgr-r>"
     local cf = vim.fn.expand("%:p")
     vim.cmd("source "..cf)
 
@@ -145,6 +137,9 @@ map(modes, "<C-e>", function()
     vim.api.nvim_set_current_win(cur_win)  -- restore focus
     require("oil").open(cdir)
 end)
+
+-- Browse project files
+-- map(modes, "<C-S-e>", function()
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>FilePicker<CR>")
@@ -194,6 +189,8 @@ end, {desc = "Toggle Gutter" })
 -- ### [Folds]
 map({"i","n","v"}, "<M-z>", "<Cmd>norm! za<CR>")
 vim.keymap.set({"i","n","v"}, "<M-S-z>", function()
+    local count = vim.v.count
+
     local folded = false
     for lnum = 1, vim.api.nvim_buf_line_count(0) do
         if vim.fn.foldclosed(lnum) > 0 then
@@ -393,37 +390,37 @@ end)
 
 -- Jump matching pair
 map("n", "%", function()
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    vim.cmd("norm v%")
+    -- local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    print(char)
-    if char:match("['\"`]") then  --`
-        local curso_spos = vim.api.nvim_win_get_cursor(0)
+    -- if char:match("['\"`]") then  --`
+    --     local curso_spos = vim.api.nvim_win_get_cursor(0)
 
-        vim.cmd("norm! v2i"..char)
+    --     vim.cmd("norm! v2i"..char)
 
-        local curso_epos = vim.api.nvim_win_get_cursor(0)
+    --     local curso_epos = vim.api.nvim_win_get_cursor(0)
 
-        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
-            vim.cmd('norm! o')
-        end
+    --     if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+    --         vim.cmd('norm! o')
+    --     end
 
-        vim.cmd('norm! ')
+    --     vim.cmd('norm! ')
 
-    elseif char:match("[|]") then
-        local curso_spos = vim.api.nvim_win_get_cursor(0)
+    -- elseif char:match("[|]") then
+    --     local curso_spos = vim.api.nvim_win_get_cursor(0)
 
-        vim.cmd("norm vAP")
+    --     vim.cmd("norm vAP")
 
-        local curso_epos = vim.api.nvim_win_get_cursor(0)
+    --     local curso_epos = vim.api.nvim_win_get_cursor(0)
 
-        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
-            vim.cmd('norm! o')
-        end
+    --     if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+    --         vim.cmd('norm! o')
+    --     end
 
-        vim.cmd('norm! ')
-    else
-        vim.api.nvim_feedkeys("%", "n", false)
-    end
+    --     vim.cmd('norm! ')
+    -- else
+    --     vim.api.nvim_feedkeys("%", "n", false)
+    -- end
 end, {noremap=true})
 
 -- To next/prev cursor jump loc
@@ -449,7 +446,7 @@ map({"n","v"}, "<End>", "G$")
 -- kmap({"n","v"}, "<M-Down>", "G$")
 
 -- Jump seek
-map({"n","v"}, "f", function()
+map("n", "f", function()
     vim.api.nvim_echo({{"f"}}, false, {})
 
     -- Gather first char
@@ -513,7 +510,7 @@ map({"i","n","v","c","t"}, "<F4>", function()
     end
 end)
 
--- Project task
+-- Project task <S-F4>
 -- map({"i","n","v","c","t"}, "<F16>", "<Cmd>Planv<CR>")
 
 
@@ -896,13 +893,13 @@ end)
 -- Delete line
 map({"i","n","v"}, "<S-Del>", function()
     if vim.fn.mode() == "V" then
-        vim.cmd('norm!"_d')
+        vim.cmd('norm! "_d')
     else
-        vim.cmd('norm!V"_d')
+        vim.cmd('norm! V"_d')
     end
 end)
 
--- Delete empty line without affecting reg
+-- Delete empty line without trashing reg
 map("n", "dd", function()
     if vim.fn.getline(".") == "" then
         vim.cmd('norm! "_dd')
@@ -951,9 +948,9 @@ local function set_visualreplace(active)
 
     for _, char in ipairs(chars) do
         if active then
-            map('v', char, '"_d<esc>i'..char, {noremap=true})
+            map('x', char, '"_d<esc>i'..char, {noremap=true})
         else
-            pcall(vim.keymap.del, 'v', char)
+            pcall(vim.keymap.del, 'x', char)
         end
     end
 end
@@ -981,22 +978,27 @@ map("n", "s", "<Nop>")
 
 map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]],
-{desc = "Enter substitue mode"})
+{desc = "Enter substitute mode"})
 
 -- Substitute in selection
-map("x", "<M-S-s>",
+map("v", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
-{desc = "Enter substitue mode in selection"})
+{desc = "Enter substitute mode in selection"})
 
--- sub word (exclusive)
+-- Sub word (exclusive)
 map({"i","n"}, "<F50>", -- <M-F2>
 [[<esc>yiw:%s/\V\<<C-r>"\>//g<Left><Left>]],
-{desc = "Substitue word under cursor" })
+{desc = "Substitute word under cursor" })
 
--- sub selected (exclusive)
-map("x", "<F2>",
+-- Sub selected (exclusive)
+map("v", "<F2>",
 [[y:%s/\V\<<C-r>"\>//g<Left><Left>]],
-{desc = "Substitue selected" })
+{desc = "Substitute selected" })
+
+-- Filter buffer by word
+map({"i","n"}, "sf",
+[[:%s/\v(?!word)[^ \n]+//g]],
+{desc = "inverse filter" })
 
 
 -- ### Incrementing
@@ -1019,10 +1021,8 @@ map("v", "<M-->", "gugv")
 map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
-
 -- ### Formatting
 -- #### Indentation
--- Space bar in normal mode
 map("n", "<space>", "i<space><esc>")
 
 -- Indent inc
@@ -1040,8 +1040,9 @@ map("n", "<S-Tab>", "v<")
 map("x", "<S-Tab>", "<gv")
 
 -- Trigger Auto indent
-map({"i","n"}, "<C-=>", "<esc>==")
-map("x",       "<C-=>", "=")
+map("i", "<C-=>", "<C-o>==")
+map("n", "<C-=>", "==")
+map("x", "<C-=>", "=")
 
 
 -- ### [Line break]
@@ -1072,7 +1073,7 @@ map("n", "<C-S-j>", "k<S-j>")
 
 -- ### [Text move]
 ---@param dir string
----@param amount number
+---@param count number
 local function move_selected(dir, count)
     local mode = vim.fn.mode()
 
@@ -1108,7 +1109,7 @@ local function move_selected(dir, count)
         -- Single line selection move
         if  atsol and dir == "h" then return end
 
-        local cmd = '"zygv"_x' .. count .. dir .. '"zP' -- "zy avoids polluting "reg
+        local cmd = '"zygv"_x' .. count .. dir .. '"zP' -- "zy avoids polluting reg"
         if mode == "v"  then cmd = cmd.."`[v`]"  end
         if mode == "" then cmd = cmd.."`[`]" end
         vim.cmd("silent keepjumps norm! " .. cmd)
@@ -1128,11 +1129,13 @@ map("v",       "<M-a>", "gcgv", {remap=true})
 
 
 -- ### [Macro]
--- collide with wincmd
+-- avoid colliding with wincmd
 map("n", "qq", '<nop>')
 map("n", "q", '<nop>')
 
+-- record
 map({"i","n","v"}, "<S-M-m>", '<esc>qq')
+-- exec
 map("n", "<M-m>", '@q')
 
 
@@ -1235,7 +1238,7 @@ map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
 
 -- Goto definition
 map("i", "<F12>", "<Esc>gdi")
-map("n", "<F12>", "<Esc>gd")
+map("n", "<F12>", "gd")
 -- map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 map("v", "<F12>", "<Esc>gd")
 

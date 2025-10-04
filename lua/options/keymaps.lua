@@ -81,7 +81,7 @@ map(modes, "<C-w>", function()
     if not res then
         if buftype == "terminal" then
             vim.cmd("bwipeout!")
-else
+        else
             vim.cmd("bwipeout!")
             -- vim.cmd("bd!")
             -- can also close tabs,
@@ -90,6 +90,28 @@ else
         end
     end
 end, {noremap=true})
+
+
+-- quickfix
+vim.api.nvim_create_autocmd('BufEnter', {
+    group = 'UserAutoCmds',
+    callback = function()
+        if vim.bo.buftype == "quickfix" then
+        -- TODO
+            vim.keymap.set("n", "<Up>", function()
+
+            end, {buffer=true, noremap=true})
+            vim.keymap.set("n", "<Down>", function()
+
+            end, {buffer=true, noremap=true})
+
+            vim.keymap.set("n", "<CR>", function()
+                vim.cmd("cc "..vim.fn.line("."))
+            end, {buffer=true, noremap=true})
+
+        end
+    end,
+})
 
 
 
@@ -390,37 +412,37 @@ end)
 
 -- Jump matching pair
 map("n", "%", function()
-    vim.cmd("norm v%")
-    -- local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    -- vim.cmd("norm v%")
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    -- if char:match("['\"`]") then  --`
-    --     local curso_spos = vim.api.nvim_win_get_cursor(0)
+    if char:match("['\"`]") then  --`
+        local curso_spos = vim.api.nvim_win_get_cursor(0)
 
-    --     vim.cmd("norm! v2i"..char)
+        vim.cmd("norm! v2i"..char)
 
-    --     local curso_epos = vim.api.nvim_win_get_cursor(0)
+        local curso_epos = vim.api.nvim_win_get_cursor(0)
 
-    --     if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
-    --         vim.cmd('norm! o')
-    --     end
+        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+            vim.cmd('norm! o')
+        end
 
-    --     vim.cmd('norm! ')
+        vim.cmd('norm! ')
 
-    -- elseif char:match("[|]") then
-    --     local curso_spos = vim.api.nvim_win_get_cursor(0)
+    elseif char:match("[|]") then
+        local curso_spos = vim.api.nvim_win_get_cursor(0)
 
-    --     vim.cmd("norm vAP")
+        vim.cmd("norm vAP")
 
-    --     local curso_epos = vim.api.nvim_win_get_cursor(0)
+        local curso_epos = vim.api.nvim_win_get_cursor(0)
 
-    --     if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
-    --         vim.cmd('norm! o')
-    --     end
+        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+            vim.cmd('norm! o')
+        end
 
-    --     vim.cmd('norm! ')
-    -- else
-    --     vim.api.nvim_feedkeys("%", "n", false)
-    -- end
+        vim.cmd('norm! ')
+    else
+        vim.api.nvim_feedkeys("%", "n", false)
+    end
 end, {noremap=true})
 
 -- To next/prev cursor jump loc
@@ -845,11 +867,8 @@ map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 -- ### [Deletion]
 -- #### Remove
--- Remove char
 -- kmap("i", "<BS>", "<C-o>x", {noremap=true, silent=true}) --maybe not needed on wezterm
 -- kmap("n", "<BS>", '<Esc>"_X<Esc>')
-map("n", "<BS>", 'r ')
-map("v", "<BS>", '"_xi')
 
 -- Remove word left
 -- <M-S-BS> instead of <C-BS> because of wezterm
@@ -860,9 +879,8 @@ map("n", "<M-S-BS>", '"_db')
 map("i",       "<M-BS>", '<esc>"_d0i')
 map({"n","v"}, "<M-BS>", '<esc>"_d0')
 
-
--- Clear selected char
-map("v", "<M-S-BS>", 'r ') -- TODO better keybind hack with westerm
+-- Clear char
+map({"n","v"}, "<BS>", 'r ')
 
 -- Clear from cursor to sol
 --kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"

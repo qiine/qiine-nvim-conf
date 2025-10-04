@@ -8,8 +8,9 @@
 --           __/ |               | |
 --          |___/                |_|
 
-local utils = require("utils.utils")
-local lsnip = require("luasnip")
+local utils    = require("utils.utils")
+local ts_utils = require("nvim-treesitter.ts_utils")
+local lsnip    = require("luasnip")
 
 local v   = vim
 local map = vim.keymap.set
@@ -38,8 +39,8 @@ map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
--- Super esc
-map({'i','n','s'}, '<esc>', function()
+-- Hyper esc
+map({'i','n','v'}, '<esc>', function()
     vim.cmd('noh')
     return '<esc>'
 end, {expr = true, desc = "Escape, clear hlsearch"})
@@ -132,10 +133,9 @@ map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
 
 -- Resource curr file
-map(modes, "<C-ç>", function()  --"<altgr-r>"
+map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
     local cf = vim.fn.expand("%:p")
     vim.cmd("source "..cf)
-
     print("Ressourced: "..'"'..vim.fn.fnamemodify(cf, ":t")..'"')
 end)
 
@@ -382,6 +382,10 @@ map({"n","v"}, "<C-Down>", "m'3j")
 
 
 -- ### [Jump]
+-- To next/prev cursor jump loc
+map({"i","n","v"}, "<M-PageDown>",  "<Esc><C-o>")
+map({"i","n","v"}, "<M-PageUp>",    "<Esc><C-i>")
+
 -- Jump to next word
 map({"i","v"}, '<C-Right>', function()
     local curso_prevrow = vim.api.nvim_win_get_cursor(0)[1]
@@ -413,6 +417,17 @@ end)
 -- Jump matching pair
 map("n", "%", function()
     -- vim.cmd("norm v%")
+
+    local node = ts_utils.get_node_at_cursor()
+
+    -- while node do
+    --     if node:type() == "function_definition" or node:type() == "function_declaration" then
+    --         print("Cursor is on a function")
+    --         break
+    --     end
+    --     node = node:parent()
+    -- end
+
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     if char:match("['\"`]") then  --`
@@ -445,14 +460,13 @@ map("n", "%", function()
     end
 end, {noremap=true})
 
--- To next/prev cursor jump loc
-map({"i","n","v"}, "<M-PageDown>",  "<Esc><C-o>")
-map({"i","n","v"}, "<M-PageUp>",    "<Esc><C-i>")
-
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
+map("c",           "<M-Left>",  "<C-a>")
+
 map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
 map({"n","v"},     "<M-Right>", "<cmd>norm! $<cr>")
+map("c",           "<M-Right>", "<C-e>")
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")
@@ -500,6 +514,11 @@ map("n", "f", function()
     vim.o.scrolloff = defscrollo
     vim.api.nvim_echo({{""}}, false, {})
 end)
+
+-- Jump Mark
+map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR>") -- :echo'jump mark set'
+map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `J<CR>")
+
 
 -- Hyper act
 map({"i","n","v"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
@@ -598,7 +617,7 @@ end)
 
 -- ## [Selections]
 ----------------------------------------------------------------------
--- Swap selection anchors
+-- Selection anchors sawp
 map("v", "<M-v>", "o")
 
 -- ### Visual selection
@@ -691,16 +710,16 @@ map({"i","n","v"}, "<C-S-a>", "<Cmd>norm! V<CR>")
 
 -- ### Visual block selection
 -- Move to visual block selection regardless of mode
-local function move_blockselect(dir)
+local function arrow_blockselect(dir)
     if vim.fn.mode() == "" then vim.cmd("norm! "              ..dir)
     else                          vim.cmd("stopinsert|norm!"..dir)
     end
 end
 
-map({"i","n","v"}, "<S-M-Left>",  function() move_blockselect("h") end)
-map({"i","n","v"}, "<S-M-Right>", function() move_blockselect("l") end)
-map({"i","n","v"}, "<S-M-Up>",    function() move_blockselect("k") end)
-map({"i","n","v"}, "<S-M-Down>",  function() move_blockselect("j") end)
+map({"i","n","v"}, "<S-M-Left>",  function() arrow_blockselect("h") end)
+map({"i","n","v"}, "<S-M-Right>", function() arrow_blockselect("l") end)
+map({"i","n","v"}, "<S-M-Up>",    function() arrow_blockselect("k") end)
+map({"i","n","v"}, "<S-M-Down>",  function() arrow_blockselect("j") end)
 
 
 
@@ -751,6 +770,10 @@ end)
 -- Insert func
 map({"i","n","v"}, "<C-S-n>f", function()
     lsnip.try_insert_snippet("func")
+end)
+
+map({"i","n","v"}, "<C-S-n>fa", function()
+    lsnip.try_insert_snippet("anon func")
 end)
 
 -- Insert if
@@ -809,7 +832,7 @@ map({"i","n","v"}, "<C-S-c>", function()
     vim.cmd('norm! mzviw"+y`z'); print("Word Copied")
 end, {noremap=true})
 
--- yank line but not newline char
+-- Yank line, exclude newline char
 map("n", "yy", "0y$")
 
 -- Cut
@@ -848,9 +871,42 @@ map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 -- Paste replace word
 map({"i","n","v"}, "<C-S-v>", '<cmd>norm! "_diw"+P<CR>')
 
+-- Paste swap
+vim.keymap.set("v", "<S-M-v>", function()
+    local text = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
+
+    vim.cmd('norm! "_d"+P') -- replace target
+
+    -- replace origin
+    vim.api.nvim_buf_set_text(0,
+        vst[1]-1, vst[2], vsh[1]-1, vsh[2]+1,
+        {text}
+    )
+end,
+{desc="first copy origin text, then select target text and paste swap"})
+
+-- Paste swap word
+vim.keymap.set({"i","n"}, "<M-v>", function()
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
+
+    -- replace target
+    vim.cmd('norm! "zdiw')
+    local text = vim.fn.getreg("z")
+
+    vim.cmd('norm! "+P')
+
+    -- replace origin
+    vim.api.nvim_buf_set_text(0,
+        vst[1]-1, vst[2], vsh[1]-1, vsh[2]+1,
+        {text}
+    )
+end,
+{desc="Same as paste swap but auto select word"})
+
 -- Duplicate
 map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})
-map("v",      "<C-d>", '"zy"zP', {desc="dup sel"})
+map("v",       "<C-d>", '"zy"zP', {desc="dup sel"})
 
 
 -- ### [Undo/redo]
@@ -874,6 +930,7 @@ map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 -- <M-S-BS> instead of <C-BS> because of wezterm
 map("i", "<M-S-BS>", '<esc>"_dbi')
 map("n", "<M-S-BS>", '"_db')
+map("c", "<M-S-BS>", '<C-w>')
 
 -- Remove to start of line
 map("i",       "<M-BS>", '<esc>"_d0i')
@@ -887,7 +944,7 @@ map({"n","v"}, "<BS>", 'r ')
 
 -- Clear line
 map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
-
+map("c", "<S-BS>", '<C-u>')
 
 -- #### Delete
 -- Del char
@@ -897,7 +954,7 @@ map("v", "<Del>", '"_di')
 -- Delete right word
 map("i",       "<C-Del>", '<C-o>"_dw')
 map({"n","v"}, "<C-Del>", '"_dw')
--- map("c",       "<C-Del>", '"_dw') does not work in cmd bc not a buf
+map("c",       "<C-Del>", '<C-right><C-w>')
 
 -- Del to end of line
 map({"i","n","v"}, "<M-Del>", function()
@@ -916,6 +973,7 @@ map({"i","n","v"}, "<S-Del>", function()
         vim.cmd('norm! V"_d')
     end
 end)
+map("c", "<S-Del>", "<C-u>")
 
 -- Delete empty line without trashing reg
 map("n", "dd", function()
@@ -926,24 +984,21 @@ map("n", "dd", function()
     end
 end)
 
--- Smart delete string
+-- Smart delete
 map({"i","n"}, "<C-S-Del>", function()
-    local cursopos = vim.api.nvim_win_get_cursor(0)
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    vim.cmd('norm! viw"zy')
-    local txt = vim.fn.getreg("z")
-
-    vim.api.nvim_win_set_cursor(0, cursopos)
-
-    local isword = vim.fn.match(txt, [[\k]]) == 0
-    if isword then
-        vim.cmd('norm! "_diw')
+    if char:match("[(){}%[%]'\"`<>]") then
+        vim.cmd('norm! "_di'..char)
+        -- vim.cmd('norm "_d%')
     else
-        local obj = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-        vim.cmd('norm! "_di'..obj)
-        -- if function dif
+        vim.cmd('norm! "_diw')
     end
 end)
+
+-- Smart delete inside
+-- map({"i","n"}, "<C-S-BS>", function()
+-- end)
 
 
 -- ### [Replace]
@@ -988,7 +1043,7 @@ map("v", "<space>", '"_di<space>', {noremap=true})
 map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
 -- TODO maybe we could simply watch for key map and ignore arrow key for ex
-vim.keymap.set({"i","n","v"}, "<S-M-v>", function() toggle_visualreplace() end)
+vim.keymap.set({"i","n","v"}, "<C-g>v", function() toggle_visualreplace() end)
 
 
 -- ### Substitute mode
@@ -1014,7 +1069,7 @@ map("v", "<F2>",
 {desc = "Substitute selected" })
 
 -- Filter buffer content by word
-map({"i","n"}, "F",
+map({"i","n"}, "<S-ª>",
 [[<Esc>:%s/\v(word)|./\1/g<Left><Left>]],
 {desc = "Inverse filter" })
 
@@ -1152,9 +1207,9 @@ map("n", "qq", '<nop>')
 map("n", "q", '<nop>')
 
 -- record
-map({"i","n","v"}, "<S-M-m>", '<esc>qq')
+map({"i","n","v"}, "<C-!>r", '<esc>qq')
 -- exec
-map("n", "<M-m>", '@q')
+map("n", "<C-!>e", '@q')
 
 
 

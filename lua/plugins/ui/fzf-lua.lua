@@ -394,5 +394,30 @@ return
             vim.cmd("FzfLua dictionary")
         end, {})
 
+        -- env var
+        vim.keymap.set("n", "<M-f>e", function()
+            local env = vim.fn.environ()
+            local entries = {}
+
+            for k, v in pairs(env) do
+                table.insert(entries, string.format("%s=%s", k, v))
+            end
+
+            fzfl.fzf_exec(entries, {
+                prompt = "Env> ",
+                actions = {
+                    ["default"] = function(selected)
+                        if not selected or #selected == 0 then return end
+                        local line = selected[1]
+                        local var, val = line:match("([^=]+)=(.*)")
+                        if var and val then
+                            print(string.format("%s=%s", var, val))
+                        end
+                    end,
+                },
+            })
+        end, { desc = "List environment variables" })
+
+
     end --config
 }

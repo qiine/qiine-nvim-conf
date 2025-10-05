@@ -133,7 +133,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 -- Handle Large file
-vim.api.nvim_create_autocmd('BufReadPost', {
+vim.api.nvim_create_autocmd('BufRead', {
     group = 'UserAutoCmds',
     callback = function(args)
         if vim.b[args.buf].is_bigfile then

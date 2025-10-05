@@ -79,9 +79,14 @@ vim.opt.shada = "!,'1000,<50,s10,h"
 --- Contents of non-empty registers.
 --- Marks for several files.
 --- File marks, pointing to locations in files.
---- Last search/substitute pattern (for 'n' and '&').
 --- The buffer list.
 --- Global variables.
+-- ' → store marks ('a … 'z)
+--- Last search/substitute pattern (for 'n' and '&').
+-- % → store file marks (cursor positions)
+-- h → disable effect of 'hlsearch' on startup
+-- < → number of lines of registers
+-- s → max item size in KiB
 
 
 

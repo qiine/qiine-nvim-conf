@@ -6,7 +6,7 @@ vim.filetype.add {
                 vim.b[bufnr].is_bigfile = true
             end
 
-            return nil -- keep normal detection
+            return nil
         end,
     },
 }

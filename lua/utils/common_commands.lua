@@ -18,12 +18,22 @@ vim.api.nvim_create_user_command("HyperAct", function()
     local word = vim.fn.expand("<cword>")
     local WORD = vim.fn.expand("<cWORD>")
 
-    local mode = vim.fn.mode()
-    local vs = mode == "v" or mode == "V" or mode == ""
+    local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+    local is_node_func = node:type() == "function_definition" or node:type() == "function_declaration"
 
-    if vs then
+    local mode = vim.fn.mode()
+    local is_vs = mode == "v" or mode == "V" or mode == ""
+
+    if is_vs then
         word = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
         WORD = word
+    end
+
+    if buft == "quickfix" then
+        vim.cmd("cc "..vim.fn.line("."))
+        vim.cmd("norm! zz")
+        vim.cmd("silent! cclose")
+        return
     end
 
     if WORD:match("^https?://") then
@@ -35,8 +45,9 @@ vim.api.nvim_create_user_command("HyperAct", function()
         if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
     end
 
-    if char:match("[(){}%[%]'\"`<>|]") then
-        if vs then
+    -- nav pair
+    if char:match("[(){}%[%]'\"`<>|]") or is_node_func then
+        if is_vs then
             vim.cmd("norm! mz")
             vim.cmd("norm %")
             vim.cmd("norm! v`zo")
@@ -359,10 +370,11 @@ end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
     local fpath  = vim.api.nvim_buf_get_name(0)
+    local fdir   = vim.fn.fnamemodify(fpath, ":h")
     local fname  = vim.fn.fnamemodify(fpath, ":t")
 
     local function prompt_user()
-        vim.ui.input({prompt="Move to: ", default=vim.fn.getcwd(), completion="dir"},
+        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 

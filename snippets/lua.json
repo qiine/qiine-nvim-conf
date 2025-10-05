@@ -9,6 +9,11 @@
         "body": [ "function ${1:newfunc}() ${2:} end" ]
     },
 
+    "new anonymous function": {
+        "prefix": "anon func",
+        "body": [ "function() ${1:} end" ]
+    },
+
     "new if": {
         "prefix": "if",
         "body": [
@@ -23,67 +28,16 @@
         "body": [ "print(\"${1:hello!}\")" ]
     },
 
-    "vscode snippet": {
-        "prefix": "vscode_snippet",
-        "description": "Create a new VSCode snippet",
-        "body": [
-            "\"new snippet\": {",
-            "\t\"prefix\": \"<your-prefix>\",",
-            "\t\"description\": \"<your-description>\",",
-            "\t\"body\": [",
-            "\t\t\"<your-snippet-body>\"",
-            "\t]",
-            "}"
-        ]
-    },
-
-    "nvim user command": {
-        "prefix": "nvim user command",
-        "body": [
-            "vim.api.nvim_create_user_command(\"${1:NewUserCmd}\", function()",
-                "\t${2:}",
-            "end, {})"
-        ],
-        "description": ""
-    },
-
-    "nvim autocommand": {
-        "prefix": "nvim autocommand",
-        "body": [
-            "vim.api.nvim_create_autocmd('${1:BufEnter}', {",
-                "\tgroup = 'UserAutoCmds',",
-                "\tpattern = '*',",
-                "\tcallback = function()",
-                    "\t\t${0:}",
-                "\tend,",
-            "})"
-        ]
-    },
-
-    "nvim_user_autocmd_group": {
-        "prefix": "nvim_user_autocmd_group",
-        "body": [
-            "vim.api.nvim_create_augroup('NewUserAutoCmdGroup', { clear = true })"
-        ]
-    },
-
-    "create nvim keymap": {
-        "prefix": "create nvim keymap",
-        "body": [
-            "vim.keymap.set(${1:\"n\"}, ${2:\"<key>\"}, ${3:\" \"})"
-        ]
-    },
-
     "for each table": {
         "prefix": "for each table",
         "body": [
-            "for _, item in pairs(table) do",
-                "\t--stuff",
+            "for _, item in pairs(${1:table}) do",
+                "\t${2:}",
             "end"
         ]
     },
 
-    "flatten table": {
+    "nvim flatten table": {
         "prefix": "flatten table",
         "body": [
             "local table = vim.iter({",
@@ -96,13 +50,6 @@
     "get home dir": {
         "prefix": "get home dir",
         "body": "os.getenv(\"HOME\")"
-    },
-
-    "dashline10": {
-        "prefix": "dashline10",
-        "body": [
-            "----------"
-        ]
     },
 
     "get nvim filetype": {
@@ -145,17 +92,17 @@
         "body": [ "vim.api.nvim_win_set_cursor(0, cpos)" ]
     },
 
-    "get nvim char under cursor": {
-        "prefix": "get nvim word under cursor",
-        "body": [
-            "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
-        ]
-    },
-
     "get nvim region": {
         "prefix": "nvim region",
         "body": [
             "vim.fn.getregion(${1:startpos}, ${2:endpos})[1]"
+        ]
+    },
+
+    "get nvim char under cursor": {
+        "prefix": "get nvim word under cursor",
+        "body": [
+            "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
         ]
     },
 
@@ -169,8 +116,7 @@
     "set nvim text at position": {
         "prefix": "set nvim text at position",
         "body": [
-            "vim.api.nvim_buf_set_text(",
-            "    0,",
+            "vim.api.nvim_buf_set_text(0,",
             "    startrow, startcol,",
             "    endrow,   endcol,",
             "    {\"text\"}",
@@ -182,6 +128,44 @@
         "prefix": "get_nvim_working_directory",
         "body": [ "vim.fn.getcwd()" ]
     },
+
+    "create nvim keymap": {
+        "prefix": "create nvim keymap",
+        "body": [
+            "vim.keymap.set(\"${1:n}\", \"${2:<key>}\", \"${3:}\")"
+        ]
+    },
+
+    "nvim user command": {
+        "prefix": "nvim user command",
+        "body": [
+            "vim.api.nvim_create_user_command(\"${1:NewUserCmd}\", function()",
+                "\t${2:}",
+                "end, {})"
+        ],
+        "description": ""
+    },
+
+    "nvim autocommand": {
+        "prefix": "nvim autocommand",
+        "body": [
+            "vim.api.nvim_create_autocmd('${1:BufEnter}', {",
+                "\tgroup = 'UserAutoCmds',",
+                "\tpattern = '*',",
+                "\tcallback = function()",
+                "\t\t${0:}",
+                "\tend,",
+                "})"
+        ]
+    },
+
+    "nvim_user_autocmd_group": {
+        "prefix": "nvim_user_autocmd_group",
+        "body": [
+            "vim.api.nvim_create_augroup('NewUserAutoCmdGroup', { clear = true })"
+        ]
+    },
+
 
     "vim ui input": {
         "prefix": "vim_ui_input",
@@ -200,6 +184,13 @@
             "",
             "    ${0}",
             "end)"
+        ]
+    },
+
+    "dashline10": {
+        "prefix": "dashline10",
+        "body": [
+            "----------"
         ]
     }
 

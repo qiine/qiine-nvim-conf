@@ -16,6 +16,10 @@
             {
                 "language": "bash",
                 "path": "./bash.json"
+            },
+            {
+                "language": "json",
+                "path": "./json.json"
             }
         ]
     }

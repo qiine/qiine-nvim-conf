@@ -1,0 +1,15 @@
+{
+    "vscode snippet": {
+        "prefix": "vscode_snippet",
+        "description": "Create a new VSCode snippet",
+        "body": [
+            "\"new snippet\": {",
+            "\t\"prefix\": \"<your-prefix>\",",
+            "\t\"description\": \"<your-description>\",",
+            "\t\"body\": [",
+            "\t\t\"<your-snippet-body>\"",
+            "\t]",
+            "}"
+        ]
+    }
+}

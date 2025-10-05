@@ -19,7 +19,10 @@ vim.api.nvim_create_user_command("HyperAct", function()
     local WORD = vim.fn.expand("<cWORD>")
 
     local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
-    local is_node_func = node:type() == "function_definition" or node:type() == "function_declaration"
+    local is_node_func = false
+    if node then
+        is_node_func = node:type() == "function_definition" or node:type() == "function_declaration"
+    end
 
     local mode = vim.fn.mode()
     local is_vs = mode == "v" or mode == "V" or mode == ""
@@ -30,9 +33,8 @@ vim.api.nvim_create_user_command("HyperAct", function()
     end
 
     if buft == "quickfix" then
-        vim.cmd("cc "..vim.fn.line("."))
-        vim.cmd("norm! zz")
-        vim.cmd("silent! cclose")
+        vim.cmd("cc "..vim.fn.line(".")); vim.cmd("norm! zz")
+        vim.cmd("cclose")
         return
     end
 

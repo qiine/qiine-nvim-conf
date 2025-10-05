@@ -39,12 +39,39 @@ map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
--- Hyper esc
-map({'i','n','v'}, '<esc>', function()
-    vim.cmd('noh')
-    return '<esc>'
-end, {expr = true, desc = "Escape, clear hlsearch"})
+-- Omni esc
+map({'i','n','x'}, '<esc>', "<Cmd>noh<CR><esc>")
 
+-- Quickfix
+map({"i","n","v","c","t"}, "<F9>", function()
+    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
+
+    -- proper cmd close
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+    vim.cmd("copen")
+    vim.cmd("stopinsert")
+end)
+
+map({"i","n","v"}, "<M-q>a", function()
+    local fname = vim.fn.expand("%:p") --Get curr file location
+    if fname == "" then return end
+
+    local cursopos = vim.api.nvim_win_get_cursor(0)
+
+    vim.fn.setqflist({}, "a", {
+        items = {
+            {
+                filename = fname,
+                lnum = cursopos[1],
+                col  = cursopos[2],
+                text = ""
+            }
+        }
+    })
+
+    print("Added to quickfix")
+end)
 
 
 -- ## [Buffers]
@@ -91,28 +118,6 @@ map(modes, "<C-w>", function()
         end
     end
 end, {noremap=true})
-
-
--- quickfix
-vim.api.nvim_create_autocmd('BufEnter', {
-    group = 'UserAutoCmds',
-    callback = function()
-        if vim.bo.buftype == "quickfix" then
-        -- TODO
-            vim.keymap.set("n", "<Up>", function()
-
-            end, {buffer=true, noremap=true})
-            vim.keymap.set("n", "<Down>", function()
-
-            end, {buffer=true, noremap=true})
-
-            vim.keymap.set("n", "<CR>", function()
-                vim.cmd("cc "..vim.fn.line("."))
-            end, {buffer=true, noremap=true})
-
-        end
-    end,
-})
 
 
 
@@ -419,16 +424,22 @@ map("n", "%", function()
     -- vim.cmd("norm v%")
 
     local node = ts_utils.get_node_at_cursor()
-
-    -- while node do
-    --     if node:type() == "function_definition" or node:type() == "function_declaration" then
-    --         print("Cursor is on a function")
-    --         break
-    --     end
-    --     node = node:parent()
-    -- end
-
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    if node:type() == "function_definition" or node:type() == "function_declaration" then
+        local curso_spos = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm vaf")
+
+        local curso_epos = vim.api.nvim_win_get_cursor(0)
+
+        if curso_spos[1] == curso_epos[1] and curso_spos[2] == curso_epos[2] then
+            vim.cmd('norm! o')
+        end
+
+        vim.cmd('norm! ')
+        return
+    end
 
     if char:match("['\"`]") then  --`
         local curso_spos = vim.api.nvim_win_get_cursor(0)
@@ -515,27 +526,13 @@ map("n", "f", function()
     vim.api.nvim_echo({{""}}, false, {})
 end)
 
--- Jump Mark
-map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR>") -- :echo'jump mark set'
+-- Jump mark
+map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
 map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `J<CR>")
 
 
 -- Hyper act
 map({"i","n","v"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
-
--- Open quickfix list
-map({"i","n","v","c","t"}, "<F9>", function()
-    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
-
-    -- proper cmd close
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-
-    vim.cmd("copen")
-
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-end)
-
 
 -- Open task
 -- General task
@@ -928,9 +925,9 @@ map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 -- Remove word left
 -- <M-S-BS> instead of <C-BS> because of wezterm
-map("i", "<M-S-BS>", '<esc>"_dbi')
-map("n", "<M-S-BS>", '"_db')
-map("c", "<M-S-BS>", '<C-w>')
+map("i", "<S-M-BS>", '<esc>"_dbi')
+map("n", "<S-M-BS>", '"_db')
+map("c", "<S-M-BS>", '<C-w>')
 
 -- Remove to start of line
 map("i",       "<M-BS>", '<esc>"_d0i')
@@ -990,14 +987,22 @@ map({"i","n"}, "<C-S-Del>", function()
 
     if char:match("[(){}%[%]'\"`<>]") then
         vim.cmd('norm! "_di'..char)
-        -- vim.cmd('norm "_d%')
+        -- vim.cmd('norm "_d%') -- off for now
     else
         vim.cmd('norm! "_diw')
     end
 end)
 
+-- TODO C-S-BS collides
 -- Smart delete inside
--- map({"i","n"}, "<C-S-BS>", function()
+-- map({"i","n"}, "<S-M-BS>", function()
+    -- local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+
+    -- if char:match("[(){}%[%]'\"`<>]") then
+    --     vim.cmd('norm! "_di'..char)
+    -- else
+    --     vim.cmd('norm! "_diw')
+    -- end
 -- end)
 
 
@@ -1014,7 +1019,8 @@ vim.g.visualreplace = true
 ---@param active boolean
 local function set_visualreplace(active)
     local chars = vim.iter({
-        utils.alphabet_lowercase, utils.alphabet_uppercase,
+        utils.alphabet_lowercase,
+        utils.alphabet_uppercase,
         utils.numbers,
         utils.punctuation,
     }):flatten(1):totable()
@@ -1396,14 +1402,12 @@ map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
 -- Run whole file until curr line and insert
 map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
--- exec curr line as ex command
 -- F56 is <M-F8>
-map({"i","n"}, "<F56>", function() vim.cmd('norm! 0"zy$'); vim.cmd('@z') end)
-map("v",       "<F56>", function() vim.cmd('norm! "zy'); vim.cmd('@z') end)
+map({"i","n","v"}, "<F56>", function()  end)
 
 
 
--- ## [Vim Command]
+-- ## [Command line]
 ----------------------------------------------------------------------
 -- Open command line
 map("i",       "œ", "<esc>:")

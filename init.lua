@@ -27,6 +27,7 @@ end
 vim.api.nvim_create_autocmd("TextYankPost", {
     group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
     callback = function()
+        vim.o.hlsearch = true
         vim.highlight.on_yank({higroup='Visual', timeout = 185})
     end,
 })
@@ -78,6 +79,7 @@ safe_require("options.mousemaps")
 -- ## options
 safe_require("options.internal")
 safe_require("options.editing")
+safe_require("options.quickfix")
 
 -- ### ui
 safe_require("options.ui.theme")

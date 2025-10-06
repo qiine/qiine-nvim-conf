@@ -786,28 +786,38 @@ map({"i","n","v"}, "<C-S-n>p", function()
 end)
 
 
--- ### [Copy / Paste]
--- Copy whole line in insert
-map("i", "<C-c>", function()
-    if vim.fn.getline(".")  ~= "" then
-        vim.cmd('norm! mz0"+y$`z')
-        vim.cmd('stopinsert')
-        print("Line copied.")
-    end
-end, {noremap=true})
-
-map("n", "<C-c>", function()
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-
-    if char ~= " " and char ~= "" then
-        vim.cmd('norm! "+yl')
-    end
-end, {noremap = true})
-
+-- ### [Copy Cut Paste]
+-- #### Copy
 map("v", "<C-c>", function()
     vim.cmd('norm! mz"+y`z'); print("Selection copied")
 end, {noremap=true})
 
+-- Smart copy
+map({"i","n"}, "<C-c>", function()
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
+
+    if char == " " then return end
+
+    if char:match("[(){}%[%]'\"`<>]") then
+        vim.cmd('norm! mz"+yi'..char..'`z')
+        print("Obj copied") return
+    end
+
+    if word:match("^%w+$") then
+        vim.cmd('norm! mzviw"+y`z'); print("Word copied") return
+    end
+
+    vim.cmd('norm! "+yl'); print("Char copied") return
+end, {noremap=true})
+
+-- Copy line
+map({"i","n"}, "<C-S-c>", function()
+    vim.cmd('norm! mz0"+y$`z'); print("Line Copied")
+end, {noremap=true})
+
+-- Yank line, exclude newline char
+map("n", "yy", "0y$", {noremap=true})
 
 -- Copy append selection
 map("v", "<S-M-c>", function()
@@ -821,51 +831,67 @@ map("v", "<S-M-c>", function()
 end)
 
 
--- Copy word
-map({"i","n","v"}, "<C-S-c>", function()
-    vim.cmd('norm! mzviw"+y`z'); print("Word Copied")
+-- #### [Cut]
+map("v", "<C-x>", '"+d<esc>', {noremap=true})
+
+-- Copy line
+map({"i","n"}, "<C-S-x>", function()
+    vim.cmd('norm! mz0"+d$`z')
 end, {noremap=true})
 
--- Yank line, exclude newline char
-map("n", "yy", "0y$")
+-- Smart cut
+map({"i","n"}, "<C-x>", function()
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
 
--- Cut
-map("i", "<C-x>", '<esc>0"+y$"_dd', {noremap = true}) --cut line, avoids reg"
-map("n", "<C-x>", '"+x',             {noremap = true})
-map("v", "<C-x>", '"+d<esc>',        {noremap = true}) --d both delete and copy so..
+    if char == " " or char == "" then return end
 
--- Cut word
-map({"i","n"}, "<C-S-x>", '<cmd>norm! viw"+x<cr>')
-map("v",       "<C-S-x>", '<esc>viw"+x')
+    if char:match("[(){}%[%]'\"`<>]") then
+        vim.cmd('norm! mz"+di'..char..'`z') return
+    end
 
--- Paste
-map({"i","n","v"}, "<C-v>", function()
-    local mode = vim.fn.mode()
-    if mode == "v" or mode == "V" or mode == "" then vim.cmd('norm! "_d') end
+    if word:match("^%w+$") then
+        vim.cmd('norm! mzviw"+d`z') return
+    end
 
-    vim.cmd('norm! "+P') -- paste from sys clipboard
+    vim.cmd('norm! "+dl') return
+end, {noremap=true})
+
+
+-- #### [Paste]
+map("v", "<C-v>", '"_d"+P')
+
+-- Smart paste
+map("i", "<C-v>", '<Cmd>norm! "+Pa<CR>')
+map("n", "<C-v>", function()
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
+
+    if char == " " or char == "" then
+        vim.cmd('norm! "+P')
+    elseif word:match("^%w+$")   then
+        vim.cmd('norm! "_diw"+P')
+    else
+        return
+    end
 
     -- Format after paste
     local ft = vim.bo.filetype
-
     if ft == "" then
         -- no formating for unknown ft
     elseif ft == "markdown" or ft == "text" then
-        vim.cmd("norm! `[v`]gqq")
+        vim.cmd("norm! `[v`]gq")
     else
-        vim.cmd("norm! `[v`]=") --auto fix indent
+        vim.cmd("norm! `[v`]=")
     end
 
-    -- Proper curso placement
-    vim.cmd("norm! `]"); if mode == "i" then vim.cmd("norm! a") end
+    vim.cmd("norm! `]") -- Proper curso placement
 end)
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
--- Paste replace word
-map({"i","n","v"}, "<C-S-v>", '<cmd>norm! "_diw"+P<CR>')
 
--- Paste swap
+-- Paste swap selected
 vim.keymap.set("v", "<S-M-v>", function()
     local text = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
@@ -885,18 +911,20 @@ vim.keymap.set({"i","n"}, "<M-v>", function()
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
 
     -- replace target
-    vim.cmd('norm! "zdiw')
+    vim.cmd('norm! "zyiw');
     local text = vim.fn.getreg("z")
-
-    vim.cmd('norm! "+P')
 
     -- replace origin
     vim.api.nvim_buf_set_text(0,
         vst[1]-1, vst[2], vsh[1]-1, vsh[2]+1,
         {text}
     )
+
+    vim.cmd('norm! "_diw') --avoids trashing regs
+    vim.cmd('norm! "+P')
 end,
 {desc="Same as paste swap but auto select word"})
+
 
 -- Duplicate
 map({"i","n"}, "<C-d>", function() vim.cmd('norm!"zyy'..vim.v.count..'"zp') end, {desc="dup line"})

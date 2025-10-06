@@ -9,6 +9,10 @@ return
         require('mini.keymap').setup()
         local combo = require('mini.keymap').map_combo
 
+        -- to middle of screen
+        combo({"i","n","v"}, "<M-Left><M-Right>", "gm", { delay = 25 })
+        combo({"i","n","v"}, "<M-Left><M-Right>", "gm", { delay = 25 })
+
         -- Quick normal
         combo({"i","n","o","v","c","t"}, "<Left><Right>", "<Esc>", { delay = 25 })
         combo({"i","n","o","v","c","t"}, "<Right><Left>", "<Esc>", { delay = 25 })

@@ -46,19 +46,9 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             end, {buffer=true, noremap=true})
 
             -- Open entry
-            vim.keymap.set("n", "<CR>", function()
-                local qfl = vim.fn.getqflist()
-                if #qfl > 0 then
-                    vim.cmd("cc "..vim.fn.line("."))
-                else
-                    vim.cmd("lne "..vim.fn.line("."))
-                end
+            vim.keymap.set("n", "<CR>", "<CR>", {buffer=true, noremap=true})
 
-                vim.cmd("cclose")
-                vim.cmd("stopinsert")
-            end, {buffer=true, noremap=true})
-
-            -- del entrie
+            -- Del entrie
             vim.keymap.set("n", "d", function()
                 local idx = vim.fn.line('.')
                 local qflist = vim.fn.getqflist()

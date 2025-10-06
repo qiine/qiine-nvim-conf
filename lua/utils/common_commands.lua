@@ -103,7 +103,7 @@ vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
     vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-    vim.api.nvim_win_set_height(0, 40)
+    vim.api.nvim_win_set_height(0, 35)
 
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
 end, {})
@@ -115,7 +115,33 @@ vim.api.nvim_create_user_command("Today", function()
     vim.api.nvim_put({ today }, "c", true, true)
 end, {})
 
+vim.api.nvim_create_user_command("QuickFixToggle", function()
+    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
+
+    -- Proper cmdline close
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+    vim.cmd("copen")
+end, {})
+
+vim.api.nvim_create_user_command("GatherProjectTodos", function()
+    local rootdir = vim.lsp.buf.list_workspace_folders()[1]
+    local pattern = "TODO"
+
+    vim.cmd("cclose")
+    vim.cmd("cd ".. rootdir)
+    vim.cmd("vimgrep /"..pattern.. "/g `git ls-files`")
+    vim.cmd("copen")
+end, {})
+
+
+
+vim.api.nvim_create_user_command("OpenCmdlineWin", function()
+    vim.api.nvim_feedkeys("q:", "n", false)
+end, {})
+
 vim.api.nvim_create_user_command("WebSearch", function()
+    -- local text = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     vim.cmd('norm! gv"+y')
     local text = vim.fn.getreg('+')
     vim.ui.open(text, {cmd={"firefox"}})
@@ -123,10 +149,6 @@ vim.api.nvim_create_user_command("WebSearch", function()
         {"firefox", "https://duckduckgo.com/?q=" .. text}, {detach=true}
     )
 end, {range=true})
-
-vim.api.nvim_create_user_command("OpenCmdlineWin", function()
-    vim.api.nvim_feedkeys("q:", "n", false)
-end, {})
 
 
 

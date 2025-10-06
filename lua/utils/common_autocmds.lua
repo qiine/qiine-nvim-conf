@@ -21,14 +21,14 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 -- ## [Navigation]
 ----------------------------------------------------------------------
-vim.api.nvim_create_autocmd({"BufEnter", "BufWritePost"}, {
+vim.api.nvim_create_autocmd({"BufWinEnter", "BufWritePost"}, {
     group = "UserAutoCmds",
     callback = function()
         if vim.bo.filetype == "quickfix" then return end
 
         local gmarks = vim.fn.getmarklist()
         local lmarks = vim.fn.getmarklist(0)
-        local marks = vim.list_extend(gmarks, lmarks)
+        local marks  = vim.list_extend(gmarks, lmarks)
 
         local items = {}
 

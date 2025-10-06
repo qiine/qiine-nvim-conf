@@ -42,20 +42,14 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 -- Omni esc
 map({'i','n','x'}, '<esc>', "<Cmd>noh<CR><esc>")
 
--- Quickfix
-map({"i","n","v","c","t"}, "<F9>", function()
-    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
 
-    -- proper cmd close
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+-- ### [Quickfix]
+map({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickFixToggle<CR>")
 
-    vim.cmd("copen")
-    vim.cmd("stopinsert")
-end)
-
+-- add to qf
 map({"i","n","v"}, "<M-q>a", function()
     local fname = vim.fn.expand("%:p") --Get curr file location
-    if fname == "" then return end
+    if fname == "" then print("No filename") return end
 
     local cursopos = vim.api.nvim_win_get_cursor(0)
 
@@ -72,6 +66,7 @@ map({"i","n","v"}, "<M-q>a", function()
 
     print("Added to quickfix")
 end)
+
 
 
 -- ## [Buffers]
@@ -252,24 +247,24 @@ end)
 
 -- Open floating window
 map(modes, "<M-w>nf", function ()
-    -- local fname = vim.fn.expand("%:t")
+    local fname = vim.fn.expand("%:t")
 
-    -- local edw_w = vim.o.columns
-    -- local edw_h = vim.o.lines
+    local edw_w = vim.o.columns
+    local edw_h = vim.o.lines
 
-    -- local wsize = {w = 66, h = 22}
+    local wsize = {w = 66, h = 22}
 
-    -- local wopts = {
-    --     title     = fname,
-    --     title_pos = "center",
-    --     relative  = "editor",
-    --     border    = "single",
-    --     width  = wsize.w,
-    --     height = wsize.h,
-    --     col = math.floor((edw_w - wsize.w) / 2),
-    --     row = math.floor((edw_h - wsize.h) / 2),
-    -- }
-    -- local fwin = vim.api.nvim_open_win(0, true, wopts)
+    local wopts = {
+        title     = fname,
+        title_pos = "center",
+        relative  = "editor",
+        border    = "single",
+        width  = wsize.w,
+        height = wsize.h,
+        col = math.floor((edw_w - wsize.w) / 2),
+        row = math.floor((edw_h - wsize.h) / 2),
+    }
+    local fwin = vim.api.nvim_open_win(0, true, wopts)
 end)
 
 -- Make ver split
@@ -576,6 +571,8 @@ end)
 -- Search Help for selection
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
+map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
+
 
 -- ### Directory navigation
 -- Move one dir up
@@ -780,7 +777,7 @@ end)
 
 -- Insert loop
 -- map({"i","n","v"}, "<C-S-n>p", function()
-    --     lsnip.try_insert_snippet("print")
+    --     lsnip.try_insert_snippet("forloop")
 -- end)
 
 -- Insert print
@@ -1048,7 +1045,7 @@ set_visualreplace(vim.g.visualreplace)
 map("v", "<space>", '"_di<space>', {noremap=true})
 map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
--- TODO maybe we could simply watch for key map and ignore arrow key for ex
+-- TODO p3 maybe we could simply watch for key map and ignore arrow key for ex
 vim.keymap.set({"i","n","v"}, "<C-g>v", function() toggle_visualreplace() end)
 
 
@@ -1074,7 +1071,7 @@ map("v", "<F2>",
 [[y:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitute selected" })
 
--- Filter buffer content by word
+-- TODO p3 Filter buffer content by word
 map({"i","n"}, "<S-ª>",
 [[<Esc>:%s/\v(word)|./\1/g<Left><Left>]],
 {desc = "Inverse filter" })
@@ -1288,7 +1285,7 @@ map({"i","n","v"}, "<M-s>d", function()
     if res.code ~= 0 then vim.notify("dict error \n" .. res.stderr, vim.log.levels.ERROR) end
 
     -- TODO thesaurus hack
-    -- local tres = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", word}, {text=true}):wait()
+        -- local tres = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", word}, {text=true}):wait()
     -- local lines = {}
     -- for l in res.stdout:gmatch("[^\n]+") do
     --     if l:match("^syn:") then

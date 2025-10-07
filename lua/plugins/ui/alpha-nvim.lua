@@ -31,6 +31,7 @@ local function dashlayout()
     local splasharts = {
         ["default1"] =
         {
+            [[                                                  ]],
             [[███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗]],
             [[████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║]],
             [[██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║]],
@@ -313,8 +314,8 @@ return
 
         vim.api.nvim_create_augroup("Alpha-nvim", { clear = true })
         vim.api.nvim_create_autocmd("User", {
-            pattern = "AlphaReady",
             group = "Alpha-nvim",
+            pattern = "AlphaReady",
             callback = function()
                 vim.opt_local.statuscolumn   = ""
                 vim.opt_local.signcolumn     = "no"

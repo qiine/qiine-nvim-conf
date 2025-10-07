@@ -33,7 +33,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
     end
 
     if buft == "quickfix" then
-        vim.cmd("cc "..vim.fn.line(".")); vim.cmd("norm! zz")
+        vim.cmd("norm! \13zz")
         vim.cmd("cclose")
         return
     end
@@ -122,6 +122,34 @@ vim.api.nvim_create_user_command("QuickFixToggle", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
     vim.cmd("copen")
+end, {})
+
+vim.api.nvim_create_user_command("ShowJumpLocList", function()
+    local marks = vim.fn.getmarklist()
+    vim.list_extend(marks, vim.fn.getmarklist(0)) --
+
+    local qf = {}
+
+    for _, mark in ipairs(marks) do
+        local pos = mark.pos
+        local bufnr = pos[1]
+        local lnum = pos[2]
+        local col  = pos[3]
+        local name = mark.mark:sub(2)  -- remove leading quote
+        local filename = vim.api.nvim_buf_get_name(bufnr)
+
+        if filename ~= "" and lnum > 0 then
+            table.insert(qf, {
+                bufnr = bufnr,
+                lnum = lnum,
+                col  = col,
+                text = "Mark: ".. name
+            })
+        end
+    end
+
+    vim.fn.setqflist(qf, 'r')  -- replace current quickfix list
+    vim.cmd('copen')
 end, {})
 
 vim.api.nvim_create_user_command("GatherProjectTodos", function()

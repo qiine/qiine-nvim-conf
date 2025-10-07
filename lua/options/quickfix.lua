@@ -55,7 +55,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 
                 table.remove(qflist, idx)
                 vim.fn.setqflist(qflist, 'r')
-            end, { buffer = true })
+            end, {buffer = true})
 
             vim.keymap.set("n", "<Del>", function()
                 local idx = vim.fn.line('.')
@@ -63,7 +63,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 
                 table.remove(qflist, idx)
                 vim.fn.setqflist(qflist, 'r')
-            end, { buffer = true })
+            end, {buffer = true})
 
 
             -- clear all

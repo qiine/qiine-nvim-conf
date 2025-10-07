@@ -74,6 +74,7 @@ return
             keymaps = {
                 ["<CR>"] = {
                     callback = function()
+                        vim.cmd("norm! \27")
                         local oil = require("oil")
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
@@ -85,10 +86,11 @@ return
                         end
                     end,
                     desc = "Open entry, and cd if directory",
-                    mode = {"i","n"},
+                    mode = {"i","n","v"},
                 },
                 ["<2-LeftMouse>"] = {
                     callback = function()
+                        vim.cmd("norm! \27")
                         local oil = require("oil")
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
@@ -100,7 +102,7 @@ return
                         end
                     end,
                     desc = "Open entry, and cd if directory",
-                    mode = {"i","n"},
+                    mode = {"i","n","v"},
                 },
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
                 ["gx"] = "actions.open_external",
@@ -124,31 +126,33 @@ return
                     mode = {"i","n","v"}
                 },
 
-                ["gs"] = { "actions.change_sort", mode = "n" },
-                ["gp"] = "actions.preview",
-                ["gh"] = { "actions.toggle_hidden", mode = "n" },
-                ["<F5>"] = "actions.refresh",
-
                 ["n"] = {
                     function()
                         vim.cmd("norm! o")
-                        vim.cmd("startinsert")
                         vim.api.nvim_put({ "new_file.txt" }, "", false, true)
-                        vim.cmd("norm! 0")
-                        vim.cmd("norm! v$")
-                    end
+                        vim.cmd("norm! 0vt.")
+                    end,
+                    desc = "New file",
                 },
                 ["N"] = {
                     function()
                         vim.cmd("norm! o")
-                        vim.cmd("startinsert")
                         vim.api.nvim_put({ "new_folder/" }, "", false, true)
-                        vim.cmd("norm! 0")
-                        vim.cmd("norm! v$")
-                    end
+                        vim.cmd("norm! 0v$")
+                    end,
+                    desc = "New dir",
                 },
-                ["<Del>"] = { function() vim.cmd("norm! dd") end, mode = "n" },
-                ["<F2>"] = { function() vim.cmd('norm! "_cc') vim.cmd("startinsert") end, mode = "n" },
+                ["<F2>"] = { function() vim.cmd('norm! "_ciw');vim.cmd("startinsert") end, mode = {"i","n"} },
+                ["<Del>"] = { function() vim.cmd('norm! "_dd') end, mode = "n" },
+
+                ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
+
+                ["qf"] = { "actions.add_to_qflist", mode = "n" },
+
+                ["gs"] = { "actions.change_sort", mode = "n" },
+                ["gp"] = "actions.preview",
+                ["gh"] = { "actions.toggle_hidden", mode = "n" },
+                ["<F5>"] = "actions.refresh",
 
                 ["?"] = { "actions.show_help", mode = "n" },
             },

@@ -78,13 +78,18 @@ local function enveloppe_selection(open, close)
 end
 
 function M.setup()
-    -- smart auto pairing
-    -- vim.keymap.set("i", "<", function()
-    --     if vim.bo.buftype == "" then
+    -- Smart auto pairing
+    vim.keymap.set("i", "<", function()
+        local crs_pos = vim.fn.getpos(".")
+        local nxt_chr_pos = {0, crs_pos[2], crs_pos[3], 0}
+        local nxt_chr = vim.fn.getregion(nxt_chr_pos, nxt_chr_pos)[1]
 
-    --         return "<>"
-    --     end
-    -- end, {expr=true})
+        if vim.bo.buftype == "" and nxt_chr == " " or nxt_chr == ""  then
+            return "<>"
+        else
+            return "<"
+        end
+    end, {expr=true})
 
 
     vim.keymap.set({"i","n","x"}, '<C-S-s>', function()

@@ -7,6 +7,7 @@ TODO.md
 session.vim
 .git
 lazy-lock.json
+project.toml
 
 # ignore ALL files ending with
 *.log

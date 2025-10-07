@@ -111,7 +111,7 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
             end
 
             vim.wo.winbar = require("options.ui.winbar").render()
-        end, 5)  -- delay 5ms give time for proper buftype update
+        end, 5)  -- delay give time for proper buftype update
     end,
 })
 

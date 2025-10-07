@@ -21,33 +21,6 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 -- ## [Navigation]
 ----------------------------------------------------------------------
-vim.api.nvim_create_autocmd({"BufWinEnter", "BufWritePost"}, {
-    group = "UserAutoCmds",
-    callback = function()
-        if vim.bo.filetype == "quickfix" then return end
-
-        local gmarks = vim.fn.getmarklist()
-        local lmarks = vim.fn.getmarklist(0)
-        local marks  = vim.list_extend(gmarks, lmarks)
-
-        local items = {}
-
-        for _, mark in ipairs(marks) do
-            local pos = mark.pos
-            if pos[2] > 0 then
-                table.insert(items,
-                {
-                    filename = vim.api.nvim_buf_get_name(0),
-                    lnum = pos[2],
-                    col = pos[3],
-                    text = "Mark: " .. mark.mark,
-                })
-            end
-        end
-
-        vim.fn.setloclist(0, items)
-    end,
-})
 
 
 

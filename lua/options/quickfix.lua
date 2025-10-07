@@ -29,7 +29,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
                 })
 
                 vim.cmd("wincmd w")
-                print("Added to quickfix")
+                print("File added to quickfix")
             end, {buffer=true, noremap=true})
 
             -- To next entry
@@ -45,8 +45,8 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
                 vim.cmd("wincmd w")
             end, {buffer=true, noremap=true})
 
-            -- Open entry
-            vim.keymap.set("n", "<CR>", "<CR>", {buffer=true, noremap=true})
+            -- Open entry, close qf
+            vim.keymap.set("n", "<CR>", "<CR>zz<Cmd>cclose<CR>", {buffer=true, noremap=true})
 
             -- Del entrie
             vim.keymap.set("n", "d", function()

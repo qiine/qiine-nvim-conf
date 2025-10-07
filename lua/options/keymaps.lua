@@ -697,11 +697,6 @@ map("v", "<C-S-PageDown>", function()
     end
 end)
 
-
--- ### Visual line selection
-map({"i","n","v"}, "<C-S-a>", "<Cmd>norm! V<CR>")
-
-
 -- ### Visual block selection
 -- Move to visual block selection regardless of mode
 local function arrow_blockselect(dir)
@@ -786,7 +781,7 @@ map({"i","n","v"}, "<C-S-n>p", function()
 end)
 
 
--- ### [Copy Cut Paste]
+-- ### [Clipboard]
 -- #### Copy
 map("v", "<C-c>", function()
     vim.cmd('norm! mz"+y`z'); print("Selection copied")
@@ -794,16 +789,16 @@ end, {noremap=true})
 
 -- Smart copy
 map({"i","n"}, "<C-c>", function()
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    local char = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("."))[1]
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
 
-    if char == " " then return end
+    if char == " " or char == "" then return end
 
     if char:match("[(){}%[%]'\"`<>]") then
         vim.cmd('norm! mz"+yi'..char..'`z')
         print("Obj copied") return
     end
-
+-- test_test
     if word:match("^%w+$") then
         vim.cmd('norm! mzviw"+y`z'); print("Word copied") return
     end
@@ -859,20 +854,22 @@ end, {noremap=true})
 
 
 -- #### [Paste]
+map("i", "<C-v>", '<Cmd>norm! "+Pa<CR>')
 map("v", "<C-v>", '"_d"+P')
 
 -- Smart paste
-map("i", "<C-v>", '<Cmd>norm! "+Pa<CR>')
 map("n", "<C-v>", function()
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    local crs_pos = vim.fn.getpos(".")
+    local char   = vim.fn.getregion(crs_pos, crs_pos)[1]
+    -- local char_l = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    -- local char_r = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
 
-    if char == " " or char == "" then
-        vim.cmd('norm! "+P')
-    elseif word:match("^%w+$")   then
+    -- local char_isolated = char_l == " " and char_r == " "
+    if word:match("^%w+$")   then
         vim.cmd('norm! "_diw"+P')
     else
-        return
+        vim.cmd('norm! "+P')
     end
 
     -- Format after paste
@@ -1150,7 +1147,14 @@ map("x", "<C-=>", "=")
 
 
 -- ### [Line break]
-map("n", "<cr>", "i<CR><esc>")
+-- map("n", "<cr>", "i<CR><esc>")
+map("n", "<cr>", function()
+    if vim.bo.buftype == "" then
+        return "i<CR><esc>"
+    else
+        return "<CR>"
+    end
+end, {expr=true})
 
 -- Line break above
 map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
@@ -1228,8 +1232,8 @@ map({"i","n","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) en
 
 
 -- ### [Comments]
-map({"i","n"}, "<M-a>", "<cmd>norm gcc<cr>", {noremap=true})
-map("v",       "<M-a>", "gcgv", {remap=true})
+map({"i","n"}, "<C-S-a>", "<cmd>norm gcc<cr>", {noremap=true})
+map("v",       "<C-S-a>", "gcgv", {remap=true})
 
 
 -- ### [Macro]
@@ -1239,6 +1243,8 @@ map("n", "q", '<nop>')
 
 -- record
 map({"i","n","v"}, "<C-!>r", '<esc>qq')
+-- rec stop
+map({"i","n","v"}, "<C-!>s", '<esc>q')
 -- exec
 map("n", "<C-!>e", '@q')
 
@@ -1333,7 +1339,7 @@ end)
 
 -- ### [LSP]
 -- Diag panel
-map({"i","n","v"}, "<F10>", "<cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
+map({"i","n","v"}, "<F10>", "<Cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 
 map({"i","n","v"}, "<F22>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
@@ -1348,16 +1354,18 @@ map("v", "<F12>", "<Esc>gd")
 
 -- Show hover window
 map({"i","n"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
+-- map({"i","n"}, "<C-h>", "<Cmd>norm! KK<CR>", {noremap=true})
+-- map({"i","n"}, "<C-S-h>", '<Cmd>norm! "zyiw<CR><Cmd>h \18z<CR>')
 
 -- Show signature
-map({"i","n"}, "<C-S-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
+map({"i","n"}, "<M-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
 
 
 -- Rename symbol
 --vmap({"i","n"}, "<F2>", function()
 --    vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
 --        callback = function()
---            local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
+           local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
 --            vim.api.nvim_feedkeys(key, "c", false)
 --            return true
 --        end,

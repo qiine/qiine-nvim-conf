@@ -60,8 +60,8 @@ return
                 use_libuv_file_watcher = true, -- Auto-refresh
                 bind_to_cwd = true,  -- Enable 2-way binding between Neovim's cwd and Neo-tree's root
                 cwd_target = {
-                  sidebar = "global",   --"global", "tab"
-                  current = "global"
+                    sidebar = "global",   --"global", "tab"
+                    current = "global"
                 },
                 hijack_netrw = false,
 

@@ -1,1 +1,5 @@
 
+-- flick
+-- dial
+-- toggler
+--

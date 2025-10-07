@@ -35,6 +35,7 @@ local M =
 
     --text
     ellipsis = "…",
+    ellipsis_mid = "⋯",
 
     -- folds
     foldclosed = "",

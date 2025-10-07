@@ -48,27 +48,27 @@
     },
 
     "get home dir": {
-        "prefix": "get home dir",
+        "prefix": "home dir",
         "body": "os.getenv(\"HOME\")"
     },
 
     "get nvim filetype": {
-        "prefix": "get_nvim_filetype",
+        "prefix": "nvim filetype",
         "body": [ "vim.bo.filetype" ]
     },
 
     "get nvim current buffer": {
-        "prefix": "get_nvim_current_buffer",
+        "prefix": "nvim curr buf",
         "body": [ "vim.api.nvim_get_current_buf()" ]
     },
 
-    "get nvim_buffertype": {
-        "prefix": "get_nvim_buffertype",
+    "get nvim buffertype": {
+        "prefix": "nvim buftype",
         "body": [ "vim.bo.buftype" ]
     },
 
     "get buffer filepath": {
-        "prefix": "get buffer filepath",
+        "prefix": "buf filepath",
         "body": [ "vim.api.nvim_buf_get_name(0)" ]
     },
 
@@ -78,17 +78,17 @@
     },
 
     "get nvim mode": {
-        "prefix": "get_nvim_mode",
+        "prefix": "nvim mode",
         "body": [ "vim.fn.mode()" ]
     },
 
     "get nvim cursor position": {
-        "prefix": "get_nvim_cursor_position",
+        "prefix": "nvim cursor pos",
         "body": [ "vim.api.nvim_win_get_cursor(0)" ]
     },
 
     "set nvim cursor position": {
-        "prefix": "set_nvim_cursor_position",
+        "prefix": "set nvim cursor pos",
         "body": [ "vim.api.nvim_win_set_cursor(0, cpos)" ]
     },
 
@@ -100,7 +100,7 @@
     },
 
     "get nvim char under cursor": {
-        "prefix": "get nvim word under cursor",
+        "prefix": "nvim char under cursor",
         "body": [
             "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
         ]
@@ -124,20 +124,20 @@
         ]
     },
 
-    "get nvim working directory": {
-        "prefix": "get_nvim_working_directory",
+    "get nvim cwd": {
+        "prefix": "nvim cwd",
         "body": [ "vim.fn.getcwd()" ]
     },
 
-    "create nvim keymap": {
-        "prefix": "create nvim keymap",
+    "set nvim keymap": {
+        "prefix": "set nvim keymap",
         "body": [
             "vim.keymap.set(\"${1:n}\", \"${2:<key>}\", \"${3:}\")"
         ]
     },
 
-    "nvim user command": {
-        "prefix": "nvim user command",
+    "new nvim user command": {
+        "prefix": "new nvim user command",
         "body": [
             "vim.api.nvim_create_user_command(\"${1:NewUserCmd}\", function()",
                 "\t${2:}",
@@ -146,8 +146,8 @@
         "description": ""
     },
 
-    "nvim autocommand": {
-        "prefix": "nvim autocommand",
+    "new nvim autocommand": {
+        "prefix": "new nvim autocommand",
         "body": [
             "vim.api.nvim_create_autocmd('${1:BufEnter}', {",
                 "\tgroup = 'UserAutoCmds',",
@@ -159,8 +159,8 @@
         ]
     },
 
-    "nvim_user_autocmd_group": {
-        "prefix": "nvim_user_autocmd_group",
+    "new nvim user autocmd group": {
+        "prefix": "new nvim user autocmd group",
         "body": [
             "vim.api.nvim_create_augroup('NewUserAutoCmdGroup', { clear = true })"
         ]
@@ -168,7 +168,7 @@
 
 
     "vim ui input": {
-        "prefix": "vim_ui_input",
+        "prefix": "vim ui input",
         "body": [
             "vim.ui.input({",
             "    prompt=\"${1:Input}:\" default=\"${2:default}\" completion=\"file\",",
@@ -185,14 +185,6 @@
             "    ${0}",
             "end)"
         ]
-    },
-
-    "dashline10": {
-        "prefix": "dashline10",
-        "body": [
-            "----------"
-        ]
     }
-
 }
 

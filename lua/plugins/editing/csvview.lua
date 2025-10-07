@@ -10,10 +10,10 @@ return
             parser = {
                 delimiter = {
                     ft = {
-                        csv = "|",
+                        csv = "|", -- ","
                         tsv = "\t",
                     },
-                comments = { "#", "//" } },
+                },
             },
 
             view = {
@@ -28,8 +28,8 @@ return
 
             keymaps = {
                 -- Text objects for selecting fields
-                textobject_field_inner = { "icl", mode = { "o", "x" } },
-                textobject_field_outer = { "acl", mode = { "o", "x" } },
+                textobject_field_inner = { "cl", mode = { "o", "x" } },
+                -- textobject_field_outer = { "acl", mode = { "o", "x" } },
 
                 -- Excel-like navigation:
                 jump_next_field_end = { "<Tab>", mode = { "i", "n", "v" } },

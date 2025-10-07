@@ -126,9 +126,9 @@ return
                 border_virtual = true,
             },
             link = {
-                enabled = false,
+                enabled = true,
                 -- Additional modes to render links.
-                render_modes = false,
+                -- render_modes = false,
                 -- How to handle footnote links, start with a '^'.
                 footnote = {
                     -- Turn on / off footnote rendering.

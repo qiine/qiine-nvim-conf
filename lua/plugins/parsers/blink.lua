@@ -21,7 +21,7 @@ return
             keyword = { range = "prefix" },
 
             list = {
-                 selection = { preselect = true, auto_insert = true },
+                selection = { preselect = true, auto_insert = true },
                 cycle     = { from_bottom = true, from_top = true, },
             },
             menu = {
@@ -72,7 +72,7 @@ return
         },
 
         snippets = {
-            -- Function to use when expanding LSP provided snippets
+            -- Function to use when expanding LSP snippets
             expand = function(snippet) vim.snippet.expand(snippet) end,
         },
 
@@ -112,7 +112,7 @@ return
                 menu = {
                     -- auto_show = true,
                     auto_show = function(ctx)
-                        --show comp menu fo ":" and vim.ui.input but not "/"
+                        --show comp menu for ":" and vim.ui.input but not "/"
                         local t = vim.fn.getcmdtype()
                         return t == ':' or t == '@'
                     end,

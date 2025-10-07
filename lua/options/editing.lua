@@ -12,7 +12,7 @@ local v = vim
 vim.g.autostartinsert = true
 
 
--- Define what a word is
+-- Define word delim
 vim.opt.iskeyword = "@,48-57,192-255,-,_"
 -- @       -> alphabet,
 -- 48-57   -> 0-9 numbers,
@@ -37,9 +37,8 @@ vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
 -- "insert"  -- Allows inserting in positions where there is no actual text.
 -- "all"     -- Enables virtual editing in all modes.
 
-vim.api.nvim_create_autocmd("ModeChanged", {
+vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
     group = "UserAutoCmds",
-    pattern = "*",
     callback = function()
         local mode = vim.fn.mode()
         if mode == "n"  then vim.opt.virtualedit = "all"     return end
@@ -244,7 +243,7 @@ local preferedlangs = {
 
 vim.opt.spelllang = "en"
 
--- TODO make it use our own custom dico
+-- TODO p3 make it use our own custom dico
 vim.opt.spellfile = {
     vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
 }

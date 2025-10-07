@@ -159,13 +159,16 @@ vim.o.foldnestmax    = 10
 
 -- fillchars
 vim.opt.fillchars:append({
-    fold      = " ", --in place of the folded text
+    fold      = " ", --in place of the folded text  - ⋯
     foldopen  = "⌄", --   ⌄ ▾
     foldclose = ">", -- > ▸
     foldsep   = " ", -- │  --separate folds (for open folds)
+    -- foldinner = '', -- TODO soon vim 0.12
 
     diff      = "╱",
-    vert      = "|",
+
+    vert      = " ", --┃
+    horiz     = "━",
     eob       = "~",
 })
 

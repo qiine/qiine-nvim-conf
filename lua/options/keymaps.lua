@@ -67,6 +67,9 @@ map({"i","n","v"}, "<M-q>a", function()
     print("Added to quickfix")
 end)
 
+-- to next qf item
+map({"i","n","v"}, "<C-PageUp>q", "<Cmd>cnext<CR>")
+map({"i","n","v"}, "<C-PageDown>q", "<Cmd>cprev<CR>")
 
 
 -- ## [Buffers]
@@ -538,6 +541,7 @@ map({"i","n","v","c","t"}, "<F4>", function()
         vim.cmd("enew")
         vim.cmd("e /home/qm/Personal/KnowledgeBase/Org/plan.md")
         vim.cmd("e!")
+        vim.cmd("norm! zM")
     else
         vim.cmd("bwipeout")
     end
@@ -798,8 +802,8 @@ map({"i","n"}, "<C-c>", function()
         vim.cmd('norm! mz"+yi'..char..'`z')
         print("Obj copied") return
     end
--- test_test
-    if word:match("^%w+$") then
+
+    if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
         vim.cmd('norm! mzviw"+y`z'); print("Word copied") return
     end
 
@@ -836,20 +840,21 @@ end, {noremap=true})
 
 -- Smart cut
 map({"i","n"}, "<C-x>", function()
-    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    local char = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("."))[1]
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
 
     if char == " " or char == "" then return end
 
     if char:match("[(){}%[%]'\"`<>]") then
-        vim.cmd('norm! mz"+di'..char..'`z') return
+        vim.cmd('norm! mz"+di'..char..'`z')
+        print("Obj cut") return
     end
 
-    if word:match("^%w+$") then
-        vim.cmd('norm! mzviw"+d`z') return
+    if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
+        vim.cmd('norm! mzviw"+d`z'); print("Word cut") return
     end
 
-    vim.cmd('norm! "+dl') return
+    vim.cmd('norm! "+dl'); print("Char cut") return
 end, {noremap=true})
 
 

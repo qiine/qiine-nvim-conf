@@ -296,12 +296,20 @@ map(modes, "<M-w>f", function()
     end
 end)
 
+-- Resize wins
+local function resize_win(dir, amount)
+    local curwin = vim.api.nvim_get_current_win()
+    vim.cmd('wincmd t') -- always resize from top left
+    vim.cmd(dir.." resize "..amount)
+    vim.api.nvim_set_current_win(curwin)
+end
+
 -- Resize hor
-map("n", "<M-w><Up>",   ":resize +5<CR>", {noremap = true})
-map("n", "<M-w><Down>", ":resize -5<CR>", {noremap = true})
+map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "+5") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Down>",  function() resize_win("hor", "-5") end, {noremap = true})
 -- Resize vert
-map("n", "<M-w><Left>",  ":vert resize -5<CR>", {noremap = true})
-map("n", "<M-w><Right>", ":vert resize +5<CR>", {noremap = true})
+map({"i","n","v"}, "<M-w><Right>", function() resize_win("vert", "+5") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Left>",  function() resize_win("vert", "-5") end, {noremap = true})
 
 -- Detach win
 map(modes, "<M-w>d", function()

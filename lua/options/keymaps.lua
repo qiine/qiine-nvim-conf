@@ -795,19 +795,22 @@ end, {noremap=true})
 map({"i","n"}, "<C-c>", function()
     local char = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("."))[1]
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
+    vim.cmd('norm! mz"zyi'..char..'`z'); local obj  = vim.fn.getreg("z")
 
     if char == " " or char == "" then return end
 
-    if char:match("[(){}%[%]'\"`<>]") then
-        vim.cmd('norm! mz"+yi'..char..'`z')
+    if char:match("[(){}%[%]'\"`<>]") and obj ~= "" then
+        vim.fn.setreg("+", obj)
         print("Obj copied") return
     end
 
     if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
-        vim.cmd('norm! mzviw"+y`z'); print("Word copied") return
+        vim.fn.setreg("+", word)
+        print("Word copied") return
     end
 
-    vim.cmd('norm! "+yl'); print("Char copied") return
+    vim.fn.setreg("+", char)
+    print("Char copied") return
 end, {noremap=true})
 
 -- Copy line
@@ -842,19 +845,22 @@ end, {noremap=true})
 map({"i","n"}, "<C-x>", function()
     local char = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("."))[1]
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
+    vim.cmd('norm! mz"zyi'..char..'`z'); local obj  = vim.fn.getreg("z")
 
     if char == " " or char == "" then return end
 
-    if char:match("[(){}%[%]'\"`<>]") then
+    if char:match("[(){}%[%]'\"`<>]") and obj ~= "" then
         vim.cmd('norm! mz"+di'..char..'`z')
         print("Obj cut") return
     end
 
     if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
-        vim.cmd('norm! mzviw"+d`z'); print("Word cut") return
+        vim.cmd('norm! mz"+diw`z')
+        print("Word cut") return
     end
 
-    vim.cmd('norm! "+dl'); print("Char cut") return
+    vim.cmd('norm! "+dl')
+    print("Char cut") return
 end, {noremap=true})
 
 

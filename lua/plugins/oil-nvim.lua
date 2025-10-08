@@ -137,7 +137,7 @@ return
                 ["N"] = {
                     function()
                         vim.cmd("norm! o")
-                        vim.api.nvim_put({ "new_folder/" }, "", false, true)
+                        vim.api.nvim_put({ "new_dir/" }, "", false, true)
                         vim.cmd("norm! 0v$")
                     end,
                     desc = "New dir",
@@ -145,6 +145,7 @@ return
                 ["<F2>"] = { function() vim.cmd('norm! "_ciw');vim.cmd("startinsert") end, mode = {"i","n"} },
                 ["<Del>"] = { function() vim.cmd('norm! "_dd') end, mode = "n" },
 
+                -- save
                 ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
 
                 ["qf"] = { "actions.add_to_qflist", mode = "n" },
@@ -157,6 +158,16 @@ return
                 ["?"] = { "actions.show_help", mode = "n" },
             },
         })
+
+
+        -- vim.api.nvim_create_autocmd('DirChanged', {
+        --     group = 'UserAutoCmds',
+        --     callback = vim.schedule_wrap(function()
+        --         if vim.bo.filetype == "oil" then
+        --             require("oil").open(vim.v.event.cwd)
+        --         end
+        --     end),
+        -- })
 
 
         -- For git signs

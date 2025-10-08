@@ -186,7 +186,7 @@ return
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({
                 prompt = "Notes> ",
-                cwd = "~/Personal/KnowledgeBase/Notes/"
+                cwd = "~/Personal/Org/Notes/"
             })
         end)
 
@@ -195,7 +195,7 @@ return
             vim.cmd('norm! "zy')
             require("fzf-lua").files({
                 prompt = "Notes> ",
-                cwd = "~/Personal/KnowledgeBase/Notes/",
+                cwd = "~/Personal/Org/Notes/",
                 fzf_opts = {
                     ['--query'] = vim.trim(vim.fn.getreg("z"))
                 },
@@ -236,13 +236,13 @@ return
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
                 prompt = "Notes> ",
-                cwd = "~/Personal/KnowledgeBase/Notes/"
+                cwd = "~/Personal/Org/Notes/"
             })
         end)
         -- grep in notes for selected
         vim.keymap.set("v", "<F13>", function()   --<S-F1>
             require("fzf-lua").grep_visual({
-                cwd = "~/Personal/KnowledgeBase/Notes/"
+                cwd = "~/Personal/Org/Notes/"
             })
         end)
 
@@ -278,6 +278,9 @@ return
                     ["default"] = function(selected)
                         if selected and #selected > 0 then
                             vim.cmd("cd " .. "/" .. selected[1])
+                            if vim.bo.buftype == "oil" then
+                                require("oil").open(selected[1])
+                            end
                         end
                     end,
                 },

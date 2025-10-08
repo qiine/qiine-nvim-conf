@@ -534,7 +534,7 @@ end)
 
 -- Jump mark
 map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
-map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `J<CR>")
+map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
 
 
 -- Hyper act
@@ -764,31 +764,31 @@ map("n", "<C-S-k>", "i<C-S-k>")
 
 -- ### Insert snippets
 -- Insert var
-map({"i","n","v"}, "<C-S-n>v", function()
+map({"i","n"}, "<C-S-n>v", function()
     lsnip.try_insert_snippet("var")
 end)
 
 -- Insert func
-map({"i","n","v"}, "<C-S-n>f", function()
+map({"i","n"}, "<C-S-n>f", function()
     lsnip.try_insert_snippet("func")
 end)
 
-map({"i","n","v"}, "<C-S-n>fa", function()
+map({"i","n"}, "<C-S-n>fa", function()
     lsnip.try_insert_snippet("anon func")
 end)
 
 -- Insert if
-map({"i","n","v"}, "<C-S-n>if", function()
+map({"i","n"}, "<C-S-n>if", function()
     lsnip.try_insert_snippet("if")
 end)
 
 -- Insert loop
--- map({"i","n","v"}, "<C-S-n>p", function()
+-- map({"i","n"}, "<C-S-n>l", function()
     --     lsnip.try_insert_snippet("forloop")
 -- end)
 
 -- Insert print
-map({"i","n","v"}, "<C-S-n>p", function()
+map({"i","n"}, "<C-S-n>p", function()
     lsnip.try_insert_snippet("print")
 end)
 
@@ -878,14 +878,14 @@ map("v", "<C-v>", '"_d"+P')
 
 -- Smart paste
 map("n", "<C-v>", function()
-    local crs_pos = vim.fn.getpos(".")
-    local char   = vim.fn.getregion(crs_pos, crs_pos)[1]
+    local curso_pos = vim.fn.getpos(".")
+    local char   = vim.fn.getregion(curso_pos, curso_pos)[1]
     -- local char_l = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
     -- local char_r = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
 
     -- local char_isolated = char_l == " " and char_r == " "
-    if word:match("^%w+$")   then
+    if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
         vim.cmd('norm! "_diw"+P')
     else
         vim.cmd('norm! "+P')
@@ -1437,11 +1437,11 @@ map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
 
 -- ## [Code runner]
 ----------------------------------------------------------------------
--- run project
--- map({"i","n","v","c"}, "F8", )
-
--- run curretn file
--- map({"i","n","v"}, "", )
+vim.keymap.set("v", "<M-S-p>", function()
+    local sel = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+    vim.fn.setreg("z", "lua print("..sel..")")
+    vim.cmd("@z")
+end)
 
 -- run code at cursor with sniprun
 -- run curr line only and insert res below (<C-F8>)
@@ -1456,6 +1456,14 @@ map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
 -- F56 is <M-F8>
 map({"i","n","v"}, "<F56>", function()  end)
+
+
+-- run project
+-- map({"i","n","v","c"}, "F8", )
+
+-- run curretn file
+-- map({"i","n","v"}, "", )
+
 
 
 

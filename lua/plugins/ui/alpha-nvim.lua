@@ -185,10 +185,10 @@ local function dashlayout()
     local function menu()
         return {
             button("n", " New file",     "<Cmd>enew<CR>"),
+            button("f", "☆ Fav files",    "<Cmd>FzfLua favorites<CR>"),
             button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
-            button("f", "★ Fav files",    "<Cmd>FzfLua favorites<CR>"),
-            button("e", " File browser", "<Cmd>Oil<CR>"),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
+            button("e", " File browser", "<Cmd>Oil<CR>"),
             button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
     end

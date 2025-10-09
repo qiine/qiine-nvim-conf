@@ -381,10 +381,10 @@ map({"n","v"}, "<Down>", "g<Down>")
 
 
 -- ### [Scrolling]
-map({"i","n","v"}, "<M-C-S-Right>", "<Cmd>norm! 5zl<CR>")
-map({"i","n","v"}, "<M-C-S-Left>",  "<Cmd>norm! 5zh<CR>")
-map({"i","n","v"}, "<M-C-S-Down>",  "<Cmd>norm! 2<CR>")
-map({"i","n","v"}, "<M-C-S-Up>",    "<Cmd>norm! 2<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 6zl<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 6zh<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 3<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 3<CR>")
 
 
 -- ### [Fast and furious cursor move]

@@ -59,10 +59,11 @@ local module   --will hold special local modules
 
 module = safe_require("modules.enveloppe") if module then module.setup() end
 -- module = safe_require("modules.dialeur.dialeur") if module then module.setup() end
-safe_require("modules.arbores")
 safe_require("modules.tiny-session")
-safe_require("modules.rouleau-nvim")
 safe_require("modules.historybuf")
+safe_require("modules.favorizer")
+safe_require("modules.arbores")
+safe_require("modules.rouleau-nvim")
 safe_require("modules.planv")
 
 -- ## Commands

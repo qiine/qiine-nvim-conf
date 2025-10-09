@@ -167,8 +167,8 @@ vim.opt.fillchars:append({
 
     diff      = "╱",
 
-    vert      = " ", --┃
-    horiz     = "━",
+    vert      = " ", -- ┃
+    horiz     = "━", -- ━ ▔▁
     eob       = "~",
 })
 

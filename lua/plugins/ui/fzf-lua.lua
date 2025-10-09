@@ -290,6 +290,32 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>d", function() fzfl.fuzzy_cd() end,
         {silent=true, desc="Fuzzy cd to directory"})
 
+        -- fav files
+        fzfl.favorites = function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+            local favs = require("modules.favorizer").read()
+            local favs_names = require("modules.favorizer").get_names()
+            fzfl.fzf_exec(favs_names, {
+                prompt = "Fav> ",
+                -- previewer = "builtin",
+                previewer = function()
+                    return make_preview(function(entry)
+                        local favpath = favs[entry]
+                        return vim.fn.readfile(favpath)
+                    end)
+                end,
+                actions = {
+                    ["default"] = function(selected)
+                        vim.cmd("e ".. favs[selected[1]])
+                    end,
+                },
+            })
+        end
+
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>f", function() fzfl.favorites() end,
+        {silent=true, desc="Fuzzy find favorites files"})
+
         -- Find proj
         -- TODO find project using .git
         -- https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/

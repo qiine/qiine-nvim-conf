@@ -32,11 +32,14 @@ vim.api.nvim_create_user_command("HyperAct", function()
         WORD = word
     end
 
+    -- Act
     if buft == "quickfix" then
         vim.cmd("norm! \13zz")
         vim.cmd("cclose")
         return
     end
+
+    if char == "" or char == " " then return end
 
     if WORD:match("^https?://") then
         vim.cmd("silent! !" .. "xdg-open " .. WORD) return
@@ -47,7 +50,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
         if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
     end
 
-    -- nav pair
+    -- Nav pair
     if char:match("[(){}%[%]'\"`<>|]") or is_node_func then
         if is_vs then
             vim.cmd("norm! mz")

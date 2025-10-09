@@ -72,6 +72,7 @@ map({"i","n","v"}, "<C-PageUp>q", "<Cmd>cnext<CR>")
 map({"i","n","v"}, "<C-PageDown>q", "<Cmd>cprev<CR>")
 
 
+
 -- ## [Buffers]
 ----------------------------------------------------------------------
 -- Create new buffer
@@ -378,6 +379,14 @@ map({"n","v"}, "<Down>", "g<Down>")
 -- vim.keymap.set('n', 'j', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'j']], { expr = true })
 -- vim.keymap.set('n', 'k', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'k']], { expr = true })
 
+
+-- ### [Scrolling]
+map({"i","n","v"}, "<M-C-S-Right>", "<Cmd>norm! 5zl<CR>")
+map({"i","n","v"}, "<M-C-S-Left>",  "<Cmd>norm! 5zh<CR>")
+map({"i","n","v"}, "<M-C-S-Down>",  "<Cmd>norm! 2<CR>")
+map({"i","n","v"}, "<M-C-S-Up>",    "<Cmd>norm! 2<CR>")
+
+
 -- ### [Fast and furious cursor move]
 -- m' is used to write into jump list
 -- Fast left/right move in normal mode
@@ -393,9 +402,26 @@ map({"n","v"}, "<C-Down>", "m'3j")
 
 
 -- ### [Jump]
--- To next/prev cursor jump loc
-map({"i","n","v"}, "<M-PageDown>",  "<Esc><C-o>")
-map({"i","n","v"}, "<M-PageUp>",    "<Esc><C-i>")
+-- Jump to start/end of line
+map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
+map("c",           "<M-Left>",  "<C-a>")
+
+map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
+map({"n","v"},     "<M-Right>", "<cmd>norm! $<cr>")
+map("c",           "<M-Right>", "<C-e>")
+
+-- Jump home/end
+map("i",       "<Home>", "<Esc>ggI")
+map({"n","v"}, "<Home>", "gg0")
+
+--kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
+--kmap({"n","v"}, "<M-Up>", "gg0")
+
+map("i",       "<End>", "<Esc>GA")
+map({"n","v"}, "<End>", "G$")
+
+-- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
+-- kmap({"n","v"}, "<M-Down>", "G$")
 
 -- Jump to next word
 map({"i","v"}, '<C-Right>', function()
@@ -477,26 +503,14 @@ map("n", "%", function()
     end
 end, {noremap=true})
 
--- Jump to start/end of line
-map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
-map("c",           "<M-Left>",  "<C-a>")
+-- Jump mark
+map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
+map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
 
-map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
-map({"n","v"},     "<M-Right>", "<cmd>norm! $<cr>")
-map("c",           "<M-Right>", "<C-e>")
+-- To next/prev cursor jump loc
+map({"i","n","v"}, "<M-PageDown>",  "<Esc><C-o>")
+map({"i","n","v"}, "<M-PageUp>",    "<Esc><C-i>")
 
--- Jump home/end
-map("i",       "<Home>", "<Esc>ggI")
-map({"n","v"}, "<Home>", "gg0")
-
---kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
---kmap({"n","v"}, "<M-Up>", "gg0")
-
-map("i",       "<End>", "<Esc>GA")
-map({"n","v"}, "<End>", "G$")
-
--- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
--- kmap({"n","v"}, "<M-Down>", "G$")
 
 -- Jump seek
 map("n", "f", function()
@@ -532,13 +546,10 @@ map("n", "f", function()
     vim.api.nvim_echo({{""}}, false, {})
 end)
 
--- Jump mark
-map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
-map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
-
 
 -- Hyper act
 map({"i","n","v"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
+
 
 -- Open task
 -- General task
@@ -783,9 +794,9 @@ map({"i","n"}, "<C-S-n>if", function()
 end)
 
 -- Insert loop
--- map({"i","n"}, "<C-S-n>l", function()
-    --     lsnip.try_insert_snippet("forloop")
--- end)
+map({"i","n"}, "<C-S-n>fe", function()
+    lsnip.try_insert_snippet("for each")
+end)
 
 -- Insert print
 map({"i","n"}, "<C-S-n>p", function()

@@ -69,14 +69,14 @@ local function dashlayout()
         -- },
         ["doomsmall"] =
         {
-            [[.━━━━━━. .━━━━━━..━━━━━━. .━  .━━.]],
+            [[ ━━━━━━   ━━━━━━  ━━━━━━   ━   ━━ ]],
             [[┃|  _   V   _   ┃┃   _   V  \/  |┃]],
-            [[┃┃ ┃ ┃  ┃  | ┃  ┃┃  ┃ |  ┃ .  . ┃┃]],
+            [[┃┃ ┃ ┃  ┃  | ┃  ┃┃  ┃ |  ┃      ┃┃]],
             [[┃┃ ┃ ┃  ┃   \|  ┃┃  |/   ┃ ┃\/┃ ┃┃]],
-            [[┃┃ ┃/ .'|'.   .'┃┃'.   .'┃'┃  ┃ ┃┃]],
-            [[┃┃  .'./ \.'.'./  \.'.'./ \┃  ┃ ┃┃]],
-            [[┃┃.'./     \./      \./       ┃.┃┃]],
-            [[|_./                          '._|]],
+            [[┃┃ ┃/   |       ┃┃       ┃ ┃  ┃ ┃┃]],
+            [[┃┃     / \     /  \     / \┃  ┃ ┃┃]],
+            [[┃┃   /     \ /      \ /       ┃ ┃┃]],
+            [[|_ /                            ┗|]],
             [[           N E O V I M            ]],
         },
         ["pika"] =
@@ -186,7 +186,8 @@ local function dashlayout()
         return {
             button("n", " New file",     "<Cmd>enew<CR>"),
             button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
-            button("f", " File browser", "<Cmd>oil<CR>"),
+            button("f", "★ Fav files",    "<Cmd>FzfLua favorites<CR>"),
+            button("e", " File browser", "<Cmd>Oil<CR>"),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
             button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
@@ -244,12 +245,12 @@ local function dashlayout()
 
         --{ type = "padding", val = 1 }, --
         {
-            val  = date(),
+            val  = system(),
             type = "text",
             opts = { position = "center" }
         },
         {
-            val  = system(),
+            val  = date(),
             type = "text",
             opts = { position = "center" }
         },

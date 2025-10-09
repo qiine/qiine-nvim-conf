@@ -114,7 +114,7 @@ Plugins will install automatically thanks to lazy.nvim
 
 ### 🧪 Requirements
 * Terminal  
-  I choosed wezterm, 
+  I choose wezterm, 
   config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
 
   As neovim is a terminal centered application and I use a very complex sets 

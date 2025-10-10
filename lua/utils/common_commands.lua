@@ -878,6 +878,22 @@ vim.api.nvim_create_user_command("BigfileModeToggle", function()
     vim.notify("Bigfile mode: " .. tostring(vim.b.is_bigfile))
 end, {})
 
+vim.api.nvim_create_user_command("DiagToQuicFix", function(opts)
+    local args = opts.args
+
+    -- severity = { min = vim.diagnostic.severity.WARN },  -- includes WARN and ERROR
+
+    if args == "project" then
+        vim.diagnostic.setqflist({ open = true})
+    else
+        vim.diagnostic.setqflist({ open = true, bufnr = 0 })
+    end
+end, {
+    desc = "Send diagnostics to quickfix list",
+    nargs = "?",
+    complete = function() return { "buffer" } end,
+})
+
 
 -- ### calc
 vim.api.nvim_create_user_command("CSVAppendColumnEnd", function(opts)

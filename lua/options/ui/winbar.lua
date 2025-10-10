@@ -41,7 +41,13 @@ local function path_bar() --path
 end
 
 local function fav() --add to favorite butt
-    return "☆" --☆ ★
+    local favz = require("modules.favorizer")
+
+    if favz.check_currfile_in_fav() then
+        return favz.icon_infav
+    else
+        return favz.icon_notinfav
+    end
 end
 
 local function burger() --burger

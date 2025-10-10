@@ -13,6 +13,9 @@ M.db_path = home .. "/Personal/Org/fav.json"
 
 -- M.fav = { ["name"] = "path" } --id --group --type
 
+M.icon_infav    = "★"
+M.icon_notinfav = "☆"
+
 
 
 -- ## [lib]
@@ -35,112 +38,147 @@ end
 
 -- ### [I/O]
 ---@return table
-function M.read()
+local function fetch_db()
     if not M.db_path then
-        notif("Could not find favorites database!", "err") return {}
+        return { stat=false, msg="Could not find favorites database!", loglvl="err", data={} }
     end
 
-    local db_ok, data = pcall(vim.fn.readfile, M.db_path)
+    local db_ok, db = pcall(vim.fn.readfile, M.db_path)
     if not db_ok then
-        notif("Could not read database!", "err") return {}
+        return { stat=false, msg="Could not read database!", loglvl="err", data={} }
     end
 
-    local json = table.concat(data, "\n")
-
-    local json_ok, favs = pcall(vim.fn.json_decode, json)
-    if not json_ok or type(favs) ~= "table" then
-        notif("Invalid JSON in database", "warn") return {}
-    end
-
-    return favs
+    return { stat=true, msg="Database loaded", loglvl="info", data=db }
 end
 
-function M.write(tbl)
-    local json_ok, json = pcall(vim.fn.json_encode, tbl)
-    if not json_ok then
-        notif("Failed to encode favorites", "err") return
+---@return table
+local function read()
+    local res = fetch_db()
+    if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl, data={} } end
+
+    local json_ok, favs = pcall(vim.fn.json_decode, table.concat(res.data, "\n"))
+    if not json_ok or type(favs) ~= "table" then
+        return { stat=false, msg="Invalid JSON in database", loglvl="err", data={} }
     end
 
-    -- Optional, keep human readable formating
+    return { stat=true, msg="", loglvl="info", data=favs }
+end
+
+---@param data table
+---@return table
+local function write(data)
+    local json_ok, json = pcall(vim.fn.json_encode, data)
+    if not json_ok then
+        return { stat=false, msg="Failed to encode favorites", loglvl="err" }
+    end
+
+    -- Optional, keep human readable formatting
     json = json:gsub(",", ",\n\t"):gsub("{", "{\n\t"):gsub("}", "\n}")
 
     local lines = vim.split(json, "\n", { plain = true })
 
-    local write_ok, err = pcall(vim.fn.writefile, lines, M.db_path)
-    if not write_ok then
-        notif("Failed to write favorites: " .. tostring(err), "err") return
+    local w_ok, err = pcall(vim.fn.writefile, lines, M.db_path)
+    if not w_ok then
+        return { stat=false, msg="Failed to write favorites: ".. tostring(err), loglvl="err" }
     end
+
+    return { stat=true, msg="Favorites saved", loglvl="info" }
 end
 
+
 -- ### [Manage fav]
+---@param db table
+---@param name string
+---@return boolean
+function M.check_is_faved(db, name)
+    if db[name] ~= nil then return true else return false end
+end
+
 ---@param name string
 ---@param path string
 function M.add(name, path)
-    if not name or not path or name == "" or path == "" then
-        notif("Usage: FavAdd <name> <path>", "err") return
+    if not name or name == "" or not path or path == "" then
+        return { stat=false, msg="Expect name <name> and <path>", loglvl="err" }
     end
 
-    local favs = M.read()
+    local res = read()
+    if not res.stat then return { stat=false, msg=res.msg, loglvl=res.loglvl } end
+
+    local favs = res.data
+
+    if M.check_is_faved(favs, name) then
+        return { stat=false, msg="Already a favorite: \""..name.."\"", loglvl="info" }
+    end
+
     favs[name] = path
-    M.write(favs)
-    notif("Added to favorite: "..'"'..name..'"', "info")
+    write(favs)
+
+    return { stat=true, msg="Added to favorites: \""..name.."\"", loglvl="info" }
 end
 
 ---@param name string
 function M.rem(name)
-    if not name or name == "" then
-        vim.notify("Usage: FavRm <name>", vim.log.levels.ERROR)
-        return
+    if not name or name == "" then return {stat=false, msg="Expect <name>", loglvl="err"} end
+
+    local res = read(); if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl} end
+
+    local favs = res.data
+
+    if not M.check_is_faved(favs, name) then
+        return { stat=false, msg="Remove failed, not in favorites: \""..name.."\"", loglvl="info" }
     end
 
-    local favs = M.read()
-    if favs[name] then
-        favs[name] = nil
-        M.write(favs)
-        notif("Removed favorite: "..'"'..name..'"', "info")
-    else
-        notif("No such favorite: "..'"'..name..'"', "warn")
-    end
+    favs[name] = nil; write(favs) -- rem and writedown
+
+    return { stat=true, msg="Removed favorite: \""..name.."\"", loglvl="info" }
+end
+
+---@return table
+function M.get_favs()
+    local res = read()
+    if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl, data={}} end
+
+    return res.data
 end
 
 ---@return table
 function M.get_names()
-    local favs = M.read()
-
-    if not favs then return {} end
+    local res = read()
+    if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl, data={} } end
 
     local names = {}
-    for key, value in pairs(favs) do
+    for key, _ in pairs(res.data) do
         table.insert(names, key)
     end
 
     return names
 end
 
+
 ---@param name string
 function M.open(name)
     if not name or name == "" then
-        vim.notify("Invalid favorite name provided", vim.log.levels.ERROR)
-        return
+        return {stat=false, msg="Invalid fav name!", loglvl="err"}
     end
 
-    local favs = M.read()
-    if not favs then return end
+    local res = read(); if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl} end
 
+    local favs = res.data
     local path = favs[name]
-
     if not path or path == "" then
-        vim.notify("Invalid favorite file path: " .. name, vim.log.levels.ERROR)
-        return
+        return {stat=false, msg="Invalid fav path: "..name, loglvl="err"}
     end
 
-    local fpath_ok = pcall(vim.fn.readfile, path)
-    if not fpath_ok then
-        vim.notify("Could not read favortie file!", vim.log.levels.ERROR)
-        return {}
+    if vim.fn.filereadable(path) ~= 1 then
+        return {stat=false, msg="Could not read favorite file!", loglvl="err"}
     end
 
-    vim.cmd("edit " .. vim.fn.fnameescape(path))
+    vim.cmd("edit "..vim.fn.fnameescape(path)); return {stat=true, msg="Opened favorite: " .. name, loglvl="info"}
+end
+
+---@return boolean
+function M.check_currfile_in_fav()
+    return M.check_is_faved(M.get_favs(), vim.fn.expand("%:t"))
 end
 
 
@@ -150,29 +188,36 @@ end
 vim.api.nvim_create_user_command("FavAdd", function(opts)
     local args = vim.split(opts.args, " ", {trimempty = true})
 
-    -- Auto pick curr if nothing provided
-    if #args == 0 then
-        local fpath = vim.fn.expand("%:p")
-        local fname = vim.fn.expand("%:t")
+    local path, name
 
-        M.add(fname, fpath)
-        return
+    if #args == 0 then -- Auto pick curr if nothing provided
+        path = vim.fn.expand("%:p")
+        name = vim.fn.expand("%:t")
     else
-        M.add(args[1], args[2])
+        path = args[2]
+        name = args[1]
     end
+
+    local res = M.add(name, path)
+    notif(res.msg, res.loglvl)
 end, {nargs = "*"})
 
 vim.api.nvim_create_user_command("FavRem", function(opts)
-    -- Auto rem curr if no arg
-    if opts.args == "" then
-        M.rem(vim.fn.expand("%:t")) return
+    local name
+
+    if opts.args == "" then -- Auto rem curr if no arg
+       name = vim.fn.expand("%:t")
     else
-        M.rem(opts.args)
+       name = opts.args
     end
+
+    local res = M.rem(name);
+    notif(res.msg, res.loglvl)
 end, {nargs = "*"})
 
 vim.api.nvim_create_user_command("FavOpen", function(opts)
-    M.open(opts.args)
+    local res = M.open(opts.args);
+    notif(res.msg, res.loglvl)
 end, {nargs=1})
 
 

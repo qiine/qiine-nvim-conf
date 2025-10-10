@@ -68,7 +68,7 @@ map({"i","n","v"}, "<M-q>a", function()
 end)
 
 -- to next qf item
-map({"i","n","v"}, "<C-PageUp>q", "<Cmd>cnext<CR>")
+map({"i","n","v"}, "<C-PageUp>q",   "<Cmd>cnext<CR>")
 map({"i","n","v"}, "<C-PageDown>q", "<Cmd>cprev<CR>")
 
 
@@ -306,8 +306,8 @@ local function resize_win(dir, amount)
 end
 
 -- Resize hor
-map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "+5") end, {noremap = true})
-map({"i","n","v"}, "<M-w><Down>",  function() resize_win("hor", "-5") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "-5") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Down>",  function() resize_win("", "+5") end, {noremap = true})
 -- Resize vert
 map({"i","n","v"}, "<M-w><Right>", function() resize_win("vert", "+5") end, {noremap = true})
 map({"i","n","v"}, "<M-w><Left>",  function() resize_win("vert", "-5") end, {noremap = true})
@@ -558,7 +558,7 @@ map({"i","n","v","c","t"}, "<F4>", function()
 
     if fname ~= "plan.md" then
         vim.cmd("enew")
-        vim.cmd("e /home/qm/Personal/KnowledgeBase/Org/plan.md")
+        vim.cmd("e /home/qm/Personal/Org/plan.md")
         vim.cmd("e!")
         vim.cmd("norm! zM")
     else
@@ -982,8 +982,13 @@ map("n", "<S-M-BS>", '"_db')
 map("c", "<S-M-BS>", '<C-w>')
 
 -- Remove to start of line
-map("i",       "<M-BS>", '<esc>"_d0i')
-map({"n","v"}, "<M-BS>", '<esc>"_d0')
+map({"i","n","v"}, "<M-BS>", function()
+    if vim.fn.mode() == "" then
+        vim.cmd('norm! 0"_d')
+    else
+        vim.cmd('norm! "_d0')
+    end
+end)
 
 -- Clear char
 map({"n","v"}, "<BS>", 'r ')
@@ -1373,6 +1378,11 @@ map({"i","n","v"}, "<F10>", "<Cmd>Trouble diagnostics toggle focus=true filter.b
 
 map({"i","n","v"}, "<F22>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
+-- Normal mode keymap example
+map({"i","n","v"}, "<C-PageUp>d",  "]d")
+map({"i","n","v"}, "<C-PageUp>d",  "]d")
+map({"i","n","v"}, "<C-PageDow>d", "[d")
+
 -- Ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
 
@@ -1382,8 +1392,10 @@ map("n", "<F12>", "gd")
 -- map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
 map("v", "<F12>", "<Esc>gd")
 
+
 -- Show hover window
 map({"i","n"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
+-- map({"i","n"}, "<C-h>", "<Cmd>norm! KK<CR>", {noremap=true})
 -- map({"i","n"}, "<C-h>", "<Cmd>norm! KK<CR>", {noremap=true})
 -- map({"i","n"}, "<C-S-h>", '<Cmd>norm! "zyiw<CR><Cmd>h \18z<CR>')
 

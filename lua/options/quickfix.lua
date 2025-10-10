@@ -1,6 +1,78 @@
 
 -- quickfix list --
 
+-- cmds
+vim.api.nvim_create_user_command("QuickFixToggle", function()
+    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
+
+    -- Proper cmdline close
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+    vim.cmd("copen")
+end, {})
+
+vim.api.nvim_create_user_command("SendSelectedToQuickFix", function()
+    local pattern = vim.fn.getreg("/")
+    vim.cmd('vimgrep /'..pattern..'/ %')
+    vim.cmd("copen")
+end, {})
+
+vim.api.nvim_create_user_command("GatherProjectTodos", function()
+    local rootdir = vim.lsp.buf.list_workspace_folders()[1]
+    local pattern = "TODO"
+
+    vim.cmd("cclose")
+    vim.cmd("cd ".. rootdir)
+    vim.cmd("vimgrep /"..pattern.. "/g `git ls-files`")
+    vim.cmd("copen")
+end, {})
+
+vim.api.nvim_create_user_command("DiagToQuicFix", function(opts)
+    local args = opts.args
+
+    -- severity = { min = vim.diagnostic.severity.WARN },  -- includes WARN and ERROR
+
+    if args == "project" then
+        vim.diagnostic.setqflist({ open = true})
+    else
+        vim.diagnostic.setqflist({ open = true, bufnr = 0 })
+    end
+end, {
+desc = "Send diagnostics to quickfix list",
+nargs = "?",
+complete = function() return { "buffer" } end,
+})
+
+vim.api.nvim_create_user_command("ShowJumpLocList", function()
+    local marks = vim.fn.getmarklist()
+    vim.list_extend(marks, vim.fn.getmarklist(0)) --
+
+    local qf = {}
+
+    for _, mark in ipairs(marks) do
+        local pos = mark.pos
+        local bufnr = pos[1]
+        local lnum = pos[2]
+        local col  = pos[3]
+        local name = mark.mark:sub(2)  -- remove leading quote
+        local filename = vim.api.nvim_buf_get_name(bufnr)
+
+        if filename ~= "" and lnum > 0 then
+            table.insert(qf, {
+                bufnr = bufnr,
+                lnum = lnum,
+                col  = col,
+                text = "Mark: ".. name
+            })
+        end
+    end
+
+    vim.fn.setqflist(qf, 'r')  -- replace current quickfix list
+    vim.cmd('copen')
+end, {})
+
+
+-- autocmds
 vim.api.nvim_create_autocmd('BufWinEnter', {
     group = vim.api.nvim_create_augroup('QuickfixAutoCmd', {clear=true}),
     callback = function()
@@ -9,6 +81,9 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
             vim.api.nvim_win_set_height(0, 9)
+
+            vim.opt_local.signcolumn = "no" --show error/warning/hint and others
+
             vim.cmd("stopinsert")
 
             -- Adds curr file to the quickfix list
@@ -39,6 +114,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
                 vim.cmd("wincmd w")
             end, {buffer=true, noremap=true})
 
+            -- To prev entry
             vim.keymap.set("n", "<S-Tab>", function()
                 vim.cmd("norm! k")
                 vim.cmd("cc "..vim.fn.line("."))
@@ -46,7 +122,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             end, {buffer=true, noremap=true})
 
             -- Open entry, close qf
-            vim.keymap.set("n", "<CR>", "<CR>zz<Cmd>cclose<CR>", {buffer=true, noremap=true})
+            vim.keymap.set("n", "<CR>", "<CR>zz", {buffer=true, noremap=true})
 
             -- Del entrie
             vim.keymap.set("n", "d", function()

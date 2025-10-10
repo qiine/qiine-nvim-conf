@@ -6,7 +6,7 @@ return
     event = "InsertEnter",
     config = function()
         require("nvim-autopairs").setup({
-            enable_afterquote = false,
+            enable_afterquote = true,
             map_cr = false,
             map_bs = true,
         })

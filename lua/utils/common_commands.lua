@@ -118,55 +118,6 @@ vim.api.nvim_create_user_command("Today", function()
     vim.api.nvim_put({ today }, "c", true, true)
 end, {})
 
-vim.api.nvim_create_user_command("QuickFixToggle", function()
-    if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
-
-    -- Proper cmdline close
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-
-    vim.cmd("copen")
-end, {})
-
-vim.api.nvim_create_user_command("ShowJumpLocList", function()
-    local marks = vim.fn.getmarklist()
-    vim.list_extend(marks, vim.fn.getmarklist(0)) --
-
-    local qf = {}
-
-    for _, mark in ipairs(marks) do
-        local pos = mark.pos
-        local bufnr = pos[1]
-        local lnum = pos[2]
-        local col  = pos[3]
-        local name = mark.mark:sub(2)  -- remove leading quote
-        local filename = vim.api.nvim_buf_get_name(bufnr)
-
-        if filename ~= "" and lnum > 0 then
-            table.insert(qf, {
-                bufnr = bufnr,
-                lnum = lnum,
-                col  = col,
-                text = "Mark: ".. name
-            })
-        end
-    end
-
-    vim.fn.setqflist(qf, 'r')  -- replace current quickfix list
-    vim.cmd('copen')
-end, {})
-
-vim.api.nvim_create_user_command("GatherProjectTodos", function()
-    local rootdir = vim.lsp.buf.list_workspace_folders()[1]
-    local pattern = "TODO"
-
-    vim.cmd("cclose")
-    vim.cmd("cd ".. rootdir)
-    vim.cmd("vimgrep /"..pattern.. "/g `git ls-files`")
-    vim.cmd("copen")
-end, {})
-
-
-
 vim.api.nvim_create_user_command("OpenCmdlineWin", function()
     vim.api.nvim_feedkeys("q:", "n", false)
 end, {})
@@ -877,22 +828,6 @@ vim.api.nvim_create_user_command("BigfileModeToggle", function()
 
     vim.notify("Bigfile mode: " .. tostring(vim.b.is_bigfile))
 end, {})
-
-vim.api.nvim_create_user_command("DiagToQuicFix", function(opts)
-    local args = opts.args
-
-    -- severity = { min = vim.diagnostic.severity.WARN },  -- includes WARN and ERROR
-
-    if args == "project" then
-        vim.diagnostic.setqflist({ open = true})
-    else
-        vim.diagnostic.setqflist({ open = true, bufnr = 0 })
-    end
-end, {
-    desc = "Send diagnostics to quickfix list",
-    nargs = "?",
-    complete = function() return { "buffer" } end,
-})
 
 
 -- ### calc

@@ -300,6 +300,7 @@ vim.diagnostic.config({
         source    = true,
         header    = "4",
     },
+    -- jump = { float = true },
 })
 
 -- Manual diag show

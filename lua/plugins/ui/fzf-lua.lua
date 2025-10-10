@@ -294,7 +294,7 @@ return
         fzfl.favorites = function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
-            local favs = require("modules.favorizer").read()
+            local favs = require("modules.favorizer").get_favs()
             local favs_names = require("modules.favorizer").get_names()
             fzfl.fzf_exec(favs_names, {
                 prompt = "Fav> ",

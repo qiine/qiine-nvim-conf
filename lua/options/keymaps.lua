@@ -67,10 +67,6 @@ map({"i","n","v"}, "<M-q>a", function()
     print("Added to quickfix")
 end)
 
--- to next qf item
-map({"i","n","v"}, "<C-PageUp>q",   "<Cmd>cnext<CR>")
-map({"i","n","v"}, "<C-PageDown>q", "<Cmd>cprev<CR>")
-
 
 
 -- ## [Buffers]

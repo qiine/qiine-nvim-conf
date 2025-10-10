@@ -1,7 +1,52 @@
 
 -- quickfix list --
 
--- cmds
+
+-- ## [Keymaps]
+----------------------------------------------------------------------
+vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickFixToggle<CR>")
+
+-- add to qf
+vim.keymap.set({"i","n","v"}, "<M-q>a", function()
+    local fname = vim.fn.expand("%:p")
+
+    local cursopos = vim.api.nvim_win_get_cursor(0)
+
+    vim.fn.setqflist({}, "a", {
+        items = {
+            {
+                filename = fname,
+                lnum = cursopos[1],
+                col  = cursopos[2],
+                text = ""
+            }
+        }
+    })
+
+    print("Curr file added to quickfix")
+end)
+
+
+-- Go to next quickfix entry
+vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
+    local qf = vim.fn.getqflist(); if #qf == 0 then return end
+    vim.cmd("cnext");
+    -- print("Quickfix: " .. vim.fn.line(".") .. "/" .. #qf)
+end,
+{ silent=false, desc="Next quickfix item" })
+
+-- Go to previous quickfix entry
+vim.keymap.set({"i","n","v"}, "<M-C-PageUp>", function()
+    local qf = vim.fn.getqflist() if #qf == 0 then return end
+    vim.cmd("cprev")
+    -- print("Quickfix: " .. vim.fn.line(".") .. "/" .. #qf)
+end,
+{ silent=false, desc="Previous quickfix item" })
+
+
+
+-- ## [cmds]
+----------------------------------------------------------------------
 vim.api.nvim_create_user_command("QuickFixToggle", function()
     if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
 
@@ -11,19 +56,16 @@ vim.api.nvim_create_user_command("QuickFixToggle", function()
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("SendSelectedToQuickFix", function()
-    local pattern = vim.fn.getreg("/")
-    vim.cmd('vimgrep /'..pattern..'/ %')
+vim.api.nvim_create_user_command("SendSearchToQuickFix", function()
+    vim.cmd('vimgrep /'..vim.fn.getreg("/")..'/ %')
     vim.cmd("copen")
 end, {})
 
 vim.api.nvim_create_user_command("GatherProjectTodos", function()
-    local rootdir = vim.lsp.buf.list_workspace_folders()[1]
-    local pattern = "TODO"
-
     vim.cmd("cclose")
-    vim.cmd("cd ".. rootdir)
-    vim.cmd("vimgrep /"..pattern.. "/g `git ls-files`")
+    vim.cmd("cd ".. vim.lsp.buf.list_workspace_folders()[1])
+
+    vim.cmd("vimgrep /".."TODO".."/g `git ls-files`")
     vim.cmd("copen")
 end, {})
 

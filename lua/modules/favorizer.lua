@@ -243,19 +243,18 @@ vim.api.nvim_create_user_command("FavShowQuickBinds", function()
     wopts.relative  = "editor"
     wopts.border    = "rounded" -- single
 
-    local wsize = {w = 45, h = 20}
-
-    wopts.width  = wsize.w
-    wopts.height = wsize.h
-    wopts.col = math.floor((vim.o.columns - wsize.w) / 2)
-    wopts.row = math.floor((vim.o.lines - wsize.h) / 2)
+    wopts.width  = 35
+    wopts.height = 9
+    wopts.col = math.floor((vim.o.columns - wopts.width) / 2)
+    wopts.row = math.floor((vim.o.lines - wopts.height) / 2)
 
     local fwin = vim.api.nvim_open_win(0, true, wopts)
 
     vim.cmd("enew")
-    vim.api.nvim_set_option_value("buflisted", false,    {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe",   {buf=0})
-    vim.api.nvim_set_option_value("buftype",   "nofile", {buf=0})
+    vim.api.nvim_set_option_value("buftype",   "nofile",    {buf=0})
+    vim.api.nvim_set_option_value("filetype",  "favorizer", {buf=0})
+    vim.api.nvim_set_option_value("buflisted", false,       {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe",      {buf=0})
     vim.opt_local.signcolumn = "no"
     vim.opt_local.number     = false
     vim.opt_local.foldcolumn = "0"

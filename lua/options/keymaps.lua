@@ -376,13 +376,6 @@ map({"n","v"}, "<Down>", "g<Down>")
 -- vim.keymap.set('n', 'k', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'k']], { expr = true })
 
 
--- ### [Scrolling]
-map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 6zl<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 6zh<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 3<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 3<CR>")
-
-
 -- ### [Fast and furious cursor move]
 -- m' is used to write into jump list
 -- Fast left/right move in normal mode
@@ -395,6 +388,13 @@ map({"n","v"}, "<C-Up>", "m'3k")
 
 map("i",       "<C-Down>", "<esc>m'3ji")
 map({"n","v"}, "<C-Down>", "m'3j")
+
+
+-- ### [Scrolling]
+map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 6zl<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 6zh<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
 
 
 -- ### [Jump]
@@ -499,7 +499,7 @@ map("n", "%", function()
     end
 end, {noremap=true})
 
--- Jump mark
+-- Jump nav mark
 map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
 map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
 
@@ -785,7 +785,7 @@ map({"i","n"}, "<C-S-n>fa", function()
 end)
 
 -- Insert if
-map({"i","n"}, "<C-S-n>if", function()
+map({"i","n"}, "<C-S-n>i", function()
     lsnip.try_insert_snippet("if")
 end)
 
@@ -851,7 +851,7 @@ end)
 -- #### [Cut]
 map("v", "<C-x>", '"+d<esc>', {noremap=true})
 
--- Copy line
+-- Cut line
 map({"i","n"}, "<C-S-x>", function()
     vim.cmd('norm! mz0"+d$`z')
 end, {noremap=true})
@@ -1025,9 +1025,8 @@ map({"i","n","v"}, "<S-Del>", function()
 end)
 map("c", "<S-Del>", "<C-u>")
 
--- Delete empty line without trashing reg
 map("n", "dd", function()
-    if vim.fn.getline(".") == "" then
+    if vim.fn.getline(".") == "" then -- Del empty line without trashing reg
         vim.cmd('norm! "_dd')
     else
         vim.cmd('norm! 0d$"_dd') -- avoids yanking \n
@@ -1159,9 +1158,10 @@ map("n", "<space>", "i<space><esc>")
 
 -- Indent inc
 map("i", "<Tab>", function()
-    local width = vim.opt.shiftwidth:get()
+    local swidth = vim.opt.shiftwidth:get()
+    local crspos = vim.api.nvim_win_get_cursor(0)
     vim.cmd("norm! v>")
-    vim.cmd("norm! ".. width .. "l") -- smartly move cursor
+    vim.api.nvim_win_set_cursor(0, {crspos[1], crspos[2]+swidth}) -- crs follow indent change
 end)
 map("n", "<Tab>", "v>")
 map("x", "<Tab>", ">gv")
@@ -1374,8 +1374,6 @@ map({"i","n","v"}, "<F10>", "<Cmd>Trouble diagnostics toggle focus=true filter.b
 
 map({"i","n","v"}, "<F22>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
--- Normal mode keymap example
-map({"i","n","v"}, "<C-PageUp>d",  "]d")
 map({"i","n","v"}, "<C-PageUp>d",  "]d")
 map({"i","n","v"}, "<C-PageDow>d", "[d")
 
@@ -1390,10 +1388,16 @@ map("v", "<F12>", "<Esc>gd")
 
 
 -- Show hover window
-map({"i","n"}, "<C-h>", "<Cmd>lua vim.lsp.buf.hover()<CR>")
--- map({"i","n"}, "<C-h>", "<Cmd>norm! KK<CR>", {noremap=true})
--- map({"i","n"}, "<C-h>", "<Cmd>norm! KK<CR>", {noremap=true})
--- map({"i","n"}, "<C-S-h>", '<Cmd>norm! "zyiw<CR><Cmd>h \18z<CR>')
+map({"i","n"}, "<C-h>", function()
+    vim.lsp.buf.hover()
+    vim.lsp.buf.hover()
+    -- vim.opt_local.winborder = "Single" -- double
+
+    -- vim.opt_local.signcolumn = "no"
+    -- vim.opt_local.number     = false
+    -- vim.opt_local.foldcolumn = "0"
+
+end)
 
 -- Show signature
 map({"i","n"}, "<M-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")

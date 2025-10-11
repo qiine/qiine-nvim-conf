@@ -241,7 +241,7 @@ vim.api.nvim_create_user_command("FavShowQuickBinds", function()
 
     wopts.title_pos = "center"
     wopts.relative  = "editor"
-    wopts.border    = "single"
+    wopts.border    = "rounded" -- single
 
     local wsize = {w = 45, h = 20}
 

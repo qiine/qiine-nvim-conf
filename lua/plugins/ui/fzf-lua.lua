@@ -294,20 +294,19 @@ return
         fzfl.favorites = function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
-            local favs = require("modules.favorizer").get_favs()
-            local favs_names = require("modules.favorizer").get_names()
+            local favz = require("modules.favorizer")
+            local favs, favs_names = favz.get_favs(), favz.get_favs_names()
             fzfl.fzf_exec(favs_names, {
                 prompt = "Fav> ",
                 -- previewer = "builtin",
                 previewer = function()
                     return make_preview(function(entry)
-                        local favpath = favs[entry]
-                        return vim.fn.readfile(favpath)
+                        return vim.fn.readfile(favs[entry])
                     end)
                 end,
                 actions = {
                     ["default"] = function(selected)
-                        vim.cmd("e ".. favs[selected[1]])
+                        favz.open_fav(selected[1])
                     end,
                 },
             })

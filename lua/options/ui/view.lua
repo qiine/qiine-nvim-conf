@@ -74,6 +74,7 @@ vim.o.shortmess = "astFTIcC"
 vim.o.splitbelow = true -- Open new hor split windows below the current window
 vim.o.splitright = true -- Open new ver split windows to the right of the current window
 
+vim.o.winborder = "none" -- single rounded
 
 
 -- ## [Cursor]
@@ -178,7 +179,8 @@ vim.opt.fillchars:append({
 ----------------------------------------------------------------------
 vim.o.list = true
 vim.opt.listchars:append({
-    tab="▸▸",
+    space=" ",
+    tab="»»",
     eol=" ",
     nbsp="␣",
     precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯
@@ -204,7 +206,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     callback = function()
         local mode = vim.fn.mode()
         if mode == "v" or mode == "V" then
-            vim.opt.listchars:append({space=".", tab= "» ", trail="⬝"})
+            vim.opt.listchars:append({space=".", tab= "»»", trail="⬝"})
         else
             vim.opt.listchars:remove({"space", "tab", "trail"})
             vim.opt.listchars:append({tab="  "}) --buggy without this

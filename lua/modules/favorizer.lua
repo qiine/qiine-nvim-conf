@@ -13,6 +13,19 @@ M.db_path = home .. "/Personal/Org/fav.json"
 
 -- M.fav = { ["name"] = "path" } --id --group --type
 
+M.quickbinds =
+{
+    [1] = "keymaps.lua",
+    [2] = "common_commands.lua",
+    [3] = "Neovim.md",
+    [4] = "init.lua",
+    [5] = "",
+    [6] = "",
+    [7] = "",
+    [8] = "",
+    [9] = "",
+}
+
 M.icon_infav    = "★"
 M.icon_notinfav = "☆"
 
@@ -142,7 +155,7 @@ function M.get_favs()
 end
 
 ---@return table
-function M.get_names()
+function M.get_favs_names()
     local res = read()
     if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl, data={} } end
 
@@ -154,9 +167,8 @@ function M.get_names()
     return names
 end
 
-
 ---@param name string
-function M.open(name)
+function M.open_fav(name)
     if not name or name == "" then
         return {stat=false, msg="Invalid fav name!", loglvl="err"}
     end
@@ -216,9 +228,44 @@ vim.api.nvim_create_user_command("FavRem", function(opts)
 end, {nargs = "*"})
 
 vim.api.nvim_create_user_command("FavOpen", function(opts)
-    local res = M.open(opts.args);
+    local res = M.open_fav(opts.args);
     notif(res.msg, res.loglvl)
 end, {nargs=1})
+
+vim.api.nvim_create_user_command("FavShowQuickBinds", function()
+    local wopts = {}
+
+    wopts.title =  "Quick binds"
+
+    wopts.title_pos = "center"
+    wopts.relative  = "editor"
+    wopts.border    = "single"
+
+    local wsize = {w = 45, h = 20}
+
+    wopts.width  = wsize.w
+    wopts.height = wsize.h
+    wopts.col = math.floor((vim.o.columns - wsize.w) / 2)
+    wopts.row = math.floor((vim.o.lines - wsize.h) / 2)
+
+    local fwin = vim.api.nvim_open_win(0, true, wopts)
+
+    vim.cmd("enew")
+    vim.api.nvim_set_option_value("buflisted", false,    {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe",   {buf=0})
+    vim.api.nvim_set_option_value("buftype",   "nofile", {buf=0})
+    vim.opt_local.signcolumn = "no"
+    vim.opt_local.number     = false
+    vim.opt_local.foldcolumn = "0"
+
+    local binds = {}
+    for key, value in ipairs(M.quickbinds) do
+        table.insert(binds, "["..key.."]".." = "..value)
+    end
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, binds)
+end, {})
+
 
 
 -- debug
@@ -229,7 +276,7 @@ end, {})
 vim.api.nvim_create_user_command("FavDumpDB", function()
     vim.cmd("enew")
 
-    local favs = M.get_names()
+    local favs = M.get_favs_names()
 
     -- local lines = vim.split(vim.inspect(favs), "\n")
     vim.api.nvim_buf_set_lines(0, 0, -1, false, favs)
@@ -239,22 +286,9 @@ end, {})
 
 -- ## [Keymaps]
 ----------------------------------------------------------------------
-local binds =
-{
-    ["1"] = "keymaps.lua",
-    ["2"] = "common_commands.lua",
-    ["3"] = "Neovim.md",
-    ["4"] = "init.lua",
-    ["5"] = "",
-    ["6"] = "",
-    ["7"] = "",
-    ["8"] = "",
-    ["9"] = "",
-}
-
 -- Speed dial
-for bind, file in pairs(binds) do
-    vim.keymap.set({"i","n","v","c","t"}, "<C-"..bind..">", function() M.open(file) end)
+for bind, file in pairs(M.quickbinds) do
+    vim.keymap.set({"i","n","v","c","t"}, "<C-"..bind..">", function() M.open_fav(file) end)
 end
 
 vim.keymap.set({"i","n","v"}, "<M-b>a", "<Cmd>FavAdd<CR>")

@@ -51,10 +51,18 @@ end
 
 -- ### [I/O]
 ---@return table
-local function fetch_db()
-    if not M.db_path then
-        return { stat=false, msg="Could not find favorites database!", loglvl="err", data={} }
+local function check_db()
+    if M.db_path then
+        return { stat=true, msg="Favorites db ok", loglvl="info"}
+    else
+        return { stat=false, msg="Could not find fav db!", loglvl="err"}
     end
+end
+
+---@return table
+local function fetch_db()
+    local chkdb = check_db()
+    if not chkdb.stat then return { stat=false, msg=chkdb.msg, loglvl="err" } end
 
     local db_ok, db = pcall(vim.fn.readfile, M.db_path)
     if not db_ok then
@@ -66,10 +74,10 @@ end
 
 ---@return table
 local function read()
-    local res = fetch_db()
-    if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl, data={} } end
+    local db = fetch_db()
+    if not db.stat then return {stat=false, msg=db.msg, loglvl=db.loglvl, data={} } end
 
-    local json_ok, favs = pcall(vim.fn.json_decode, table.concat(res.data, "\n"))
+    local json_ok, favs = pcall(vim.fn.json_decode, table.concat(db.data, "\n"))
     if not json_ok or type(favs) ~= "table" then
         return { stat=false, msg="Invalid JSON in database", loglvl="err", data={} }
     end
@@ -80,20 +88,20 @@ end
 ---@param data table
 ---@return table
 local function write(data)
+    local cdb = check_db()
+    if not cdb.stat then return {stat=false, msg=cdb.msg, loglvl=cdb.loglvl } end
+
+    -- To json frmt
     local json_ok, json = pcall(vim.fn.json_encode, data)
-    if not json_ok then
-        return { stat=false, msg="Failed to encode favorites", loglvl="err" }
-    end
+    if not json_ok then return { stat=false, msg="Failed to encode favorites", loglvl="err" } end
 
     -- Optional, keep human readable formatting
     json = json:gsub(",", ",\n\t"):gsub("{", "{\n\t"):gsub("}", "\n}")
 
+    -- Write
     local lines = vim.split(json, "\n", { plain = true })
-
     local w_ok, err = pcall(vim.fn.writefile, lines, M.db_path)
-    if not w_ok then
-        return { stat=false, msg="Failed to write favorites: ".. tostring(err), loglvl="err" }
-    end
+    if not w_ok then return { stat=false, msg="Failed to write favorites: ".. tostring(err), loglvl="err" } end
 
     return { stat=true, msg="Favorites saved", loglvl="info" }
 end
@@ -103,13 +111,11 @@ end
 ---@param db table
 ---@param name string
 ---@return boolean
-function M.check_is_faved(db, name)
-    if db[name] ~= nil then return true else return false end
-end
+function M.check_is_faved(db, name) return db[name] ~= nil end
 
 ---@param name string
 ---@param path string
-function M.add(name, path)
+function M.add_fav(name, path)
     if not name or name == "" or not path or path == "" then
         return { stat=false, msg="Expect name <name> and <path>", loglvl="err" }
     end
@@ -124,7 +130,8 @@ function M.add(name, path)
     end
 
     favs[name] = path
-    write(favs)
+    local wf = write(favs)
+    if not wf.stat then return {stat=false, msg=wf.msg, loglvl=wf.loglvl } end
 
     return { stat=true, msg="Added to favorites: \""..name.."\"", loglvl="info" }
 end
@@ -159,12 +166,7 @@ function M.get_favs_names()
     local res = read()
     if not res.stat then return {stat=false, msg=res.msg, loglvl=res.loglvl, data={} } end
 
-    local names = {}
-    for key, _ in pairs(res.data) do
-        table.insert(names, key)
-    end
-
-    return names
+    return vim.tbl_keys(res.data)
 end
 
 ---@param name string
@@ -210,7 +212,7 @@ vim.api.nvim_create_user_command("FavAdd", function(opts)
         name = args[1]
     end
 
-    local res = M.add(name, path)
+    local res = M.add_fav(name, path)
     notif(res.msg, res.loglvl)
 end, {nargs = "*"})
 

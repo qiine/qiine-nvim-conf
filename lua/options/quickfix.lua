@@ -122,7 +122,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
-            vim.api.nvim_win_set_height(0, 9)
+            vim.api.nvim_win_set_height(0, 8)
 
             vim.opt_local.signcolumn = "no" --show error/warning/hint and others
 
@@ -149,6 +149,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
                 print("File added to quickfix")
             end, {buffer=true, noremap=true})
 
+            -- Nav
             -- To next entry
             vim.keymap.set("n", "<Tab>", function()
                 vim.cmd("norm! j")
@@ -163,8 +164,9 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
                 vim.cmd("wincmd w")
             end, {buffer=true, noremap=true})
 
-            -- Open entry, close qf
-            vim.keymap.set("n", "<CR>", "<CR>zz", {buffer=true, noremap=true})
+            -- Open entry,
+            vim.keymap.set("n", "<CR>", "<CR>zz<Cmd>wincmd w<CR>", {buffer=true, noremap=true})
+
 
             -- Del entrie
             vim.keymap.set("n", "d", function()

@@ -110,11 +110,10 @@ vim.o.incsearch  = true --Highlight as you type
 
 -- Stop search highlight when editing
 vim.api.nvim_create_autocmd("InsertEnter", {
+    group = 'UserAutoCmds',
     callback = function()
         vim.o.hlsearch = false
     end,
-    group = 'UserAutoCmds',
-    desc = "Handle large file",
 })
 
 -- Search text highlight col
@@ -148,14 +147,33 @@ vim.o.foldcolumn = "1"
 --"0" Hides fold numbers
 --"1" Show dedicated fold column and numbers in the gutter
 
-vim.o.foldenable = true --see actual folds in gutter,
-vim.o.foldmethod = "expr" --Use indentation for folds (or "syntax", "manual", etc.)
--- vim.o.foldexpr   = "v:lua.vim.treesitter.foldexpr()"
-vim.o.foldexpr   = "nvim_treesitter#foldexpr()"
+vim.o.foldenable = true  -- Actual folds icons in gutter
+vim.o.foldmethod = 'expr'
+vim.o.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
+-- Prefer LSP folding if client supports it
+vim.api.nvim_create_autocmd('LspAttach', {
+    group = 'UserAutoCmds',
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client:supports_method('textDocument/foldingRange') then
+            local win = vim.api.nvim_get_current_win()
+            vim.wo[win][0].foldexpr = 'v:lua.vim.lsp.foldexpr()'
+        end
+    end,
+})
 
 vim.o.foldlevel      = 99 --hack to Keep folds open by default
 vim.o.foldlevelstart = 99
 vim.o.foldnestmax    = 10
+
+vim.o.foldtext = "v:lua.FoldedText()"
+function FoldedText()
+    local line = vim.fn.getline(vim.v.foldstart)
+    return line.." ⋯"
+end
+
+-- fold color
+vim.api.nvim_set_hl(0, "Folded", { fg = "#555555", bg = "NONE" })
 
 
 -- fillchars
@@ -180,7 +198,7 @@ vim.opt.fillchars:append({
 vim.o.list = true
 vim.opt.listchars:append({
     space=" ",
-    tab="»»",
+    tab="» ",
     eol=" ",
     nbsp="␣",
     precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯

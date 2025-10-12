@@ -14,7 +14,7 @@ vim.opt.sessionoptions = {
     --"buffers",   --hidden and unloaded buffers, not just those in windows
     "tabpages",  --all tab pages; without this only the current tab page is restored
     --"terminal",
-    "folds",     --manually created folds, opened/closed folds and local fold options
+    -- "folds",     --manually created folds, opened/closed folds and local fold options
     --"globals",	--global variables that start with an uppercase letter and contain at least one lowercase letter.  Only String and Number types are stored.
     --"options",	--all options and mappings (also global values for local options)
     --"localoptions"	--options and mappings local to a window or buffer (not global values for local options)

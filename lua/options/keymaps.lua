@@ -209,7 +209,11 @@ end, {desc = "Toggle Gutter" })
 
 
 -- ### [Folds]
+-- fold curr
 map({"i","n","v"}, "<M-z>", "<Cmd>norm! za<CR>")
+map({"i","n","v"}, "<C-S-z>", "<Cmd>norm! za<CR>")
+
+-- Fold all
 vim.keymap.set({"i","n","v"}, "<M-S-z>", function()
     local count = vim.v.count
 
@@ -556,14 +560,24 @@ map({"i","n","v","c","t"}, "<F4>", function()
         vim.cmd("enew")
         vim.cmd("e /home/qm/Personal/Org/plan.md")
         vim.cmd("e!")
-        vim.cmd("norm! zM")
+        vim.opt_local.foldlevel = 2
+        -- vim.cmd("norm! zM")
     else
         vim.cmd("bwipeout")
     end
 end)
 
 -- Project task <S-F4>
--- map({"i","n","v","c","t"}, "<F16>", "<Cmd>Planv<CR>")
+map({"i","n","v","c","t"}, "<F16>", function()
+    local fname = vim.fn.expand("%:t")
+
+    if fname ~= "todo.md" then
+        vim.cmd("enew")
+        vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
+    else
+        vim.cmd("bwipeout")
+    end
+end)
 
 
 -- open curr proj doc
@@ -595,7 +609,20 @@ map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
 
 -- ### Directory navigation
 -- Move one dir up
-map({"i","n","v"}, "<C-Home>", "<cmd>cd .. | pwd<CR>")
+map({"i","n","v"}, "<C-Home>", "<Cmd>cd .. | pwd<CR>")
+
+-- cd file dir
+map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").."|pwd") end)
+map({"i","n","v"}, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
+
+-- cd proj root
+map({"i","n","v"}, "<M-Home>", function()
+    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
+    if rootdir then
+        vim.cmd("cd "..rootdir)
+        vim.cmd("pwd")
+    end
+end)
 
 -- To prev directory
 map({"i","n","v"}, "<C-End>", "<cmd>cd - | pwd<CR>")
@@ -610,20 +637,6 @@ map({"i","n","v","c"}, "<M-End>", function()
     --         print(vim.fn.getcwd())
     --     end,
     -- })
-end)
-
--- cd file dir
-map(modes, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
-
--- cd project root
-map(modes, "<C-p>p", function()
-    local res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
-    if res.code ~= 0 then
-        vim.notify("Not inside a Git repo:"..res.stderr, vim.log.levels.ERROR) return
-    end
-    local groot = vim.trim(res.stdout) -- trim white space to avoid surprises
-
-    vim.cmd("cd " .. groot); print("pwd")
 end)
 
 
@@ -962,8 +975,6 @@ map({"n","v"}, "<C-z>",   "<esc>u", {noremap = true})
 -- Redo
 map("i",       "<C-y>",   "<C-o><C-r>")
 map({"n","v"}, "<C-y>",   "<esc><C-r>")
-map("i",       "<C-S-z>", "<C-o><C-r>")
-map({"n","v"}, "<C-S-z>", "<esc><C-r>")
 
 
 -- ### [Deletion]
@@ -1152,18 +1163,26 @@ map("v", "<M-->", "gugv")
 map({"n"}, "+", function() utils.smartincrement() end)
 map({"n"}, "-", function() utils.smartdecrement() end)
 
--- ### Formatting
--- #### Indentation
+-- ### [Formatting]
+-- space
 map("n", "<space>", "i<space><esc>")
 
+-- #### Indentation
 -- Indent inc
-map("i", "<Tab>", function()
+map({"i","n"}, "<Tab>", function()
     local swidth = vim.opt.shiftwidth:get()
     local crspos = vim.api.nvim_win_get_cursor(0)
-    vim.cmd("norm! v>")
-    vim.api.nvim_win_set_cursor(0, {crspos[1], crspos[2]+swidth}) -- crs follow indent change
+
+    if vim.fn.getline(".") ~= "" then
+        vim.cmd("norm! v>")
+    else
+        vim.cmd("norm! "..swidth.."i ") -- indent even empty lines
+    end
+
+    if vim.fn.mode() == "i" then
+        vim.api.nvim_win_set_cursor(0, {crspos[1], crspos[2]+swidth}) -- crs follow indent change
+    end
 end)
-map("n", "<Tab>", "v>")
 map("x", "<Tab>", ">gv")
 
 -- Indent decrease
@@ -1390,13 +1409,14 @@ map("v", "<F12>", "<Esc>gd")
 -- Show hover window
 map({"i","n"}, "<C-h>", function()
     vim.lsp.buf.hover()
-    vim.lsp.buf.hover()
-    -- vim.opt_local.winborder = "Single" -- double
+    vim.lsp.buf.hover() -- second time to go into fwin weird
 
+    vim.opt_local.winborder  = "single" -- double
+    -- vim.opt_local.wrap       = false
+    -- vim.opt_local.spell      = false
     -- vim.opt_local.signcolumn = "no"
     -- vim.opt_local.number     = false
     -- vim.opt_local.foldcolumn = "0"
-
 end)
 
 -- Show signature
@@ -1460,32 +1480,39 @@ map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
 
 -- ## [Code runner]
 ----------------------------------------------------------------------
+-- exec sel
 vim.keymap.set("v", "<M-S-p>", function()
     local sel = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     vim.fn.setreg("z", "lua print("..sel..")")
     vim.cmd("@z")
 end)
 
--- run code at cursor with sniprun
 -- run curr line only and insert res below (<C-F8>)
 map({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
 
--- Run selected code in visual mode
--- <F20> equivalent to <S-F8>
+-- Run selected code, insert res, <F20> equivalent to <S-F8>
 map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
 
--- Run whole file until curr line and insert
+-- Run whole file until curr line and insert res
 map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
--- F56 is <M-F8>
+-- run curretn file F56 is <M-F8>
 map({"i","n","v"}, "<F56>", function()  end)
 
-
 -- run project
--- map({"i","n","v","c"}, "F8", )
+map({"i","n","v"}, "<F8>", function()
+    local cwd =  vim.fn.getcwd()
+    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward=true })[1])
 
--- run curretn file
--- map({"i","n","v"}, "", )
+    vim.fn.chdir(rootdir)
+
+    vim.cmd("silent! make")
+
+    vim.cmd("copen")
+
+    vim.fn.chdir(cwd)
+end)
+
 
 
 

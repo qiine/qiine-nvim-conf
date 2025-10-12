@@ -1,6 +1,6 @@
---------------------------------------------------
--- Edit --
---------------------------------------------------
+----------------------------------------------------------------------
+-- [Edit] --
+----------------------------------------------------------------------
 
 local utils = require("utils.utils")
 local v = vim
@@ -131,16 +131,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
 })
 
--- Handle Large file
-vim.api.nvim_create_autocmd('BufRead', {
-    group = 'UserAutoCmds',
-    callback = function(args)
-        if vim.b[args.buf].is_bigfile then
-            vim.cmd("BigfileMode")
-        end
-    end,
-})
-
 
 
 -- ## [Undo]
@@ -149,18 +139,6 @@ vim.opt.undolevels = 2000
 
 -- Persistent undo
 vim.opt.undofile = true
-
-vim.api.nvim_create_autocmd("BufReadPre", {
-    group = "UserAutoCmds",
-    callback = function(args)
-        local fsize = vim.fn.getfsize(args.file)
-        if fsize > 2048*2048 then
-            vim.opt_local.undolevels = -1
-            vim.opt_local.undofile   = false
-        end
-    end,
-    desc = "Handle large file",
-})
 
 local undodir = vim.fn.stdpath("data") .. "/undo"
 
@@ -182,86 +160,6 @@ vim.opt.undodir = undodir
 
 
 
--- ## [Text inteligence]
-----------------------------------------------------------------------
-vim.lsp.enable({
-    "lua-ls",
-    "ts-ls",
-    "rust-analyzer",
-})
-
-
-
--- ### [Spelling]
-vim.opt.spell = false
---TODO make it ignore fenced code in marksown
---maybe allow only for comment for other filetypes?
-
--- SpellIgnore rules
--- vim.api.nvim_create_autocmd("Syntax", {
---     group = vim.api.nvim_create_augroup("SpellIgnore", {clear=true}),
---     callback = function()
---         -- Make URL tokens spell-ignored
---         vim.cmd [[
---             syn match UrlNoSpell /http\S\+/ contains=@NoSpell containedin=@AllSpell transparent
---         ]]
-
---         -- Abbreviations in ALLCAPS (2+ letters/digits)
---         vim.cmd [[
---             syn match AbbrevNoSpell /\<[A-Z][A-Z0-9]\+\>/ contains=@NoSpell containedin=@AllSpell transparent
---         ]]
---     end,
--- })
-
--- Define a highlight group for URLs
-vim.api.nvim_set_hl(0, "MyUrl", { fg = "#6aafc1", bold = true })
-
--- Apply the syntax match
--- vim.cmd [[
---     syntax match MyUrl /.*/
--- ]]
-
-
-
-vim.opt.spellcapcheck = ""
--- Pattern to locate the end of a sentence.  The following word will be
--- checked to start with a capital letter.  If not then it is highlighted
--- with SpellCap |hl-SpellCap| (unless the word is also badly spelled).
--- When this check is not wanted make this option empty.
--- Only used when 'spell' is set.
--- Be careful with special characters, see |option-backslash| about
--- including spaces and backslashes.
--- To set this option automatically depending on the language, see
--- |set-spc-auto|.
-
-
--- ### Language
-local preferedlangs = {
-    "en",
-    "fr"
-}
-
-vim.opt.spelllang = "en"
-
--- TODO p3 make it use our own custom dico
-vim.opt.spellfile = {
-    vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
-}
-
-vim.api.nvim_create_user_command("PickDocsLanguage", function()
-    local dictpath = vim.fn.stdpath("config").."/spell/"
-
-    vim.ui.select(preferedlangs, {prompt = "Pick documents language"},
-    function(choice)
-        if choice then
-            vim.opt.spelllang = choice
-            vim.opt.spellfile = dictpath..choice..".utf-8.add"
-        end
-    end)
-end, {})
-
-
-
 -- ## [Formatting]
 ----------------------------------------------------------------------
 local formatopts = {} --will hold all users formats opts
@@ -269,12 +167,12 @@ local formatopts = {} --will hold all users formats opts
 
 
 -- ### Indentation
+vim.opt.expandtab   = true -- Use spaces instead of tabs
+
 vim.opt.shiftwidth  = 4    -- Number of spaces to use for indentation
 vim.opt.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
 vim.opt.tabstop     = 4
 vim.opt.softtabstop = 4    -- Number of spaces to use for pressing TAB in insert mode
-
-vim.opt.expandtab   = true -- Use spaces instead of tabs
 
 vim.opt.autoindent  = true -- keep indent of prev line when making a new one
 vim.opt.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
@@ -343,23 +241,4 @@ vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {
     end,
 })
 
--- Detect binary files
--- vim.api.nvim_create_autocmd("BufReadPost", {
---     group = "UserAutoCmds",
---     callback = function(args)
---        local path = args.file
---        if path == "" then return end
-
---         local result = vim.system(
---             { "file", "--mime-type", "-b", path },
---             { text = true }
---         ):wait()
---         if result.code ~= 0 then return end
-
---         local mime = vim.trim(result.stdout or "")
---         if not mime:match("^text/") then
---             vim.cmd("%!xxd")
---         end
---     end,
--- })
 

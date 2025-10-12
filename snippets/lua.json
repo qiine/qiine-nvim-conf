@@ -23,18 +23,18 @@
         ]
     },
 
+    "for each": {
+        "prefix": "for each",
+        "body": [
+            "for key, value in pairs(${1:table}) do",
+            "\t${2:}",
+            "end"
+        ]
+    },
+
     "print": {
         "prefix": "print",
         "body": [ "print(\"${1:hello!}\")" ]
-    },
-
-    "for each table": {
-        "prefix": "for each table",
-        "body": [
-            "for _, item in pairs(${1:table}) do",
-                "\t${2:}",
-            "end"
-        ]
     },
 
     "nvim flatten table": {
@@ -47,43 +47,39 @@
         ]
     },
 
+
     "get home dir": {
-        "prefix": "home dir",
+        "prefix": "get home dir",
         "body": "os.getenv(\"HOME\")"
     },
 
     "get nvim filetype": {
-        "prefix": "nvim filetype",
+        "prefix": "get nvim filetype",
         "body": [ "vim.bo.filetype" ]
     },
 
     "get nvim current buffer": {
-        "prefix": "nvim curr buf",
+        "prefix": "get nvim curr buf",
         "body": [ "vim.api.nvim_get_current_buf()" ]
     },
 
     "get nvim buffertype": {
-        "prefix": "nvim buftype",
+        "prefix": "get nvim buftype",
         "body": [ "vim.bo.buftype" ]
     },
 
     "get buffer filepath": {
-        "prefix": "buf filepath",
+        "prefix": "get buf filepath",
         "body": [ "vim.api.nvim_buf_get_name(0)" ]
     },
 
-    "vim cmd": {
-        "prefix": "vim.cmd",
-        "body": [ "vim.cmd(\"${1:}\")" ]
-    },
-
     "get nvim mode": {
-        "prefix": "nvim mode",
+        "prefix": "get nvim mode",
         "body": [ "vim.fn.mode()" ]
     },
 
     "get nvim cursor position": {
-        "prefix": "nvim cursor pos",
+        "prefix": "get nvim cursor pos",
         "body": [ "vim.api.nvim_win_get_cursor(0)" ]
     },
 
@@ -93,21 +89,21 @@
     },
 
     "get nvim region": {
-        "prefix": "nvim region",
+        "prefix": "get nvim region",
         "body": [
             "vim.fn.getregion(${1:startpos}, ${2:endpos})[1]"
         ]
     },
 
     "get nvim char under cursor": {
-        "prefix": "nvim char under cursor",
+        "prefix": "get nvim char under cursor",
         "body": [
             "vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]"
         ]
     },
 
     "get nvim visual selection text": {
-        "prefix": "nvim visual selection text",
+        "prefix": "get nvim visual selection text",
         "body": [
             "vim.fn.getregion(vim.fn.getpos(\".\"), vim.fn.getpos(\"v\"))[1]"
         ]
@@ -134,6 +130,11 @@
         "body": [
             "vim.keymap.set(\"${1:n}\", \"${2:<key>}\", \"${3:}\")"
         ]
+    },
+
+    "vim cmd": {
+        "prefix": "vim.cmd",
+        "body": [ "vim.cmd(\"${1:}\")" ]
     },
 
     "new nvim user command": {

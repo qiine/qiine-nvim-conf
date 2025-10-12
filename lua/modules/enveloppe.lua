@@ -80,18 +80,23 @@ end
 function M.setup()
     -- Smart auto pairing
     vim.keymap.set("i", "<", function()
-        local crs_pos = vim.fn.getpos(".")
-        local nxt_chr_pos = {0, crs_pos[2], crs_pos[3], 0}
-        local nxt_chr = vim.fn.getregion(nxt_chr_pos, nxt_chr_pos)[1]
+        local curso_pos    = vim.fn.getpos(".")
+        local left_chr_pos = {0, curso_pos[2], curso_pos[3], 0}
+        local left_chr     = vim.fn.getregion(left_chr_pos, left_chr_pos)[1]
 
-        if vim.bo.buftype == "" and nxt_chr == " " or nxt_chr == ""  then
-            return "<>"
+        local not_inif =  not vim.fn.getline('.'):match('%f[%w]if%f[%W]')
+
+        if vim.bo.buftype == "" and
+           not_inif and
+           (left_chr == " " or left_chr == "")
+        then
+            return "<><Cmd>silent! norm! h<CR>"
         else
             return "<"
         end
-    end, {expr=true})
+    end, {expr=true, nowait=true})
 
-
+    -- surround
     vim.keymap.set({"i","n","x"}, '<C-S-s>', function()
         vim.api.nvim_echo({{"Surround:"}}, false, {})
 

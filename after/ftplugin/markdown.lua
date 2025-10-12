@@ -17,6 +17,33 @@ vim.opt_local.number = false
 vim.opt_local.foldcolumn = "1"
 vim.opt_local.foldenable = true
 
+-- vim.o.foldexpr = "v:lua.MarkdownFoldExpr()"
+
+-- Fold function
+function _G.MarkdownFoldExpr()
+    local line = vim.fn.getline(vim.v.lnum)
+
+    if line:match("^%s*$") then -- Ignore empty lines
+        return vim.v.foldlevel
+    end
+
+    local heading = line:match("^(#+)%s")  -- Heading fold: level = number of # characters
+    if heading then
+        return #heading
+    end
+
+    -- List item fold: level based on indentation
+    local list_item = line:match("^%s*[%*%-]%s")
+    if list_item then
+        local indent = line:match("^(%s*)") or ""
+        -- 2 spaces per level
+        local level = math.floor(#indent / 2) + 1
+        return level
+    end
+
+    -- Other lines inherit previous fold level
+    return vim.v.foldlevel
+end
 
 -- [Format]
 --Tab

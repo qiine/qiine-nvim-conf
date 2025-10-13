@@ -4,6 +4,7 @@
 
 -- ## [Keymaps]
 ----------------------------------------------------------------------
+-- ### [Quickfix]
 vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickFixToggle<CR>")
 
 -- add to qf
@@ -25,7 +26,6 @@ vim.keymap.set({"i","n","v"}, "<M-q>a", function()
 
     print("Curr file added to quickfix")
 end)
-
 
 -- Go to next quickfix entry
 vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()

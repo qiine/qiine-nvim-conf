@@ -17,6 +17,34 @@ local map = vim.keymap.set
 ----------------------------------------
 
 
+
+-- ## [key Options]
+vim.o.timeoutlen = 375 --delay between key press to register shortcuts
+
+-- define % motion /matching/
+vim.opt.matchpairs:append({"<:>"})
+
+-- Virtual Edit
+vim.opt.virtualedit = "none" -- Snap cursor to closest char at eol
+-- "none"    -- Default, disables virtual editing.
+-- "onemore" -- Allows the cursor to move one character past the end of a line.
+-- "block"   -- Allows cursor to move where there is no actual text in visual block mode.
+-- "insert"  -- Allows inserting in positions where there is no actual text.
+-- "all"     -- Enables virtual editing in all modes.
+
+vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
+    group = "UserAutoCmds",
+    callback = function()
+        local mode = vim.fn.mode()
+        if mode == "n"  then vim.opt.virtualedit = "all"     return end
+        if mode == "i"  then vim.opt.virtualedit = "none"    return end
+        if mode == "v"  then vim.opt.virtualedit = "onemore" return end
+        if mode == "V"  then vim.opt.virtualedit = "onemore" return end
+        if mode == "" then vim.opt.virtualedit = "block"   return end
+    end,
+})
+
+
 -- Modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
@@ -24,8 +52,6 @@ local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 -- ## [General]
 ----------------------------------------------------------------------
-vim.o.timeoutlen = 375 --delay between key press to register shortcuts
-
 -- Ctrl+q to quit
 map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 
@@ -41,31 +67,6 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 -- Omni esc
 map({'i','n','x'}, '<esc>', "<Cmd>noh<CR><esc>")
-
-
--- ### [Quickfix]
-map({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickFixToggle<CR>")
-
--- add to qf
-map({"i","n","v"}, "<M-q>a", function()
-    local fname = vim.fn.expand("%:p") --Get curr file location
-    if fname == "" then print("No filename") return end
-
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-
-    vim.fn.setqflist({}, "a", {
-        items = {
-            {
-                filename = fname,
-                lnum = cursopos[1],
-                col  = cursopos[2],
-                text = ""
-            }
-        }
-    })
-
-    print("Added to quickfix")
-end)
 
 
 
@@ -395,8 +396,8 @@ map({"n","v"}, "<C-Down>", "m'3j")
 
 
 -- ### [Scrolling]
-map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 6zl<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 6zh<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
 
@@ -1312,7 +1313,7 @@ map({"i","n","v","c","t"}, "<M-s>s", function()
 end, { desc = "Toggle spell checking" })
 
 -- Pick documents language
-map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocsLanguage<CR>")
+map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocÇanguage<CRÇ")
 
 -- Suggest
 map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")
@@ -1510,6 +1511,7 @@ vim.keymap.set({"i","n","v"}, "<F8>", function()
     local file = vim.fn.expand("%:p")
     local ft = vim.bo.filetype
     local nofile = file == "" or vim.fn.filereadable(file) == 0
+    local buft = vim.bo.buftype
 
     if diroot and vim.fn.filereadable(diroot .. "/Makefile") == 1 then
         vim.fn.chdir(diroot)
@@ -1533,16 +1535,17 @@ vim.keymap.set({"i","n","v"}, "<F8>", function()
             vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
         end
 
-        vim.cmd("split | resize 9")
-        vim.cmd("terminal")
-        vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-        vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+        if buft ~= "terminal" then
+            vim.cmd("split | resize 9")
+            vim.cmd("terminal")
+            vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+            vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
-        vim.cmd("startinsert")
+            vim.cmd("startinsert")
+        end
         vim.fn.setreg("z", cmd)
         vim.cmd('norm! "zP')
-        local key = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
-        vim.api.nvim_feedkeys(key, "t", false)
+        vim.api.nvim_feedkeys("\13", "t", false)
     end
 
     vim.fn.chdir(cwd)

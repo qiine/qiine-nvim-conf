@@ -557,12 +557,9 @@ map({"i","n","v","c","t"}, "<F4>", function()
     local fname = vim.fn.expand("%:t")
 
     if fname ~= "plan.md" then
-        vim.cmd("enew")
         vim.cmd("e /home/qm/Personal/Org/plan.md")
-        vim.cmd("e!")
         vim.opt_local.foldlevel = 2
-        -- vim.cmd("norm! zM")
-    else
+    elseif fname == "plan.md" then
         vim.cmd("bwipeout")
     end
 end)
@@ -572,9 +569,8 @@ map({"i","n","v","c","t"}, "<F16>", function()
     local fname = vim.fn.expand("%:t")
 
     if fname ~= "todo.md" then
-        vim.cmd("enew")
         vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
-    else
+    elseif fname == "plan.md" then
         vim.cmd("bwipeout")
     end
 end)
@@ -611,21 +607,9 @@ map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
 -- Move one dir up
 map({"i","n","v"}, "<C-Home>", "<Cmd>cd .. | pwd<CR>")
 
--- cd file dir
-map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").."|pwd") end)
-map({"i","n","v"}, "<C-p>f", "<cmd>cd %:p:h | pwd<CR>")
-
--- cd proj root
-map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
-    if rootdir then
-        vim.cmd("cd "..rootdir)
-        vim.cmd("pwd")
-    end
-end)
-
 -- To prev directory
 map({"i","n","v"}, "<C-End>", "<cmd>cd - | pwd<CR>")
+
 
 -- Interactive cd
 map({"i","n","v","c"}, "<M-End>", function()
@@ -638,6 +622,25 @@ map({"i","n","v","c"}, "<M-End>", function()
     --     end,
     -- })
 end)
+
+-- cd shortcuts
+-- cd curr file dir
+map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").."|pwd") end)
+
+-- cd proj root
+map({"i","n","v"}, "<M-Home>", function()
+    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
+    if rootdir then
+        vim.cmd("cd "..rootdir)
+        vim.cmd("pwd")
+    end
+end)
+
+-- cd to home
+map({"i","n","v"}, "<M-S-Home>", function() vim.cmd("cd | pwd") end)
+
+-- cd to sys root dir
+map({"i","n","v"}, "<M-C-S-Home>", function() vim.cmd("cd / | pwd") end)
 
 
 
@@ -1196,8 +1199,7 @@ map("n", "<C-=>", "==")
 map("x", "<C-=>", "=")
 
 
--- ### [Line break]
--- map("n", "<cr>", "i<CR><esc>")
+-- ### [Break line]
 map("n", "<cr>", function()
     if vim.bo.buftype == "" then
         return "i<CR><esc>"
@@ -1206,11 +1208,11 @@ map("n", "<cr>", function()
     end
 end, {expr=true})
 
--- Line break above
+-- Break line above
 map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
 map("v",       "<S-CR>", "<esc>O<esc>gv")
 
--- Line break below
+-- Break line below
 map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
@@ -1500,20 +1502,51 @@ map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 map({"i","n","v"}, "<F56>", function()  end)
 
 -- run project
-map({"i","n","v"}, "<F8>", function()
-    local cwd =  vim.fn.getcwd()
-    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward=true })[1])
+vim.keymap.set({"i","n","v"}, "<F8>", function()
+    local cwd = vim.fn.getcwd()
+    local markers = {".git", "Makefile", "package.json"}
+    local diroot = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
 
-    vim.fn.chdir(rootdir)
+    local file = vim.fn.expand("%:p")
+    local ft = vim.bo.filetype
+    local nofile = file == "" or vim.fn.filereadable(file) == 0
 
-    vim.cmd("silent! make")
+    if diroot and vim.fn.filereadable(diroot .. "/Makefile") == 1 then
+        vim.fn.chdir(diroot)
+        vim.cmd("silent! make")
+        vim.cmd("copen")
+    else
+        local cmd
+        if nofile then -- Dump buffer to temp file
+            local tmp = vim.fn.tempname() .. "." .. ft
+            vim.fn.writefile(vim.api.nvim_buf_get_lines(0, 0, -1, false), tmp)
+            file = tmp
+        end
 
-    vim.cmd("copen")
+        if ft == "lua" then
+            cmd = "lua " .. vim.fn.shellescape(file)
+        elseif ft == "python" then
+            cmd = "python " .. vim.fn.shellescape(file)
+        elseif ft == "sh" then
+            cmd = "bash " .. vim.fn.shellescape(file)
+        else
+            vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
+        end
+
+        vim.cmd("split | resize 9")
+        vim.cmd("terminal")
+        vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+        vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+
+        vim.cmd("startinsert")
+        vim.fn.setreg("z", cmd)
+        vim.cmd('norm! "zP')
+        local key = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+        vim.api.nvim_feedkeys(key, "t", false)
+    end
 
     vim.fn.chdir(cwd)
 end)
-
-
 
 
 
@@ -1572,10 +1605,18 @@ map({"i","n","v"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 
 -- Quick split term
 map({"i","n","v"}, "<M-w>t", function()
-    vim.cmd("vsp|term")
+    vim.cmd("vsp | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+end, {noremap=true})
+
+map({"i","n","v"}, "<M-w>th", function()
+    vim.cmd("split | term")
+
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+    vim.api.nvim_win_set_height(0, 9)
 end, {noremap=true})
 
 -- Exit term mode

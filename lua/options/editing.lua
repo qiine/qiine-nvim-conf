@@ -27,33 +27,6 @@ vim.opt.backspace = { "indent", "eol", "start" }
 
 
 
--- ## [Nav]
-----------------------------------------------------------------------
--- Virtual Edit
-vim.opt.virtualedit = "none" --allow to Snap cursor to closest char at eol
--- "none"    -- Default, disables virtual editing.
--- "onemore" -- Allows the cursor to move one character past the end of a line.
--- "block"   -- Allows cursor to move where there is no actual text in visual block mode.
--- "insert"  -- Allows inserting in positions where there is no actual text.
--- "all"     -- Enables virtual editing in all modes.
-
-vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
-    group = "UserAutoCmds",
-    callback = function()
-        local mode = vim.fn.mode()
-        if mode == "n"  then vim.opt.virtualedit = "all"     return end
-        if mode == "i"  then vim.opt.virtualedit = "none"    return end
-        if mode == "v"  then vim.opt.virtualedit = "onemore" return end
-        if mode == "V"  then vim.opt.virtualedit = "onemore" return end
-        if mode == "" then vim.opt.virtualedit = "block"   return end
-    end,
-})
-
--- define % motion /matching/
-vim.opt.matchpairs:append({"<:>"})
-
-
-
 -- ## [File]
 ----------------------------------------------------------------------
 -- Smart autosave
@@ -162,83 +135,61 @@ vim.opt.undodir = undodir
 
 -- ## [Formatting]
 ----------------------------------------------------------------------
-local formatopts = {} --will hold all users formats opts
--- View the current formatoptions with ':set verbose=1 formatoptions?'
+-- Will hold all users formats opts
+-- View current formatoptions with:
+-- ':set verbose=1 formatoptions?'
+local formopts =
+{
+    -- Text Wrapping
+    -- "t", Auto-wrap text using textwidth (for non-comments).
+    -- "w", Auto-wrap lines in insert mode, even without spaces.
+    -- "v", Don't auto-wrap lines in visual mode.
+
+    -- Paragraph & Line Formatting
+    -- "a", -- Auto-format paragraphs as you type (very aggressive).
+    "l", -- on joins, Don’t break long lines in insert mode.
+    -- "n", -- Recognize numbered lists (1., 2., etc.) and format them properly.
+    -- "2", -- Use a two-space indent for paragraph continuation.
+
+    -- Comments
+    "c", -- Auto-wrap comments using textwidth.
+    "r", -- Continue comments when pressing <Enter> in insert mode.
+    -- "o", -- Continue comments when opening a new line with o or O.
+    "q", -- Allow gq to format comments.
+    "j", -- Remove comment leaders when joining lines with J.
+    "b", -- No automatic formatting in block comments.
+}
+vim.opt.formatoptions = table.concat(formopts)
+
+-- hack bypass ftplugin/lua.vim settings
+vim.api.nvim_create_autocmd("FileType", {
+    group = "UserAutoCmds",
+    command = "set formatoptions-=o",
+})
+
+vim.o.textwidth = 80
+
+-- Visual only wraping
+vim.o.wrap        = false --word wrap off by default
+vim.o.breakindent = true --wrapped lines conserve whole block identation
+
+-- vim.o.commentstring = "-- %s"
 
 
 -- ### Indentation
-vim.opt.expandtab   = true -- Use spaces instead of tabs
+vim.o.expandtab   = true -- Use spaces instead of tabs
 
-vim.opt.shiftwidth  = 4    -- Number of spaces to use for indentation
-vim.opt.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
-vim.opt.tabstop     = 4
-vim.opt.softtabstop = 4    -- Number of spaces to use for pressing TAB in insert mode
+vim.o.shiftwidth  = 4    -- Number of spaces to use for indentation
+vim.o.tabstop     = 4    -- How wide a tab looks when displayed
+vim.o.softtabstop = 4    -- Number of spaces to use when pressing TAB
 
-vim.opt.autoindent  = true -- keep indent of prev line when making a new one
-vim.opt.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
+vim.o.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
+
+vim.o.autoindent  = true -- keep indent of prev line when making a new one
+vim.o.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
 -- vim.opt.copyindent = true
 -- vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
 -- A list of keys that, when typed in Insert mode, cause reindenting of
 -- the current line. Only happens if 'indentexpr' isn't empty.
-
-
--- ### Text Wrapping
--- "t" Auto-wrap text using textwidth (for non-comments).
--- "w" Auto-wrap lines in insert mode, even without spaces.
--- "v" Don't auto-wrap lines in visual mode.
--- table.insert(formatopts, "t")
--- table.insert(formatopts, "w")
-vim.opt.textwidth = 80
-
--- Visual only wraping
-vim.opt.wrap        = false --word wrap off by default
-vim.opt.breakindent = true --wrapped lines conserve whole block identation
-
---### Paragraph & Line Formatting
---"a"	Auto-format paragraphs as you type (very aggressive).
---"l"   on joins, Don’t break long lines in insert mode.
---"n"	Recognize numbered lists (1., 2., etc.) and format them properly.
---"2"	Use a two-space indent for paragraph continuation.
-table.insert(formatopts, "n")
-
---### Comments
---"c" Auto-wrap comments using textwidth.
---"r" Continue comments when pressing <Enter> in insert mode.
---"o" Continue comments when opening a new line with o or O.
---"q" Allow gq to format comments.
---"j" Remove comment leaders when joining lines with J.
---"b" No automatic formatting in block comments.
-table.insert(formatopts, "c")
-table.insert(formatopts, "j")
-table.insert(formatopts, "q")
-
--- vim.opt.commentstring = "-- %s"
-
---Force selected format options because it can be overwriten by other things
-vim.api.nvim_create_autocmd({"FileType", "BufNewFile"}, {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        local ft = vim.bo.filetype
-        if ft == "text" or ft == "markdown" then
-            utils.insert_unique(formatopts, "t")
-            utils.insert_unique(formatopts, "w")
-        else
-            for i = #formatopts, 1, -1 do
-                if formatopts[i] == "t" then
-                    table.remove(formatopts, i)
-                end
-            end
-            for i = #formatopts, 1, -1 do
-                if formatopts[i] == "w" then
-                    table.remove(formatopts, i)
-                end
-            end
-        end
-
-        local fopts = table.concat(formatopts)
-        vim.opt.formatoptions = fopts
-    end,
-})
 
 

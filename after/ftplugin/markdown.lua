@@ -45,7 +45,12 @@ function _G.MarkdownFoldExpr()
     return vim.v.foldlevel
 end
 
+
 -- [Format]
+vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
+vim.opt.formatoptions:append("t") -- auto-wrap text at textwidth
+vim.opt.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
+
 --Tab
 vim.opt_local.shiftwidth  = 2 --Number of spaces to use for indentation
 vim.opt_local.tabstop     = 2

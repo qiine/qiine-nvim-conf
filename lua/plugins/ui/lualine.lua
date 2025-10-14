@@ -116,8 +116,8 @@ return
                 {
                     { --curr writing lang
                         function ()
-                            local lang = vim.opt.spelllang:get()
-                            return lang[1]
+                            local langs = vim.opt.spelllang:get()
+                            return table.concat(langs, ",")
                         end
                     },
 

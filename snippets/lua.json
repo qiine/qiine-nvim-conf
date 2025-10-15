@@ -48,6 +48,11 @@
     },
 
 
+    "nvim notify": {
+        "prefix": "notify",
+        "body": "vim.notify(\"${1:notif}\", vim.log.levels.${2:INFO})"
+    },
+
     "get home dir": {
         "prefix": "get home dir",
         "body": "os.getenv(\"HOME\")"
@@ -183,9 +188,18 @@
             "        print(\"input empty!\") return",
             "    end",
             "",
-            "    ${0}",
+            "    ${0:}",
             "end)"
         ]
+    },
+
+    "nvim keymap cmd": {
+        "prefix": "keymap cmd",
+        "body": [
+            "\"<Cmd>${1:}<CR>\""
+        ]
     }
+
 }
+
 

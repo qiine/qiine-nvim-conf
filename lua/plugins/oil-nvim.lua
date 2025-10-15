@@ -117,13 +117,26 @@ return
                     end,
                     mode = {"i","n","v"},
                 },
-                ["<C-End>"] = {
+                ["<C-End>"] = { -- cd prev
                     callback = function()
                         require("oil").select({}, function() -- select curr
                             require("oil.actions").cd.callback()
                         end)
                     end,
                     mode = {"i","n","v"}
+                },
+                ["<M-Home>"] = {
+                    desc = "cd to project root",
+                    callback = function()
+                        local rootdir = vim.fs.dirname(vim.fs.find({ ".git", "Makefile", "package.json" }, { upward = true })[1])
+                        if rootdir then
+                            vim.cmd("cd " .. rootdir)
+                            require("oil").open(rootdir)  -- open that directory in Oil
+                        else
+                            vim.notify("No project root found", vim.log.levels.WARN)
+                        end
+                    end,
+                    mode = { "n", "i", "x" },
                 },
 
                 ["n"] = {

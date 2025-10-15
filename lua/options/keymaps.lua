@@ -36,11 +36,11 @@ vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
     group = "UserAutoCmds",
     callback = function()
         local mode = vim.fn.mode()
-        if mode == "n"  then vim.opt.virtualedit = "all"     return end
-        if mode == "i"  then vim.opt.virtualedit = "none"    return end
-        if mode == "v"  then vim.opt.virtualedit = "onemore" return end
-        if mode == "V"  then vim.opt.virtualedit = "onemore" return end
-        if mode == "" then vim.opt.virtualedit = "block"   return end
+        if mode == "n"  then vim.o.virtualedit = "all"     return end
+        if mode == "i"  then vim.o.virtualedit = "none"    return end
+        if mode == "v"  then vim.o.virtualedit = "onemore" return end
+        if mode == "V"  then vim.o.virtualedit = "onemore" return end
+        if mode == "" then vim.o.virtualedit = "block"   return end
     end,
 })
 
@@ -66,7 +66,11 @@ map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 -- Omni esc
-map({'i','n','x'}, '<esc>', "<Cmd>noh<CR><esc>")
+-- map({'i','n','x'}, '<esc>', "<Cmd>noh<CR><esc>")
+map({'i','n','v'}, '<esc>', function()
+    vim.cmd('noh')
+    return '<esc>'
+end, {expr = true, desc = "Escape, clear hlsearch"})
 
 
 
@@ -382,10 +386,16 @@ map({"n","v"}, "<Down>", "g<Down>")
 
 
 -- ### [Fast and furious cursor move]
+-- ### [Scrolling]
+map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
+
 -- m' is used to write into jump list
 -- Fast left/right move in normal mode
-map('n', '<C-Right>', "m'5l")
-map('n', '<C-Left>',  "m'5h")
+map('n', '<C-Right>', "m'7l")
+map('n', '<C-Left>',  "m'7h")
 
 -- ctrl+up/down to move fast
 map("i",       "<C-Up>", "<esc>m'3ki")
@@ -395,34 +405,49 @@ map("i",       "<C-Down>", "<esc>m'3ji")
 map({"n","v"}, "<C-Down>", "m'3j")
 
 
--- ### [Scrolling]
-map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
-
-
 -- ### [Jump]
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
 map("c",           "<M-Left>",  "<C-a>")
 
 map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
-map({"n","v"},     "<M-Right>", "<cmd>norm! $<cr>")
+map({"n","v"},     "<M-Right>", function()
+    if vim.fn.getline(".") == "" then
+        vim.cmd("norm! 0"..vim.opt.textwidth:get().."l")
+    else
+        vim.cmd("norm! $")
+    end
+end)
 map("c",           "<M-Right>", "<C-e>")
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")
 map({"n","v"}, "<Home>", "gg0")
 
---kmap("i",       "<M-Up>", "<Esc>gg0i")  --collide with <esc><up>
---kmap({"n","v"}, "<M-Up>", "gg0")
-
 map("i",       "<End>", "<Esc>GA")
 map({"n","v"}, "<End>", "G$")
 
--- kmap("i", "<M-Down>", "<Esc>G$i")  --collide with <esc><up>
--- kmap({"n","v"}, "<M-Down>", "G$")
+-- Jump screen up/down
+map({"i","n","v"}, "<M-Up>", function()
+    local wheight = vim.api.nvim_win_get_height(0)
+    local cpos    = vim.api.nvim_win_get_cursor(0)
+
+    if cpos[1] == vim.fn.line("w0") then
+        vim.cmd("norm! "..wheight.."k")
+    end
+
+    vim.cmd("norm! H")
+end)
+map({"i","n","v"}, "<M-Down>", function()
+    local wheight = vim.api.nvim_win_get_height(0)
+    local cpos    = vim.api.nvim_win_get_cursor(0)
+
+    if cpos[1] == vim.fn.line("w$") then
+        vim.cmd("norm! "..wheight.."j")
+    end
+
+    vim.cmd("norm! L")
+end)
 
 -- Jump to next word
 map({"i","v"}, '<C-Right>', function()
@@ -1078,7 +1103,7 @@ end)
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
 -- Replace selected char
-map("v", "<M-r>", "r")
+map("v", "<C-r>", "r")
 
 -- Replace visual selection with key
 vim.g.visualreplace = true
@@ -1313,7 +1338,7 @@ map({"i","n","v","c","t"}, "<M-s>s", function()
 end, { desc = "Toggle spell checking" })
 
 -- Pick documents language
-map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocÇanguage<CRÇ")
+map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocÇanguage<CR>")
 
 -- Suggest
 map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")
@@ -1323,7 +1348,7 @@ map({"i","n","v"}, "<M-c>", "<Cmd>norm! m`1z=``<CR>")
 
 -- Add word to dictionary
 map({"i","n"}, "<M-s>a", "<Esc>zg")
-map("v",       "<M-s>a", "zg")
+map("x",       "<M-s>a", "zg")
 --TODO check if word already in dict
 -- map({"i","n"},       "<M-s>a", "zg")
 -- function()
@@ -1348,6 +1373,33 @@ map("v",       "<M-s>a", "zg")
 --          vim.notify("Already in dictionary: " .. word)
 --      end
 --     end, { noremap = true })
+
+-- Add word to selected dict
+map({"i","n","x"}, "<M-s>ad", function()
+    local langs = vim.opt.spelllang:get()
+    vim.ui.select(langs, {prompt = "Pick dict lang: "},
+    function(choice)
+        local dictlang
+        if choice then dictlang = choice else return end
+
+        local langindex -- find index of choice
+        for i, s in ipairs(langs) do
+            if s == choice then langindex = i
+                break
+            end
+        end
+
+        local word
+        if vim.fn.mode() == "v" then
+            word = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+        else
+            vim.cmd('norm! mz"zyiw`z')
+            word = vim.fn.getreg("z")
+        end
+
+        vim.cmd(langindex.."spellgood "..word)
+    end)
+end)
 
 -- Remove from dictionary
 map({"i","n"}, "<M-s>r", "<Esc>zug")

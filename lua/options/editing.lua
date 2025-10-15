@@ -13,7 +13,7 @@ vim.g.autostartinsert = true
 
 
 -- Define word delim
-vim.opt.iskeyword = "@,48-57,192-255,-,_"
+vim.o.iskeyword = "@,48-57,192-255,-,_"
 -- @       -> alphabet,
 -- 48-57   -> 0-9 numbers,
 -- 192-255 -> extended Latin chars
@@ -108,10 +108,10 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
 -- ## [Undo]
 ----------------------------------------------------------------------
-vim.opt.undolevels = 2000
+vim.o.undolevels = 2000
 
 -- Persistent undo
-vim.opt.undofile = true
+vim.o.undofile = true
 
 local undodir = vim.fn.stdpath("data") .. "/undo"
 
@@ -119,7 +119,7 @@ if vim.fn.isdirectory(undodir) == 0 then
     vim.fn.mkdir(undodir, "p")
 end
 
-vim.opt.undodir = undodir
+vim.o.undodir = undodir
 
 --autoclean undofiles for deleted files
 --for name, _ in vim.fs.dir(undodir) do
@@ -159,7 +159,7 @@ local formopts =
     "j", -- Remove comment leaders when joining lines with J.
     "b", -- No automatic formatting in block comments.
 }
-vim.opt.formatoptions = table.concat(formopts)
+vim.o.formatoptions = table.concat(formopts)
 
 -- hack bypass ftplugin/lua.vim settings
 vim.api.nvim_create_autocmd("FileType", {
@@ -180,7 +180,7 @@ vim.o.breakindent = true --wrapped lines conserve whole block identation
 vim.o.expandtab   = true -- Use spaces instead of tabs
 
 vim.o.shiftwidth  = 4    -- Number of spaces to use for indentation
-vim.o.tabstop     = 4    -- How wide a tab looks when displayed
+vim.o.tabstop     = 4    -- Show a tab as this number of spaces
 vim.o.softtabstop = 4    -- Number of spaces to use when pressing TAB
 
 vim.o.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.

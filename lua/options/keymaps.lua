@@ -572,6 +572,45 @@ map("n", "f", function()
     vim.api.nvim_echo({{""}}, false, {})
 end)
 
+-- ### Directory navigation
+-- Move one dir up
+map({"i","n","v"}, "<C-Home>", "<Cmd>cd .. | pwd<CR>")
+
+-- To prev directory
+map({"i","n","v"}, "<C-End>", "<cmd>cd - | pwd<CR>")
+
+
+-- Interactive cd
+map({"i","n","v","c"}, "<M-End>", function()
+    vim.api.nvim_feedkeys(":cd ", "n", false)
+    vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
+    -- vim.api.nvim_create_autocmd('DirChanged', {
+    --     group = 'UserAutoCmds',
+    --     callback = function()
+    --         print(vim.fn.getcwd())
+    --     end,
+    -- })
+end)
+
+-- cd shortcuts
+-- cd curr file dir
+map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").."|pwd") end)
+
+-- cd proj root
+map({"i","n","v"}, "<M-Home>", function()
+    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
+    if rootdir then
+        vim.cmd("cd "..rootdir)
+        vim.cmd("pwd")
+    end
+end)
+
+-- cd to home
+map({"i","n","v"}, "<M-S-Home>", function() vim.cmd("cd | pwd") end)
+
+-- cd to sys root dir
+map({"i","n","v"}, "<M-C-S-Home>", function() vim.cmd("cd / | pwd") end)
+
 
 -- Hyper act
 map({"i","n","v"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
@@ -627,46 +666,6 @@ end)
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
-
-
--- ### Directory navigation
--- Move one dir up
-map({"i","n","v"}, "<C-Home>", "<Cmd>cd .. | pwd<CR>")
-
--- To prev directory
-map({"i","n","v"}, "<C-End>", "<cmd>cd - | pwd<CR>")
-
-
--- Interactive cd
-map({"i","n","v","c"}, "<M-End>", function()
-    vim.api.nvim_feedkeys(":cd ", "n", false)
-    vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
-    -- vim.api.nvim_create_autocmd('DirChanged', {
-    --     group = 'UserAutoCmds',
-    --     callback = function()
-    --         print(vim.fn.getcwd())
-    --     end,
-    -- })
-end)
-
--- cd shortcuts
--- cd curr file dir
-map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").."|pwd") end)
-
--- cd proj root
-map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
-    if rootdir then
-        vim.cmd("cd "..rootdir)
-        vim.cmd("pwd")
-    end
-end)
-
--- cd to home
-map({"i","n","v"}, "<M-S-Home>", function() vim.cmd("cd | pwd") end)
-
--- cd to sys root dir
-map({"i","n","v"}, "<M-C-S-Home>", function() vim.cmd("cd / | pwd") end)
 
 
 
@@ -815,6 +814,10 @@ map("n", "<C-S-k>", "i<C-S-k>")
 -- Insert var
 map({"i","n"}, "<C-S-n>v", function()
     lsnip.try_insert_snippet("var")
+end)
+
+map({"i","n"}, "<C-S-n>vt", function()
+    lsnip.try_insert_snippet("var table")
 end)
 
 -- Insert func
@@ -1247,7 +1250,7 @@ map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
 map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
 
 
--- ### [Line join]
+-- ### [Line join/split]
 -- Join below
 map("i",       "<C-j>", "<C-o><S-j>")
 map({"n","v"}, "<C-j>", "<S-j>") -- this syntax allow to use count
@@ -1255,6 +1258,12 @@ map({"n","v"}, "<C-j>", "<S-j>") -- this syntax allow to use count
 -- Join to upper
 map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use count
 map("n", "<C-S-j>", "k<S-j>")
+
+-- Split
+map("n", "<M-j>", function()
+    vim.cmd("silent! "..[[s/, /,\r/g]])
+    vim.cmd("noh")
+end)
 
 
 -- ### [Text move]
@@ -1377,16 +1386,12 @@ map("x",       "<M-s>a", "zg")
 -- Add word to selected dict
 map({"i","n","x"}, "<M-s>ad", function()
     local langs = vim.opt.spelllang:get()
-    vim.ui.select(langs, {prompt = "Pick dict lang: "},
-    function(choice)
-        local dictlang
-        if choice then dictlang = choice else return end
+    vim.ui.select(langs, { prompt = "Pick dict lang: " }, function(choice)
+        if not choice then return end
 
-        local langindex -- find index of choice
+        local langindex
         for i, s in ipairs(langs) do
-            if s == choice then langindex = i
-                break
-            end
+            if s == choice then langindex = i break end
         end
 
         local word
@@ -1397,9 +1402,16 @@ map({"i","n","x"}, "<M-s>ad", function()
             word = vim.fn.getreg("z")
         end
 
-        vim.cmd(langindex.."spellgood "..word)
+        local spelf = vim.fn.readfile(vim.opt.spellfile:get()[1])
+        if vim.tbl_contains(spelf, word) then
+            vim.notify("Already in dictionary: " .. word)
+        else
+            local cmd = vim.fn.mode() == "v" and "norm! " or "norm! gv"
+            vim.cmd(cmd .. langindex .. "zg")
+        end
     end)
 end)
+
 
 -- Remove from dictionary
 map({"i","n"}, "<M-s>r", "<Esc>zug")
@@ -1650,6 +1662,10 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 -- Open command line in term mode
 map({"i","c"}, "<S-Œ>", "<esc>:!")
 map({"n","v"}, "<S-Œ>", ":!")
+
+
+-- cmd messages <S-F10>
+map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>MsgLog<CR>")
 
 
 

@@ -9,9 +9,23 @@ return
         require('mini.keymap').setup()
         local combo = require('mini.keymap').map_combo
 
+        -- to middle of line
+        combo({"i","n","v"}, "<M-Left><M-Right>", "<Cmd>norm! gm<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Left><M-Right>", "<Cmd>norm! gm<CR>", { delay = 25 })
+
         -- to middle of screen
-        combo({"i","n","v"}, "<M-Left><M-Right>", "gm", { delay = 25 })
-        combo({"i","n","v"}, "<M-Left><M-Right>", "gm", { delay = 25 })
+        combo({"i","n","v"}, "<M-Left><M-Up>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Up><M-Left>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Left><M-Down>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Down><M-Left>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+
+        combo({"i","n","v"}, "<M-Right><M-Down>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Down><M-Right>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Right><M-Up>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<M-Up><M-Right>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+
+        combo({"i","n","v"}, "<C-Left><C-Right>", "<Cmd>norm! gmM<CR>", { delay = 25 })
+        combo({"i","n","v"}, "<C-Right><C-Left>", "<Cmd>norm! gmM<CR>", { delay = 25 })
 
         -- Quick normal
         combo({"i","n","o","v","c","t"}, "<Left><Right>", "<Esc>", { delay = 25 })

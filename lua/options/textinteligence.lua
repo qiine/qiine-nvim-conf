@@ -1,6 +1,6 @@
-
+----------------------------------------------------------------------
 -- # [Text inteligence] --
-
+----------------------------------------------------------------------
 
 -- Detect binary files
 -- vim.api.nvim_create_autocmd("BufReadPost", {
@@ -21,6 +21,7 @@
 --         end
 --     end,
 -- })
+
 
 
 -- ## [ Bigfiles]
@@ -58,13 +59,6 @@ vim.opt.spell = false
 --     end,
 -- })
 
--- Define a highlight group for URLs
-vim.api.nvim_set_hl(0, "MyUrl", { fg = "#6aafc1", bold = true })
-
--- Apply the syntax match
--- vim.cmd [[
---     syntax match MyUrl /.*/
--- ]]
 
 
 vim.opt.spellcapcheck = ""
@@ -85,12 +79,12 @@ local preferedlangs = {
     "fr"
 }
 
-vim.opt.spelllang = "en" -- ,fr
+vim.o.spelllang = "en,fr" --
 
 -- TODO p3 make it use our own custom dico
 vim.opt.spellfile = {
     vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
-    -- vim.fn.stdpath("config") .. "/spell/fr.utf-8.add",
+    vim.fn.stdpath("config") .. "/spell/fr.utf-8.add",
 }
 
 vim.api.nvim_create_user_command("PickDocLanguage", function()
@@ -99,8 +93,8 @@ vim.api.nvim_create_user_command("PickDocLanguage", function()
     vim.ui.select(preferedlangs, {prompt = "Pick document language"},
     function(choice)
         if choice then
-            vim.opt.spelllang = choice
-            vim.opt.spellfile = dictpath..choice..".utf-8.add"
+            vim.o.spelllang = choice
+            vim.o.spellfile = dictpath..choice..".utf-8.add"
         end
     end)
 end, {})

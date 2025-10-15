@@ -447,6 +447,9 @@ vim.opt.wildoptions = "pum"
 --})
 
 
+vim.o.messagesopt = "hit-enter,history:500"  --- wait:5000
+
+
 
 -- ## [Statusline]
 ----------------------------------------------------------------------

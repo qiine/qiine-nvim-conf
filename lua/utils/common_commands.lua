@@ -98,17 +98,22 @@ vim.api.nvim_create_user_command("RestartSafeMode", function()
     vim.cmd("qa!")
 end, {})
 
-vim.api.nvim_create_user_command("DumpMessagesToBuffer", function()
+vim.api.nvim_create_user_command("MsgLog", function()
     local cmd_output = vim.fn.execute('messages')
 
-    vim.cmd("new"); vim.cmd("enew") vim.cmd("file! message")
+    vim.cmd("new"); vim.cmd("enew") vim.cmd("file! msglog")
+
+    vim.api.nvim_win_set_height(0, 10)
 
     vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-    vim.api.nvim_win_set_height(0, 35)
+    vim.api.nvim_set_option_value("filetype", "log",   {buf=0})
 
     vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
+
+    vim.cmd("stopinsert")
+    vim.cmd("norm! G")
 end, {})
 
 -- Insert today

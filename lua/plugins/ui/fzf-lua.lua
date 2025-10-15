@@ -177,7 +177,8 @@ return
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>r", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").oldfiles({
-                stat_file = true --check file still exist
+                stat_file = true,                --check file still exist
+                include_current_session = true,  -- include bufs from current session
             })
         end, {silent=true, desc="Fuzzy find recent files"})
 

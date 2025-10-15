@@ -14,12 +14,12 @@ vim.o.updatetime = 150 --screen redraw speed in ms
 
 --v.opt.lazyredraw  = true  -- will scroll the view when moving the cursor
 -- Allow scrolling beyond the end of the file
-vim.o.scrolloff     = 2
+vim.o.scrolloff     = 0
 vim.o.sidescrolloff = 5
---v.opt.sidescroll = 1
+--v.o.sidescroll = 1
 
 -- colorcolumn
---vim.opt.colorcolumn="80"
+--vim.o.colorcolumn="80"
 
 
 -- Shortmess

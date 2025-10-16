@@ -4,6 +4,11 @@
         "body": [ "local ${1:newvar} = ${2:}" ]
     },
 
+    "new variable table": {
+        "prefix": "var table",
+        "body": [ "local ${1:newtable} = { ${2:}, }" ]
+    },
+
     "new function": {
         "prefix": "func",
         "body": [ "function ${1:newfunc}() ${2:} end" ]

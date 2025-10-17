@@ -59,7 +59,7 @@ map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
 -- F5 reload buffer
-map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'-File reloaded-'<CR>", {noremap=true})
+map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'Buffer reloaded'<CR>", {noremap=true})
 
 -- g
 map("i",       '<C-g>', "<esc>g", {noremap=true})
@@ -70,7 +70,7 @@ map({"n","v"}, '<C-g>', "g",      {noremap=true})
 map({'i','n','v'}, '<esc>', function()
     vim.cmd('noh')
     return '<esc>'
-end, {expr = true, desc = "Escape, clear hlsearch"})
+end, {expr = true, desc = "Escape and clear hlsearch"})
 
 
 
@@ -180,7 +180,7 @@ map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
 -- ## [View]
 ----------------------------------------------------------------------
--- alt-z toggle line soft wrap
+-- toggle line soft wrap
 map({"i","n","v"}, "<C-g>z", function() vim.opt.wrap = not vim.opt.wrap:get() end)
 
 -- Toggle auto hard wrap lines
@@ -742,19 +742,11 @@ end)
 
 -- Shrink visual line selection up/down
 map("v", "<C-S-PageUp>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd("norm! k")
-    else
-        vim.cmd("norm! Vk")
-    end
+    return vim.fn.mode() == "V" and vim.cmd("norm! k") or vim.cmd("norm! Vk")
 end)
 
 map("v", "<C-S-PageDown>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd("norm! j")
-    else
-        vim.cmd("norm! Vj")
-    end
+    return vim.fn.mode() == "V" and vim.cmd("norm! j") or vim.cmd("norm! Vj")
 end)
 
 -- ### Visual block selection
@@ -808,6 +800,11 @@ map("n", "<C-i>l", "i<C-v>")
 
 -- Insert digraph
 map("n", "<C-S-k>", "i<C-S-k>")
+
+
+
+-- ### Abrev
+-- map("ia", "", "")
 
 
 -- ### Insert snippets
@@ -1060,11 +1057,7 @@ end)
 
 -- Delete line
 map({"i","n","v"}, "<S-Del>", function()
-    if vim.fn.mode() == "V" then
-        vim.cmd('norm! "_d')
-    else
-        vim.cmd('norm! V"_d')
-    end
+    return vim.fn.mode() == "V" and vim.cmd('norm! "_d') or vim.cmd('norm! V"_d')
 end)
 map("c", "<S-Del>", "<C-u>")
 
@@ -1230,11 +1223,7 @@ map("x", "<C-=>", "=")
 
 -- ### [Break line]
 map("n", "<cr>", function()
-    if vim.bo.buftype == "" then
-        return "i<CR><esc>"
-    else
-        return "<CR>"
-    end
+    return vim.bo.buftype == "" and "i<CR><esc>" or "<CR>"
 end, {expr=true})
 
 -- Break line above
@@ -1358,30 +1347,6 @@ map({"i","n","v"}, "<M-c>", "<Cmd>norm! m`1z=``<CR>")
 -- Add word to dictionary
 map({"i","n"}, "<M-s>a", "<Esc>zg")
 map("x",       "<M-s>a", "zg")
---TODO check if word already in dict
--- map({"i","n"},       "<M-s>a", "zg")
--- function()
---     local word = vim.fn.expand("<cword>")
---     vim.cmd("norm! zg")
---     custom zg that avoids duplicates
---     local spellf = vim.opt.spellfile:get()[1]
-
---      local exists = false
---          local lines = vim.fn.readfile(spellfile)
---          for _, l in ipairs(lines) do
---              if l == word then
---                  exists = true
---                  break
---              end
---          end
---      end
-
---      if not exists then
---          vim.cmd("normal! zg") -- call original zg
---      else
---          vim.notify("Already in dictionary: " .. word)
---      end
---     end, { noremap = true })
 
 -- Add word to selected dict
 map({"i","n","x"}, "<M-s>ad", function()
@@ -1404,11 +1369,11 @@ map({"i","n","x"}, "<M-s>ad", function()
 
         local spelf = vim.fn.readfile(vim.opt.spellfile:get()[1])
         if vim.tbl_contains(spelf, word) then
-            vim.notify("Already in dictionary: " .. word)
-        else
-            local cmd = vim.fn.mode() == "v" and "norm! " or "norm! gv"
-            vim.cmd(cmd .. langindex .. "zg")
+            vim.notify("Already in dictionary: " .. word) return
         end
+
+        local cmd = vim.fn.mode() == "v" and "norm! " or "norm! gv"
+        vim.cmd(cmd .. langindex .. "zg")
     end)
 end)
 
@@ -1458,7 +1423,8 @@ end)
 -- Diag panel
 map({"i","n","v"}, "<F10>", "<Cmd>Trouble diagnostics toggle focus=true filter.buf=0<cr>")
 
-map({"i","n","v"}, "<F22>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
+map({"i","n","v"}, "<F58>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
+
 
 map({"i","n","v"}, "<C-PageUp>d",  "]d")
 map({"i","n","v"}, "<C-PageDow>d", "[d")
@@ -1665,7 +1631,7 @@ map({"n","v"}, "<S-Œ>", ":!")
 
 
 -- cmd messages <S-F10>
-map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>MsgLog<CR>")
+map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
 
 
 

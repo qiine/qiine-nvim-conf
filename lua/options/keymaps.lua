@@ -59,7 +59,7 @@ map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
 -- F5 reload buffer
-map({"i","n","v"}, '<F5>', "<cmd>e!<CR><cmd>echo'Buffer reloaded'<CR>", {noremap=true})
+map({"i","n","v"}, "<F5>", "<cmd>e!<CR><cmd>echo'Buffer reloaded'<CR>")
 
 -- g
 map("i",       '<C-g>', "<esc>g", {noremap=true})
@@ -180,7 +180,7 @@ map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
 -- ## [View]
 ----------------------------------------------------------------------
--- toggle line soft wrap
+-- Toggle line soft wrap
 map({"i","n","v"}, "<C-g>z", function() vim.opt.wrap = not vim.opt.wrap:get() end)
 
 -- Toggle auto hard wrap lines
@@ -1166,6 +1166,21 @@ map("v", "<F2>",
 map({"i","n"}, "<S-ª>",
 [[<Esc>:%s/\v(word)|./\1/g<Left><Left>]],
 {desc = "Inverse filter" })
+
+-- Smart swap word around
+map("n", "<M-s>", function()
+    vim.fn.search("\\k*\\<", "b")
+    vim.cmd('norm! mz')
+    vim.cmd('norm! "zdiw')
+    local wordl = vim.fn.getreg("z")
+
+    vim.fn.search("\\k*\\<", "")
+    vim.cmd('norm! "zdiw')
+    vim.cmd('norm! i'..wordl)
+
+    vim.cmd('norm! `z')
+    vim.cmd('norm! "zP')
+end)
 
 
 -- ### Incrementing

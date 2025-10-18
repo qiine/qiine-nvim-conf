@@ -1048,10 +1048,8 @@ map("c",       "<C-Del>", '<C-right><C-w>')
 
 -- Del to end of line
 map({"i","n","v"}, "<M-Del>", function()
-    if vim.fn.mode() == "" then
-        vim.cmd('norm! $"_d')
-    else
-        vim.cmd('norm! v$h"_d')
+    if vim.fn.mode() == "" then vim.cmd('norm! $"_d')
+    else                          vim.cmd('norm! v$h"_d')
     end
 end)
 
@@ -1184,11 +1182,13 @@ end)
 
 
 -- ### Incrementing
--- map("n", "+", "<C-a>")
-map("v", "+", "<C-a>gv")
+-- Smart increment/decrement
+map("n", "+", '<Cmd>lua require("modules.dialeur").dial_omni_atcursor()<CR>')
+map("v", "+", '<Cmd>lua require("modules.dialeur").dial_omni_selected()<CR>')
 
--- map("n", "-", "<C-x>") --Decrement
-map("v", "-", "<C-x>gv") --Decrement
+-- decrem
+map("n", "-", '<Cmd>lua require("modules.dialeur").dial_omni_atcursor(true)<CR>')
+map("v", "-", '<Cmd>lua require("modules.dialeur").dial_omni_selected(true)<CR>')
 
 -- To upper/lower case
 map("i", "<M-+>", "<cmd>norm! mzviwgU`z<CR>")
@@ -1199,9 +1199,6 @@ map("i", "<M-->", "<cmd>norm! mzviwgu`z<CR>")
 map("n", "<M-->", "vgu<esc>")
 map("v", "<M-->", "gugv")
 
--- Smart increment/decrement
-map({"n"}, "+", function() utils.smartincrement() end)
-map({"n"}, "-", function() utils.smartdecrement() end)
 
 -- ### [Formatting]
 -- space

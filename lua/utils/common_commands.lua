@@ -546,9 +546,7 @@ vim.api.nvim_create_user_command("SetFileReadonly", function()
     local path = vim.api.nvim_buf_get_name(0)
     local name = vim.fn.fnamemodify(path, ":t")
 
-    if path == "" then
-        vim.notify("No file for current buffer.", vim.log.levels.WARN) return
-    end
+    if path == "" then vim.notify("No file!", vim.log.levels.WARN) return end
 
     vim.bo.readonly = true  --optional refresh lualine
     local ret = os.execute("chmod -w " .. vim.fn.shellescape(path))
@@ -563,9 +561,7 @@ vim.api.nvim_create_user_command("SetFileWritable", function()
     local path = vim.api.nvim_buf_get_name(0)
     local name = vim.fn.fnamemodify(path, ":t")
 
-    if path == "" then
-        vim.notify("No file for current buffer.", vim.log.levels.ERROR) return
-    end
+    if path == "" then vim.notify("No file!", vim.log.levels.ERROR) return end
 
     vim.bo.readonly = false  --optional refresh lualine
     local ok = os.execute("chmod +w " .. vim.fn.shellescape(path))
@@ -724,35 +720,12 @@ vim.api.nvim_create_user_command("TrimEmptyLines", function(opts)
     vim.cmd(range .. "g/^$/d")
 end, {range = true})
 
-
---Append underline unicode character to each selected chars
-vim.api.nvim_create_user_command("UnderlineSelected", function(opts)
-    local start_line = opts.line1 - 1
-    local end_line   = opts.line2
-
-    local lines = vim.api.nvim_buf_get_lines(0, start_line, end_line, false)
-
-    local combining = '\u{0332}' --underline unicode
-    local function underline(str)
-        return str:gsub(".", function(c)
-            -- avoid underlining newline or multibyte control chars
-            return c:match("[%z\1-\127]") and c .. combining or c
-        end)
-    end
-
-    for i, line in ipairs(lines) do
-        lines[i] = underline(line)
-    end
-
-    vim.api.nvim_buf_set_lines(0, start_line, end_line, false, lines)
-end, {range=true})
-
 vim.api.nvim_create_user_command("ClearAllMarks", function()
     vim.cmd([[delmarks a-zA-Z0-9"<>'[].]])
     print("[All marks cleared]")
 end, {desc = "Delete all marks in the current buffer"})
 
---Open code action floating win
+-- Open code action floating win
 vim.api.nvim_create_user_command("CodeAction", function()
     vim.cmd("lua vim.lsp.buf.code_action()")
 end, {})
@@ -1037,6 +1010,14 @@ vim.api.nvim_create_user_command("ToggleColorcolumn", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("DiagnosticVirtualTextToggle", function()
+    local vt = vim.diagnostic.config().virtual_text
+    local enabled = (vt ~= false)
+    vim.diagnostic.config({ virtual_text = not enabled })
+
+    vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
+end, { desc = "Toggle diagnostic virtual text" })
+
 vim.api.nvim_create_user_command("FacingPages", function()
     local win_left = vim.api.nvim_get_current_win()
 
@@ -1079,15 +1060,5 @@ vim.api.nvim_create_user_command("FacingPages", function()
         end,
     })
 end, {})
-
-vim.api.nvim_create_user_command("DiagnosticVirtualTextToggle", function()
-    local vt = vim.diagnostic.config().virtual_text
-    local enabled = (vt ~= false)
-    vim.diagnostic.config({ virtual_text = not enabled })
-
-    vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
-end, { desc = "Toggle diagnostic virtual text" })
-
-
 
 

@@ -25,6 +25,8 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --"eol   " -- Allows Backspace to delete past line breaks.
 --"start"  -- Allows Backspace at the start of insert mode.
 
+vim.o.nrformats = "bin,hex,alpha"
+
 
 
 -- ## [File]

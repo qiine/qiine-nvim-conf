@@ -66,8 +66,7 @@ map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 -- Omni esc
--- map({'i','n','x'}, '<esc>', "<Cmd>noh<CR><esc>")
-map({'i','n','v'}, '<esc>', function()
+map({'i','n','x'}, '<esc>', function() -- need "x", mess with s mode otherwise
     vim.cmd('noh')
     return '<esc>'
 end, {expr = true, desc = "Escape and clear hlsearch"})
@@ -750,6 +749,8 @@ map("v", "<C-S-PageDown>", function()
 end)
 
 -- ### Visual block selection
+map("n", "<M-S-v>", "")
+
 -- Move to visual block selection regardless of mode
 local function arrow_blockselect(dir)
     if vim.fn.mode() == "" then vim.cmd("norm! "              ..dir)
@@ -1097,7 +1098,7 @@ end)
 map({"i","n"}, "<C-S-r>", '<esc>"_ciw')
 
 -- Replace selected char
-map("v", "<C-r>", "r")
+map("v", "<M-r>", "r")
 
 -- Replace visual selection with key
 vim.g.visualreplace = true
@@ -1182,6 +1183,9 @@ end)
 
 
 -- ### Incrementing
+map({"n","v"}, "<C-g>+", "g")
+map({"n","v"}, "<C-g>-", "g")
+
 -- Smart increment/decrement
 map("n", "+", '<Cmd>lua require("modules.dialeur").dial_omni_atcursor()<CR>')
 map("v", "+", '<Cmd>lua require("modules.dialeur").dial_omni_selected()<CR>')

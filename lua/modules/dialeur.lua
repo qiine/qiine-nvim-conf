@@ -26,6 +26,8 @@ M.toggle_table = {
 
     ["add"] = "subtract", ["subtract"] = "add",
 
+    ["public"] = "private", ["private"] = "public",
+
     ["=="] = "!=", ["!="] = "==",
     ["-"]  = "+", ["+"]  = "-",
     -- ["/"]  = [[\]], ["\\"]  = "/",
@@ -37,19 +39,33 @@ M.quotes = {
     '`',
 }
 
-M.quote_increments = {
+M.quote_increm = {
     ["'"] = '"',
     ['"'] = "`",
 }
 
-M.quote_decrements = {
+M.quote_decrem = {
     ["`"] = '"',
     ['"'] = "'",
 }
 
-M.paren_cycle = {
+M.parens = {
+    "(",
+    "{",
+    "[",
+    ")",
+    "}",
+    "]",
+}
+
+M.paren_increm = {
     ["("] = '{',
     ['{'] = "[",
+}
+
+M.paren_decrem = {
+    ["["] = '{',
+    ['{'] = "(",
 }
 
 M.day_cycle = {
@@ -68,21 +84,23 @@ function M.get_toggle(text) return M.toggle_table[text] end
 
 ---@param text string
 ---@return string
-function M.get_next_quote(text) return M.quote_increments[text] end
+function M.get_next_quote(text) return M.quote_increm[text] end
 
 ---@param text string
 ---@return string
-function M.get_prev_quote(text) return M.quote_decrements[text] end
+function M.get_prev_quote(text) return M.quote_decrem[text] end
 
 ---@param text string
 ---@return string
-function M.get_next_paren(text) return M.paren_cycle[text] end
+function M.get_next_paren(text) return M.paren_increm[text] end
+
+---@param text string
+---@return string
+function M.get_prev_paren(text) return M.paren_decrem[text] end
 
 ---@param num number
 ---@return number
-function M.get_next_num(num)
-    return num + 1
-end
+function M.get_next_num(num) return num + 1 end
 
 ---@param day string
 ---@return string
@@ -95,6 +113,7 @@ function M.get_next_day(day)
     error("Invalid day: " .. tostring(day))
 end
 
+
 ---@param text string
 ---@return boolean
 function M.is_toggleable(text) return vim.tbl_contains(M.toggle_table, text) end
@@ -104,30 +123,48 @@ function M.is_toggleable(text) return vim.tbl_contains(M.toggle_table, text) end
 function M.is_quote(text) return vim.tbl_contains(M.quotes, text) end
 
 ---@param text string
----@param reverse boolean
-function M.dial_omni(text, reverse)
-    local replacement
+---@return boolean
+function M.is_paren(text) return vim.tbl_contains(M.parens, text) end
 
-    local num = tonumber(text)
-    if num then return vim.cmd('norm! '..(reverse and '' or '')) end
+
+---@param text string
+---@param reverse boolean
+---@return boolean
+function M.dial_omni_text(text, reverse)
+    local res
 
     if M.is_quote(text) then
-        replacement = reverse and M.get_prev_quote(text) or M.get_next_quote(text)
+        res = reverse and M.get_prev_quote(text) or M.get_next_quote(text)
+    end
+
+    if M.is_paren(text) then
+        res = reverse and M.get_prev_paren(text) or M.get_next_paren(text)
     end
 
     if M.is_toggleable(text) then
-        replacement = M.get_toggle(text)
+        res = M.get_toggle(text)
     end
 
-    if replacement then
-        vim.cmd('norm! "_c'..replacement)
-    end
+    if not res then return false end
+
+    vim.cmd('norm! "_c'..res); return true
+end
+
+---@param reverse boolean
+function M.dial_omni_num(reverse)
+    vim.cmd('norm! '..(reverse and '' or ''))
 end
 
 function M.dial_omni_selected(reverse)
     local text = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('v'))[1]
 
-    M.dial_omni(text, reverse)
+    local num = tonumber(text)
+    if num then
+        M.dial_omni_num(reverse)
+    else
+        M.dial_omni_text(text, reverse)
+    end
+
     vim.cmd("norm! gv")
 end
 
@@ -138,19 +175,26 @@ function M.dial_omni_atcursor(reverse)
     vim.cmd("norm! mz")
 
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-    vim.cmd('norm! viw"zygv') local word = vim.fn.getreg("z")
+    vim.cmd('norm! "zyiw`z'); local word = vim.fn.getreg("z")
+    vim.cmd('norm! "zyiW`z'); local WORD = vim.fn.getreg("z")
 
     if char:match("[(){}%[%]'\"`<>+-]") then
-        text = char
-        vim.cmd("norm! `zv")
+        text = char; vim.cmd("norm! v")
+    -- elseif WORD:match("") then
+        -- text = WORD; vim.cmd("norm! viW")
     else
-        text = word
+        text = word; vim.cmd("norm! viw")
     end
 
-    M.dial_omni(text, reverse)
-    vim.cmd("norm! `z")
-end
+    local num = tonumber(text)
+    if num then
+        M.dial_omni_num(reverse)
+    else
+        M.dial_omni_text(text, reverse)
+    end
 
+    vim.cmd("norm! `z")
+end
 
 
 

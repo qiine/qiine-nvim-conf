@@ -1,22 +1,24 @@
 
 -- flick
 -- dial
+-- cyclist
 -- togger
 
 
 local M = {}
 
--- dial tables
+-- cycle tables
 M.toggle_table = {
     ["yes"]  = "no",    ["no"]    = "yes",
     ["true"] = "false", ["false"] = "true",
 
-    ["on"]   = "off",   ["off"] = "on",
+    ["on"]       = "off",        ["off"]        = "on",
     ["activate"] = "deactivate", ["deactivate"] = "activate",
-    ["enable"] = "disable", ["disable"] = "enable",
-    ["enabled"] = "disabled", ["disabled"] = "enabled",
+    ["enable"]   = "disable",    ["disable"]    = "enable",
+    ["enabled"]  = "disabled",   ["disabled"]   = "enabled",
 
     ["always"] = "never", ["never"] = "always",
+    ["all"] = "none", ["none"] = "all",
 
     -- direction
     ["left"] = "right", ["right"] = "left",
@@ -130,7 +132,7 @@ function M.is_paren(text) return vim.tbl_contains(M.parens, text) end
 ---@param text string
 ---@param reverse boolean
 ---@return boolean
-function M.dial_omni_text(text, reverse)
+function M.cycle_omni_text(text, reverse)
     local res
 
     if M.is_quote(text) then
@@ -151,25 +153,25 @@ function M.dial_omni_text(text, reverse)
 end
 
 ---@param reverse boolean
-function M.dial_omni_num(reverse)
+function M.cycle_omni_num(reverse)
     vim.cmd('norm! '..(reverse and '' or ''))
 end
 
-function M.dial_omni_selected(reverse)
+function M.cycle_omni_selected(reverse)
     local text = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('v'))[1]
 
     local num = tonumber(text)
     if num then
-        M.dial_omni_num(reverse)
+        M.cycle_omni_num(reverse)
     else
-        M.dial_omni_text(text, reverse)
+        M.cycle_omni_text(text, reverse)
     end
 
     vim.cmd("norm! gv")
 end
 
 
-function M.dial_omni_atcursor(reverse)
+function M.cycle_omni_atcursor(reverse)
     local text
 
     vim.cmd("norm! mz")
@@ -188,9 +190,9 @@ function M.dial_omni_atcursor(reverse)
 
     local num = tonumber(text)
     if num then
-        M.dial_omni_num(reverse)
+        M.cycle_omni_num(reverse)
     else
-        M.dial_omni_text(text, reverse)
+        M.cycle_omni_text(text, reverse)
     end
 
     vim.cmd("norm! `z")

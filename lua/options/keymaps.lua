@@ -1187,12 +1187,12 @@ map({"n","v"}, "<C-g>+", "g")
 map({"n","v"}, "<C-g>-", "g")
 
 -- Smart increment/decrement
-map("n", "+", '<Cmd>lua require("modules.dialeur").dial_omni_atcursor()<CR>')
-map("v", "+", '<Cmd>lua require("modules.dialeur").dial_omni_selected()<CR>')
+map("n", "+", '<Cmd>lua require("modules.cyclist").cycle_omni_atcursor()<CR>')
+map("v", "+", '<Cmd>lua require("modules.cyclist").cycle_omni_selected()<CR>')
 
 -- decrem
-map("n", "-", '<Cmd>lua require("modules.dialeur").dial_omni_atcursor(true)<CR>')
-map("v", "-", '<Cmd>lua require("modules.dialeur").dial_omni_selected(true)<CR>')
+map("n", "-", '<Cmd>lua require("modules.cyclist").cycle_omni_atcursor(true)<CR>')
+map("v", "-", '<Cmd>lua require("modules.cyclist").cycle_omni_selected(true)<CR>')
 
 -- To upper/lower case
 map("i", "<M-+>", "<cmd>norm! mzviwgU`z<CR>")
@@ -1352,7 +1352,7 @@ map({"i","n","v","c","t"}, "<M-s>s", function()
 end, { desc = "Toggle spell checking" })
 
 -- Pick documents language
-map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocÇanguage<CR>")
+map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocLanguage<CR>")
 
 -- Suggest
 map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")

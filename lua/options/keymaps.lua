@@ -1020,11 +1020,8 @@ map("c", "<S-M-BS>", '<C-w>')
 
 -- Remove to start of line
 map({"i","n","v"}, "<M-BS>", function()
-    if vim.fn.mode() == "" then
-        vim.cmd('norm! 0"_d')
-    else
-        vim.cmd('norm! "_d0')
-    end
+    local cmd = vim.fn.mode() == "" and '0"_d' or '"_d0'
+    vim.cmd('norm! '..cmd)
 end)
 
 -- Clear char
@@ -1049,9 +1046,8 @@ map("c",       "<C-Del>", '<C-right><C-w>')
 
 -- Del to end of line
 map({"i","n","v"}, "<M-Del>", function()
-    if vim.fn.mode() == "" then vim.cmd('norm! $"_d')
-    else                          vim.cmd('norm! v$h"_d')
-    end
+    local cmd = vim.fn.mode() == "" and '$"_d' or 'v$h"_d'
+    vim.cmd('norm! '..cmd)
 end)
 
 -- Delete line
@@ -1060,13 +1056,10 @@ map({"i","n","v"}, "<S-Del>", function()
 end)
 map("c", "<S-Del>", "<C-u>")
 
+-- Del line, detect empty line without trashing reg
 map("n", "dd", function()
-    if vim.fn.getline(".") == "" then -- Del empty line without trashing reg
-        vim.cmd('norm! "_dd')
-    else
-        vim.cmd('norm! 0d$"_dd') -- avoids yanking \n
-    end
-end)
+    return vim.fn.getline(".") == "" and '"_dd' or '0d$"_dd' -- avoids yanking \n
+end, {expr=true})
 
 -- Smart delete
 map({"i","n"}, "<C-S-Del>", function()
@@ -1529,7 +1522,7 @@ map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
 
 -- ## [Code runner]
 ----------------------------------------------------------------------
--- exec sel
+-- Exec sel
 vim.keymap.set("v", "<M-S-p>", function()
     local sel = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     vim.fn.setreg("z", "lua print("..sel..")")
@@ -1545,19 +1538,19 @@ map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
 -- Run whole file until curr line and insert res
 map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
--- run curretn file F56 is <M-F8>
+-- run current file F56 is <M-F8>
 map({"i","n","v"}, "<F56>", function()  end)
 
 -- run project
-vim.keymap.set({"i","n","v"}, "<F8>", function()
-    local cwd = vim.fn.getcwd()
+map({"i","n","v"}, "<F8>", function()
+    local cwd     = vim.fn.getcwd()
     local markers = {".git", "Makefile", "package.json"}
-    local diroot = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
+    local diroot  = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
 
-    local file = vim.fn.expand("%:p")
-    local ft = vim.bo.filetype
+    local file   = vim.fn.expand("%:p")
+    local ft     = vim.bo.filetype
     local nofile = file == "" or vim.fn.filereadable(file) == 0
-    local buft = vim.bo.buftype
+    local buft   = vim.bo.buftype
 
     if diroot and vim.fn.filereadable(diroot .. "/Makefile") == 1 then
         vim.fn.chdir(diroot)

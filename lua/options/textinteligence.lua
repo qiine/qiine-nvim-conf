@@ -1,6 +1,12 @@
 ----------------------------------------------------------------------
 -- # [Text inteligence] --
 ----------------------------------------------------------------------
+-- Define word delim
+vim.o.iskeyword = "@,48-57,192-255,-,_"
+-- @       -> alphabet,
+-- 48-57   -> 0-9 numbers,
+-- 192-255 -> extended Latin chars
+
 
 -- Detect binary files
 -- vim.api.nvim_create_autocmd("BufReadPost", {
@@ -60,8 +66,9 @@ vim.opt.spell = false
 -- })
 
 
+vim.o.spellsuggest = "best,6"
 
-vim.opt.spellcapcheck = ""
+vim.o.spellcapcheck = ""
 -- Pattern to locate the end of a sentence.  The following word will be
 -- checked to start with a capital letter.  If not then it is highlighted
 -- with SpellCap |hl-SpellCap| (unless the word is also badly spelled).

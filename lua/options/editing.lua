@@ -11,14 +11,6 @@ local v = vim
 -- Smart start insert
 vim.g.autostartinsert = true
 
-
--- Define word delim
-vim.o.iskeyword = "@,48-57,192-255,-,_"
--- @       -> alphabet,
--- 48-57   -> 0-9 numbers,
--- 192-255 -> extended Latin chars
-
-
 -- Backspace behaviour
 vim.opt.backspace = { "indent", "eol", "start" }
 --"indent" -- Allows Backspace to delete auto-indent.
@@ -26,6 +18,8 @@ vim.opt.backspace = { "indent", "eol", "start" }
 --"start"  -- Allows Backspace at the start of insert mode.
 
 vim.o.nrformats = "bin,hex,alpha"
+-- This defines what bases Vim will consider for numbers when using the
+-- CTRL-A and CTRL-X commands for adding to and subtracting from a number
 
 
 

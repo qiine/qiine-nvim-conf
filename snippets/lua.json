@@ -28,6 +28,11 @@
         ]
     },
 
+    "new ternary": {
+        "prefix": "ternary",
+        "body": [ "${1:cond} and ${2:\"a\"} or ${3:\"b\"}" ]
+    },
+
     "for each": {
         "prefix": "for each",
         "body": [

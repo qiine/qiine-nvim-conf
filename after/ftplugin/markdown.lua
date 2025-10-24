@@ -47,7 +47,7 @@ end
 
 
 -- [Format]
-vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
+-- vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
 vim.opt.formatoptions:append("t") -- auto-wrap text at textwidth
 vim.opt.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
 
@@ -59,19 +59,19 @@ vim.opt_local.softtabstop = 2 --Number of spaces to use for pressing TAB in inse
 
 -- [Keymaps]
 vim.keymap.set({"i","n","v"}, "<C-S-n>h", function()
-    lsnip.try_insert_snippet("heading")
+    lsnip.insert_snippet("heading")
 end)
 
 vim.keymap.set({"i","n","v"}, "<C-S-n>cb", function()
-    lsnip.try_insert_snippet("codeblock")
+    lsnip.insert_snippet("codeblock")
 end)
 
 vim.keymap.set({"i","n","v"}, "<C-S-n>tb", function()
-    lsnip.try_insert_snippet("pipetable")
+    lsnip.insert_snippet("pipetable")
 end)
 
 -- Insert task
 vim.keymap.set({"i","n","v"}, "<C-S-n>t", function()
-    lsnip.try_insert_snippet("task")
+    lsnip.insert_snippet("task")
 end)
 

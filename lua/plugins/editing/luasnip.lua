@@ -15,7 +15,7 @@ return
         }
 
         ---@param prefix string
-        function ls.try_insert_snippet(prefix)
+        function ls.insert_snippet(prefix)
             local snips = ls.get_snippets(vim.bo.filetype)
 
             if not snips then return end

@@ -172,11 +172,6 @@ map(modes, "<C-o>", "<cmd>FilePicker<CR>")
 
 
 
--- ## [Register]
-----------------------------------------------------------------------
-
-
-
 -- ## [View]
 ----------------------------------------------------------------------
 -- Toggle line soft wrap
@@ -235,6 +230,7 @@ vim.keymap.set({"i","n","v"}, "<M-S-z>", function()
         vim.cmd("norm! zM")  -- close all
     end
 end)
+
 
 
 -- ## [Windows]
@@ -310,8 +306,8 @@ local function resize_win(dir, amount)
 end
 
 -- Resize hor
-map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "-5") end, {noremap = true})
-map({"i","n","v"}, "<M-w><Down>",  function() resize_win("", "+5") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "-5")  end, {noremap = true})
+map({"i","n","v"}, "<M-w><Down>",  function() resize_win("",    "+5")  end, {noremap = true})
 -- Resize vert
 map({"i","n","v"}, "<M-w><Right>", function() resize_win("vert", "+5") end, {noremap = true})
 map({"i","n","v"}, "<M-w><Left>",  function() resize_win("vert", "-5") end, {noremap = true})
@@ -571,6 +567,7 @@ map("n", "f", function()
     vim.api.nvim_echo({{""}}, false, {})
 end)
 
+
 -- ### Directory navigation
 -- Move one dir up
 map({"i","n","v"}, "<C-Home>", "<Cmd>cd .. | pwd<CR>")
@@ -612,31 +609,23 @@ map({"i","n","v"}, "<M-C-S-Home>", function() vim.cmd("cd / | pwd") end)
 
 
 -- Hyper act
-map({"i","n","v"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
+map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
 
 
--- Open task
+-- Task manager
 -- General task
 map({"i","n","v","c","t"}, "<F4>", function()
-    local fname = vim.fn.expand("%:t")
+    if vim.fn.expand("%:t") == "plan.md" then vim.cmd("bwipeout") return end
 
-    if fname ~= "plan.md" then
-        vim.cmd("e /home/qm/Personal/Org/plan.md")
-        vim.opt_local.foldlevel = 2
-    elseif fname == "plan.md" then
-        vim.cmd("bwipeout")
-    end
+    vim.cmd("e /home/qm/Personal/Org/plan.md")
+    vim.opt_local.foldlevel = 2
 end)
 
 -- Project task <S-F4>
 map({"i","n","v","c","t"}, "<F16>", function()
-    local fname = vim.fn.expand("%:t")
+    if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
 
-    if fname ~= "todo.md" then
-        vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
-    elseif fname == "plan.md" then
-        vim.cmd("bwipeout")
-    end
+    vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
 end)
 
 
@@ -656,8 +645,8 @@ map({"i","n","v","c"}, "<C-f>", function()
         vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
     else
         vim.cmd("norm! y")
-        vim.api.nvim_feedkeys([[/\V"
-]], "c", false)
+        vim.api.nvim_feedkeys([[/\V"]], "c", false)
+        vim.api.nvim_feedkeys("\13", "c", false) -- enter auto start search
     end
 end)
 
@@ -803,7 +792,6 @@ map("n", "<C-i>l", "i<C-v>")
 map("n", "<C-S-k>", "i<C-S-k>")
 
 
-
 -- ### Abrev
 -- map("ia", "", "")
 
@@ -811,35 +799,35 @@ map("n", "<C-S-k>", "i<C-S-k>")
 -- ### Insert snippets
 -- Insert var
 map({"i","n"}, "<C-S-n>v", function()
-    lsnip.try_insert_snippet("var")
+    lsnip.insert_snippet("var")
 end)
 
 map({"i","n"}, "<C-S-n>vt", function()
-    lsnip.try_insert_snippet("var table")
+    lsnip.insert_snippet("var table")
 end)
 
 -- Insert func
 map({"i","n"}, "<C-S-n>f", function()
-    lsnip.try_insert_snippet("func")
+    lsnip.insert_snippet("func")
 end)
 
 map({"i","n"}, "<C-S-n>fa", function()
-    lsnip.try_insert_snippet("anon func")
+    lsnip.insert_snippet("anon func")
 end)
 
 -- Insert if
 map({"i","n"}, "<C-S-n>i", function()
-    lsnip.try_insert_snippet("if")
+    lsnip.insert_snippet("if")
 end)
 
 -- Insert loop
 map({"i","n"}, "<C-S-n>fe", function()
-    lsnip.try_insert_snippet("for each")
+    lsnip.insert_snippet("for each")
 end)
 
 -- Insert print
 map({"i","n"}, "<C-S-n>p", function()
-    lsnip.try_insert_snippet("print")
+    lsnip.insert_snippet("print")
 end)
 
 
@@ -895,9 +883,7 @@ end)
 map("v", "<C-x>", '"+d<esc>', {noremap=true})
 
 -- Cut line
-map({"i","n"}, "<C-S-x>", function()
-    vim.cmd('norm! mz0"+d$`z')
-end, {noremap=true})
+map({"i","n"}, "<C-S-x>", '<Cmd>norm! mz0"+d$`z<CR>')
 
 -- Smart cut
 map({"i","n"}, "<C-x>", function()
@@ -958,7 +944,7 @@ map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
 
 -- Paste swap selected
-vim.keymap.set("v", "<S-M-v>", function()
+map("v", "<S-M-v>", function()
     local text = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
 
@@ -1032,7 +1018,7 @@ map({"n","v"}, "<BS>", 'r ')
 
 -- Clear line
 map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
-map("c", "<S-BS>", '<C-u>')
+
 
 -- #### Delete
 -- Del char
@@ -1046,8 +1032,7 @@ map("c",       "<C-Del>", '<C-right><C-w>')
 
 -- Del to end of line
 map({"i","n","v"}, "<M-Del>", function()
-    local cmd = vim.fn.mode() == "" and '$"_d' or 'v$h"_d'
-    vim.cmd('norm! '..cmd)
+    vim.cmd('norm! '..(vim.fn.mode() == "" and '$"_d' or 'v$h"_d') )
 end)
 
 -- Delete line
@@ -1159,7 +1144,7 @@ map({"i","n"}, "<S-ª>",
 [[<Esc>:%s/\v(word)|./\1/g<Left><Left>]],
 {desc = "Inverse filter" })
 
--- Smart swap word around
+-- TODO Smart swap word around
 map("n", "<M-s>", function()
     vim.fn.search("\\k*\\<", "b")
     vim.cmd('norm! mz')
@@ -1389,7 +1374,7 @@ end)
 
 -- Remove from dictionary
 map({"i","n"}, "<M-s>r", "<Esc>zug")
-map("v",       "<M-s>r", "zug")
+map("x",       "<M-s>r", "zug")
 
 -- Show definition for word
 map({"i","n","v"}, "<M-s>d", function()
@@ -1607,6 +1592,9 @@ map("c", "<Up>", "<C-p>")
 map("c", "<Down>", "<C-n>")
 
 map("c", "<S-Tab>", "<C-n>")
+
+-- clear all text
+map("c", "<S-BS>", '<C-u>')
 
 -- Cmd close
 map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd

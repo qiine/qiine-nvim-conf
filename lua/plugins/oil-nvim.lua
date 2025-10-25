@@ -107,8 +107,7 @@ return
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
                 ["gx"] = "actions.open_external",
 
-                ["<C-w>"] = { "actions.close", mode = {"i","n","v"}, },
-                ["<C-e>"] = { "actions.close", mode = {"i","n","v"}, },
+                ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
 
                 ["<C-Home>"] = {
                     callback = function()
@@ -132,6 +131,7 @@ return
                         if rootdir then
                             vim.cmd("cd " .. rootdir)
                             require("oil").open(rootdir)  -- open that directory in Oil
+                            -- require("oil.actions").cd.callback()
                         else
                             vim.notify("No project root found", vim.log.levels.WARN)
                         end
@@ -184,7 +184,7 @@ return
 
 
         -- For git signs
-        require("oil-git-status").setup()
+        -- require("oil-git-status").setup()
     end,
 }
 

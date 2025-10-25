@@ -23,13 +23,6 @@ else
     vim.opt.termguicolors = false --for tty
 end
 
--- Highlight yanked text
-vim.api.nvim_create_autocmd("TextYankPost", {
-    group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
-    callback = function()
-        vim.highlight.on_yank({higroup='Visual', timeout = 180})
-    end,
-})
 
 -- Leader key
 vim.g.mapleader = "<S-Space>"
@@ -63,6 +56,7 @@ safe_require("modules.favorizer")
 safe_require("modules.arbores")
 safe_require("modules.rouleau-nvim")
 safe_require("modules.planv")
+-- safe_require("modules.panneau")
 
 -- ## Commands
 safe_require("utils.common_commands")

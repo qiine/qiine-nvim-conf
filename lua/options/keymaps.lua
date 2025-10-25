@@ -166,7 +166,8 @@ map(modes, "<C-e>", function()
 
     local bufid = vim.fn.bufnr('%')
 
-    vim.cmd("bp")
+    vim.cmd("b #")
+
     vim.cmd("bwipeout")
 
     vim.api.nvim_set_current_buf(bufid)
@@ -317,8 +318,8 @@ end
 map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "-5")  end, {noremap = true})
 map({"i","n","v"}, "<M-w><Down>",  function() resize_win("",    "+5")  end, {noremap = true})
 -- Resize vert
-map({"i","n","v"}, "<M-w><Right>", function() resize_win("vert", "+5") end, {noremap = true})
-map({"i","n","v"}, "<M-w><Left>",  function() resize_win("vert", "-5") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Right>", function() resize_win("vert", "+4") end, {noremap = true})
+map({"i","n","v"}, "<M-w><Left>",  function() resize_win("vert", "-4") end, {noremap = true})
 
 -- Detach win
 map(modes, "<M-w>d", function()

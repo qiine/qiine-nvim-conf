@@ -166,7 +166,9 @@ return
                 ["gs"] = { "actions.change_sort", mode = "n" },
                 ["gp"] = "actions.preview",
                 ["gh"] = { "actions.toggle_hidden", mode = "n" },
-                ["<F5>"] = "actions.refresh",
+                ["<F5>"] = {function()
+                    require("oil").open(vim.fn.getcwd())
+                end},
 
                 ["?"] = { "actions.show_help", mode = "n" },
             },

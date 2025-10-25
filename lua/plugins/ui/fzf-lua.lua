@@ -277,10 +277,11 @@ return
                 cwd = "/",
                 actions = {
                     ["default"] = function(selected)
-                        if selected and #selected > 0 then
-                            vim.cmd("cd " .. "/" .. selected[1])
-                            if vim.bo.buftype == "oil" then
-                                require("oil").open(selected[1])
+                        if selected then
+                            vim.fn.chdir("/"..selected[1])
+                            vim.cmd("pwd")
+                            if vim.bo.filetype == "oil" then
+                                require("oil").open("/"..selected[1])
                             end
                         end
                     end,

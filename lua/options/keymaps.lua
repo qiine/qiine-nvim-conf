@@ -9,7 +9,7 @@
 --          |___/                |_|
 
 local utils    = require("utils.utils")
-local ts_utils = require("nvim-treesitter.ts_utils")
+local ts_utils = ("nvim-treesitter.ts_utils")
 local lsnip    = require("luasnip")
 
 local v   = vim
@@ -167,7 +167,7 @@ map(modes, "<C-e>", function()
     local bufid = vim.fn.bufnr('%')
 
     vim.cmd("bp")
-    if vim.bo.buftype == "" then vim.cmd("bwipeout") end
+    vim.cmd("bwipeout")
 
     vim.api.nvim_set_current_buf(bufid)
 end)
@@ -341,7 +341,18 @@ end)
 -- ## [Tabs]
 ----------------------------------------------------------------------
 -- Create new tab
-map(modes,"<C-t>", "<Cmd>Alpha<CR>")
+map(modes, "<C-t>", function()
+    if vim.bo.filetype == "alpha"then
+        vim.cmd("enew")
+        vim.bo.buftype   = "nofile"
+        vim.bo.buflisted = false
+        vim.bo.bufhidden = "wipe"
+
+        vim.cmd("Alpha")
+    else
+        vim.cmd("Alpha")
+    end
+end)
 
 -- Tabs nav
 -- next
@@ -919,6 +930,8 @@ end, {noremap=true})
 -- #### [Paste]
 map("i", "<C-v>", '<Cmd>norm! "+Pa<CR>')
 map("v", "<C-v>", '"_d"+P')
+map("c", "<C-v>", '<C-R>+')
+map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
 -- Smart paste
 map("n", "<C-v>", function()
@@ -947,9 +960,6 @@ map("n", "<C-v>", function()
 
     vim.cmd("norm! `]") -- Proper curso placement
 end)
-map("c", "<C-v>", '<C-R>+')
-map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
-
 
 -- Paste swap selected
 map("v", "<S-M-v>", function()
@@ -1014,8 +1024,7 @@ map("c", "<S-M-BS>", '<C-w>')
 
 -- Remove to start of line
 map({"i","n","v"}, "<M-BS>", function()
-    local cmd = vim.fn.mode() == "" and '0"_d' or '"_d0'
-    vim.cmd('norm! '..cmd)
+    vim.cmd('norm! '..(vim.fn.mode() == "" and '0"_d' or '"_d0') )
 end)
 
 -- Clear char
@@ -1045,7 +1054,7 @@ end)
 
 -- Delete line
 map({"i","n","v"}, "<S-Del>", function()
-    return vim.fn.mode() == "V" and vim.cmd('norm! "_d') or vim.cmd('norm! V"_d')
+    vim.cmd("norm! "..(vim.fn.mode() == "V" and '"_d' or 'V"_d') )
 end)
 map("c", "<S-Del>", "<C-u>")
 

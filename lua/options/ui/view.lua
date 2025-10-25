@@ -65,6 +65,13 @@ vim.o.shortmess = "astFTIcC"
 --  indicated by a "W" (Mnemonic: Wrapped) letter before the
 --  search count statistics.
 
+-- Highlight yanked text
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+    callback = function()
+        vim.highlight.on_yank({higroup='Visual', timeout = 180})
+    end,
+})
 
 
 
@@ -270,9 +277,6 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 
 -- ## [Text intelligence]
 ----------------------------------------------------------------------
--- vim.opt.keywordprg = "dict"
-
-
 -- ### [Diagnostic]
 vim.diagnostic.config({
     underline = true,

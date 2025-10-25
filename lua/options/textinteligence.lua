@@ -7,6 +7,7 @@ vim.o.iskeyword = "@,48-57,192-255,-,_"
 -- 48-57   -> 0-9 numbers,
 -- 192-255 -> extended Latin chars
 
+-- vim.opt.keywordprg = "dict"
 
 -- Detect binary files
 -- vim.api.nvim_create_autocmd("BufReadPost", {

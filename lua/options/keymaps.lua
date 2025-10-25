@@ -160,8 +160,16 @@ map(modes, "<C-e>", function()
     --     filesystem = {bind_to_cwd = false}
     -- })
 
-    vim.api.nvim_set_current_win(cur_win)  -- restore focus
+
+    -- vim.api.nvim_set_current_win(cur_win)  -- restore focus
     require("oil").open(cdir)
+
+    local bufid = vim.fn.bufnr('%')
+
+    vim.cmd("bp")
+    if vim.bo.buftype == "" then vim.cmd("bwipeout") end
+
+    vim.api.nvim_set_current_buf(bufid)
 end)
 
 -- Browse project files
@@ -1499,9 +1507,9 @@ map("v",       "<C-g>dg", ":diffget<cr>")
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-map({"i","n","v"}, "<C-g>gc", "<cmd>GitCommitFile<cr>", {noremap=true})
+map({"i","n","v"}, "<C-S-g>c", "<cmd>GitCommitFile<cr>", {noremap=true})
 
-map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
+map(modes, "<C-S-g>l", "<Cmd>LazyGit<cr>")
 
 
 

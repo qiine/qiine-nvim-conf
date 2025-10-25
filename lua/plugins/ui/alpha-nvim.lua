@@ -142,12 +142,17 @@ local function dashlayout()
         return splasharts[rand_key]
     end
 
-    local function date()
+    local function set_wipe_dashboard()
+        vim.bo.buflisted = false
+        vim.bo.bufhidden = "wipe"
+    end
+
+    local function get_date()
         return os.date(" %H:%M:%S -  %a %d/%m/%Y")
     end
 
     ---@return string
-    local function system()
+    local function get_system()
         local function get_platform_icon()
             if     vim.fn.has("win32")   == 1 then return ""
             elseif vim.fn.has("macunix") == 1 then return ""
@@ -184,12 +189,12 @@ local function dashlayout()
     ---@return table
     local function menu()
         return {
-            button("n", " New file",     "<Cmd>enew<CR>"),
-            button("f", "☆ Fav files",    "<Cmd>FzfLua favorites<CR>"),
-            button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
-            button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
+            button("n", " New file",     "<Cmd>set bufhidden=wipe | enew<CR>"),
+            button("f", "☆ Fav files",    "<Cmd>set bufhidden=wipe | FzfLua favorites<CR>"),
+            button("r", "󰈢 Recent files", "<Cmd>set bufhidden=wipe | FzfLua oldfiles<CR>"),
+            button("p", " Projects",     "<Cmd>set bufhidden=wipe | FzfLua projects<CR>"),
             button("b", " File browser", "<Cmd>Oil<CR>"),
-            button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
+            button("s", " Load session", "<Cmd>set bufhidden=wipe | LoadGlobalSession<CR>"), -- 
         }
     end
 
@@ -245,12 +250,12 @@ local function dashlayout()
 
         --{ type = "padding", val = 1 }, --
         {
-            val  = system(),
+            val  = get_system(),
             type = "text",
             opts = { position = "center" }
         },
         {
-            val  = date(),
+            val  = get_date(),
             type = "text",
             opts = { position = "center" }
         },
@@ -265,7 +270,7 @@ local function dashlayout()
         {type = "padding", val = 1 }, --
         {   --options
             val  = {
-                button("c", " Config", function()vim.cmd("e "..nvim_cfg_init) vim.cmd("cd "..nvim_cfg_path) end),
+                button("c", " Config", function()vim.cmd("set bufhidden=wipe"); vim.cmd("e "..nvim_cfg_init); vim.cmd("cd "..nvim_cfg_path) end),
                 button("e", "󰏗 Plugins", "<Cmd>Lazy<CR>"), -- 󰂖 🧩 󱁤
             },
             type = "group",

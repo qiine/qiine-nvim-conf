@@ -188,7 +188,7 @@ local function dashlayout()
             button("f", "☆ Fav files",    "<Cmd>FzfLua favorites<CR>"),
             button("r", "󰈢 Recent files", "<Cmd>FzfLua oldfiles<CR>"),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
-            button("e", " File browser", "<Cmd>Oil<CR>"),
+            button("b", " File browser", "<Cmd>Oil<CR>"),
             button("s", " Load session", "<Cmd>LoadGlobalSession<CR>"), -- 
         }
     end
@@ -313,11 +313,13 @@ return
             },
         }
 
-        vim.api.nvim_create_augroup("Alpha-nvim", { clear = true })
         vim.api.nvim_create_autocmd("User", {
-            group = "Alpha-nvim",
+            group = vim.api.nvim_create_augroup("Alpha-nvim", { clear = true }),
             pattern = "AlphaReady",
             callback = function()
+                vim.api.nvim_set_option_value("buflisted", true, { buf = 0 })
+                vim.api.nvim_set_option_value("bufhidden", "",   { buf = 0 })
+
                 vim.opt_local.statuscolumn   = ""
                 vim.opt_local.signcolumn     = "no"
                 vim.opt_local.number         = false
@@ -328,28 +330,6 @@ return
                 require("alpha").setup { layout = dashlayout()}
             end,
         })
-
-        --does not hide properly the line
-        --local statusline_def = vim.opt.statusline:get()
-        --local laststatus_def = vim.opt.laststatus:get()
-        --vim.api.nvim_create_autocmd("User", {
-        --    group = "Alpha-nvim",
-        --    pattern = "AlphaReady",
-        --    callback = function()
-        --        statusline_def = vim.opt.statusline:get()
-        --        laststatus_def = vim.opt.laststatus:get()
-
-        --        vim.opt.statusline = " "
-        --        vim.opt.laststatus = 0
-        --    end,
-        --})
-        --vim.api.nvim_create_autocmd("BufUnload", {
-        --    group = "Alpha-nvim",
-        --    callback = function()
-        --        vim.opt.statusline = statusline_def
-        --        vim.opt.laststatus = laststatus_def
-        --    end,
-        --})
     end,
 }
 

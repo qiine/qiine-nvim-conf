@@ -116,6 +116,10 @@ return
                 show_unlisted     = true,
             },
 
+            oldfiles = {
+                stat_file = true,                --check file still exist
+                include_current_session = true,  -- include bufs from current session
+            },
         })
 
         -- Custom previewer
@@ -176,10 +180,7 @@ return
         -- find recent files
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>r", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").oldfiles({
-                stat_file = true,                --check file still exist
-                include_current_session = true,  -- include bufs from current session
-            })
+            require("fzf-lua").oldfiles()
         end, {silent=true, desc="Fuzzy find recent files"})
 
         -- find files in notes
@@ -309,7 +310,15 @@ return
                 actions = {
                     ["default"] = function(selected)
                         favz.open_fav(selected[1])
-                    end,
+
+                        -- TODO find way to put this inside alpha.nvim instead
+                        -- ensure destroy dashboard
+                        local alt = vim.fn.bufnr("#")
+                        if vim.bo[alt].filetype == "alpha" then
+                            vim.cmd("bwipeout " .. alt)
+                        end
+
+                    end
                 },
             })
         end
@@ -326,8 +335,8 @@ return
                 cwd = "~/Personal/",
                 actions = {
                     ["default"] = function(selected)
-                        if selected and #selected > 0 then
-                            vim.cmd("cd " .. selected[1])
+                        if selected then
+                            vim.cmd.cd(selected[1])
                             print("Changed directory to: " .. selected[1])
                         end
                     end

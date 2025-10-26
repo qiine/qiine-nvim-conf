@@ -189,12 +189,25 @@ local function dashlayout()
     ---@return table
     local function menu()
         return {
-            button("n", " New file",     "<Cmd>set bufhidden=wipe | enew<CR>"),
-            button("f", "☆ Fav files",    "<Cmd>set bufhidden=wipe | FzfLua favorites<CR>"),
-            button("r", "󰈢 Recent files", "<Cmd>set bufhidden=wipe | FzfLua oldfiles<CR>"),
-            button("p", " Projects",     "<Cmd>set bufhidden=wipe | FzfLua projects<CR>"),
+            button("n", " New file",     function() set_wipe_dashboard() vim.cmd("enew") end),
+            button("f", "☆ Fav files",    "<Cmd>FzfLua favorites<CR>"),
+            button("r", "󰈢 Recent files", function()
+                require("fzf-lua").oldfiles({
+                    actions = {
+                        ["default"] = function(selected, opts)
+                            require("fzf-lua").actions.file_edit_or_qf(selected, opts)
+
+                            local alt = vim.fn.bufnr("#")
+                            if vim.bo[alt].filetype == "alpha" then
+                                vim.cmd("bwipeout " .. alt)
+                            end
+                        end,
+                    }
+                })
+            end),
+            button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
             button("b", " File browser", "<Cmd>Oil<CR>"),
-            button("s", " Load session", "<Cmd>set bufhidden=wipe | LoadGlobalSession<CR>"), -- 
+            button("s", " Load session", function() set_wipe_dashboard() vim.cmd("LoadGlobalSession") end),
         }
     end
 
@@ -331,10 +344,10 @@ return
                 vim.opt_local.relativenumber = false
                 vim.opt_local.foldcolumn     = "0"
 
-                -- require("alpha").start()
                 require("alpha").setup { layout = dashlayout()}
             end,
         })
+
     end,
 }
 

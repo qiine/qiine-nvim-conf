@@ -140,6 +140,11 @@
         "body": [ "vim.fn.getcwd()" ]
     },
 
+    "nvim cd cmd": {
+        "prefix": "nvim cd cmd",
+        "body": [ "vim.cmd.cd(${1:})" ]
+    },
+
     "set nvim keymap": {
         "prefix": "set nvim keymap",
         "body": [

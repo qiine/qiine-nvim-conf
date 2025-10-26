@@ -294,6 +294,7 @@ end
 
 vim.keymap.set({"i","n","v"}, "<M-b>a", "<Cmd>FavAdd<CR>")
 vim.keymap.set({"i","n","v"}, "<M-b>r", "<Cmd>FavRem<CR>")
+vim.keymap.set({"i","n","v"}, "<M-b>b", "<Cmd>FavShowQuickBinds<CR>")
 
 
 

@@ -9,7 +9,7 @@
 --          |___/                |_|
 
 local utils    = require("utils.utils")
-local ts_utils = ("nvim-treesitter.ts_utils")
+local ts_utils = require("nvim-treesitter.ts_utils")
 local lsnip    = require("luasnip")
 
 local v   = vim
@@ -222,7 +222,7 @@ map({"i","n","v"}, "<M-z>", "<Cmd>norm! za<CR>")
 map({"i","n","v"}, "<C-S-z>", "<Cmd>norm! za<CR>")
 
 -- Fold all
-vim.keymap.set({"i","n","v"}, "<M-S-z>", function()
+map({"i","n","v"}, "<M-S-z>", function()
     local count = vim.v.count
 
     local folded = false
@@ -1132,7 +1132,7 @@ map("v", "<space>", '"_di<space>', {noremap=true})
 map("v", "<cr>",    '"_di<cr>',    {noremap=true})
 
 -- TODO p3 maybe we could simply watch for key map and ignore arrow key for ex
-vim.keymap.set({"i","n","v"}, "<C-g>v", function() toggle_visualreplace() end)
+map({"i","n","v"}, "<C-g>v", function() toggle_visualreplace() end)
 
 
 -- ### Substitute mode

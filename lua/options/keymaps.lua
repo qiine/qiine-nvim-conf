@@ -127,6 +127,54 @@ map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
 map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
 map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
+-- Open surrounding files
+map({"i","n","v"}, "<C-PageUp>f", function()
+    local curfile = vim.fn.expand("%:p") -- absolute path of current file
+
+    local files = vim.fs.find(function(name, path)
+        return vim.fn.isdirectory(path .. "/" .. name) == 0
+    end, { type = "file", limit = math.huge })
+
+    table.sort(files)
+
+    local idx
+    for i, f in ipairs(files) do
+        if vim.fn.fnamemodify(f, ":p") == curfile then
+            idx = i
+            break
+        end
+    end
+
+    if not idx then print("Current file not found in cwd") return end
+
+    local next_idx = (idx % #files) - 1
+    vim.cmd.file(vim.fn.fnameescape(files[next_idx]))
+    vim.cmd("e!")
+end)
+map({"i","n","v"}, "<C-PageDown>f", function()
+    local curfile = vim.fn.expand("%:p")
+
+    local files = vim.fs.find(function(name, path)
+        return vim.fn.isdirectory(path .. "/" .. name) == 0
+    end, { type = "file", limit = math.huge })
+
+    table.sort(files)
+
+    local idx
+    for i, f in ipairs(files) do
+        if vim.fn.fnamemodify(f, ":p") == curfile then
+            idx = i
+            break
+        end
+    end
+
+    if not idx then print("Current file not found in cwd") return end
+
+    local next_idx = (idx % #files) + 1
+    vim.cmd.file(vim.fn.fnameescape(files[next_idx]))
+    vim.cmd("e!")
+end)
+
 
 -- ### [File Save]
 -- Save current
@@ -177,7 +225,7 @@ end)
 -- map(modes, "<C-S-e>", function()
 
 -- Open file picker
-map(modes, "<C-o>", "<cmd>FilePicker<CR>")
+map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
 
 
 
@@ -218,8 +266,8 @@ end, {desc = "Toggle Gutter" })
 
 -- ### [Folds]
 -- fold curr
-map({"i","n","v"}, "<M-z>", "<Cmd>norm! za<CR>")
-map({"i","n","v"}, "<C-S-z>", "<Cmd>norm! za<CR>")
+map({"i","n","v"}, "<M-z>", "<Cmd>norm! zA<CR>")
+map({"i","n","v"}, "<C-S-z>", "<Cmd>norm! zA<CR>")
 
 -- Fold all
 map({"i","n","v"}, "<M-S-z>", function()
@@ -409,8 +457,8 @@ map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
 
 -- m' is used to write into jump list
 -- Fast left/right move in normal mode
-map('n', '<C-Right>', "m'7l")
-map('n', '<C-Left>',  "m'7h")
+map({"n","v"}, "<C-Right>", "<cmd>norm! m'7l<CR>")
+map({"n","v"}, "<C-Left>",  "<cmd>norm! m'7h<CR>")
 
 -- ctrl+up/down to move fast
 map("i",       "<C-Up>", "<esc>m'3ki")
@@ -465,7 +513,7 @@ map({"i","n","v"}, "<M-Down>", function()
 end)
 
 -- Jump to next word
-map({"i","v"}, '<C-Right>', function()
+map("i", '<C-Right>', function()
     local curso_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
     if vim.fn.mode() == "" then vim.cmd("norm! 5l")
@@ -480,7 +528,7 @@ map({"i","v"}, '<C-Right>', function()
 end)
 
 -- Jump to previous word
-map({"i","v"}, '<C-Left>', function()
+map("i", '<C-Left>', function()
     local curso_prevrow = vim.api.nvim_win_get_cursor(0)[1]
 
     if vim.fn.mode() == "" then vim.cmd("norm! 5h")
@@ -1233,21 +1281,23 @@ map("n", "<C-=>", "==")
 map("x", "<C-=>", "=")
 
 
--- ### [Break line]
+-- ### [Line break]
 map("n", "<cr>", function()
     return vim.bo.buftype == "" and "i<CR><esc>" or "<CR>"
 end, {expr=true})
 
--- Break line above
+-- Line break above
 map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
 map("v",       "<S-CR>", "<esc>O<esc>gv")
 
--- Break line below
+-- Line break below
 map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
--- New line above and below
-map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
+-- Line break above and below
+-- map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
+-- map({"i","n"}, "<S-M-cr>", "<Cmd>norm! ]\<space><CR>")
+
 map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
 
 

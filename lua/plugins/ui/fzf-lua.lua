@@ -29,11 +29,11 @@ return
                 backdrop     = 100,       --opacity
 
                 preview = {
-                    default = "builtin",
-                    border = "border", -- single, border
-                    layout = "horizontal",
+                    default    = "builtin",
+                    border     = "border", -- single, border
+                    layout     = "horizontal",
                     horizontal = "right:47%",
-                    --hidden = "hidden",
+                    -- hidden     = "hidden",
                     winopts = {  -- builtin previewer window options
                         signcolumn    = "no",
                         number        = true,
@@ -79,8 +79,8 @@ return
                 ]],
 
                 -- fd_opts = {"-a"},
-                case_mode = 'smart',
-                file_icons = true,
+                case_mode   = 'smart',
+                file_icons  = true,
                 color_icons = false,
 
                 actions = {
@@ -177,12 +177,6 @@ return
             require("fzf-lua").files({ cwd="~", })
         end, { silent=true, desc="Fuzzy find file in HOME"})
 
-        -- find recent files
-        vim.keymap.set({"i","n","v","c","t"}, "<M-f>r", function()
-            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").oldfiles()
-        end, {silent=true, desc="Fuzzy find recent files"})
-
         -- find files in notes
         vim.keymap.set({"i","n","v","c","t"}, "<F49>", function()  --<M-F1>
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
@@ -203,6 +197,13 @@ return
                 },
             })
         end)
+
+
+        -- find recent files
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>r", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+            require("fzf-lua").oldfiles()
+        end, {silent=true, desc="Fuzzy find recent files"})
 
 
         -- ### grep
@@ -270,11 +271,37 @@ return
 
 
 
-        -- ## Custom finders
-        -- Fuzzy cd
+        -- ## Custom pickers
+        -- Fuzzy cd from curr dir
         fzfl.fuzzy_cd = function()
+            local cwd = vim.fn.getcwd()
+
             fzfl.fzf_exec("fdfind . --type d", {     --or fd
                 prompt = "cd ",
+                cwd = cwd,
+                actions = {
+                    ["default"] = function(selected)
+                        if selected then
+                            vim.fn.chdir(cwd.."/"..selected[1])
+
+                            vim.cmd("pwd")
+
+                            if vim.bo.filetype == "oil" then
+                                require("oil").open(cwd.."/"..selected[1])
+                            end
+                        end
+                    end,
+                },
+            })
+        end
+
+        vim.keymap.set({"i","n","v","t"}, "<M-f>dc", function() fzfl.fuzzy_cd() end,
+        {silent=true, desc="Fuzzy cd to directory"})
+
+        -- Fuzzy cd from root
+        fzfl.fuzzy_cd_fromroot = function()
+            fzfl.fzf_exec("fdfind . --type d", {     --or fd
+                prompt = "cd /",
                 cwd = "/",
                 actions = {
                     ["default"] = function(selected)
@@ -290,8 +317,8 @@ return
             })
         end
 
-        vim.keymap.set({"i","n","v","t"}, "<M-f>d", function() fzfl.fuzzy_cd() end,
-        {silent=true, desc="Fuzzy cd to directory"})
+        vim.keymap.set({"i","n","v","t"}, "<M-f>d", function() fzfl.fuzzy_cd_fromroot() end,
+        {silent=true, desc="Fuzzy cd from root dir"})
 
         -- fav files
         fzfl.favorites = function()

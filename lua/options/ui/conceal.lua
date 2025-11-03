@@ -1,3 +1,4 @@
+
 --------------------------------------------------
 -- Conceal --
 --------------------------------------------------
@@ -19,14 +20,14 @@ vim.opt.conceallevel=0
 --	2		text hidden unless it has a custom replacement character defined (see |:syn-cchar|).
 --	3		completely hidden.
 
-vim.opt.concealcursor="n" --stay concealed in normal mode aswel
+vim.opt.concealcursor = "in" --stay concealed in normal mode aswel
 
 --Selective conceal activation
 vim.api.nvim_create_autocmd('BufEnter', {
     group = 'UserAutoCmds',
     pattern = { "*.lua", "*.cpp", "*.c", "*.h", "*.rs", "*.sh" },
     callback = function()
-        vim.opt.conceallevel=1
+        vim.opt.conceallevel=2
     end,
 })
 
@@ -84,6 +85,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 --overlay ~= with !=  for lua
 local ns = vim.api.nvim_create_namespace("overlay_lua")
+
 vim.api.nvim_create_augroup("Overlay_Lua", { clear = true })
 
 vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "TextChanged", "ModeChanged", "InsertCharPre"}, {
@@ -114,19 +116,73 @@ vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "TextChanged", "ModeChan
     end,
 })
 
+-- Extmarks abbrevs
+local ns_id = vim.api.nvim_create_namespace('abbreviations')
+
+local abbreviations = {
+    ["function"] = "󰊕n",
+    ["return"] = "ret",
+    ["require"] = "req",
+    ["local"] = "loc",
+}
+
+local function apply_abbreviations(bufnr)
+    bufnr = bufnr or 0
+
+    vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
+
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+    for lnum, line in ipairs(lines) do
+        for word, abbrev in pairs(abbreviations) do
+            local col = 0
+            while true do
+                local start, finish = string.find(line, word, col, true)
+                if not start then break end
+
+                -- Check if it's a whole word (not part of another word)
+                local before = start > 1 and line:sub(start - 1, start - 1) or " "
+                local after = finish < #line and line:sub(finish + 1, finish + 1) or " "
+
+                if before:match("[%W_]") and after:match("[%W_]") then
+                    vim.api.nvim_buf_set_extmark(bufnr, ns_id, lnum - 1, start - 1, {
+                        end_col = finish,
+                        conceal = "",
+                        virt_text = { {abbrev, "Keyword"} },
+                        virt_text_pos = "inline", -- overlay
+                    })
+                end
+
+                col = finish + 1
+            end
+        end
+    end
+end
+
+local function toggle()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local marks = vim.api.nvim_buf_get_extmarks(bufnr, ns_id, 0, -1, {})
+
+    if #marks > 0 then
+        vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
+        print("Abbreviations disabled")
+    else
+        apply_abbreviations(bufnr)
+        print("Abbreviations enabled")
+    end
+end
+
+-- Setup
+vim.api.nvim_create_user_command('ToggleAbbrev', toggle, {})
+
+vim.api.nvim_create_autocmd({"BufEnter", "FileType", "TextChanged", "TextChangedI"}, {
+    group = "UserAutoCmds",
+    pattern = { "*.lua" },
+    callback = function()
+        apply_abbreviations()
+    end
+})
 
 
---Match whole word 'function' and overlay 'fn'
---local fstart = 1
---while true do
---    local fs, fe = line:find("%f[%w]function%f[%W]", fstart)
---    if not fs then break end
 
---    vim.api.nvim_buf_set_extmark(buf, ns, row - 1, fs - 1, {
-    --        virt_text = { { "ƒ", "Keyword" } },
-    --        virt_text_pos = "overlay",
-    --        hl_mode = "combine"
-    --    })
 
-    --    fstart = fe + 1
-    --end

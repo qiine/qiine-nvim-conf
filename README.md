@@ -9,7 +9,6 @@ Definitively  **heretical** ;p
 I was aware of vim/nvim for years, after switching to linux I figured It was  
 finally time to try it out.  
 At first I hesitated between nvim and emacs, but lua and the motions intrigued me...  
-I am still in the "hjkl? hu no? arrow's fine" phase though, haha.  
 
 My text editor journey:  
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
@@ -31,6 +30,12 @@ My text editor journey:
   completion
 - Built-in auto save with a timer every 7min
 
+
+### Advance nav
+---
+fast move using modifier + arrows
+go to middle of screen go to first/last line
+nav dir using keymaps without file browser
 
 ### 🧠 Text intelligence
 ---
@@ -54,7 +59,11 @@ My text editor journey:
 ---
 - **neo-tree**  
 - **oil.nvim**  
-- custom user commands and keymaps, delete current file, set readonly, move dir etc...
+- custom user commands and keymaps:
+  - delete current file, 
+  - set readonly,
+  - move dir
+  - etc...
 
 
 ### 🖼 UI

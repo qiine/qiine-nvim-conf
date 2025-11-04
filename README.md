@@ -37,7 +37,7 @@ fast move using modifier + arrows
 go to middle of screen go to first/last line
 nav dir using keymaps without file browser
 
-### 🧠 Text intelligence
+### 🧠 Text intel
 ---
 **Supported languages**:
 - lua  

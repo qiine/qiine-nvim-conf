@@ -72,7 +72,7 @@ safe_require("options.mousemaps")
 -- ## options
 safe_require("options.internal")
 safe_require("options.editing")
-safe_require("options.textinteligence")
+safe_require("options.textintel")
 safe_require("options.quickfix")
 
 -- ### ui
@@ -92,4 +92,6 @@ vim.api.nvim_create_autocmd("Vimenter", {
          vim.cmd("messages")
      end,
 })
+
+
 

@@ -117,7 +117,9 @@ vim.api.nvim_create_autocmd({"BufEnter","TextChangedI", "TextChanged", "ModeChan
 })
 
 -- Extmarks abbrevs
-local ns_id = vim.api.nvim_create_namespace('abbreviations')
+vim.g.extabbrev = true
+
+local ns = vim.api.nvim_create_namespace('extabbrev')
 
 local abbreviations = {
     ["function"] = "󰊕n",

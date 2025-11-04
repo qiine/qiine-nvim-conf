@@ -128,7 +128,7 @@ map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
 map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
 
 -- Open surrounding files
-map({"i","n","v"}, "<C-PageUp>f", function()
+map({"i","n","v"}, "<M-C-S-PageUp>", function()
     local curfile = vim.fn.expand("%:p") -- absolute path of current file
 
     local files = vim.fs.find(function(name, path)
@@ -136,22 +136,23 @@ map({"i","n","v"}, "<C-PageUp>f", function()
     end, { type = "file", limit = math.huge })
 
     table.sort(files)
-
     local idx
     for i, f in ipairs(files) do
-        if vim.fn.fnamemodify(f, ":p") == curfile then
-            idx = i
-            break
+        if f == curfile then
+            idx = i break
         end
     end
 
     if not idx then print("Current file not found in cwd") return end
 
     local next_idx = (idx % #files) - 1
-    vim.cmd.file(vim.fn.fnameescape(files[next_idx]))
-    vim.cmd("e!")
+    local next_file = files[next_idx]
+
+    if not next_file or not vim.uv.fs_stat(next_file) then return end
+
+    vim.cmd("file! next_file"); vim.cmd("e!")
 end)
-map({"i","n","v"}, "<C-PageDown>f", function()
+map({"i","n","v"}, "<M-C-S-PageDown>", function()
     local curfile = vim.fn.expand("%:p")
 
     local files = vim.fs.find(function(name, path)
@@ -866,37 +867,26 @@ map("n", "<C-S-k>", "i<C-S-k>")
 
 -- ### Insert snippets
 -- Insert var
-map({"i","n"}, "<C-S-n>v", function()
-    lsnip.insert_snippet("var")
-end)
+map({"i","n"}, "<C-S-n>v",  function() lsnip.insert_snippet("var") end)
 
-map({"i","n"}, "<C-S-n>vt", function()
-    lsnip.insert_snippet("var table")
-end)
+map({"i","n"}, "<C-S-n>vt", function() lsnip.insert_snippet("var table") end)
 
 -- Insert func
-map({"i","n"}, "<C-S-n>f", function()
-    lsnip.insert_snippet("func")
-end)
+map({"i","n"}, "<C-S-n>f",  function() lsnip.insert_snippet("func") end)
 
-map({"i","n"}, "<C-S-n>fa", function()
-    lsnip.insert_snippet("anon func")
-end)
+map({"i","n"}, "<C-S-n>fa", function() lsnip.insert_snippet("anon func") end)
 
 -- Insert if
-map({"i","n"}, "<C-S-n>i", function()
-    lsnip.insert_snippet("if")
-end)
+map({"i","n"}, "<C-S-n>i",  function() lsnip.insert_snippet("if") end)
 
 -- Insert loop
-map({"i","n"}, "<C-S-n>fe", function()
-    lsnip.insert_snippet("for each")
-end)
+map({"i","n"}, "<C-S-n>fe", function() lsnip.insert_snippet("for each") end)
+
+
+map({"i","n"}, "<C-S-n>r",  function() lsnip.insert_snippet("return") end)
 
 -- Insert print
-map({"i","n"}, "<C-S-n>p", function()
-    lsnip.insert_snippet("print")
-end)
+map({"i","n"}, "<C-S-n>p",  function() lsnip.insert_snippet("print") end)
 
 
 -- ### [Clipboard]
@@ -1083,7 +1073,7 @@ map({"n","v"}, "<BS>", 'r ')
 --kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"
 
 -- Clear line
-map({"i","n","v"}, "<S-BS>", "<cmd>norm!Vr <CR>")
+map({"i","n","v"}, "<S-BS>", '<cmd>norm!Vr <CR>') -- TODO leave only one blank char on each line
 
 
 -- #### Delete
@@ -1288,14 +1278,14 @@ end, {expr=true})
 
 -- Line break above
 map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
-map("v",       "<S-CR>", "<esc>O<esc>gv")
+map("v",       "<S-CR>   ", "<esc>O<esc>gv")
 
 -- Line break below
 map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
 map("v",       "<M-CR>", "<esc>o<esc>vgv")
 
 -- Line break above and below
--- map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
+map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
 -- map({"i","n"}, "<S-M-cr>", "<Cmd>norm! ]\<space><CR>")
 
 map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
@@ -1388,7 +1378,7 @@ map("n", "<C-!>e", '@q')
 
 
 
--- ## [Text intelligence]
+-- ## [Text intel]
 ----------------------------------------------------------------------
 -- ### [Word processing]
 -- Toggle spellcheck

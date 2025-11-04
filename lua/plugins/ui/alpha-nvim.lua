@@ -206,7 +206,7 @@ local function dashlayout()
                 })
             end),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
-            button("b", " File browser", "<Cmd>Oil<CR>"),
+            button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
             button("s", " Load session", function() set_wipe_dashboard() vim.cmd("LoadGlobalSession") end),
         }
     end
@@ -283,7 +283,7 @@ local function dashlayout()
         {type = "padding", val = 1 }, --
         {   --options
             val  = {
-                button("c", " Config", function()vim.cmd("set bufhidden=wipe"); vim.cmd("e "..nvim_cfg_init); vim.cmd("cd "..nvim_cfg_path) end),
+                button("c", " Config", function() set_wipe_dashboard(); vim.cmd("e "..nvim_cfg_init.." | cd %:h | pwd") end),
                 button("e", "󰏗 Plugins", "<Cmd>Lazy<CR>"), -- 󰂖 🧩 󱁤
             },
             type = "group",

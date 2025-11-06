@@ -109,7 +109,7 @@ return
 
                 ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
 
-                ["<C-Home>"] = {
+                ["<C-Home>"] = { -- cd upward
                     callback = function()
                         require("oil.actions").parent.callback()
                         require("oil.actions").cd.callback()
@@ -135,6 +135,22 @@ return
                         else
                             vim.notify("No project root found", vim.log.levels.WARN)
                         end
+                    end,
+                    mode = { "n", "i", "x" },
+                },
+                ["<M-S-Home>"] = {
+                    desc = "cd to home",
+                    callback = function()
+                        vim.cmd("cd ")
+                        require("oil").open(vim.fn.getcwd())
+                    end,
+                    mode = { "n", "i", "x" },
+                },
+                ["<M-C-S-Home>"] = {
+                    desc = "cd root",
+                    callback = function()
+                        vim.cmd("cd /")
+                        require("oil").open(vim.fn.getcwd())
                     end,
                     mode = { "n", "i", "x" },
                 },

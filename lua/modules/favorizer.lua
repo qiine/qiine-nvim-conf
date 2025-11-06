@@ -13,12 +13,25 @@ M.db_path = home .. "/Personal/Org/fav.json"
 
 -- M.fav = { ["name"] = "path" } --id --group --type
 
-M.quickbinds =
+M.quickfiles =
 {
     [1] = "keymaps.lua",
     [2] = "common_commands.lua",
-    [3] = "Neovim.md",
+    [3] = "common_autocmds.lua",
     [4] = "init.lua",
+    [5] = "Neovim.md",
+    [6] = "",
+    [7] = "",
+    [8] = "",
+    [9] = "",
+}
+
+M.quickactions =
+{
+    [1] = "BuffInfo",
+    [2] = "",
+    [3] = "",
+    [4] = "",
     [5] = "",
     [6] = "",
     [7] = "",
@@ -169,6 +182,11 @@ function M.get_favs_names()
     return vim.tbl_keys(res.data)
 end
 
+---@return boolean
+function M.check_currfile_in_fav()
+    return M.check_is_faved(M.get_favs(), vim.fn.expand("%:t"))
+end
+
 ---@param name string
 function M.open_fav(name)
     if not name or name == "" then
@@ -180,19 +198,20 @@ function M.open_fav(name)
     local favs = res.data
     local path = favs[name]
     if not path or path == "" then
+        notif("Invalid fav path: ", "err")
         return {stat=false, msg="Invalid fav path: "..name, loglvl="err"}
     end
 
     if vim.fn.filereadable(path) ~= 1 then
+        notif("Could not read favorite file!", "err")
         return {stat=false, msg="Could not read favorite file!", loglvl="err"}
     end
 
     vim.cmd("edit "..vim.fn.fnameescape(path)); return {stat=true, msg="Opened favorite: " .. name, loglvl="info"}
 end
 
----@return boolean
-function M.check_currfile_in_fav()
-    return M.check_is_faved(M.get_favs(), vim.fn.expand("%:t"))
+function M.trigger_action(cmd)
+    vim.cmd(cmd)
 end
 
 
@@ -235,6 +254,7 @@ vim.api.nvim_create_user_command("FavOpen", function(opts)
 end, {nargs=1})
 
 vim.api.nvim_create_user_command("FavShowQuickBinds", function()
+    -- fwin
     local wopts = {}
 
     wopts.title =  "Quick binds"
@@ -244,23 +264,35 @@ vim.api.nvim_create_user_command("FavShowQuickBinds", function()
     wopts.border    = "rounded" -- single
 
     wopts.width  = 35
-    wopts.height = 9
+    wopts.height = 21
     wopts.col = math.floor((vim.o.columns - wopts.width) / 2)
     wopts.row = math.floor((vim.o.lines - wopts.height) / 2)
 
     local fwin = vim.api.nvim_open_win(0, true, wopts)
 
+    -- buf
     vim.cmd("enew")
+
     vim.api.nvim_set_option_value("buftype",   "nofile",    {buf=0})
     vim.api.nvim_set_option_value("filetype",  "favorizer", {buf=0})
     vim.api.nvim_set_option_value("buflisted", false,       {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe",      {buf=0})
+
     vim.opt_local.signcolumn = "no"
     vim.opt_local.number     = false
     vim.opt_local.foldcolumn = "0"
 
+    -- content
     local binds = {}
-    for key, value in ipairs(M.quickbinds) do
+
+    table.insert(binds, "[".."Files/Dirs".."]")
+    for key, value in ipairs(M.quickfiles) do
+        table.insert(binds, "["..key.."]".." = "..value)
+    end
+
+    table.insert(binds, "")
+    table.insert(binds, "[Actions]")
+    for key, value in ipairs(M.quickactions) do
         table.insert(binds, "["..key.."]".." = "..value)
     end
 
@@ -288,13 +320,19 @@ end, {})
 -- ## [Keymaps]
 ----------------------------------------------------------------------
 -- Speed dial
-for bind, file in pairs(M.quickbinds) do
-    vim.keymap.set({"i","n","v","c","t"}, "<C-"..bind..">", function() M.open_fav(file) end)
+for bind, file in pairs(M.quickfiles) do
+    vim.keymap.set({"i","n","v","c","t"}, "<C-"..bind..">", function()
+        M.open_fav(file)
+    end)
+end
+
+for bind, action in pairs(M.quickactions) do
+    vim.keymap.set({"i","n","v","c","t"}, "<M-"..bind..">", function() M.trigger_action(action) end)
 end
 
 vim.keymap.set({"i","n","v"}, "<M-b>a", "<Cmd>FavAdd<CR>")
 vim.keymap.set({"i","n","v"}, "<M-b>r", "<Cmd>FavRem<CR>")
-vim.keymap.set({"i","n","v"}, "<M-b>b", "<Cmd>FavShowQuickBinds<CR>")
+vim.keymap.set({"i","n","v"}, "<M-b>b", "<Cmd>FavShowQuickFiles<CR>")
 
 
 

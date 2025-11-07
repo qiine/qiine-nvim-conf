@@ -62,8 +62,18 @@ vim.api.nvim_create_user_command("HyperAct", function()
         vim.cmd("norm %") return --no bang ! to use custom keymap
     end
 
-    if vim.lsp.get_clients({bufnr=0})[1] or buft ~= "help" then
-        vim.cmd("lua vim.lsp.buf.implementation()")
+    local clients = vim.lsp.get_clients({bufnr=0})
+    local supported = false
+    for _, client in ipairs(vim.lsp.get_clients({bufnr=0})) do
+        ---@type vim.lsp.Client
+        if client:supports_method('textDocument/implementation') then
+            vim.lsp.buf.implementation()
+            return
+        end
+    end
+
+    if supported then
+        vim.lsp.buf.implementation()
     else
         vim.cmd("norm! \29")
     end
@@ -253,6 +263,11 @@ end, {})
 
 -- ## [Files]
 ----------------------------------------------------------------------
+vim.api.nvim_create_user_command("CopyFileName", function()
+    vim.fn.setreg("+", vim.fn.expand("%:t"))
+    print("Copied file name: " ..'"'..vim.fn.getreg("+")..'"')
+end, {})
+
 vim.api.nvim_create_user_command("CopyFilePath", function()
     vim.fn.setreg("+", vim.fn.expand("%:p"))
     print("Copied file path: " ..'"'..vim.fn.getreg("+")..'"')
@@ -272,7 +287,7 @@ vim.api.nvim_create_user_command("FileStat", function()
     print(vim.inspect(vim.uv.fs_stat(vim.fn.expand("%"))))
 end, {})
 
-vim.api.nvim_create_user_command("FilePicker", function()
+vim.api.nvim_create_user_command("OpenDesktopFilePicker", function()
     local curfdir = vim.fn.expand("%:p")
 
     local cmd = string.format('kdialog --getopenfilename "%s"', curfdir)

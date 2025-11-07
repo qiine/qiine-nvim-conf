@@ -457,6 +457,31 @@ vim.api.nvim_create_user_command("FileMove", function()
     prompt_user()
 end, {})
 
+vim.api.nvim_create_user_command("FileMoveToCWD", function()
+    local fpath  = vim.api.nvim_buf_get_name(0)
+    local fname  = vim.fn.expand("%:t")
+
+    local target_dir = vim.fn.getcwd()
+
+    local target_fpath = vim.fs.joinpath(target_dir, fname)
+
+    -- check target path for existing file
+    if vim.uv.fs_stat(target_fpath) then
+        local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
+        if choice ~= 1 then
+            vim.notify("Overwriting cancelled.", vim.log.levels.INFO) return
+        end
+    end
+
+    -- Now move
+    local ok, err = vim.uv.fs_rename(fpath, target_fpath)
+    if not ok then vim.notify("Move failed: "..err, vim.log.levels.ERROR) return end
+
+    -- Update buf
+    vim.api.nvim_buf_set_name(0, target_fpath); vim.cmd("e!") --refresh buf to new path
+    vim.notify("Moved to: "..target_dir, vim.log.levels.INFO)
+end, {})
+
 vim.api.nvim_create_user_command("FileRename", function()
     local old_fpath = vim.api.nvim_buf_get_name(0)
     local old_dir   = vim.fn.fnamemodify(old_fpath, ":h")

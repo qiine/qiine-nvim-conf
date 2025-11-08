@@ -155,7 +155,7 @@ return
                     mode = { "n", "i", "x" },
                 },
 
-                ["n"] = {
+                ["<C-S-n>"] = {
                     function()
                         vim.cmd("norm! o")
                         vim.api.nvim_put({ "new_file.txt" }, "", false, true)
@@ -163,7 +163,7 @@ return
                     end,
                     desc = "New file",
                 },
-                ["N"] = {
+                ["<C-S-n>d"] = {
                     function()
                         vim.cmd("norm! o")
                         vim.api.nvim_put({ "new_dir/" }, "", false, true)
@@ -190,6 +190,11 @@ return
             },
         })
 
+        vim.api.nvim_create_autocmd({"FileType"}, {
+            group   = "UserAutoCmds",
+            pattern = "oil",
+            command = "stopinsert",
+        })
 
         -- vim.api.nvim_create_autocmd('DirChanged', {
         --     group = 'UserAutoCmds',

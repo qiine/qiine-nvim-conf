@@ -51,78 +51,46 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 
 -- ## [View]
 ----------------------------------------------------------------------
--- No gutter for terms
-vim.api.nvim_create_autocmd('TermOpen', {
-    group    = 'UserAutoCmds',
-    pattern  = '*',
-    callback = function()
-        vim.opt_local.statuscolumn   = ""
-        vim.opt_local.signcolumn     = "no"
-        vim.opt_local.number         = false
-        vim.opt_local.relativenumber = false
-        vim.opt_local.foldcolumn     = "0"
-    end,
-})
-
 
 
 
 -- ## [Buffers]
 ----------------------------------------------------------------------
--- Smart enter Auto Insert when appropriate
-vim.api.nvim_create_autocmd({"BufEnter"}, {
-    group = "UserAutoCmds",
-    pattern = "*",
-    callback = function()
-        if not vim.g.autostartinsert then return end
-
-        vim.defer_fn(function() --delay to ensure correct buf properties detect
-            local vbuf = vim.bo[vim.api.nvim_get_current_buf()]
-            local ft   = vim.bo.filetype
-            local bt   = vim.bo.buftype
-
-            if ft == "help"
-            or ft == "oil"
-            then vim.cmd("stopinsert") return end
-
-            if bt == "terminal" then vim.cmd("startinsert") return end
-
-            -- ((bt == "" and vbuf.buflisted and vbuf.modifiable)
-        end, 5)
-    end,
+vim.api.nvim_create_autocmd('TermOpen', {
+    group   = 'UserAutoCmds',
+    command = "startinsert",
 })
 
 -- override last buffer
-vim.api.nvim_create_autocmd('BufDelete', {
-    group = 'UserAutoCmds',
-    pattern = '*',
-    callback = function()
-        local bufs = vim.tbl_filter(function(buf)
-            return vim.api.nvim_buf_is_loaded(buf)
-            and vim.bo[buf].buflisted
-        end, vim.api.nvim_list_bufs())
+-- vim.api.nvim_create_autocmd('BufDelete', {
+--     group = 'UserAutoCmds',
+--     pattern = '*',
+--     callback = function()
+--         local bufs = vim.tbl_filter(function(buf)
+--             return vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted
+--         end, vim.api.nvim_list_bufs())
 
-        if #bufs == 1 and vim.api.nvim_buf_get_name(bufs[1]) == "" then
-            -- vim.cmd("e none")
-            -- vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
-            -- vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-            -- vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-            -- vim.api.nvim_set_option_value("modifiable", false, {buf=0})
+--         if #bufs == 1 and vim.api.nvim_buf_get_name(bufs[1]) == "" then
+--             -- vim.cmd("e none")
+--             -- vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
+--             -- vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+--             -- vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+--             -- vim.api.nvim_set_option_value("modifiable", false, {buf=0})
 
-            -- vim.opt_local.statuscolumn = ""
-            -- vim.opt_local.signcolumn   = "no"
-            -- vim.opt_local.number       = false
-            -- vim.opt_local.foldcolumn   = "0"
+--             -- vim.opt_local.statuscolumn = ""
+--             -- vim.opt_local.signcolumn   = "no"
+--             -- vim.opt_local.number       = false
+--             -- vim.opt_local.foldcolumn   = "0"
 
-            vim.cmd("Alpha")
-            vim.cmd("stopinsert")
-            -- vim.defer_fn(function()
-            --     if vim.bo.filetype ~= "alpha" then
-            --     end
-            -- end, 5)
-        end
-    end,
-})
+--             -- vim.cmd("Alpha")
+--             -- vim.cmd("stopinsert")
+--             -- vim.defer_fn(function()
+--             --     if vim.bo.filetype ~= "alpha" then
+--             --     end
+--             -- end, 5)
+--         end
+--     end,
+-- })
 
 
 

@@ -8,9 +8,6 @@ local v = vim
 
 -- ## [General]
 ----------------------------------------------------------------------
--- Smart start insert
-vim.g.autostartinsert = true
-
 -- Backspace behaviour
 vim.opt.backspace = { "indent", "eol", "start" }
 --"indent" -- Allows Backspace to delete auto-indent.

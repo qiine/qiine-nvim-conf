@@ -3,7 +3,6 @@
 -------------------------------------------------------
 
 local utils = require("utils.utils")
-
 ------------------------------------
 
 
@@ -74,6 +73,38 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 
+-- Highlight on entering Visual mode
+-- vim.api.nvim_create_autocmd("ModeChanged", {
+--     group = "UserAutoCmds",
+--     pattern = "*:[vV\x16]",  -- entering visual mode
+--     callback = function()
+--         -- local clients = vim.lsp.get_clients({ bufnr = 0 })
+--         -- local supports_highlight = false
+
+--         -- for _, client in ipairs(clients) do
+--         --     if client.server_capabilities.documentHighlightProvider then
+--         --         supports_highlight = true
+--         --         break
+--         --     end
+--         -- end
+
+--         -- if supports_highlight then
+--         --     vim.lsp.buf.clear_references()
+--         --     vim.lsp.buf.document_highlight()
+--         -- end
+--     end,
+-- })
+
+-- -- -- clear highlight when moving
+-- vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+--     group = "UserAutoCmds",
+--     callback = function()
+--         -- vim.lsp.buf.clear_references()
+--         -- vim.opt.hlsearch = false
+--     end,
+-- })
+
+
 
 -- ## [Windows]
 ----------------------------------------------------------------------
@@ -101,6 +132,12 @@ local cursor_styles = {
 vim.opt.guicursor = table.concat(cursor_styles, ",")
 
 vim.o.cursorcolumn = false
+-- Cursorline only for active win
+vim.api.nvim_create_autocmd({"WinEnter", "BufEnter"}, {
+    group   = "UserAutoCmds",
+    command = "lua vim.opt_local.cursorline = true",
+})
+vim.o.cursorlineopt = "both" --highlight numbers as well
 
 --stopsel: Stop selection when leaving visual mode.
 --v.opt.keymodel=startsel
@@ -117,10 +154,8 @@ vim.o.incsearch  = true --Highlight as you type
 
 -- Stop search highlight when editing
 vim.api.nvim_create_autocmd("InsertEnter", {
-    group = 'UserAutoCmds',
-    callback = function()
-        vim.o.hlsearch = false
-    end,
+    group   = 'UserAutoCmds',
+    command = "lua vim.o.hlsearch = false"
 })
 
 -- Search text highlight col
@@ -138,10 +173,6 @@ vim.o.signcolumn = "no" --show error/warning/hint and others
 --"auto"   → Only shows the sign column when needed. (jiterry)
 --"auto:X" → Keeps the column visible when up to X signs are present
 --"number" → Merges the sign column with the number column.
-
--- Cursor line
-vim.o.cursorline    = true   --highlight gutter at curso pos
-vim.o.cursorlineopt = "both" --highlight numbers as well
 
 -- line Numbers
 vim.o.number         = true
@@ -181,6 +212,17 @@ end
 -- fold color
 vim.api.nvim_set_hl(0, "Folded", { fg = "#555555", bg = "NONE" })
 
+-- No gutter for terms
+vim.api.nvim_create_autocmd('TermOpen', {
+    group    = 'UserAutoCmds',
+    callback = function()
+        vim.opt_local.statuscolumn   = ""
+        vim.opt_local.signcolumn     = "no"
+        vim.opt_local.number         = false
+        vim.opt_local.relativenumber = false
+        vim.opt_local.foldcolumn     = "0"
+    end,
+})
 
 -- fillchars
 vim.opt.fillchars:append({
@@ -230,7 +272,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     callback = function()
         local mode = vim.fn.mode()
         if mode == "v" or mode == "V" then
-            vim.opt.listchars:append({space=".", tab= "»»", trail="⬝"})
+            vim.opt.listchars:append({space=".", tab= "» ", trail="⬝"})
         else
             vim.opt.listchars:remove({"space", "tab", "trail"})
             vim.opt.listchars:append({tab="  "}) --buggy without this
@@ -279,14 +321,14 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 -- ### [Diagnostic]
 vim.diagnostic.config({
     underline = true,
-    update_in_insert = false, --false so diags update on InsertLeave
+    update_in_insert = false, -- false so diags update on InsertLeave
 
     virtual_text = {
         enabled = true,
         current_line = false,
         severity = { min = "INFO" },
-        prefix = "●",
-        suffix = "",
+        prefix   = "●",
+        suffix   = "",
         --format = function(diagnostic)
         --    local icons = {
         --        [vim.diagnostic.severity.ERROR] = " ",

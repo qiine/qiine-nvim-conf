@@ -1,6 +1,7 @@
 
 -- Favor --
 -- Favoritisme --
+-- mom we have harpoon at home
 
 local M = {}
 
@@ -28,9 +29,9 @@ M.quickfiles =
 
 M.quickactions =
 {
-    [1] = "BuffInfo",
-    [2] = "",
-    [3] = "",
+    [1] = "CopyFileDir",
+    [2] = "CopyFileName",
+    [3] = "BuffInfo",
     [4] = "",
     [5] = "",
     [6] = "",

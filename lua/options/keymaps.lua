@@ -61,15 +61,15 @@ map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 -- F5 reload buffer
 map({"i","n","v"}, "<F5>", "<cmd>e!<CR><cmd>echo'Buffer reloaded'<CR>")
 
--- g
-map("i",       '<C-g>', "<esc>g", {noremap=true})
-map({"n","v"}, '<C-g>', "g",      {noremap=true})
-
 -- Omni esc
 map({'i','n','x'}, '<esc>', function() -- need "x", mess with s mode otherwise
     vim.cmd('noh')
     return '<esc>'
 end, {expr = true, desc = "Escape and clear hlsearch"})
+
+-- g
+map("i",       '<C-g>', "<esc>g", {noremap=true})
+map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
 
 
@@ -123,9 +123,9 @@ end, {noremap=true})
 -- ## [Files]
 ----------------------------------------------------------------------
 -- File action
-map(modes, "<C-g>fm", "<cmd>FileMove<CR>")
-map(modes, "<C-g>fr", "<cmd>FileRename<CR>")
-map(modes, "<C-g>fd", "<cmd>FileDelete<CR>")
+map(modes, "<C-g>fm", "<Cmd>FileMove<CR>")
+map(modes, "<C-g>fr", "<Cmd>FileRename<CR>")
+map(modes, "<C-g>fd", "<Cmd>FileDelete<CR>")
 
 -- Open surrounding files
 map({"i","n","v"}, "<M-C-S-PageUp>", function()
@@ -215,9 +215,9 @@ map(modes, "<C-e>", function()
 
     local bufid = vim.fn.bufnr('%')
 
-    vim.cmd("b #")
+    -- vim.cmd("b #")
 
-    vim.cmd("bwipeout")
+    vim.cmd("bwipeout #")
 
     vim.api.nvim_set_current_buf(bufid)
 end)
@@ -267,8 +267,8 @@ end, {desc = "Toggle Gutter" })
 
 -- ### [Folds]
 -- fold curr
-map({"i","n","v"}, "<M-z>", "<Cmd>norm! zA<CR>")
-map({"i","n","v"}, "<C-S-z>", "<Cmd>norm! zA<CR>")
+map({"i","n","v"}, "<M-z>", "<Cmd>norm! za<CR>")
+map({"i","n","v"}, "<C-S-z>", "<Cmd>norm! za<CR>")
 
 -- Fold all
 map({"i","n","v"}, "<M-S-z>", function()
@@ -364,11 +364,11 @@ local function resize_win(dir, amount)
 end
 
 -- Resize hor
-map({"i","n","v"}, "<M-w><Up>",    function() resize_win("hor", "-5")  end, {noremap = true})
-map({"i","n","v"}, "<M-w><Down>",  function() resize_win("",    "+5")  end, {noremap = true})
+map({"i","n","v","t"}, "<M-w><Up>",    function() resize_win("hor", "-5")  end, {noremap = true})
+map({"i","n","v","t"}, "<M-w><Down>",  function() resize_win("",    "+5")  end, {noremap = true})
 -- Resize vert
-map({"i","n","v"}, "<M-w><Right>", function() resize_win("vert", "+4") end, {noremap = true})
-map({"i","n","v"}, "<M-w><Left>",  function() resize_win("vert", "-4") end, {noremap = true})
+map({"i","n","v","t"}, "<M-w><Right>", function() resize_win("vert", "+4") end, {noremap = true})
+map({"i","n","v","t"}, "<M-w><Left>",  function() resize_win("vert", "-4") end, {noremap = true})
 
 -- Detach win
 map(modes, "<M-w>d", function()
@@ -659,7 +659,7 @@ end)
 
 -- cd shortcuts
 -- cd curr file dir
-map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").."|pwd") end)
+map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").." | pwd") end)
 
 -- cd proj root
 map({"i","n","v"}, "<M-Home>", function()
@@ -772,28 +772,24 @@ map({"i","n","v"}, "<C-a>", "<Esc>G$vgg0")
 map("i", "<S-PageUp>", "<Esc>Vk")
 map("n", "<S-PageUp>", function()vim.cmd('norm!V'..vim.v.count..'k')end)
 map("v", "<S-PageUp>", function()
-    local vst_l, vsh_l = vim.fn.line("v"), vim.fn.line(".")
+    local vst, vsh = vim.fn.line("v"), vim.fn.line(".")
 
-    if vim.fn.mode() == "V" then
-        if vsh_l > vst_l then vim.cmd("norm! ok")
-        else                  vim.cmd("norm! k")
-        end
-    else
-        vim.cmd("norm! Vk")
+    if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
+
+    if vsh > vst then vim.cmd("norm! ok")
+    else              vim.cmd("norm! k")
     end
 end)
 
 map("i", "<S-PageDown>", "<Esc>Vj")
 map("n", "<S-PageDown>", function()vim.cmd('norm!V'..vim.v.count..'j')end)
 map("v", "<S-PageDown>", function()
-    local vst_l, vsh_l = vim.fn.line("v"), vim.fn.line(".")
+    local vst, vsh = vim.fn.line("v"), vim.fn.line(".")
 
-    if vim.fn.mode() == "V" then
-        if vsh_l > vst_l then vim.cmd("norm! j")
-        else                  vim.cmd("norm! oj")
-        end
-    else
-        vim.cmd("norm! Vj")
+    if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
+
+    if vsh > vst then vim.cmd("norm! j")
+    else                  vim.cmd("norm! oj")
     end
 end)
 
@@ -908,7 +904,7 @@ map({"i","n"}, "<C-c>", function()
         print("Obj copied") return
     end
 
-    if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
+    if vim.fn.match(word, [[\k]]) ~= -1 then
         vim.fn.setreg("+", word)
         print("Word copied") return
     end
@@ -956,7 +952,7 @@ map({"i","n"}, "<C-x>", function()
         print("Obj cut") return
     end
 
-    if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
+    if vim.fn.match(word, [[\k]]) ~= -1 then
         vim.cmd('norm! mz"+diw`z')
         print("Word cut") return
     end
@@ -981,7 +977,7 @@ map("n", "<C-v>", function()
     vim.cmd('norm! mz"zyiw`z'); local word = vim.fn.getreg("z")
 
     -- local char_isolated = char_l == " " and char_r == " "
-    if vim.fn.match(word, [[\v^\k+$]]) ~= -1 then
+    if vim.fn.match(word, [[\k]]) ~= -1 then
         vim.cmd('norm! "_diw"+P')
     else
         vim.cmd('norm! "+P')
@@ -1073,8 +1069,10 @@ map({"n","v"}, "<BS>", 'r ')
 --kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"
 
 -- Clear line
-map({"i","n","v"}, "<S-BS>", '<cmd>norm!Vr <CR>') -- TODO leave only one blank char on each line
-
+-- map({"i","n","v"}, "<S-BS>", '<Cmd>norm!Vr <CR>') -- TODO leave only one blank char on each line
+map({"i","n","v"}, "<S-BS>", function()
+    vim.cmd('norm! '..(vim.fn.mode() == "V" and 'r ' or 'Vr ') )
+end)
 
 -- #### Delete
 -- Del char
@@ -1557,9 +1555,24 @@ map("v",       "<C-g>dg", ":diffget<cr>")
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-map({"i","n","v"}, "<C-S-g>c", "<cmd>GitCommitFile<cr>", {noremap=true})
+map({"i","n","v"}, "<C-g>ga", function()
+    vim.cmd("silent !git add %")
+    vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
+end)
 
-map(modes, "<C-S-g>l", "<Cmd>LazyGit<cr>")
+map({"i","n","v"}, "<C-g>gc", function()
+    require('neogit').open({"commit"})
+    -- require("neogit").action({ "commit" })
+end)
+
+map({"i","n","v"}, "<C-g>gp", function()
+    require("neogit").open({ "push" })
+end)
+
+map(modes, "<C-g>gg", "<Cmd>Neogit<cr>")
+
+map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
+
 
 
 
@@ -1654,9 +1667,9 @@ map("c", "<S-Tab>", "<C-n>")
 -- clear all text
 map("c", "<S-BS>", '<C-u>')
 
--- Cmd close
-map("c", "œ", "<C-c><C-L>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
--- map("c", "<esc>", "<C-c>", {noremap=true})
+-- Close cmd
+-- map("c", "<esc>", "<C-c><C-l>", {noremap=true})
+map("c", "œ", "<C-c><C-l>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 
 -- Clear cmd in insert
 map("i", "<C-l>", "<C-o><C-l>")
@@ -1674,7 +1687,6 @@ map("t", "<M-`>", '<Esc><C-\\><C-n>q:')
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     group = "UserAutoCmds",
     callback = function()
-        vim.keymap.set("n", "<esc>", ":quit<CR>",  {buffer=true})
         vim.keymap.set("n", "<M-`>", ':quit<CR>' , {buffer=true})
     end,
 })
@@ -1708,7 +1720,7 @@ map({"i","n","v"}, "<M-w>th", function()
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-    vim.api.nvim_win_set_height(0, 9)
+    vim.api.nvim_win_set_height(0, 10)
 end, {noremap=true})
 
 -- Exit term mode

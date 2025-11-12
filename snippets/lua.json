@@ -14,6 +14,11 @@
         "body": [ "function ${1:newfunc}() ${2:} end" ]
     },
 
+    "new local function": {
+        "prefix": "loc func",
+        "body": [ "local function ${1:newfunc}() ${2:} end" ]
+    },
+
     "new anonymous function": {
         "prefix": "anon func",
         "body": [ "function() ${1:} end" ]
@@ -42,9 +47,24 @@
         ]
     },
 
+    "return": {
+        "prefix": "return",
+        "body": [ "return ${1:}" ]
+    },
+
     "print": {
         "prefix": "print",
         "body": [ "print(\"${1:hello!}\")" ]
+    },
+
+    "nvim notify": {
+        "prefix": "notify",
+        "body": "vim.notify(\"${1:notif}\", vim.log.levels.${2:INFO})"
+    },
+
+    "nvim inspect": {
+        "prefix": "inspect",
+        "body": "vim.inspect(${1:})"
     },
 
     "nvim flatten table": {
@@ -57,21 +77,27 @@
         ]
     },
 
-
-    "nvim notify": {
-        "prefix": "notify",
-        "body": "vim.notify(\"${1:notif}\", vim.log.levels.${2:INFO})"
-    },
-
     "get home dir": {
         "prefix": "get home dir",
         "body": "os.getenv(\"HOME\")"
     },
 
+
     "get nvim filetype": {
         "prefix": "get nvim filetype",
         "body": [ "vim.bo.filetype" ]
     },
+
+    "get nvim filename": {
+        "prefix": "get nvim filename",
+        "body": [ "vim.fn.expand(\"%:t\")" ]
+    },
+
+    "get buffer filepath": {
+        "prefix": "get buf filepath",
+        "body": [ "vim.api.nvim_buf_get_name(0)" ]
+    },
+
 
     "get nvim current buffer": {
         "prefix": "get nvim curr buf",
@@ -83,10 +109,6 @@
         "body": [ "vim.bo.buftype" ]
     },
 
-    "get buffer filepath": {
-        "prefix": "get buf filepath",
-        "body": [ "vim.api.nvim_buf_get_name(0)" ]
-    },
 
     "get nvim mode": {
         "prefix": "get nvim mode",

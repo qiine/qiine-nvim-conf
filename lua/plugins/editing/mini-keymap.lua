@@ -19,8 +19,10 @@ return
 
 
         -- Quick normal
-        combo({"i","n","o","v","c","t"}, "<Left><Right>", "<Esc>", { delay = 25 })
-        combo({"i","n","o","v","c","t"}, "<Right><Left>", "<Esc>", { delay = 25 })
+        combo({"i","n","o","v","c"}, "<Left><Right>", "<Esc>", { delay = 25 })
+        combo({"i","n","o","v","c"}, "<Right><Left>", "<Esc>", { delay = 25 })
+        combo({"t"}, "<Left><Right>", "<Esc> <C-\\><C-n>", { delay = 25 })
+        combo({"t"}, "<Right><Left>", "<Esc> <C-\\><C-n>", { delay = 25 })
 
         -- Quick normal while fast move
         -- Only for right side

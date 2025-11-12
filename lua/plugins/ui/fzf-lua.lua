@@ -208,10 +208,16 @@ return
 
         -- ### grep
         -- grep curr dir
-        vim.keymap.set({"i","n","v","c","t"}, "<M-f><S-g>", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>gc", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({})
         end, { silent = true, desc = "grep curr dir" })
+
+        -- grep in home
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>g", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+            require("fzf-lua").live_grep({ cwd = "~" })
+        end, { silent = true, desc = "Live grep in home" })
 
         -- grep curr project
         vim.keymap.set({"i","n","v","c","t"}, "<C-S-g>", function()
@@ -227,12 +233,6 @@ return
                 cwd = require("fzf-lua.path").git_root({})
             })
         end, {noremap=true, silent=true, desc="live grep selected in project"})
-
-        -- grep in home
-        vim.keymap.set({"i","n","v","c","t"}, "<M-f>g", function()
-            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").live_grep({ cwd = "~" })
-        end, { silent = true, desc = "Live grep in home" })
 
         -- grep in notes
         vim.keymap.set({"i","n","c","t"}, "<F13>", function()   --<S-F1>

@@ -17,8 +17,11 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function()
         if vim.v.register == '"' then
             local op = vim.v.operator
+            local reg = vim.fn.getreg('"')
             if op == "y" or op == "d" then
-                vim.fn.setreg("+", vim.fn.getreg('"'))
+                if reg ~= "" or reg ~= " " then
+                    vim.fn.setreg("+", reg)
+                end
             end
         end
     end,
@@ -71,7 +74,7 @@ vim.opt.path = { ".", "**" }
 
 -- ## [shada]
 ----------------------------------------------------------------------
-vim.opt.shada = "!,'1000,<50,s10,h"
+vim.o.shada = "!,'2000,<90,s20,h"
 --The ShaDa file is used to store:
 --- The command line history.
 --- The search string history.

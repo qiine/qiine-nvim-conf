@@ -73,7 +73,7 @@ map("n", "<2-LeftMouse>", "i", {noremap = true})
 
 
 
--- [Text inteligence]
+-- [Text intel]
 ----------------------------------------------------------------------
 -- show hover with ctrl+rightclick, <LeftMouse> is use to force focus of the word
 map({"i","n","v"}, '<C-RightMouse>', "<esc><LeftMouse><cmd>lua vim.lsp.buf.hover()<CR>")

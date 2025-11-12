@@ -253,7 +253,7 @@ vim.api.nvim_create_user_command("DeleteAllBuffers", function()
     end
 end, {})
 
-vim.api.nvim_create_user_command("BufferCopy", function()
+vim.api.nvim_create_user_command("CopyBuf", function()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     vim.fn.setreg("+", table.concat(lines, "\n"))
     print("Buffer copied")
@@ -277,6 +277,7 @@ vim.api.nvim_create_user_command("CopyFileDirPath", function()
     vim.fn.setreg("+", vim.fn.expand("%:p:h"))
     print("Copied file dir path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
+
 
 vim.api.nvim_create_user_command("CdFileDir", function()
     vim.cmd("cd %:p:h")
@@ -402,9 +403,9 @@ vim.api.nvim_create_user_command('SudoWrite', function()
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
-    local fpath  = vim.api.nvim_buf_get_name(0)
-    local fdir   = vim.fn.fnamemodify(fpath, ":h")
-    local fname  = vim.fn.fnamemodify(fpath, ":t")
+    local fpath = vim.api.nvim_buf_get_name(0)
+    local fdir  = vim.fn.fnamemodify(fpath, ":h")
+    local fname = vim.fn.fnamemodify(fpath, ":t")
 
     local function prompt_user()
         vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
@@ -418,7 +419,7 @@ vim.api.nvim_create_user_command("FileMove", function()
                 return prompt_user()
             end
 
-            --check target dir
+            -- Check target dir
             if not vim.uv.fs_stat(input) then
                 local choice = vim.fn.confirm("Directory doesn't exist. Create it?", "&Yes\n&No", 1)
                 if choice == 1 then
@@ -434,7 +435,7 @@ vim.api.nvim_create_user_command("FileMove", function()
 
             local target_path = vim.fs.joinpath(input, fname)
 
-            --check target path for existing file
+            -- Check target path for existing file
             if vim.uv.fs_stat(target_path) then
                 local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
                 if choice ~= 1 then
@@ -443,13 +444,13 @@ vim.api.nvim_create_user_command("FileMove", function()
                 end
             end
 
-            --now lets movein'
+            -- now lets movein'
             local ret, err = vim.uv.fs_rename(fpath, target_path)
             if not ret then
                 vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
             end
 
-            --Update buffer
+            -- Update buffer
             vim.api.nvim_buf_set_name(0, target_path); vim.cmd("e!") --refresh buf to new path
             vim.notify("Moved to: " .. input, vim.log.levels.INFO)
         end)
@@ -524,29 +525,20 @@ vim.api.nvim_create_user_command("FileRename", function()
     prompt_user()
 end, {})
 
---Easy del files without file browser
 vim.api.nvim_create_user_command("FileDelete", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local fname = vim.fn.fnamemodify(fpath, ":t")
+    local fpath, fname = vim.fn.expand("%:p"), vim.fn.expand("%:t")
 
-    local choice = vim.fn.confirm('Delete "' .. fname .. '" ?', "&Yes\n&No", 1)
-    if choice == 1 then
-        vim.uv.fs_unlink(fpath, function(err)
-            if err then
-                --TODO rewrite this part better like the others in FileMove for
-                --ex
-                vim.schedule(function()
-                    vim.notify("Delete failed: " .. err, vim.log.levels.ERROR)
-                end)
-                return
-            end
+    local choice = vim.fn.confirm('Delete "'..fname..'" ?', "&Yes\n&No", 1)
+    if choice ~= 1 then vim.notify("Delete canceled.", vim.log.levels.INFO) return end
 
-            vim.schedule(function()
-                vim.cmd('bdelete!'); vim.notify("Deleted: " .. fpath, vim.log.levels.INFO)
-            end)
+    local ok, err = vim.uv.fs_unlink(fpath)
+    if ok then
+        vim.schedule(function()
+            vim.cmd('bdelete!')
+            vim.notify("Deleted: "..fpath, vim.log.levels.INFO)
         end)
     else
-        vim.notify("Delete canceled.", vim.log.levels.INFO) return
+        vim.notify("Delete failed: "..err, vim.log.levels.ERROR)
     end
 end, {})
 
@@ -583,17 +575,16 @@ end, {})
 
 --### File perms
 vim.api.nvim_create_user_command("SetFileReadonly", function()
-    local path = vim.api.nvim_buf_get_name(0)
-    local name = vim.fn.fnamemodify(path, ":t")
+    local fpath, fname = vim.fn.expand("%:p"), vim.fn.expand("%:t")
 
-    if path == "" then vim.notify("No file!", vim.log.levels.WARN) return end
+    if fpath == "" then vim.notify("No file!", vim.log.levels.WARN) return end
 
-    vim.bo.readonly = true  --optional refresh lualine
-    local ret = os.execute("chmod -w " .. vim.fn.shellescape(path))
-    if ret == 0 then
-        vim.print(name .. ", now readonly")
+    local ok = os.execute("chmod -w "..vim.fn.shellescape(fpath))
+    if ok == 0 then
+        vim.bo.readonly = true  -- Optional refresh lualine
+        vim.print(fname.. ", now readonly")
     else
-        vim.notify("Failed to set file as readonly.", vim.log.levels.ERROR)
+        vim.notify("Failed to set file as readonly. ", vim.log.levels.ERROR)
     end
 end, {})
 
@@ -680,7 +671,7 @@ end, {})
 
 
 
---## [Windows]
+-- ## [Windows]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("CreateFloatingWindow", function()
     local bufid = vim.api.nvim_create_buf(false, true)
@@ -820,6 +811,7 @@ vim.api.nvim_create_user_command("HexModeToggle", function()
         vim.bo.filetype = ft
     end
 end, { desc = "Toggle between hex view and normal view" })
+
 
 -- Manage big files
 vim.api.nvim_create_user_command("BigfileMode", function()
@@ -1022,8 +1014,38 @@ vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
     end
 end, {nargs="?"})
 
+vim.api.nvim_create_user_command("GitLogFile", function()
+    require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
+end, {})
+
 vim.api.nvim_create_user_command("LazyGit", function(opts)
+    local bufid = vim.api.nvim_create_buf(false, true)
+
+    local edw_w = vim.o.columns
+    local edw_h = vim.o.lines
+
+    local wsize = {
+        w = math.floor(edw_w * 1),
+        h = math.floor(edw_h * 0.85),
+    }
+
+    local wopts = {
+        title     = "LazyGit",
+        title_pos = "center",
+        relative  = "editor",
+        width     = wsize.w,
+        height    = wsize.h,
+        col       = math.floor((edw_w - wsize.w) / 2),
+        row       = math.floor((edw_h - wsize.h) / 2) - 1,
+        border    = "single",
+    }
+
+    vim.api.nvim_open_win(bufid, true, wopts)
+
     vim.cmd.terminal("lazygit")
+
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
+    vim.api.nvim_set_option_value("buflisted", false, { buf = 0 })
 end, {})
 
 

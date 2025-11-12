@@ -1,4 +1,5 @@
-return {
+return
+{
     "TimUntersberger/neogit",
     enabled = true,
     cmd = "Neogit",
@@ -20,6 +21,7 @@ return {
                 style = "minimal",
                 border = "rounded",
             },
+            disable_signs = true,
             -- signs = {
             --     -- { CLOSED, OPENED }
             --     section = { "", "" },
@@ -29,6 +31,15 @@ return {
             disable_context_highlighting = true,
             graph_style = "unicode", -- ascii
             integrations = { diffview = true }, -- adds integration with diffview.nvim
+            disable_hint = true,
+            mappings = {
+                commit_editor = {
+                    ["<C-\13>"] = "Submit",
+                    ["<C-w>"] = "Abort",
+                    ["<C-p>"] = "PrevMessage",
+                    ["<C-n>"] = "NextMessage",
+                },
+            },
         })
     end,
 }

@@ -58,7 +58,7 @@ return
                     MatchParen = {bg = "#d9d9d9", style = "bold"},
 
                     --Cursor = { bg = "#0d0d0d" },
-                    CursorLine = { bg = "#f0f0f0" },
+                    CursorLine = { bg = "#F1F1F1" },
 
                     SignColumn = { bg = guttercol },
                     LineNr = { bg = guttercol },

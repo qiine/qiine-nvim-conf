@@ -2,7 +2,6 @@ return
 {
     'nvim-treesitter/nvim-treesitter',
     enabled = true,
-    event = "BufEnter",
     version = false,
     build = ':TSUpdate',
 

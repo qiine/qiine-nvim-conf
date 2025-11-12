@@ -13,15 +13,19 @@
 
 local col = "dayfox"
 
---smart theme picking
+-- Smart theme picking
 if vim.fn.getenv("COLORTERM") == "truecolor" then
     vim.cmd("colorscheme "..col)
 else
     vim.cmd("colorscheme ron")
 end
 
---make float win same bg reg win
+
+-- Make float win same bg reg win
 vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
+
+-- Define a highlight group for URLs
+vim.api.nvim_set_hl(0, "MyUrl", { fg = "#6aafc1", bold = true })
 
 
 --[Bufferline]--------------------------------------------------

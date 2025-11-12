@@ -37,7 +37,7 @@ local function safe_require(module_name)
     local status, module = pcall(require, module_name)
     if not status then
         vim.notify(
-            "Error with module: '" .. module_name .. "'\n" .. module .. "\nmodule loading aborted",
+            "Error with module: '"..module_name.."'\n"..module.."\nModule loading aborted",
             vim.log.levels.ERROR
         )
         return nil
@@ -63,7 +63,7 @@ safe_require("utils.common_commands")
 safe_require("utils.commands_aliases")
 safe_require("utils.common_autocmds")
 
--- ## Plugins
+-- ## Plugins
 safe_require("options.lazy")
 
 safe_require("options.keymaps")

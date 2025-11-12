@@ -186,8 +186,16 @@ vim.o.foldcolumn = "1"
 --"1" Show dedicated fold column and numbers in the gutter
 
 vim.o.foldenable = true  -- Actual folds icons in gutter
-vim.o.foldmethod = 'expr'
+vim.o.foldmethod = 'manual' -- manual, expr
+
 vim.o.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
+vim.api.nvim_create_autocmd('BufEnter', {
+    group = 'UserAutoCmds',
+    callback = function()
+        vim.opt_local.foldmethod = 'expr'
+        vim.opt_local.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
+    end,
+})
 -- Prefer LSP folding if client supports it
 vim.api.nvim_create_autocmd('LspAttach', {
     group = 'UserAutoCmds',
@@ -212,6 +220,7 @@ end
 -- fold color
 vim.api.nvim_set_hl(0, "Folded", { fg = "#555555", bg = "NONE" })
 
+
 -- No gutter for terms
 vim.api.nvim_create_autocmd('TermOpen', {
     group    = 'UserAutoCmds',
@@ -224,7 +233,7 @@ vim.api.nvim_create_autocmd('TermOpen', {
     end,
 })
 
--- fillchars
+-- Fillchars
 vim.opt.fillchars:append({
     fold      = " ", --in place of the folded text  - ⋯
     foldopen  = "⌄", --   ⌄ ▾

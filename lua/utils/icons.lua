@@ -114,7 +114,8 @@ local M =
     star     = "★",
 
     -- code
-    func      = "󰊕",
+    func      = "ƒ",
+    func_nerd = "󰊕",
     object    = "",
     database  = "󰆼",
     namespace = "󰦮",
@@ -143,7 +144,8 @@ local M =
     floppy2 = "💾",
     pin = "",
     keyboard = "⌨",
-    starts =  "✨",
+    starts   =  "✨",
+    clock    = "",
 
     -- ui
     Boolean   = "󰨙",
@@ -151,8 +153,9 @@ local M =
     checkmark = "✓",
     cross     = "✗",
     reload    = "⟳",
+    reload2   = "",
     bookmark  = "󰃀",
-
+    --
     -- logo
     vim = "",
     neovim = "",

@@ -18,6 +18,18 @@ vim.o.nrformats = "bin,hex,alpha"
 -- This defines what bases Vim will consider for numbers when using the
 -- CTRL-A and CTRL-X commands for adding to and subtracting from a number
 
+-- Avoid insert when relevant
+vim.api.nvim_create_autocmd('BufEnter', {
+    group   = 'UserAutoCmds',
+    callback = function()
+        vim.defer_fn(function()
+            if vim.bo.filetype == "alpha" then
+                if not vim.o.modifiable then vim.cmd('stopinsert') end
+            end
+        end, 1)
+    end,
+})
+
 
 
 -- ## [File]

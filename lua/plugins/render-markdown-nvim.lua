@@ -53,7 +53,7 @@ return
             },
             bullet = {
                 --icons = { '●', '○', '◆', '◇' },
-                icons = { '•', '-', '◆', '◇' },
+                icons = { '•', '-', '-', '-' },
             },
             indent = {
                 enabled = true,

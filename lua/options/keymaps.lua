@@ -309,23 +309,27 @@ end)
 
 -- Open floating window
 map(modes, "<M-w>nf", function ()
-    local fname = vim.fn.expand("%:t")
+    local fname = vim.fn.expand("%:t") -- mimick split and duplicate curr buf
 
     local edw_w = vim.o.columns
     local edw_h = vim.o.lines
 
-    local wsize = {w = 66, h = 22}
+    local wsize = { -- relative size
+        w = math.floor(edw_w * 0.9),
+        h = math.floor(edw_h * 0.80),
+    }
 
     local wopts = {
-        title     = fname,
+        title     = "fname",
         title_pos = "center",
         relative  = "editor",
+        width     = wsize.w,
+        height    = wsize.h,
+        col       = math.floor((edw_w - wsize.w) / 2),
+        row       = math.floor((edw_h - wsize.h) / 2) - 1,
         border    = "single",
-        width  = wsize.w,
-        height = wsize.h,
-        col = math.floor((edw_w - wsize.w) / 2),
-        row = math.floor((edw_h - wsize.h) / 2),
     }
+
     local fwin = vim.api.nvim_open_win(0, true, wopts)
 end)
 
@@ -728,7 +732,7 @@ map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
 
 -- ## [Selections]
 ----------------------------------------------------------------------
--- Selection anchors sawp
+-- Selection anchors swap
 map("v", "<M-v>", "o")
 
 -- ### Visual selection
@@ -756,7 +760,7 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 -- To Visual Line selection
 -- TODO a bit hacky we would want proper <M-C-Right><M-C-Left>
-map({"i","n","v"}, "<C-M-Right>", function()
+map({"i","n","v"}, "<M-C-Right>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
 map({"i","n","v"}, "<M-C-Left>", function()
@@ -803,19 +807,21 @@ map("v", "<C-S-PageDown>", function()
 end)
 
 -- ### Visual block selection
-map("n", "<M-S-v>", "")
+map({"n","v"}, "<S-M-v>", "<C-v>", {noremap=true})
 
 -- Move to visual block selection regardless of mode
 local function arrow_blockselect(dir)
-    if vim.fn.mode() == "" then vim.cmd("norm! "              ..dir)
-    else                          vim.cmd("stopinsert|norm!"..dir)
+    local m = vim.fn.mode()
+    if     m == ""            then vim.cmd("norm! "..dir)
+    elseif m == "v" or m == "V" then vim.cmd("norm! "..dir)
+    else                             vim.cmd("norm! "..dir)
     end
 end
 
-map({"i","n","v"}, "<S-M-Left>",  function() arrow_blockselect("h") end)
-map({"i","n","v"}, "<S-M-Right>", function() arrow_blockselect("l") end)
-map({"i","n","v"}, "<S-M-Up>",    function() arrow_blockselect("k") end)
-map({"i","n","v"}, "<S-M-Down>",  function() arrow_blockselect("j") end)
+map({"i","n","x"}, "<S-M-Left>",  function() arrow_blockselect("h") end)
+map({"i","n","x"}, "<S-M-Right>", function() arrow_blockselect("l") end)
+map({"i","n","x"}, "<S-M-Up>",    function() arrow_blockselect("k") end)
+map({"i","n","x"}, "<S-M-Down>",  function() arrow_blockselect("j") end)
 
 
 
@@ -997,7 +1003,7 @@ map("n", "<C-v>", function()
 end)
 
 -- Paste swap selected
-map("v", "<S-M-v>", function()
+map("v", "<C-S-v>", function()
     local text = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
 
@@ -1012,7 +1018,7 @@ end,
 {desc="first copy origin text, then select target text and paste swap"})
 
 -- Paste swap word
-vim.keymap.set({"i","n"}, "<M-v>", function()
+vim.keymap.set({"i","n"}, "<C-S-v>", function()
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
 
     -- replace target
@@ -1560,18 +1566,35 @@ map({"i","n","v"}, "<C-g>ga", function()
     vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
+map({"i","n","v"}, "<C-g>gu", function()
+    vim.cmd("silent !git reset HEAD %")
+    vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)
+end)
+
 map({"i","n","v"}, "<C-g>gc", function()
-    require('neogit').open({"commit"})
-    -- require("neogit").action({ "commit" })
+    require("neogit").action("commit", "commit", { "--verbose", "--all" })()
 end)
 
-map({"i","n","v"}, "<C-g>gp", function()
-    require("neogit").open({ "push" })
+-- commit patch
+-- map("x", "<C-g>gc", function()
+--     local file = vim.fn.expand("%")
+--     vim.cmd("norm! ")
+--     local line_start = vim.fn.getpos("'<")[2]
+--     local line_end = vim.fn.getpos("'>")[2]
+--     require("neogit").action("log", "log_current", { "-L" .. line_start .. "," .. line_end .. ":" .. file })()
+-- end)
+
+map({"i","n","v"}, "<C-g>gg", function()
+    require('neogit').open()
 end)
 
-map(modes, "<C-g>gg", "<Cmd>Neogit<cr>")
+-- git log curr file
+map("n", "<C-g>gl", function()
+    require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
+end, { desc = "Neogit Log for this file" })
 
-map(modes, "<C-g>gl", "<Cmd>LazyGit<cr>")
+
+map(modes, "<C-g>gz", "<Cmd>LazyGit<cr>")
 
 
 
@@ -1705,17 +1728,20 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
 -- ## [Terminal]
 ----------------------------------------------------------------------
 -- Open term
-map({"i","n","v"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
+map({"i","n","v"}, "<M-t>",    "<cmd>term<CR>", {noremap=true})
+map({"i","n","v"}, "<S-M-t>",  "<cmd>term<CR>", {noremap=true})
+map({"i","n","v"}, "<S-M-t>t", "<cmd>term<CR>", {noremap=true})
+
 
 -- Quick split term
-map({"i","n","v"}, "<M-w>t", function()
+map({"i","n","v"}, "<S-M-t>s", function()
     vim.cmd("vsp | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {noremap=true})
 
-map({"i","n","v"}, "<M-w>th", function()
+map({"i","n","v"}, "<S-M-t>h", function()
     vim.cmd("split | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
@@ -1723,8 +1749,40 @@ map({"i","n","v"}, "<M-w>th", function()
     vim.api.nvim_win_set_height(0, 10)
 end, {noremap=true})
 
+
+-- float term
+map({"i","n","v"}, "<S-M-t>f", function()
+    local bufid = vim.api.nvim_create_buf(false, true)
+
+    local edw_w = vim.o.columns
+    local edw_h = vim.o.lines
+
+    local wsize = { -- relative size
+        w = math.floor(edw_w * 0.85),
+        h = math.floor(edw_h * 0.80),
+    }
+
+    local wopts = {
+        title     = "Terminal",
+        title_pos = "center",
+        relative  = "editor",
+        width     = wsize.w,
+        height    = wsize.h,
+        col       = math.floor((edw_w - wsize.w) / 2),
+        row       = math.floor((edw_h - wsize.h) / 2) - 1,
+        border    = "single",
+    }
+
+    local fwin = vim.api.nvim_open_win(bufid, true, wopts)
+
+    vim.cmd("term")
+
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=bufid})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=bufid})
+end, {noremap=true})
+
 -- Exit term mode
-map("t", "<esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+map("t", "<M-Esc>", "<Esc> <C-\\><C-n>", {noremap=true})
 
 
 

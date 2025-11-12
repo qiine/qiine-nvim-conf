@@ -2,16 +2,13 @@ return
 {
     'saghen/blink.cmp',
     enabled = true,
-    event = {"BufEnter","CmdlineEnter"},
     version = '*',  -- use a release tag to download pre-built binaries
 
     dependencies = {
         --'rafamadriz/friendly-snippets',
     },
 
-    opts =
-    {
-        --the main options
+    opts = {
         completion={
             trigger = {
                 show_on_keyword = true,
@@ -88,12 +85,12 @@ return
                     --Makes it very difficult to have a useful command mode mapping for the
                     --escape key (e.g. a conditional mapping such as: close the completion window if
                     --it is visible, otherwise abort the cmdline with <Esc> as if it had never been
-                    --mapped in the first place).
+                    --mapped in the first lpace).
                     function(cmp)
                         if cmp.is_visible() then
                             cmp.cancel()
                         else
-                            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-c>", true, true, true), "n", true)
+                            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-c>", true, true, true), "c", true)
                         end
                     end,
                 },
@@ -149,8 +146,7 @@ return
             },
         },
 
-        keymap =
-        {
+        keymap = {
             --fallback: Runs the next non-blink keymap, or runs the built-in neovim binding
             --fallback_to_mappings: Runs the next non-blink keymap (not built-in behavior)
 

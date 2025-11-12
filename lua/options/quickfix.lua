@@ -4,7 +4,7 @@
 
 -- ## [Keymaps]
 ----------------------------------------------------------------------
--- ### [Quickfix]
+-- toggle
 vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickFixToggle<CR>")
 
 -- add to qf
@@ -80,9 +80,9 @@ vim.api.nvim_create_user_command("DiagToQuicFix", function(opts)
         vim.diagnostic.setqflist({ open = true, bufnr = 0 })
     end
 end, {
-desc = "Send diagnostics to quickfix list",
-nargs = "?",
-complete = function() return { "buffer" } end,
+    desc = "Send diagnostics to quickfix list",
+    nargs = "?",
+    complete = function() return { "buffer" } end,
 })
 
 vim.api.nvim_create_user_command("ShowJumpLocList", function()
@@ -115,8 +115,9 @@ end, {})
 
 
 -- autocmds
+vim.api.nvim_create_augroup('QuickfixAutoCmd', {clear=true})
 vim.api.nvim_create_autocmd('BufWinEnter', {
-    group = vim.api.nvim_create_augroup('QuickfixAutoCmd', {clear=true}),
+    group = "QuickfixAutoCmd",
     callback = function()
         if vim.bo.buftype == 'quickfix' then
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})

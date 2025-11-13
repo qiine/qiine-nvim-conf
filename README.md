@@ -112,7 +112,7 @@ cd ~/.config/nvim/
 ```
 Clone the repo:  
 ```sh
-git clone https://github.com/qiine/qiine-nvim-conf.git
+git clone git@github.com:qiine/qiine-nvim-conf.git
 ```
 Open Neovim.  
 ```sh
@@ -149,3 +149,4 @@ optional
 ## 📜 License
 ---
 This project is licensed under the MIT License.
+

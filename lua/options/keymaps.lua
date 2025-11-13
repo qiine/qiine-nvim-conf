@@ -308,30 +308,7 @@ map(modes, "<M-w>n", function ()
 end)
 
 -- Open floating window
-map(modes, "<M-w>nf", function ()
-    local fname = vim.fn.expand("%:t") -- mimick split and duplicate curr buf
-
-    local edw_w = vim.o.columns
-    local edw_h = vim.o.lines
-
-    local wsize = { -- relative size
-        w = math.floor(edw_w * 0.9),
-        h = math.floor(edw_h * 0.80),
-    }
-
-    local wopts = {
-        title     = "fname",
-        title_pos = "center",
-        relative  = "editor",
-        width     = wsize.w,
-        height    = wsize.h,
-        col       = math.floor((edw_w - wsize.w) / 2),
-        row       = math.floor((edw_h - wsize.h) / 2) - 1,
-        border    = "single",
-    }
-
-    local fwin = vim.api.nvim_open_win(0, true, wopts)
-end)
+map(modes, "<M-w>nf", function () utils.fwin_open() end)
 
 -- Make ver split
 map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
@@ -814,7 +791,7 @@ local function arrow_blockselect(dir)
     local m = vim.fn.mode()
     if     m == ""            then vim.cmd("norm! "..dir)
     elseif m == "v" or m == "V" then vim.cmd("norm! "..dir)
-    else                             vim.cmd("norm! "..dir)
+    else                             vim.cmd("stopinsert | norm! "..dir)
     end
 end
 
@@ -870,12 +847,10 @@ map("n", "<C-S-k>", "i<C-S-k>")
 -- ### Insert snippets
 -- Insert var
 map({"i","n"}, "<C-S-n>v",  function() lsnip.insert_snippet("var") end)
-
 map({"i","n"}, "<C-S-n>vt", function() lsnip.insert_snippet("var table") end)
 
 -- Insert func
 map({"i","n"}, "<C-S-n>f",  function() lsnip.insert_snippet("func") end)
-
 map({"i","n"}, "<C-S-n>fa", function() lsnip.insert_snippet("anon func") end)
 
 -- Insert if
@@ -884,8 +859,8 @@ map({"i","n"}, "<C-S-n>i",  function() lsnip.insert_snippet("if") end)
 -- Insert loop
 map({"i","n"}, "<C-S-n>fe", function() lsnip.insert_snippet("for each") end)
 
-
 map({"i","n"}, "<C-S-n>r",  function() lsnip.insert_snippet("return") end)
+
 
 -- Insert print
 map({"i","n"}, "<C-S-n>p",  function() lsnip.insert_snippet("print") end)
@@ -1204,6 +1179,7 @@ map({"i","n"}, "<S-ª>",
 [[<Esc>:%s/\v(word)|./\1/g<Left><Left>]],
 {desc = "Inverse filter" })
 
+
 -- TODO Smart swap word around
 map("n", "<M-s>", function()
     vim.fn.search("\\k*\\<", "b")
@@ -1371,14 +1347,14 @@ map("v",       "<C-S-a>", "gcgv", {remap=true})
 -- ### [Macro]
 -- avoid colliding with wincmd
 map("n", "qq", '<nop>')
-map("n", "q", '<nop>')
+map("n", "q",  '<nop>')
 
 -- record
 map({"i","n","v"}, "<C-!>r", '<esc>qq')
 -- rec stop
 map({"i","n","v"}, "<C-!>s", '<esc>q')
 -- exec
-map("n", "<C-!>e", '@q')
+map("n",           "<C-!>e", '@q')
 
 
 
@@ -1550,29 +1526,52 @@ end)
 
 
 -- Diff put
-map({"i","n"}, "<C-g>dp", "<cmd>.diffput<cr>")
-map("v",       "<C-g>dp", ":diffput<cr>")
+map({"i","n"}, "<S-Space>dp", "<cmd>.diffput<cr>")
+map("v",       "<S-Space>dp", ":diffput<cr>")
 
 -- Diff get
-map({"i","n"}, "<C-g>dg", "<cmd>.diffget<cr>")
-map("v",       "<C-g>dg", ":diffget<cr>")
+map({"i","n"}, "<S-Space>dg", "<cmd>.diffget<cr>")
+map("v",       "<S-Space>dg", ":diffget<cr>")
 
 
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-map({"i","n","v"}, "<C-g>ga", function()
+map({"i","n","v"}, "<S-Space>g",  "<Cmd>Neogit<CR>")
+map({"i","n","v"}, "<S-Space>gg", "<Cmd>Neogit<CR>")
+
+map({"i","n","v"}, "<S-Space>ga", function()
     vim.cmd("silent !git add %")
     vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
-map({"i","n","v"}, "<C-g>gu", function()
+map({"i","n","v"}, "<S-Space>gu", function()
     vim.cmd("silent !git reset HEAD %")
     vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
-map({"i","n","v"}, "<C-g>gc", function()
+map({"i","n","v"}, "<S-Space>gc", function()
     require("neogit").action("commit", "commit", { "--verbose", "--all" })()
+end)
+
+map("n", "<S-Space>gcf", function()
+    local fp = vim.fn.expand("%:p")
+
+    local bufid = vim.api.nvim_create_buf(false, true)
+
+    utils.fwin_open(bufid, true, {
+        title = "",
+        wratio = 0.75,
+        hratio = 0.65,
+    })
+
+    vim.cmd("term")
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=bufid})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=bufid})
+
+    vim.cmd("startinsert")
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -o "..fp.."\n")
 end)
 
 -- commit patch
@@ -1584,18 +1583,14 @@ end)
 --     require("neogit").action("log", "log_current", { "-L" .. line_start .. "," .. line_end .. ":" .. file })()
 -- end)
 
-map({"i","n","v"}, "<C-g>gg", function()
-    require('neogit').open()
-end)
-
 -- git log curr file
-map("n", "<C-g>gl", function()
-    require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
-end, { desc = "Neogit Log for this file" })
+map("n", "<S-Space>gl", function()
+     require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
+end, {desc = "Neogit Log curr file"})
 
 
-map(modes, "<C-g>gz", "<Cmd>LazyGit<cr>")
-
+-- Open LazyGit
+map(modes, "<S-Space>gz", "<Cmd>LazyGit<cr>")
 
 
 

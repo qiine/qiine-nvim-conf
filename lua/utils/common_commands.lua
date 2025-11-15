@@ -697,7 +697,26 @@ end, {})
 
 vim.api.nvim_create_user_command("WinInfo", function()
     local winid = vim.api.nvim_get_current_win()
-    print(vim.inspect(vim.api.nvim_win_get_config(winid)))
+    print(vim.inspect(
+        vim.tbl_extend("force",
+        vim.api.nvim_win_get_config(winid),
+        {winid = winid}
+    )))
+end, {})
+
+vim.api.nvim_create_user_command("WinFocus", function(opts)
+    local winid = tonumber(opts.args) or 0
+    vim.api.nvim_set_current_win(winid)
+end, {nargs="?"})
+
+vim.api.nvim_create_user_command("WinFloatShow", function(opts)
+    local winid = tonumber(opts.args) or 0
+    vim.api.nvim_set_current_win(winid)
+    vim.api.nvim_win_set_config(0, {hide=false})
+end, {nargs="?"})
+
+vim.api.nvim_create_user_command("Lsw", function()
+    print(vim.inspect(vim.api.nvim_tabpage_list_wins(0)))
 end, {})
 
 
@@ -1016,6 +1035,17 @@ end, {nargs="?"})
 
 vim.api.nvim_create_user_command("GitLogFile", function()
     require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
+end, {})
+
+vim.api.nvim_create_user_command("GitLogFileSplit", function()
+    local fp =  vim.fn.expand("%:p")
+
+    vim.cmd("vs | term dash")
+
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
+    vim.api.nvim_set_option_value("buflisted", false,  { buf = 0 })
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git log HEAD "..fp.."\n")
 end, {})
 
 vim.api.nvim_create_user_command("LazyGit", function(opts)

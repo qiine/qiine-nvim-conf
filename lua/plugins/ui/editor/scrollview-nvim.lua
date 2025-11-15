@@ -2,6 +2,7 @@ return
 {
     'dstein64/nvim-scrollview',
     enabled = true,
+    desc = "Add a scrollbar to the left",
 
     config = function()
         require("scrollview").setup({

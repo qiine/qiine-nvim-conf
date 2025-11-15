@@ -8,7 +8,7 @@
 -- init --
 ----------------------------------------------------
 
---vim.opt.shell = "bash"
+-- vim.opt.shell = "bash" --dash
 
 --vim.opt.termguicolors controls whether 24-bit RGB color (true color) is used in the terminal.
 --If curr term support termguicolors, COLORTERM environment variable will return truecolor regardless.
@@ -25,7 +25,7 @@ end
 
 
 -- Leader key
-vim.g.mapleader = "<S-Space>"
+-- vim.g.mapleader = "<M-Space>"
 -- vim.g.maplocalleader = "\\"
 
 
@@ -67,6 +67,7 @@ safe_require("utils.common_autocmds")
 safe_require("options.lazy")
 
 safe_require("options.keymaps")
+safe_require("options.abbreviations")
 safe_require("options.mousemaps")
 
 -- ## options

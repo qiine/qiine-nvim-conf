@@ -196,15 +196,6 @@ return
             command = "stopinsert",
         })
 
-        -- vim.api.nvim_create_autocmd('DirChanged', {
-        --     group = 'UserAutoCmds',
-        --     callback = vim.schedule_wrap(function()
-        --         if vim.bo.filetype == "oil" then
-        --             require("oil").open(vim.v.event.cwd)
-        --         end
-        --     end),
-        -- })
-
 
         -- For git signs
         -- require("oil-git-status").setup()

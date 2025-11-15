@@ -13,6 +13,14 @@
         ]
     },
 
+    "add note": {
+        "prefix": "note",
+        "body": [
+            ">[NOTE]",
+            ">"
+        ]
+    },
+
     "add codeblock": {
         "prefix": "codeblock",
         "body": [

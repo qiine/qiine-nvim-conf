@@ -270,6 +270,12 @@ return
         end, {silent = true, desc = "search and set filetypes" })
 
 
+        vim.keymap.set({"i","n","v","c"}, "<M-f>m", function()
+            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+            require("fzf-lua").manpages({})
+        end, {silent = true, desc = "search manpages" })
+
+
 
         -- ## Custom pickers
         -- Fuzzy cd from curr dir

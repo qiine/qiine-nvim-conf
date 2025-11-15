@@ -1,6 +1,9 @@
 
 --[.csv]
 ----------------------------------------------------------------------
+-- Trigger csv
+vim.cmd("CsvViewEnable")
+
 -- Unbind indent inc
 vim.keymap.set({"i","n","v"}, "<Tab>", "", {buffer=true})
 
@@ -13,10 +16,6 @@ vim.keymap.set({"i","n","v"}, "<S-BS>", function()
     vim.cmd("silent! "..crs_pos..[[s/[^|]\+//g]])
     vim.cmd("noh")
 end, {buffer=true})
-
--- Trigger csv
-vim.cmd("CsvViewEnable")
-
 
 local ns = vim.api.nvim_create_namespace("underline_all")
 

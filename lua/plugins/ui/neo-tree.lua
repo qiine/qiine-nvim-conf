@@ -51,7 +51,7 @@ return
 
             window = {
                 position = "left", --left, right, top, bottom, float, current
-                width = 26, -- applies to left and right positions
+                width  = 26, -- applies to left and right positions
                 height = 15, -- applies to top and bottom positions
                 auto_expand_width = false, -- expand the window when file exceeds the window width. does not work with position = "float"
             },
@@ -134,9 +134,5 @@ return
                 },
             },
         })--setup
-
-        vim.keymap.set({"i","n","v","t"}, "<C-b>",
-            "<cmd>Neotre toggle<cr>",
-        {noremap=true})
     end,
 }

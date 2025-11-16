@@ -89,6 +89,7 @@ map(modes, "<C-w>", function()
     local buftype    = vim.api.nvim_get_option_value("buftype", {buf=bufid})
     local bufmodif   = vim.api.nvim_get_option_value("modified", {buf=bufid})
     local bufwindows = vim.fn.win_findbuf(bufid)
+    local ftype      = vim.bo.filetype
 
     -- custom save warning if buf modified and it is it's last win
     if bufmodif and #bufwindows <= 1 then
@@ -98,6 +99,15 @@ map(modes, "<C-w>", function()
 
     -- try close cmdline before
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+    if ftype == "oil" then
+        for _, bid in ipairs(vim.api.nvim_list_bufs()) do
+            local ft = vim.bo[bid].filetype
+            if ft == "neo-tree" then
+                vim.cmd("bwipeout "..bid)
+            end
+        end
+    end
 
     -- Try :close first, in case both splits are same buf (fails if no split)
     -- It avoids wiping the shared buffer in this case

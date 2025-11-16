@@ -112,6 +112,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.o.splitbelow = true -- Open new hor split windows below the current window
 vim.o.splitright = true -- Open new ver split windows to the right of the current window
 
+-- Floating windows borders style
 vim.o.winborder = "none" -- single rounded
 
 

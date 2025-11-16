@@ -24,7 +24,16 @@ vim.opt_local.formatoptions:append("t") -- auto wrap
 
 
 -- Keymaps
-vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {noremap=true, buffer=true})
+-- Submit
+vim.api.nvim_create_autocmd('BufEnter', {
+    group = 'UserAutoCmds',
+    callback = function()
+        if vim.bo.buftype == "terminal" then
+            vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
+        end
+    end,
+})
+
 
 -- abbrev
 vim.keymap.set("ia", "fe",  "feat:",  {buffer=true})

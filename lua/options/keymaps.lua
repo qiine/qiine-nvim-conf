@@ -1,4 +1,3 @@
-
 -- _
 --| |
 --| | _____ _   _ _ __ ___   __ _ _ __  ___
@@ -17,15 +16,14 @@ local map = vim.keymap.set
 ----------------------------------------
 
 
-
 -- ## [key Options]
-vim.o.timeoutlen = 375 --delay between key press to register shortcuts
+vim.o.timeoutlen = 400 --delay between key press to register shortcuts
 
 -- define % motion /matching/
 vim.opt.matchpairs:append({"<:>"})
 
 -- Virtual Edit
-vim.opt.virtualedit = "none" -- Snap cursor to closest char at eol
+vim.o.virtualedit = "none" -- Snap cursor to closest char at eol
 -- "none"    -- Default, disables virtual editing.
 -- "onemore" -- Allows the cursor to move one character past the end of a line.
 -- "block"   -- Allows cursor to move where there is no actual text in visual block mode.

@@ -305,28 +305,28 @@ end)
 map({"i","n","v"}, "<M-w>", "<esc><C-w>", {noremap=true})
 map("t",           "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
--- Open window
-map(modes, "<M-w>n", function ()
-    -- local wopts = {
-    --     split = "right",
-    --     height = 33,
-    --     width = 38
-    -- }
-    -- vim.api.nvim_open_win(0, true, wopts)
-end)
 
+-- ### Create
 -- Open floating window
-map(modes, "<M-w>nf", function () utils.fwin_open() end)
+map(modes, "<M-w>n",  function() utils.fwin_open() end)
+map(modes, "<M-w>nf", function() utils.fwin_open() end)
 
 -- Make ver split
 map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
 -- Make hor split
 map(modes, "<M-w>h", "<cmd>sp<cr>")
 
+
+-- ### Nav
 -- To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
--- Toggle focus for split
+-- To Up window
+map(modes, "<M-w><S-Up>", "<cmd>wincmd k<cr>")
+
+
+-- ### Size
+-- Maximize split toggle
 map(modes, "<M-w>f", function()
     local win     = vim.api.nvim_get_current_win()
     local wwidth  = vim.api.nvim_win_get_width(win)
@@ -339,12 +339,12 @@ map(modes, "<M-w>f", function()
     if focused then
         vim.cmd("wincmd =") -- equalize all win size
     else
-        vim.cmd("wincmd |") -- try focus
+        vim.cmd("wincmd |") -- try Maximise
         vim.cmd("wincmd _")
     end
 end)
 
--- Resize wins
+-- Auto Resize wins splits
 local function resize_win(dir, amount)
     local curwin = vim.api.nvim_get_current_win()
     vim.cmd('wincmd t') -- always resize from top left
@@ -352,12 +352,13 @@ local function resize_win(dir, amount)
     vim.api.nvim_set_current_win(curwin)
 end
 
--- Resize hor
-map({"i","n","v","t"}, "<M-w><Up>",    function() resize_win("hor", "-5")  end, {noremap = true})
-map({"i","n","v","t"}, "<M-w><Down>",  function() resize_win("",    "+5")  end, {noremap = true})
--- Resize vert
+-- Resize hor split
+map({"i","n","v","t"}, "<M-w><Up>",    function() resize_win("hor", "-2")  end, {noremap = true})
+map({"i","n","v","t"}, "<M-w><Down>",  function() resize_win("",    "+2")  end, {noremap = true})
+-- Resize vert split
 map({"i","n","v","t"}, "<M-w><Right>", function() resize_win("vert", "+4") end, {noremap = true})
 map({"i","n","v","t"}, "<M-w><Left>",  function() resize_win("vert", "-4") end, {noremap = true})
+
 
 -- Detach win
 map(modes, "<M-w>d", function()
@@ -374,6 +375,18 @@ map(modes, "<M-w>d", function()
 
     --vim.api.nvim_win_set_config(winid, wopts)
 end)
+
+
+-- hide fwindow
+map({"i","n","v"}, "<M-w>c", function()
+    vim.api.nvim_win_set_config(0, {hide=true})
+    vim.cmd("wincmd w")
+end)
+-- show fwindow
+map({"i","n","v"}, "<M-w>C", function()
+    vim.api.nvim_win_set_config(0, {hide=false})
+end)
+
 
 
 

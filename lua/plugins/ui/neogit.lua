@@ -34,7 +34,7 @@ return
             disable_hint = true,
             mappings = {
                 commit_editor = {
-                    ["<C-\13>"] = "Submit",
+                    ["<C-S-\13>"] = "Submit",
                     ["<C-w>"] = "Abort",
                     ["<C-p>"] = "PrevMessage",
                     ["<C-n>"] = "NextMessage",
@@ -42,4 +42,7 @@ return
             },
         })
     end,
+
+    -- require("neogit").action("commit", "commit", { "--verbose", "--all" })()
+
 }

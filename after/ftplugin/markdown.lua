@@ -60,21 +60,27 @@ vim.opt_local.softtabstop = 2 --Number of spaces to use for pressing TAB in inse
 
 
 -- [Keymaps]
-vim.keymap.set({"i","n","v"}, "<C-S-n>h", function()
+vim.keymap.set({"i","n","x"}, "<C-S-n>h", function()
     lsnip.insert_snippet("heading")
 end, {buffer = true})
 
-vim.keymap.set({"i","n","v"}, "<C-S-n>cb", function()
+vim.keymap.set({"i","n","x"}, "<C-S-n>cb", function()
     lsnip.insert_snippet("codeblock")
 end, {buffer = true})
 
-vim.keymap.set({"i","n","v"}, "<C-S-n>tb", function()
+vim.keymap.set({"i","n","x"}, "<C-S-n>tb", function()
     lsnip.insert_snippet("pipetable")
 end, {buffer = true})
 
+-- Insert note
+vim.keymap.set({"i","n","x"}, "<C-S-n>n", function()
+    lsnip.insert_snippet("note")
+end, {buffer=true})
+
 -- Insert task
-vim.keymap.set({"i","n","v"}, "<C-S-n>t", function()
+vim.keymap.set({"i","n","x"}, "<C-S-n>t", function()
     lsnip.insert_snippet("task")
 end, {buffer = true})
+
 
 

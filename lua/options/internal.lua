@@ -48,11 +48,11 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 -- ## [Files]
 ----------------------------------------------------------------------
-vim.opt.swapfile = false --no swap files
+vim.o.swapfile = false --no swap files
 
-vim.opt.hidden = true --Allows switching buffers without saving
+vim.o.hidden = true --Allows switching buffers without saving
 
-vim.opt.autoread = false --auto reload file on modif
+vim.o.autoread = false --auto reload file on modif
 
 -- Sets the value of the Vim 'path' option, which controls where Vim looks for
 -- files when using commands like :find, gf

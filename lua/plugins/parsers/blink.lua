@@ -79,21 +79,21 @@ return
                 preset = 'inherit',  --inherit
                 ['<Tab>'] = { 'show', 'select_and_accept', 'fallback' },
                 ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
-                ["<ESC>"] = {
-                    --https://github.com/Saghen/blink.cmp/issues/547
-                    --Neovim behaves as if <Esc> was mapped to <CR>
-                    --Makes it very difficult to have a useful command mode mapping for the
-                    --escape key (e.g. a conditional mapping such as: close the completion window if
-                    --it is visible, otherwise abort the cmdline with <Esc> as if it had never been
-                    --mapped in the first lpace).
-                    function(cmp)
-                        if cmp.is_visible() then
-                            cmp.cancel()
-                        else
-                            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-c>", true, true, true), "c", true)
-                        end
-                    end,
-                },
+                -- ["<ESC>"] = {
+                --     --https://github.com/Saghen/blink.cmp/issues/547
+                --     --Neovim behaves as if <Esc> was mapped to <CR>
+                --     --Makes it very difficult to have a useful command mode mapping for the
+                --     --escape key (e.g. a conditional mapping such as: close the completion window if
+                --     --it is visible, otherwise abort the cmdline with <Esc> as if it had never been
+                --     --mapped in the first lpace).
+                --     function(cmp)
+                --         if cmp.is_visible() then
+                --             cmp.cancel()
+                --         else
+                --             vim.api.nvim_feedkeys("", "c", false)
+                --         end
+                --     end,
+                -- },
             },
             completion = {
                 trigger = {
@@ -109,7 +109,7 @@ return
                 menu = {
                     -- auto_show = true,
                     auto_show = function(ctx)
-                        --show comp menu for ":" and vim.ui.input but not "/"
+                        --show comp menu for ":" and vim.ui.input but not for "/" search
                         local t = vim.fn.getcmdtype()
                         return t == ':' or t == '@'
                     end,

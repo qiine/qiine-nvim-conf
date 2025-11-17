@@ -1063,6 +1063,7 @@ map("c", "<S-M-BS>", '<C-w>')
 map({"i","n","v"}, "<M-BS>", function()
     vim.cmd('norm! '..(vim.fn.mode() == "" and '0"_d' or '"_d0') )
 end)
+map("c", "<M-BS>", "<C-u>")
 
 -- Clear char
 map({"n","v"}, "<BS>", 'r ')

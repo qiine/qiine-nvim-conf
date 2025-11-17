@@ -474,7 +474,7 @@ map({"n","v"}, "<C-Down>", "m'3j")
 -- ### [Jump]
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
-map("c",           "<M-Left>",  "<C-a>")
+map("c",           "<M-Left>",  "<Home>", {noremap=true})
 
 map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
 map({"n","v"},     "<M-Right>", function()
@@ -484,7 +484,7 @@ map({"n","v"},     "<M-Right>", function()
         vim.cmd("norm! $")
     end
 end)
-map("c",           "<M-Right>", "<C-e>")
+map("c",           "<M-Right>", "<End>", {noremap=true})
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")

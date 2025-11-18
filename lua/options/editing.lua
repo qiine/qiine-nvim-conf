@@ -140,6 +140,32 @@ vim.o.undodir = undodir
 
 -- ## [Formatting]
 ----------------------------------------------------------------------
+vim.o.textwidth = 80
+
+-- Visual only wraping
+vim.o.wrap        = false --word wrap off by default
+vim.o.breakindent = true --wrapped lines conserve whole block identation
+
+-- vim.o.commentstring = "-- %s"
+
+
+-- ### Indentation
+vim.o.expandtab   = true -- Use spaces instead of tabs
+
+vim.o.shiftwidth  = 4    -- Number of spaces to use for indentation
+vim.o.tabstop     = 4    -- Show a tab as this number of spaces
+vim.o.softtabstop = 4    -- Number of spaces to use when pressing TAB
+
+vim.o.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
+
+vim.o.autoindent  = true -- keep indent of prev line when making a new one
+vim.o.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
+-- vim.opt.copyindent = true
+-- vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
+-- A list of keys that, when typed in Insert mode, cause reindenting of
+-- the current line. Only happens if 'indentexpr' isn't empty.
+
+
 -- Will hold all users formats opts
 -- View current formatoptions with:
 -- ':set verbose=1 formatoptions?'
@@ -172,29 +198,5 @@ vim.api.nvim_create_autocmd("FileType", {
     command = "set formatoptions-=o",
 })
 
-vim.o.textwidth = 80
-
--- Visual only wraping
-vim.o.wrap        = false --word wrap off by default
-vim.o.breakindent = true --wrapped lines conserve whole block identation
-
--- vim.o.commentstring = "-- %s"
-
-
--- ### Indentation
-vim.o.expandtab   = true -- Use spaces instead of tabs
-
-vim.o.shiftwidth  = 4    -- Number of spaces to use for indentation
-vim.o.tabstop     = 4    -- Show a tab as this number of spaces
-vim.o.softtabstop = 4    -- Number of spaces to use when pressing TAB
-
-vim.o.shiftround  = true -- always aligns to a multiple of "shiftwidth". Prevents "misaligned" indents.
-
-vim.o.autoindent  = true -- keep indent of prev line when making a new one
-vim.o.smartindent = true -- simple syntax-aware indent on top of autoindent for certain langs.
--- vim.opt.copyindent = true
--- vim.opt.indentkeys = "0{,0},0),0],:,0#,!^F,o,O,e"
--- A list of keys that, when typed in Insert mode, cause reindenting of
--- the current line. Only happens if 'indentexpr' isn't empty.
 
 

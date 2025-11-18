@@ -317,7 +317,26 @@ function M.fwin_open(buf, enter, opts)
     vim.api.nvim_set_option_value("winblend", 0, {win=fwin})
 end
 
+---@param buf number?
+---@param enter boolean?
+---@param wopts table?
+---@return number
+function M.open_fterm(buf, enter, wopts, shell)
+    buf   = buf and buf or 0
+    enter = enter and enter or true
+    wopts = wopts or {title="Terminal"}
+    shell = shell and shell or "bash"
 
+    local winid = M.fwin_open(buf, enter, wopts)
+
+    vim.cmd("term "..shell)
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=buf})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=buf})
+
+    vim.cmd("startinsert")
+
+    return winid
+end
 
 --------
 return M

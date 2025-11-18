@@ -1567,6 +1567,22 @@ map({"i","n","v"}, "<S-Space>ga", function()
     vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
+-- Stage hunk under cursor
+map({"i","n","v"}, "<S-Space>gss", "<Cmd>Gitsigns stage_hunk<CR>")
+
+-- Stage edit patch file
+map({"i","n","v"}, "<S-Space>gae", function()
+    local fp = vim.fn.expand("%:p")
+
+    utils.open_fterm(nil, nil, {
+        title = "Stage patches",
+        wratio = 0.8, hratio = 0.75,
+    }, "dash")
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add -e "..fp.."\n")
+end)
+
+-- unstage
 map({"i","n","v"}, "<S-Space>gu", function()
     vim.cmd("silent !git reset HEAD %")
     vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)

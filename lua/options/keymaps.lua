@@ -1522,17 +1522,6 @@ map({"i","n"}, "<M-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
 
 
 -- Rename symbol
---vmap({"i","n"}, "<F2>", function()
---    vim.api.nvim_create_autocmd({ "CmdlineEnter" }, {
---        callback = function()
-           local key = vim.api.nvim_replace_termcodes("<C-f>", true, false, true)
---            vim.api.nvim_feedkeys(key, "c", false)
---            return true
---        end,
---    })
---    vim.lsp.buf.rename()
---end)
-
 -- lsp rename
 map({"i","n"}, "<F2>", function()
     -- live-rename is a plugin for fancy in buffer rename preview

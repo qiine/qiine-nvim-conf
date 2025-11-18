@@ -34,7 +34,10 @@ vim.keymap.set("ia", "ch",  "chore:", {buffer=true})
 
 vim.keymap.set("ia", "upd", "update", {buffer=true})
 
--- vim.keymap.set({"i","n","v"}, "<C-S-n>h", function()
---     lsnip.insert_snippet("heading")
--- end, {buffer = true})
+vim.keymap.set({"i","n","v"}, "<C-S-n>h", function()
+    lsnip.insert_snippet("heading")
+end, {buffer = true})
+
+
+
 

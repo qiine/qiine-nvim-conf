@@ -1054,9 +1054,20 @@ map({"n","v"}, "<C-y>",   "<esc><C-r>")
 -- kmap("n", "<BS>", '<Esc>"_X<Esc>')
 
 -- Remove word left
--- <M-S-BS> instead of <C-BS> because of wezterm
-map("i", "<S-M-BS>", '<esc>"_dbi')
-map("n", "<S-M-BS>", '"_db')
+-- <M-S-BS> <C-BS> because of wezterm
+map({"i","n"}, "<S-M-BS>", function()
+    local line = vim.api.nvim_get_current_line()
+    local col = vim.fn.col('.') - 1
+
+    if col > 0 then -- less greedy algorithm
+        local prevchar = line:sub(col, col)
+        if prevchar:match("%s") then
+            vim.cmd('norm! gel"_dw')
+        else
+            vim.cmd('norm! "_db')
+        end
+    end
+end)
 map("c", "<S-M-BS>", '<C-w>')
 
 -- Remove to start of line

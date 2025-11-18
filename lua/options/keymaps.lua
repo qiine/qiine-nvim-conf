@@ -662,7 +662,9 @@ end)
 
 -- cd shortcuts
 -- cd curr file dir
-map({"i","n","v"}, "<C-S-Home>", function() vim.cmd("cd "..vim.fn.expand("%:h").." | pwd") end)
+map({"i","n","v"}, "<C-S-Home>", function()
+    vim.cmd("cd "..vim.fn.expand("%:h").." | pwd")
+end)
 
 -- cd proj root
 map({"i","n","v"}, "<M-Home>", function()
@@ -752,6 +754,10 @@ map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling a
 
 -- Select word under cursor
 map({"i","n","v"}, "<C-S-w>", "<esc>viw")
+
+-- Select last pasted text
+map({"i","n","v"}, "<C-g>vp", "<Esc><Cmd>norm! `[v`]<CR>")
+map("n", "gvp", "`[v`]")
 
 -- Select to home/end
 map({"i","n","v"}, "<S-Home>", "<esc>vgg0")

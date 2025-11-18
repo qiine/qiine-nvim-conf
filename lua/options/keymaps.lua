@@ -597,6 +597,7 @@ end, {noremap=true})
 
 -- Jump nav mark
 map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
+-- Jump to nav mark
 map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
 
 -- To next/prev cursor jump loc

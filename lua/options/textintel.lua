@@ -98,7 +98,19 @@ vim.opt.spellfile = {
     vim.fn.stdpath("config") .. "/spell/fr.utf-8.add",
 }
 
-vim.api.nvim_create_user_command("PickDocLanguage", function()
+vim.api.nvim_create_user_command("PickCurrDocLang", function()
+    local dictpath = vim.fn.stdpath("config").."/spell/"
+
+    vim.ui.select(preferedlangs, {prompt = "Pick document language"},
+    function(choice)
+        if choice then
+            vim.opt_local.spelllang = choice
+            vim.opt_local.spellfile = dictpath..choice..".utf-8.add"
+        end
+    end)
+end, {})
+
+vim.api.nvim_create_user_command("PickDocsLang", function()
     local dictpath = vim.fn.stdpath("config").."/spell/"
 
     vim.ui.select(preferedlangs, {prompt = "Pick document language"},

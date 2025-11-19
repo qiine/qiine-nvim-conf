@@ -1768,58 +1768,28 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
 -- ## [Terminal]
 ----------------------------------------------------------------------
 -- Open term
-map({"i","n","v"}, "<M-t>",    "<cmd>term<CR>", {noremap=true})
-map({"i","n","v"}, "<S-M-t>",  "<cmd>term<CR>", {noremap=true})
-map({"i","n","v"}, "<S-M-t>t", "<cmd>term<CR>", {noremap=true})
+map({"i","n","v"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
 
 
 -- Quick split term
-map({"i","n","v"}, "<S-M-t>s", function()
+map({"i","n","v"}, "<M-t>s", function()
     vim.cmd("vsp | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {noremap=true})
 
-map({"i","n","v"}, "<S-M-t>h", function()
+map({"i","n","v"}, "<M-t>h", function()
     vim.cmd("split | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-    vim.api.nvim_win_set_height(0, 10)
+    vim.api.nvim_win_set_height(0, 12)
 end, {noremap=true})
-
 
 -- float term
-map({"i","n","v"}, "<S-M-t>f", function()
-    local bufid = vim.api.nvim_create_buf(false, true)
-
-    local edw_w = vim.o.columns
-    local edw_h = vim.o.lines
-
-    local wsize = { -- relative size
-        w = math.floor(edw_w * 0.85),
-        h = math.floor(edw_h * 0.80),
-    }
-
-    local wopts = {
-        title     = "Terminal",
-        title_pos = "center",
-        relative  = "editor",
-        width     = wsize.w,
-        height    = wsize.h,
-        col       = math.floor((edw_w - wsize.w) / 2),
-        row       = math.floor((edw_h - wsize.h) / 2) - 1,
-        border    = "single",
-    }
-
-    local fwin = vim.api.nvim_open_win(bufid, true, wopts)
-
-    vim.cmd("term")
-
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=bufid})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=bufid})
-end, {noremap=true})
+map({"i","n","v"}, "<M-t>", function() utils.open_term_fwin() end)
+map({"i","n","v"}, "<M-t>f", function() utils.open_term_fwin() end)
 
 -- Exit term mode
 map("t", "<M-Esc>", "<Esc> <C-\\><C-n>", {noremap=true})

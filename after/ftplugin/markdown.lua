@@ -5,7 +5,6 @@
 local lsnip = require("luasnip")
 
 
-
 vim.opt_local.spell = true
 
 
@@ -13,7 +12,7 @@ vim.opt_local.spell = true
 vim.opt_local.signcolumn = "no"
 
 -- Numbers
-vim.opt_local.number = false
+-- vim.opt_local.number = false
 
 -- folds
 vim.opt_local.foldcolumn = "1"

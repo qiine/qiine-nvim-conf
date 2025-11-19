@@ -548,7 +548,7 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
 
     local function prompt_user()
         vim.ui.input({
-            prompt = "Symlink path: ", default = vim.fn.expand("~").."/", completion = "dir",
+            prompt = "Symlink path: ", default = cwd, completion = "dir",
         },
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
@@ -572,6 +572,17 @@ vim.api.nvim_create_user_command("SymlinkToFile", function()
     prompt_user()
 end, {})
 
+vim.api.nvim_create_user_command("SymlinkFileToCwd", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+    local cwd   = vim.fn.getcwd()
+
+    local res = vim.system({"ln", "-s", fpath, cwd}, {text=true}):wait()
+    if res.code ~= 0 then
+        return vim.notify("Linking failed!" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR)
+    end
+
+    vim.notify("Symlink created in: "..cwd, vim.log.levels.INFO)
+end, {})
 
 --### File perms
 vim.api.nvim_create_user_command("SetFileReadonly", function()

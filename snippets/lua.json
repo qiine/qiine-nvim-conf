@@ -77,6 +77,11 @@
         ]
     },
 
+    "get nvim cwd": {
+        "prefix": "nvim cwd",
+        "body": [ "vim.fn.getcwd()" ]
+    },
+
     "get home dir": {
         "prefix": "get home dir",
         "body": "os.getenv(\"HOME\")"
@@ -93,15 +98,20 @@
         "body": [ "vim.fn.expand(\"%:t\")" ]
     },
 
-    "get buffer filepath": {
-        "prefix": "get buf filepath",
-        "body": [ "vim.api.nvim_buf_get_name(0)" ]
-    },
 
+    "create nvim buffer": {
+        "prefix": "create nvim buf",
+        "body": [ "vim.api.nvim_create_buf(false, true)" ]
+    },
 
     "get nvim current buffer": {
         "prefix": "get nvim curr buf",
         "body": [ "vim.api.nvim_get_current_buf()" ]
+    },
+
+    "get buffer filepath": {
+        "prefix": "get buf filepath",
+        "body": [ "vim.api.nvim_buf_get_name(0)" ]
     },
 
     "get nvim buffertype": {
@@ -157,15 +167,6 @@
         ]
     },
 
-    "get nvim cwd": {
-        "prefix": "nvim cwd",
-        "body": [ "vim.fn.getcwd()" ]
-    },
-
-    "nvim cd cmd": {
-        "prefix": "nvim cd cmd",
-        "body": [ "vim.cmd.cd(${1:})" ]
-    },
 
     "set nvim keymap": {
         "prefix": "set nvim keymap",

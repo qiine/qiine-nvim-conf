@@ -596,6 +596,7 @@ map("n", "%", function()
 end, {noremap=true})
 
 -- Jump nav mark
+-- Set nav mark
 map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
 -- Jump to nav mark
 map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
@@ -645,7 +646,7 @@ end)
 map({"i","n","v"}, "<C-Home>", "<Cmd>cd .. | pwd<CR>")
 
 -- To prev directory
-map({"i","n","v"}, "<C-End>", "<cmd>cd - | pwd<CR>")
+map({"i","n","v"}, "<C-End>", "<Cmd>cd - | pwd<CR>")
 
 
 -- Interactive cd
@@ -666,13 +667,10 @@ map({"i","n","v"}, "<C-S-Home>", function()
     vim.cmd("cd "..vim.fn.expand("%:h").." | pwd")
 end)
 
--- cd proj root
+-- cd curr file proj root dir
 map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
-    if rootdir then
-        vim.cmd("cd "..rootdir)
-        vim.cmd("pwd")
-    end
+    local rootdir = utils.find_proj_root_forfile(vim.api.nvim_buf_get_name(0))
+    vim.cmd("cd "..rootdir.." | pwd")
 end)
 
 -- cd to home

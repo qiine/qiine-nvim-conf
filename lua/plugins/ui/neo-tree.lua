@@ -57,19 +57,24 @@ return
             },
 
             filesystem = {
-                use_libuv_file_watcher = true, -- Auto-refresh
-                bind_to_cwd = true,  -- Enable 2-way binding between Neovim's cwd and Neo-tree's root
+                bind_to_cwd = false,  -- Enable 2-way binding between Neovim's cwd and Neo-tree's root
                 cwd_target = {
                     sidebar = "global",   --"global", "tab"
                     current = "global"
                 },
+                follow_current_file = {
+                    enabled = true, -- This will find and focus the file in the active buffer every time
+                    --               -- the current file is changed while the tree is open.
+                    leave_dirs_open = true, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
+                },
+                use_libuv_file_watcher = true, -- Auto-refresh
                 hijack_netrw = false,
 
                 filtered_items = {
                     visible           = true, -- when true, they will just be displayed differently than normal items
-                    show_hidden_count = true, --show number of hidden items in each folder as the last entry
-                    hide_dotfiles     = true,
-                    hide_gitignored   = true,
+                    show_hidden_count = false, --show number of hidden items in each folder as the last entry
+                    hide_dotfiles     = false,
+                    hide_gitignored   = false,
                     hide_hidden       = false, --only works on Windows for hidden files/directories
                     hide_by_name = {
                         ".DS_Store",

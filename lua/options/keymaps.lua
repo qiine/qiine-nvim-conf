@@ -1731,7 +1731,7 @@ map("c", "<S-Tab>", "<C-n>")
 map("c", "<S-BS>", '<C-u>')
 
 -- Close cmd
--- map("c", "<esc>", "<C-c><C-l>", {noremap=true})
+map("c", "<esc>", "<C-c>", {noremap=true})
 map("c", "œ", "<C-c><C-l>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 
 -- Clear cmd in insert

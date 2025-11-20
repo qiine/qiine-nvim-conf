@@ -58,18 +58,17 @@ end, {desc="Clear qf"})
 vim.api.nvim_create_user_command("QuickFixToggle", function()
     if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
 
-    -- Proper cmdline close
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end -- esc cmd
 
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("SendSearchToQuickFix", function()
+vim.api.nvim_create_user_command("QuickFixSendSearch", function()
     vim.cmd('vimgrep /'..vim.fn.getreg("/")..'/ %')
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("GatherProjectTodos", function()
+vim.api.nvim_create_user_command("QuickFixSendProjTODOs", function()
     vim.cmd("cclose")
     vim.cmd("cd ".. vim.lsp.buf.list_workspace_folders()[1])
 
@@ -77,7 +76,7 @@ vim.api.nvim_create_user_command("GatherProjectTodos", function()
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("DiagToQuicFix", function(opts)
+vim.api.nvim_create_user_command("QuickFixSendDiags", function(opts)
     local args = opts.args
 
     -- severity = { min = vim.diagnostic.severity.WARN },  -- includes WARN and ERROR
@@ -121,8 +120,13 @@ vim.api.nvim_create_user_command("ShowJumpLocList", function()
     vim.cmd('copen')
 end, {})
 
+vim.api.nvim_create_user_command("QuickFixClear", function()
+    vim.fn.setqflist({}, 'r')
+    print("Quicfix cleared")
+end, {})
 
--- autocmds
+
+-- ## Utocmds
 vim.api.nvim_create_augroup('QuickfixAutoCmd', {clear=true})
 vim.api.nvim_create_autocmd('BufWinEnter', {
     group = "QuickfixAutoCmd",

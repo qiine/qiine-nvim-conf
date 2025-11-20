@@ -28,20 +28,28 @@ vim.keymap.set({"i","n","v"}, "<M-q>a", function()
 end)
 
 -- Go to next quickfix entry
+-- vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
 vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
-    local qf = vim.fn.getqflist(); if #qf == 0 then return end
-    vim.cmd("cnext");
-    -- print("Quickfix: " .. vim.fn.line(".") .. "/" .. #qf)
-end,
-{ silent=false, desc="Next quickfix item" })
+    local ok, err = pcall(vim.cmd, "cnext")
+        if not ok then print(err)
+    end
+end, {desc="Next quickfix item"})
 
 -- Go to previous quickfix entry
 vim.keymap.set({"i","n","v"}, "<M-C-PageUp>", function()
-    local qf = vim.fn.getqflist() if #qf == 0 then return end
-    vim.cmd("cprev")
-    -- print("Quickfix: " .. vim.fn.line(".") .. "/" .. #qf)
-end,
-{ silent=false, desc="Previous quickfix item" })
+    local ok, err = pcall(vim.cmd, "cprev")
+        if not ok then print(err)
+    end
+end, {desc="Prev quickfix item"})
+
+-- Clear qf
+vim.keymap.set({"i","n","v","c","t"}, "<M-q>c", function()
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end -- esc cmd
+
+    vim.fn.setqflist({}, 'r')
+
+    print("Quicfix cleared")
+end, {desc="Clear qf"})
 
 
 

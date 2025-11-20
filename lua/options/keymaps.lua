@@ -19,7 +19,7 @@ local map = vim.keymap.set
 -- ## [key Options]
 vim.o.timeoutlen = 400 --delay between key press to register shortcuts
 
--- define % motion /matching/
+-- Define % motion /matching/
 vim.opt.matchpairs:append({"<:>"})
 
 -- Virtual Edit
@@ -130,11 +130,6 @@ end, {noremap=true})
 
 -- ## [Files]
 ----------------------------------------------------------------------
--- File action
-map(modes, "<C-g>fm", "<Cmd>FileMove<CR>")
-map(modes, "<C-g>fr", "<Cmd>FileRename<CR>")
-map(modes, "<C-g>fd", "<Cmd>FileDelete<CR>")
-
 -- Open surrounding files
 map({"i","n","v"}, "<M-C-S-PageUp>", function()
     local curfile = vim.fn.expand("%:p") -- absolute path of current file
@@ -185,13 +180,17 @@ map({"i","n","v"}, "<M-C-S-PageDown>", function()
 end)
 
 
--- ### [File Save]
+-- File action
+map(modes, "<C-g>fm", "<Cmd>FileMove<CR>")
+map(modes, "<C-g>fr", "<Cmd>FileRename<CR>")
+map(modes, "<C-g>fd", "<Cmd>FileDelete<CR>")
+
+
 -- Save current
 map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
 -- Save as
 map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
-
 
 -- Resource curr file
 map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
@@ -200,38 +199,62 @@ map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
     print("Ressourced: "..'"'..vim.fn.fnamemodify(cf, ":t")..'"')
 end)
 
+-- ### File explore
+-- Open filetree
+map({"i","n","v","t"}, "<C-b>", function()
+    local rootdir = utils.find_proj_root_forfile(vim.api.nvim_buf_get_name(0))
 
--- Open file manager
-map(modes, "<C-e>", function()
-    local cdir = vim.fn.getcwd()
-    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
-    local cur_win = vim.api.nvim_get_current_win()
+    require("neo-tree.command").execute({
+        action = "show",
+        toggle = true,
+        focus  = false,
+        dir    = rootdir,
+    },{})
+end)
 
-    -- require("neo-tree.command").execute({
-    --     action = "show",
-    --     dir = rootdir,
-    --     position = "left",
-    --     reveal = true,
-    --     focus = false,
-    --     window = { width = 20 },
-    --     filesystem = {bind_to_cwd = false}
-    -- })
+-- Open file explorer
+map({"i","n","v","t"}, "<C-e>", function()
+    require("oil").open(
+        vim.fn.getcwd(),
+        nil,
+        function()
+            if vim.fn.winlayout()[1] ~= 'leaf' then -- detect if curr tab has split
+                vim.bo[0].buflisted = false
+            else
+                vim.cmd("silent! bd #")
+            end
+        end
+    )
+end)
 
+-- Open file explorer in hor split
+map({"i","n","v","t"}, "<C-S-e>s", function()
+    vim.cmd("split h")
 
-    -- vim.api.nvim_set_current_win(cur_win)  -- restore focus
-    require("oil").open(cdir)
-
-    local bufid = vim.fn.bufnr('%')
-
-    -- vim.cmd("b #")
-
-    vim.cmd("bwipeout #")
-
-    vim.api.nvim_set_current_buf(bufid)
+    require("oil").open(
+        vim.fn.getcwd(),
+        nil,
+        function() vim.bo[0].buflisted = false end
+    )
 end)
 
 -- Browse project files
--- map(modes, "<C-S-e>", function()
+map({"i","n","v","t"}, "<C-S-e>", function()
+    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
+
+    require("oil").open(vim.fn.getcwd())
+
+    vim.cmd("silent! bwipeout #")
+
+    require("neo-tree.command").execute({
+        action = "show",
+        dir    = rootdir,
+        focus  = false,
+    },
+    {
+        bind_to_cwd = false
+    })
+end)
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
@@ -970,7 +993,7 @@ end, {noremap=true})
 
 
 -- #### [Paste]
-map("i", "<C-v>", '<Cmd>norm! "+Pa<CR>')
+map("i", "<C-v>", '<Esc>"+Pa')
 map("v", "<C-v>", '"_d"+P')
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
@@ -1060,19 +1083,32 @@ map({"n","v"}, "<C-y>",   "<esc><C-r>")
 
 -- Remove word left
 -- <M-S-BS> <C-BS> because of wezterm
-map({"i","n"}, "<S-M-BS>", function()
-    local line = vim.api.nvim_get_current_line()
-    local col = vim.fn.col('.') - 1
+map({"i","n"}, "<S-M-BS>", '<cmd>norm! "_db<CR>')
+-- map({"i","n"}, "<S-M-BS>", function()
+--     local line = vim.api.nvim_get_current_line()
+--     local col  = vim.fn.col('.') - 1
+--     local lchar = line:sub(col, col)
 
-    if col > 0 then -- less greedy algorithm
-        local prevchar = line:sub(col, col)
-        if prevchar:match("%s") then
-            vim.cmd('norm! gel"_dw')
-        else
-            vim.cmd('norm! "_db')
-        end
-    end
-end)
+--     local col2  = vim.fn.col('.') - 2
+--     local lchar2 = line:sub(col2, col2)
+
+--     local curso_prvrow = vim.api.nvim_win_get_cursor(0)[1]
+
+--     if col > 0 then -- less greedy algo
+--         if lchar:match("%s") then
+--             vim.cmd('norm! vgel"_d')
+--         else
+--             if lchar2:match("%s") or #line <= 1 then -- word is one char long
+--                 vim.cmd('norm! "_dh')
+--             else
+--                 vim.cmd('norm! gevbgel"_d')
+--             end
+--         end
+--     end
+
+--     -- back to start line
+--     if curso_prvrow > vim.api.nvim_win_get_cursor(0)[1] then vim.cmd("norm! j0") end
+-- end)
 map("c", "<S-M-BS>", '<C-w>')
 
 -- Remove to start of line
@@ -1081,6 +1117,7 @@ map({"i","n","v"}, "<M-BS>", function()
 end)
 map("c", "<M-BS>", "<C-u>")
 
+-- #### Clear
 -- Clear char
 map({"n","v"}, "<BS>", 'r ')
 
@@ -1296,11 +1333,12 @@ end, {expr=true})
 
 -- Line break above
 map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
-map("v",       "<S-CR>   ", "<esc>O<esc>gv")
+--TODO buggy
+map("v",       "<S-CR>", "<esc>O<esc>gv")
 
 -- Line break below
 map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
-map("v",       "<M-CR>", "<esc>o<esc>vgv")
+map("v",       "<M-CR>", "<esc>o<esc>gv")
 
 -- Line break above and below
 map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
@@ -1341,7 +1379,7 @@ local function move_selected(dir, count)
         if dir == "j" then vim.cmd('m.'..count..'|norm!==')      return end
     end
 
-    if mode == "v" or "V" or "" then
+    if mode:match("[vV\22]") then
         vim.cmd('norm! ') -- hack to refresh vis pos
         local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
         vim.cmd('norm! gv')
@@ -1512,14 +1550,13 @@ map("v", "<F12>", "<Esc>gd")
 -- Show hover window
 map({"i","n"}, "<C-h>", function()
     vim.lsp.buf.hover()
-    vim.lsp.buf.hover() -- second time to go into fwin weird
+    vim.lsp.buf.hover() -- weird but needed to enter win
 
-    vim.opt_local.winborder  = "single" -- double
-    -- vim.opt_local.wrap       = false
-    -- vim.opt_local.spell      = false
-    -- vim.opt_local.signcolumn = "no"
-    -- vim.opt_local.number     = false
-    -- vim.opt_local.foldcolumn = "0"
+    -- vim.wo[winid].wrap       = false
+    -- vim.wo[winid].spell      = false
+    -- vim.wo[winid].signcolumn = "no"
+    -- vim.wo[winid].number     = false
+    -- vim.wo[winid].foldcolumn = "0"
 end)
 
 -- Show signature
@@ -1541,6 +1578,8 @@ map({"i","n","v","c"}, "<M-S-PageUp>", function()
         vim.cmd("norm! [cz.")
     else
         require('gitsigns').nav_hunk('prev')
+        vim.cmd("norm! zz")
+        require('gitsigns').preview_hunk_inline()
     end
 end)
 map({"i","n","v","c"}, "<M-S-PageDown>", function()
@@ -1548,6 +1587,8 @@ map({"i","n","v","c"}, "<M-S-PageDown>", function()
         vim.cmd.normal({']cz.', bang = true})
     else
         require('gitsigns').nav_hunk('next')
+        vim.cmd("norm! zz")
+        require('gitsigns').preview_hunk_inline()
     end
 end)
 
@@ -1567,7 +1608,8 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 map({"i","n","v"}, "<S-Space>g",  "<Cmd>Neogit<CR>")
 map({"i","n","v"}, "<S-Space>gg", "<Cmd>Neogit<CR>")
 
-map({"i","n","v"}, "<S-Space>ga", function()
+-- stage
+map({"i","n","v"}, "<S-Space>gs", function()
     vim.cmd("silent !git add %")
     vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
@@ -1579,7 +1621,7 @@ map({"i","n","v"}, "<S-Space>gss", "<Cmd>Gitsigns stage_hunk<CR>")
 map({"i","n","v"}, "<S-Space>gae", function()
     local fp = vim.fn.expand("%:p")
 
-    utils.open_fterm(nil, nil, {
+    utils.open_term_fwin(nil, {
         title = "Stage patches",
         wratio = 0.8, hratio = 0.75,
     }, "dash")
@@ -1589,42 +1631,53 @@ end)
 
 -- unstage
 map({"i","n","v"}, "<S-Space>gu", function()
-    vim.cmd("silent !git reset HEAD %")
+    vim.cmd("silent !git reset %")
     vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
+-- git commit
 map({"i","n","v"}, "<S-Space>gc", function()
-    require("neogit").action("commit", "commit", { "--verbose", "--all" })()
+    utils.open_term_fwin(nil, {
+        title = "Commit",
+        wratio = 0.8, hratio = 0.75,
+    }, "bash --norc")
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -v\n")
 end)
 
-map("n", "<S-Space>gcf", function()
+-- Commit curr file
+map({"i","n","v"}, "<S-Space>gcc", function()
+    local fp = vim.fn.expand("%:p")
+    local fdir = vim.fn.expand("%:h")
+
+    utils.open_term_fwin(nil, {
+        title = "Commit file",
+        wratio = 0.8, hratio = 0.75,
+    }, "bash --norc")
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "cd "..fdir.."\n")
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add "..fp.."\n")
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -ov "..fp.."\n")
+end)
+
+-- git push
+map({"i","n","v"}, "<S-Space>g<S-P>", function()
     local fp = vim.fn.expand("%:p")
 
-    local bufid = vim.api.nvim_create_buf(false, true)
-
-    utils.fwin_open(bufid, true, {
-        title = "",
+    utils.fwin_open(0, true, {
+        title = "Push",
         wratio = 0.75,
         hratio = 0.65,
     })
 
     vim.cmd("term")
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=bufid})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=bufid})
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
     vim.cmd("startinsert")
 
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -o "..fp.."\n")
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git push\n")
 end)
-
--- commit patch
--- map("x", "<C-g>gc", function()
---     local file = vim.fn.expand("%")
---     vim.cmd("norm! ")
---     local line_start = vim.fn.getpos("'<")[2]
---     local line_end = vim.fn.getpos("'>")[2]
---     require("neogit").action("log", "log_current", { "-L" .. line_start .. "," .. line_end .. ":" .. file })()
--- end)
 
 -- git log curr file
 map("n", "<S-Space>gl", function()

@@ -199,10 +199,10 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             end, {buffer = true})
 
 
-            -- clear all
+            -- Clear all
             vim.keymap.set("n", "c", function()
                 vim.fn.setqflist({}, 'r')
-                print("Quicfix cleared")
+                print("Quickfix cleared")
             end, { buffer = true })
         end
     end,

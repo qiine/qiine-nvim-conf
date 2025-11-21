@@ -47,10 +47,7 @@ end, {desc="Prev quickfix item"})
 -- Clear qf
 vim.keymap.set({"i","n","v","c","t"}, "<M-q>c", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end -- esc cmd
-
-    vim.fn.setqflist({}, 'r')
-
-    print("Quicfix cleared")
+    vim.cmd("QuickfixClear")
 end, {desc="Clear qf"})
 
 

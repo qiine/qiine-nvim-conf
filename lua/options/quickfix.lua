@@ -138,27 +138,6 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 
             vim.cmd("stopinsert")
 
-            -- Adds curr file to the quickfix list
-            vim.keymap.set("n", "a%", function()
-                vim.cmd("wincmd w")
-                local fname = vim.fn.expand("%:p")
-                if fname == "" then print("No filename") return end
-
-                vim.fn.setqflist({}, "a", {
-                    items = {
-                        {
-                            filename = fname,
-                            lnum = 1,
-                            col  = 1,
-                            text = ""
-                        }
-                    }
-                })
-
-                vim.cmd("wincmd w")
-                print("File added to quickfix")
-            end, {buffer=true, noremap=true})
-
             -- Nav
             -- To next entry
             vim.keymap.set("n", "<Tab>", function()

@@ -18,33 +18,31 @@ vim.opt_local.signcolumn = "no"
 vim.opt_local.foldcolumn = "1"
 vim.opt_local.foldenable = true
 
--- vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
+vim.opt_local.foldmethod = "expr" -- indent, manual
+function _G.foldexpr_md()
+    local line = vim.fn.getline(vim.v.lnum)
 
--- Fold function
--- function _G.foldexpr_md()
---     local line = vim.fn.getline(vim.v.lnum)
+    -- if line:match("^%s+") then
+    --     return "s1"
+    -- end
 
---     if line:match("^%s*$") then -- Ignore empty lines
---         return vim.v.foldlevel
---     end
+    if line:match("^##") then return ">1" end
+    if line:match("^###") then return ">2" end
+    if line:match("^####") then return ">3" end
 
---     local heading = line:match("^(#+)%s")  -- Heading fold: level = number of # characters
---     if heading then
---         return #heading
---     end
+    if line:match("^%*") then
+        return "a1"
+    end
 
---     -- List item fold: level based on indentation
---     local list_item = line:match("^%s*[%*%-]%s")
---     if list_item then
---         local indent = line:match("^(%s*)") or ""
---         -- 2 spaces per level
---         local level = math.floor(#indent / 2) + 1
---         return level
---     end
+    if line:match("^%``") then
+        return "a1"
+    end
 
---     -- Other lines inherit previous fold level
---     return vim.v.foldlevel
--- end
+    -- Default: inherit previous fold level
+    return "="
+end
+vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
+
 
 
 -- [Format]

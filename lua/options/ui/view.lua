@@ -105,7 +105,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- })
 
 
-
 -- ## [Windows]
 ----------------------------------------------------------------------
 --Splits
@@ -114,6 +113,7 @@ vim.o.splitright = true -- Open new ver split windows to the right of the curren
 
 -- Floating windows borders style
 vim.o.winborder = "none" -- single rounded
+
 
 
 -- ## [Cursor]
@@ -208,8 +208,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
-vim.o.foldlevel      = 99 --hack to Keep folds open by default
-vim.o.foldlevelstart = 99
+vim.o.foldlevelstart = 99 -- opens all folds on buf enter
 vim.o.foldnestmax    = 10
 
 vim.o.foldtext = "v:lua.FoldedText()"
@@ -233,6 +232,7 @@ vim.api.nvim_create_autocmd('TermOpen', {
         vim.opt_local.foldcolumn     = "0"
     end,
 })
+
 
 -- Fillchars
 vim.opt.fillchars:append({

@@ -4,22 +4,56 @@
 
 -- ## [Keymaps]
 ----------------------------------------------------------------------
--- toggle
-vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickFixToggle<CR>")
+-- Toggle
+vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickfixToggle<CR>")
 
--- add to qf
+-- Add text to qf
 vim.keymap.set({"i","n","v"}, "<M-q>a", function()
-    local fname = vim.fn.expand("%:p")
+    local cursopos = vim.api.nvim_win_get_cursor(0)
 
+    local txt = ""
+    if vim.fn.mode():match("[in]") then
+        txt = vim.api.nvim_get_current_line()
+    else
+        txt = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+    end
+
+    vim.fn.setqflist({}, "a", {
+        items = {
+            {
+                bufnr    = 0,
+                filename = vim.fn.expand("%:p"),
+                lnum     = cursopos[1],
+                col      = cursopos[2],
+                text     = txt
+            }
+        }
+    })
+
+    vim.notify(
+        (vim.fn.mode():match("[in]") and "Line" or "Selection") .. " added to qf",
+        vim.log.levels.INFO
+    )
+end)
+
+-- Add search to qf
+vim.keymap.set({"i","n","v"}, "<M-q>as", function()
+    vim.cmd('vimgrep /'..vim.fn.getreg("/")..'/ %')
+    vim.cmd("copen")
+end)
+
+-- Add file file to qf
+vim.keymap.set({"i","n","v"}, "<M-q>af", function()
     local cursopos = vim.api.nvim_win_get_cursor(0)
 
     vim.fn.setqflist({}, "a", {
         items = {
             {
-                filename = fname,
-                lnum = cursopos[1],
-                col  = cursopos[2],
-                text = ""
+                bufnr    = 0,
+                filename = vim.fn.expand("%:p"),
+                lnum     = cursopos[1],
+                col      = cursopos[2],
+                text     = ""
             }
         }
     })

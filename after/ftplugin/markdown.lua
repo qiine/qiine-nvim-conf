@@ -18,10 +18,10 @@ vim.opt_local.signcolumn = "no"
 vim.opt_local.foldcolumn = "1"
 vim.opt_local.foldenable = true
 
--- vim.o.foldexpr = "v:lua.MarkdownFoldExpr()"
+-- vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
 
 -- Fold function
--- function _G.MarkdownFoldExpr()
+-- function _G.foldexpr_md()
 --     local line = vim.fn.getline(vim.v.lnum)
 
 --     if line:match("^%s*$") then -- Ignore empty lines
@@ -49,8 +49,8 @@ vim.opt_local.foldenable = true
 
 -- [Format]
 -- vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
-vim.opt.formatoptions:append("t") -- auto-wrap text at textwidth
-vim.opt.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
+vim.opt_local.formatoptions:append("t") -- auto-wrap text at textwidth
+vim.opt_local.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
 
 -- Indentation
 vim.opt_local.shiftwidth  = 2 --Number of spaces to use for indentation

@@ -1,9 +1,13 @@
 
---[.csv]
-----------------------------------------------------------------------
+-- [.csv]
+
+
 -- Trigger csv
 vim.cmd("CsvViewEnable")
 
+
+-- [Keymaps]
+----------------------------------------------------------------------
 -- Unbind indent inc
 vim.keymap.set({"i","n","v"}, "<Tab>", "", {buffer=true})
 
@@ -17,6 +21,8 @@ vim.keymap.set({"i","n","v"}, "<S-BS>", function()
     vim.cmd("noh")
 end, {buffer=true})
 
+
+-- View
 local ns = vim.api.nvim_create_namespace("underline_all")
 
 vim.api.nvim_set_hl(0, "UnderlineAll", { underline = true })
@@ -39,7 +45,7 @@ local function draw_rows_lines()
     end
 end
 
-local function toggle_extrow_lines()
+local function toggle_extmarks_rowlines()
     local extmarks = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {})
 
     if #extmarks > 0 then
@@ -49,21 +55,20 @@ local function toggle_extrow_lines()
     end
 end
 
+
 vim.api.nvim_create_user_command("CSVToggleDrawRowlines", function()
-    toggle_extrow_lines()
+    toggle_extmarks_rowlines()
 end, {})
 
-vim.api.nvim_create_autocmd(
-    {"BufEnter", "FileType", "TextChanged", "TextChangedI"},
-    {
-        group = 'UserAutoCmds',
-        callback = function()
-            if vim.bo.filetype == "csv" then
-                draw_rows_lines()
-            end
-        end,
-    }
-)
+
+vim.api.nvim_create_autocmd({"BufEnter", "FileType", "TextChanged", "TextChangedI"}, {
+    group = 'UserAutoCmds',
+    callback = function()
+        if vim.bo.filetype == "csv" then
+            draw_rows_lines()
+        end
+    end,
+})
 
 
 

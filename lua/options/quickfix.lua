@@ -64,6 +64,9 @@ end)
 -- Go to next quickfix entry
 -- vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
 vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
+    local qf = vim.fn.getqflist();
+    if #qf == 0 then return print("Nothing in qf") end
+
     local ok, err = pcall(vim.cmd, "cnext")
     if not ok then return end
 end, {desc="Next quickfix item"})
@@ -74,8 +77,7 @@ vim.keymap.set({"i","n","v"}, "<M-C-PageUp>", function()
     if #qf == 0 then return print("Nothing in qf") end
 
     local ok, err = pcall(vim.cmd, "cprev")
-        if not ok then print(err)
-    end
+    if not ok then return end
 end, {desc="Prev quickfix item"})
 
 -- Clear qf
@@ -88,7 +90,7 @@ end, {desc="Clear qf"})
 
 -- ## [cmds]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("QuickFixToggle", function()
+vim.api.nvim_create_user_command("QuickfixToggle", function()
     if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
 
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end -- esc cmd
@@ -119,9 +121,9 @@ vim.api.nvim_create_user_command("QuickfixSendDiags", function(opts)
         vim.diagnostic.setqflist({ open = true, bufnr = 0 })
     end
 end, {
-    desc = "Send diagnostics to quickfix list",
     nargs = "?",
     complete = function() return { "buffer" } end,
+    desc = "Send diagnostics to quickfix list",
 })
 
 vim.api.nvim_create_user_command("ShowJumpLocList", function()
@@ -132,18 +134,17 @@ vim.api.nvim_create_user_command("ShowJumpLocList", function()
 
     for _, mark in ipairs(marks) do
         local pos = mark.pos
-        local bufnr = pos[1]
         local lnum = pos[2]
         local col  = pos[3]
         local name = mark.mark:sub(2)  -- remove leading quote
-        local filename = vim.api.nvim_buf_get_name(bufnr)
+        local filename = vim.api.nvim_buf_get_name(0)
 
         if filename ~= "" and lnum > 0 then
             table.insert(qf, {
-                bufnr = bufnr,
-                lnum = lnum,
-                col  = col,
-                text = "Mark: ".. name
+                bufnr = 0,
+                lnum  = lnum,
+                col   = col,
+                text  = "Mark: ".. name
             })
         end
     end
@@ -152,14 +153,15 @@ vim.api.nvim_create_user_command("ShowJumpLocList", function()
     vim.cmd('copen')
 end, {})
 
-vim.api.nvim_create_user_command("QuickFixClear", function()
+vim.api.nvim_create_user_command("QuickfixClear", function()
     vim.fn.setqflist({}, 'r')
-    print("Quicfix cleared")
+    print("Quicfix list cleared")
 end, {})
 
 
--- ## Utocmds
+-- ## Autocmds
 vim.api.nvim_create_augroup('QuickfixAutoCmd', {clear=true})
+
 vim.api.nvim_create_autocmd('BufWinEnter', {
     group = "QuickfixAutoCmd",
     callback = function()
@@ -187,15 +189,14 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
                 vim.cmd("wincmd w")
             end, {buffer=true, noremap=true})
 
-            -- Open entry,
+            -- Select curr entry,
             vim.keymap.set("n", "<CR>", "<CR>zz<Cmd>wincmd w<CR>", {buffer=true, noremap=true})
 
 
-            -- Del entrie
+            -- Del entry
             vim.keymap.set("n", "d", function()
                 local idx = vim.fn.line('.')
                 local qflist = vim.fn.getqflist()
-
                 table.remove(qflist, idx)
                 vim.fn.setqflist(qflist, 'r')
             end, {buffer = true})
@@ -203,7 +204,6 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.keymap.set("n", "<Del>", function()
                 local idx = vim.fn.line('.')
                 local qflist = vim.fn.getqflist()
-
                 table.remove(qflist, idx)
                 vim.fn.setqflist(qflist, 'r')
             end, {buffer = true})
@@ -211,8 +211,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 
             -- Clear all
             vim.keymap.set("n", "c", function()
-                vim.fn.setqflist({}, 'r')
-                print("Quickfix cleared")
+                vim.cmd("QuickfixClear")
             end, { buffer = true })
         end
     end,

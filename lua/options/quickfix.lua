@@ -63,20 +63,19 @@ vim.api.nvim_create_user_command("QuickFixToggle", function()
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickFixSendSearch", function()
+vim.api.nvim_create_user_command("QuickfixSendSearch", function()
     vim.cmd('vimgrep /'..vim.fn.getreg("/")..'/ %')
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickFixSendProjTODOs", function()
-    vim.cmd("cclose")
+vim.api.nvim_create_user_command("QuickfixSendProjTODOs", function()
     vim.cmd("cd ".. vim.lsp.buf.list_workspace_folders()[1])
 
     vim.cmd("vimgrep /".."TODO".."/g `git ls-files`")
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickFixSendDiags", function(opts)
+vim.api.nvim_create_user_command("QuickfixSendDiags", function(opts)
     local args = opts.args
 
     -- severity = { min = vim.diagnostic.severity.WARN },  -- includes WARN and ERROR

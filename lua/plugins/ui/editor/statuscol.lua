@@ -7,7 +7,7 @@ return
     config = function()
         local builtin = require('statuscol.builtin')
         require("statuscol").setup({
-            ft_ignore = { "nofile", "favorizer" },
+            ft_ignore = { "favorizer" },
             bt_ignore = { "help" },
             relculright = true,
             segments = {

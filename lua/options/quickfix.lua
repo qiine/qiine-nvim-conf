@@ -31,12 +31,14 @@ end)
 -- vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
 vim.keymap.set({"i","n","v"}, "<M-C-PageDown>",  function()
     local ok, err = pcall(vim.cmd, "cnext")
-        if not ok then print(err)
-    end
+    if not ok then return end
 end, {desc="Next quickfix item"})
 
 -- Go to previous quickfix entry
 vim.keymap.set({"i","n","v"}, "<M-C-PageUp>", function()
+    local qf = vim.fn.getqflist();
+    if #qf == 0 then return print("Nothing in qf") end
+
     local ok, err = pcall(vim.cmd, "cprev")
         if not ok then print(err)
     end

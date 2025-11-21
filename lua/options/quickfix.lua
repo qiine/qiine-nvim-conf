@@ -133,9 +133,8 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
-            vim.api.nvim_win_set_height(0, 8)
-
-            vim.opt_local.signcolumn = "no" --show error/warning/hint and others
+            vim.api.nvim_win_set_height(0, 9)
+            vim.opt_local.signcolumn = "no" -- show error/warning/hint and others
 
             vim.cmd("stopinsert")
 

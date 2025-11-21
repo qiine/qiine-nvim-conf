@@ -182,25 +182,19 @@ vim.o.numberwidth    = 1
 
 
 -- ### [Folds]
+vim.o.foldenable = true  -- Actual folds icons in gutter
 vim.o.foldcolumn = "1"
 --"0" Hides fold numbers
 --"1" Show dedicated fold column and numbers in the gutter
 
-vim.o.foldenable = true  -- Actual folds icons in gutter
-vim.o.foldmethod = 'manual' -- manual, expr
-
+vim.o.foldmethod = 'expr' -- manual, expr
 vim.o.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
-vim.api.nvim_create_autocmd('BufEnter', {
-    group = 'UserAutoCmds',
-    callback = function()
-        vim.opt_local.foldmethod = 'expr'
-        vim.opt_local.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
-    end,
-})
 -- Prefer LSP folding if client supports it
 vim.api.nvim_create_autocmd('LspAttach', {
     group = 'UserAutoCmds',
     callback = function(args)
+        if vim.bo.filetype == "markdown" then return end
+
         local client = vim.lsp.get_client_by_id(args.data.client_id)
         if client and client:supports_method('textDocument/foldingRange') then
             vim.opt_local.foldexpr = 'v:lua.vim.lsp.foldexpr()'

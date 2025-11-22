@@ -1,12 +1,8 @@
 
--- gitmessage --
+-- gitcommit --
 
 
 local lsnip = require("luasnip")
-
-
--- Auto insert
-vim.cmd("startinsert")
 
 
 -- Gutter
@@ -14,16 +10,36 @@ vim.opt_local.statuscolumn = ""
 vim.opt_local.signcolumn   = "no"
 vim.opt_local.number       = false
 
-vim.opt_local.foldcolumn = "0"
-vim.opt_local.foldenable = false  -- Actual folds icons in gutter
+-- ### Folds
+vim.opt_local.foldenable   = true  -- Actual folds icons in gutter
+vim.opt_local.foldcolumn   = "1"
+
+vim.opt_local.foldlevelstart = 0
+
+vim.opt_local.foldmethod = 'expr' -- manual, expr
+function _G.foldexpr_gitcommit()
+    local line = vim.fn.getline(vim.v.lnum)
+
+    if line:match("^@@") then return ">1" end
+
+    -- elseif line:match("^%+") or line:match("^%-") or line:match("^ ") then
+
+    return "="
+end
+vim.opt_local.foldexpr = "v:lua.foldexpr_gitcommit()"
 
 
--- Edits
+
+-- ## [Edits]
+-- Auto insert
+vim.cmd("startinsert")
+
 vim.opt_local.spell = true
 vim.opt_local.formatoptions:append("t") -- auto wrap
 
 
--- Keymaps
+
+-- [Keymaps]
 -- Submit
 vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
 

@@ -21,28 +21,47 @@ vim.opt_local.foldenable = true
 vim.opt_local.foldmethod = "expr" -- indent, manual
 function _G.foldexpr_md()
     local line = vim.fn.getline(vim.v.lnum)
+    local pline = vim.fn.getline(vim.v.lnum-1)
 
-    -- if line:match("^%s+") then
-    --     return "s1"
+    local plinelvl = vim.fn.foldlevel(vim.v.lnum - 1)
+
+    if line:match("^## ")   then return ">1" end
+    if line:match("^### ")  then return ">2" end
+    if line:match("^#### ") then return ">3" end
+
+    -- if line:match("^%* ") then
+        -- return ">".. tostring((plinelvl+1))
+        -- return "a1"
     -- end
 
-    if line:match("^##") then return ">1" end
-    if line:match("^###") then return ">2" end
-    if line:match("^####") then return ">3" end
+    -- if line:match("^%```") then
+    --     -- return ">".. tostring((plinelvl+1))
+    --     return "a1"
+    -- end
 
-    if line:match("^%*") then
-        return "a1"
-    end
-
-    if line:match("^%``") then
-        return "a1"
-    end
-
-    -- Default: inherit previous fold level
     return "="
 end
 vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
 
+
+-- _G.VimFolds = function(lnum)
+--     local cur_line = vim.fn.getline(lnum)
+--     local next_line = vim.fn.getline(lnum + 1)
+
+--     if cur_line:match('^"{') then
+--         local endpos = vim.fn.matchend(cur_line, '"{*')
+--         return ">" .. (endpos - 1)
+--     end
+
+--     if cur_line == "" then
+--         local endpos_next = vim.fn.matchend(next_line, '"{*')
+--         if (endpos_next - 1) == 1 then
+--             return 0
+--         end
+--     end
+
+--     return "="
+-- end
 
 
 -- [Format]

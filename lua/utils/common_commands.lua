@@ -112,7 +112,7 @@ vim.api.nvim_create_user_command("ToggleMsgLog", function()
 
     local cmd_output = vim.fn.execute('messages')
 
-    vim.cmd("new"); vim.cmd("enew") vim.cmd("file! msglog")
+    vim.cmd("split"); vim.cmd("enew") vim.cmd("file! msglog")
 
     vim.api.nvim_win_set_height(0, 10)
 

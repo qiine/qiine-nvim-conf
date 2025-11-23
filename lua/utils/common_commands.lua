@@ -1098,6 +1098,34 @@ vim.api.nvim_create_user_command("ToggleEndOfLineChar", function()
     end
 end, {})
 
+-- show vim marks
+vim.api.nvim_create_user_command("ShowMark", function()
+    local mark_ns = vim.api.nvim_create_namespace("MarkSigns")
+
+    vim.api.nvim_buf_clear_namespace(0, mark_ns, 0, -1)
+
+    local mark_spos = vim.api.nvim_buf_get_mark(0, "[")
+    local line, col = mark_spos[1] - 1, mark_spos[2]
+
+    vim.api.nvim_buf_set_extmark(0, mark_ns, line, col, {
+        virt_text = {{"[", "Search"}},
+        virt_text_pos = "overlay",
+    })
+
+    local mark_epos = vim.api.nvim_buf_get_mark(0, "]")
+    local line2, col2 = mark_epos[1] - 1, mark_epos[2]
+
+    vim.api.nvim_buf_set_extmark(0, mark_ns, line2, col2, {
+        virt_text = {{"]", "Search"}},
+        virt_text_pos = "overlay",
+    })
+end, {})
+
+vim.api.nvim_create_user_command("FoldPrintLineLvl", function()
+    local line_foldlvl = vim.fn.foldlevel(vim.fn.line("."))
+    print(line_foldlvl)
+end, {})
+
 vim.api.nvim_create_user_command("ToggleColorcolumn", function()
     local col = vim.opt.colorcolumn:get()
 

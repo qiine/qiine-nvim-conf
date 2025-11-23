@@ -260,8 +260,15 @@ end, {})
 
 
 
--- ## [Files]
+-- ## [FileSystem]
 ----------------------------------------------------------------------
+-- ### [Files]
+vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
+    local fp = vim.api.nvim_buf_get_name(0)
+    local rdir = require("utils.utils").find_proj_root_forfile(fp)
+    print(rdir)
+end, {})
+
 vim.api.nvim_create_user_command("CopyFileName", function()
     vim.fn.setreg("+", vim.fn.expand("%:t"))
     print("Copied file name: " ..'"'..vim.fn.getreg("+")..'"')

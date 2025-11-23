@@ -43,7 +43,6 @@ vim.opt_local.formatoptions:append("t") -- auto wrap
 -- Submit
 vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
 
-
 -- abbrev
 vim.keymap.set("ia", "fe",  "feat:",  {buffer=true})
 vim.keymap.set("ia", "ch",  "chore:", {buffer=true})

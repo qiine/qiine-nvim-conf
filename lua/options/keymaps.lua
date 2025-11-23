@@ -496,8 +496,9 @@ map({"n","v"}, "<C-Down>", "m'3j")
 
 -- ### [Jump]
 -- Jump to start/end of line
-map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
-map({"c","t"},     "<M-Left>", "<Home>", {noremap=true})
+map({"i","n","v"}, "<M-Left>", "<cmd>norm! 0<cr>")
+map("c",           "<M-Left>", "<C-b>", {noremap=true})
+-- map("t",           "<M-Left>", "<Home>", {noremap=true}) -- cause issues with nested nvim
 
 map("i",           "<M-Right>", "<C-o>A") -- notice the 'a'
 map({"n","v"},     "<M-Right>", function()
@@ -507,7 +508,8 @@ map({"n","v"},     "<M-Right>", function()
         vim.cmd("norm! $")
     end
 end)
-map({"c","t"},     "<M-Right>", "<End>", {noremap=true})
+map("c",           "<M-Right>", "<C-e>", {noremap=true})
+-- map("t",           "<M-Right>", "<End>", {}) -- cause issues with nested nvim
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")

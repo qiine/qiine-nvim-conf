@@ -904,46 +904,6 @@ vim.api.nvim_create_user_command("GitPrintRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
 end, {})
 
-vim.api.nvim_create_user_command("GitCommitFile", function()
-    --fetch git root
-    local git_res = vim.system({"git", "rev-parse", "--show-toplevel"}, {text=true}):wait()
-    if git_res.code ~= 0 then
-        vim.notify("Not inside a Git repo:" .. git_res.stderr, vim.log.levels.ERROR) return
-    end
-    local git_root = vim.trim(git_res.stdout) --trim white space to avoid surprises
-
-    local fpath = vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
-
-    print("Git root: ".. git_root)
-    print("Commiting: ".. vim.fn.fnamemodify(fpath, ":t"))
-
-    vim.ui.input({prompt="Commit message = ", default=""}, --completion="dir"
-    function(input)
-        vim.api.nvim_command("redraw") --Hide prompt
-
-        if input == nil then vim.notify("Commit canceled.", vim.log.levels.INFO) return end
-
-        --stage curr file
-        local stage_res = vim.system({"git", "add", "--", fpath}, {text=true}):wait()
-        if stage_res.code ~= 0 then
-            vim.notify("File staging failed: " .. stage_res.stderr, vim.log.levels.ERROR) return
-        end
-
-        --local onelinemessage = input:gsub("[\r\n]+", " ")
-        local commit_res = vim.system({"git", "commit", "-m", input, "--", fpath}, {text=true}):wait()
-        if commit_res.code == 0 then
-            local message_res = vim.system({"git", "log", "-1", '--pretty=format:%d [%h] "%s"'}, {text=true}):wait()
-            if message_res.code == 0 then
-                vim.notify(message_res.stdout)
-            else
-                vim.notify("Failed to get commit summary: " .. message_res.stderr, vim.log.levels.ERROR)
-            end
-        else
-            vim.notify("Commit failed: " .. commit_res.stderr, vim.log.levels.ERROR)
-        end
-    end)
-end, {})
-
 --diff curr file with given rev
 vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     local rev = opts.args ~= "" and opts.args or "HEAD"
@@ -1111,6 +1071,24 @@ vim.api.nvim_create_user_command("GitHunkToggleHighlight", function()
     end
 
     vim.cmd("GitHunksHighlight")
+end, {})
+
+vim.api.nvim_create_user_command("GitDashboard", function()
+    local fp = vim.fn.expand("%:p")
+
+    utils.fwin_open(0, true, {
+        title = "Push",
+        wratio = 0.75,
+        hratio = 0.65,
+    })
+
+    vim.cmd("term")
+    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+
+    vim.cmd("startinsert")
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git status\n")
 end, {})
 
 vim.api.nvim_create_user_command("LazyGit", function(opts)

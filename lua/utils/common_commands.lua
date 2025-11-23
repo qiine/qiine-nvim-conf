@@ -908,75 +908,67 @@ end, {})
 vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     local rev = opts.args ~= "" and opts.args or "HEAD"
 
-    local prev_workdir = vim.fn.getcwd()
+    local bufid = vim.api.nvim_get_current_buf()
+    local fpath = vim.api.nvim_buf_get_name(bufid)
+    local ftype = vim.bo.filetype
 
-    local bufid    = vim.api.nvim_get_current_buf()
-    local fpath    = vim.api.nvim_buf_get_name(bufid)
-    local filename = vim.fn.expand("%:t")
-    local filetype = vim.bo.filetype
-
-    --pulling git data
-    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-    vim.fn.chdir(git_root)
-    local fpath_rootrelative = vim.fn.fnamemodify(fpath, ":.")
-
-    local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrelative))
-    local git_content = vim.fn.systemlist(string.format("git show %q:%q", rev, fpath_rootrelative))
-    --local git_content = vim.system({"git", "show", rev, "--", fpath}, {text=true}):wait()
-    -- local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
-
-
-    if vim.v.shell_error ~= 0 then
-        vim.notify(
-            "error for rev: '" .. rev .. "', revision or file not found'" .. fpath_rootrelative .. "'",
-            vim.log.levels.ERROR)
-        return
-    end
-
-    vim.fn.chdir(prev_workdir) --We can go back to prev wrkdir
-
-    --Create new empty buffer
     local curso_pos = vim.api.nvim_win_get_cursor(0)
 
+    -- Create diffbuf
     vim.cmd("vsplit")
     local difbuf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_win_set_buf(0, difbuf)
 
-    vim.api.nvim_set_option_value("buftype",   "nofile",  { buf = difbuf })
-    vim.api.nvim_set_option_value("filetype",   filetype, { buf = difbuf })
-    vim.api.nvim_set_option_value("modifiable", true,     { buf = difbuf })
-    vim.api.nvim_set_option_value("buflisted",  false,    { buf = difbuf })
-    vim.api.nvim_set_option_value("bufhidden",  "wipe",   { buf = difbuf })
+    vim.api.nvim_set_option_value("buftype",   "nofile", { buf = difbuf })
+    vim.api.nvim_set_option_value("filetype",   ftype,   { buf = difbuf })
+    vim.api.nvim_set_option_value("buflisted",  false,   { buf = difbuf })
+    vim.api.nvim_set_option_value("bufhidden",  "wipe",  { buf = difbuf })
 
-    --Write content of commit to said buffer
+    -- Pulling git data
+    local gitroot = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    local fpath_rootrel = fpath:sub(#gitroot + 2)
+
+    local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrel))
+
     vim.api.nvim_buf_set_lines(difbuf,  0,  0, false, git_metadata)
     vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, {"============================================================"})
-    vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, git_content)
 
-    vim.api.nvim_set_option_value("modifiable", false, { buf = difbuf })
+    local res = vim.system({"git", "show", rev..":"..fpath_rootrel}, {text=true}):wait()
+    if res.code ~= 0 then vim.notify(res.stderr, vim.log.levels.ERROR) end
+
+    local lines = vim.split(res.stdout, "\n", {})
+    vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, lines)
 
 
-    --Enable diff mode in both windows
-    --rev buffer
+    -- TODO increm/decrm curr rev
+    -- vim.keymap.set({"i","n","v"}, "<M-S-PageUp>", function()
+    --     local rev = "HEAD~"+1
+    --     local res = vim.system({"git", "show", rev..":"..fpath_rootrelative}, {text=true}):wait()
+    --     if res.code ~= 0 then
+    --         vim.notify("err "..res.stderr, vim.log.levels.INFO)
+    --     end
+    -- end, {noremap=true, buffer=true})
+    -- vim.keymap.set({"i","n","v"}, "<M-S-PageDown>", function()
+
+    -- end, {noremap=true, buffer=true})
+
+
+    -- Enable diff mode in both windows
+    -- rev buffer
     vim.cmd("diffthis")
-    vim.opt_local.scrollbind   = true
-    vim.opt_local.cursorbind   = true
     vim.opt_local.statuscolumn = ""
     vim.opt_local.signcolumn   = "no"
     vim.opt_local.number       = false
-    vim.opt_local.foldcolumn   = "0"
     vim.opt_local.foldmethod   = "diff"
+    vim.opt_local.foldcolumn   = "0"
     vim.opt_local.foldlevel    = 99 --hack to Keep folds open by default
 
     vim.api.nvim_win_set_cursor(0, curso_pos) --cursor back to og pos
 
+    -- og buffer
     vim.cmd("wincmd p") --back to og buf
 
-    --og buffer
     vim.cmd("diffthis")
-    vim.opt_local.scrollbind = true
-    vim.opt_local.cursorbind = true
-    vim.opt_local.foldcolumn = "1"
     vim.opt_local.foldmethod = "diff"
     vim.opt_local.foldlevel  = 99
 

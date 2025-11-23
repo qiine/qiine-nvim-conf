@@ -81,8 +81,7 @@ end, {})
 
 -- Quick ressource curr
 vim.api.nvim_create_user_command("RessourceCurrent", function()
-    local currf = vim.fn.expand("%:p")
-    vim.cmd("source " ..currf)
+    vim.cmd("source "..vim.fn.expand("%:p"))
 end, {})
 
 -- Restart nvim
@@ -93,7 +92,7 @@ vim.api.nvim_create_user_command("Restart", function()
     vim.cmd("SaveGlobalSession")
 
     local sess = GLOBAL_SESSION
-    vim.loop.spawn("wezterm", {
+    vim.uv.spawn("wezterm", {
         --args = { "-e", "nvim", "+cd " .. curdir, curfile },
 
         --cwd = curdir,

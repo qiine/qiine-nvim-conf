@@ -579,7 +579,8 @@ vim.api.nvim_create_user_command("SymlinkFileToCwd", function()
     vim.notify("Symlink created in: "..cwd, vim.log.levels.INFO)
 end, {})
 
---### File perms
+
+-- #### File perms
 vim.api.nvim_create_user_command("SetFileReadonly", function()
     local fpath, fname = vim.fn.expand("%:p"), vim.fn.expand("%:t")
 
@@ -643,7 +644,7 @@ vim.api.nvim_create_user_command("SetFileNotExecutable", function()
 end, {})
 
 
--- ### Extended attributes
+-- #### Extended attributes
 vim.api.nvim_create_user_command("FileSetLangFattr", function(opts)
     if opts.args == "" then vim.notify("cmd need a lang! ", vim.log.levels.ERROR) return end
 
@@ -674,6 +675,9 @@ vim.api.nvim_create_user_command("FileGetLangFattr", function()
         end
     end
 end, {})
+
+
+-- ### Dirs
 
 
 
@@ -896,7 +900,7 @@ end, {nargs="?"})
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("PrintGitRoot", function()
+vim.api.nvim_create_user_command("GitPrintRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
 end, {})
 
@@ -941,7 +945,7 @@ vim.api.nvim_create_user_command("GitCommitFile", function()
 end, {})
 
 --diff curr file with given rev
-vim.api.nvim_create_user_command("DiffRevision", function(opts)
+vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     local rev = opts.args ~= "" and opts.args or "HEAD"
 
     local prev_workdir = vim.fn.getcwd()
@@ -959,6 +963,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrelative))
     local git_content = vim.fn.systemlist(string.format("git show %q:%q", rev, fpath_rootrelative))
     --local git_content = vim.system({"git", "show", rev, "--", fpath}, {text=true}):wait()
+    -- local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
 
 
     if vim.v.shell_error ~= 0 then
@@ -980,7 +985,7 @@ vim.api.nvim_create_user_command("DiffRevision", function(opts)
     vim.api.nvim_set_option_value("buftype",   "nofile",  { buf = difbuf })
     vim.api.nvim_set_option_value("filetype",   filetype, { buf = difbuf })
     vim.api.nvim_set_option_value("modifiable", true,     { buf = difbuf })
-    vim.api.nvim_set_option_value("buflisted",  true,     { buf = difbuf })
+    vim.api.nvim_set_option_value("buflisted",  false,    { buf = difbuf })
     vim.api.nvim_set_option_value("bufhidden",  "wipe",   { buf = difbuf })
 
     --Write content of commit to said buffer
@@ -1052,6 +1057,60 @@ vim.api.nvim_create_user_command("GitLogFileSplit", function()
     vim.api.nvim_set_option_value("buflisted", false,  { buf = 0 })
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git log HEAD "..fp.."\n")
+end, {})
+
+vim.api.nvim_create_user_command("GitHunksHighlight", function()
+    local ns = vim.api.nvim_create_namespace("githunks")
+
+    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+
+    local fp = vim.fn.expand("%:p")
+    local diff = vim.fn.systemlist("git --no-pager diff -U0 HEAD -- " .. fp)
+
+    local added_start, added_count
+    local deleted_start, deleted_count
+
+    for _, line in ipairs(diff) do
+        -- Hunk header like @@ -12,0 +34,5 @@
+        local ds, dc, as, ac = line:match("^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@")
+        if ds and as then
+            deleted_start = tonumber(ds)
+            deleted_count = tonumber(dc ~= "" and dc or "1")
+            added_start = tonumber(as)
+            added_count = tonumber(ac ~= "" and ac or "1")
+
+            -- Highlight added lines
+            for i = 0, added_count - 1 do
+                local lnum = added_start + i - 1
+                vim.api.nvim_buf_set_extmark(0, ns, lnum, 0, {
+                    hl_group = "DiffAdd",
+                    line_hl_group = "DiffAdd",
+                    hl_mode = "combine",
+                })
+            end
+
+            -- For deleted lines: cannot highlight buffer lines; could use signs or virtual text
+            -- Example: place virtual text to show deletions
+            for i = 0, deleted_count - 1 do
+                local lnum = deleted_start + i - 1
+                vim.api.nvim_buf_set_extmark(0, ns, lnum, 0, {
+                    virt_text = {{"-", "DiffDelete"}},
+                    virt_text_pos = "overlay",
+                })
+            end
+        end
+    end
+end, {})
+
+
+vim.api.nvim_create_user_command("GitHunkToggleHighlight", function()
+    local hunk_ns = vim.api.nvim_get_namespaces()["githunks"]
+
+    if hunk_ns then
+        return vim.api.nvim_buf_clear_namespace(0, hunk_ns, 0, -1)
+    end
+
+    vim.cmd("GitHunksHighlight")
 end, {})
 
 vim.api.nvim_create_user_command("LazyGit", function(opts)
@@ -1143,6 +1202,7 @@ vim.api.nvim_create_user_command("DiagnosticVirtualTextToggle", function()
 
     vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
 end, { desc = "Toggle diagnostic virtual text" })
+
 
 vim.api.nvim_create_user_command("FacingPages", function()
     local win_left = vim.api.nvim_get_current_win()

@@ -499,7 +499,7 @@ map({"n","v"}, "<C-Down>", "m'3j")
 map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
 map("c",           "<M-Left>",  "<Home>", {noremap=true})
 
-map("i",           "<M-Right>", "<cmd>norm! $a<cr>") -- notice the 'a'
+map("i",           "<M-Right>", "<cmd>norm!A<cr>") -- notice the 'a'
 map({"n","v"},     "<M-Right>", function()
     if vim.fn.getline(".") == "" then
         vim.cmd("norm! 0"..vim.opt.textwidth:get().."l")
@@ -1437,27 +1437,29 @@ map("n",           "<C-!>e", '@q')
 -- ## [Text intel]
 ----------------------------------------------------------------------
 -- ### [Word processing]
+local ldwrd = "<M-s>"
+
 -- Toggle spellcheck
-map({"i","n","v","c","t"}, "<M-s>s", function()
+map({"i","n","v","c","t"}, ldwrd.."s", function()
     vim.opt.spell = not vim.opt.spell:get()
     print("Spellchecking: " .. tostring(vim.opt.spell:get()))
 end, { desc = "Toggle spell checking" })
 
 -- Pick documents language
-map({"i","n","v","c","t"}, "<M-s>l", "<cmd>PickDocLanguage<CR>")
+map({"i","n","v","c","t"}, ldwrd.."l", "<cmd>PickDocLanguage<CR>")
 
 -- Suggest
-map({"i","n","v"}, "<M-s>c", "<Cmd>FzfLua spell_suggest<CR>")
+map({"i","n","v"}, ldwrd.."c", "<Cmd>FzfLua spell_suggest<CR>")
 
 -- Quick correct
 map({"i","n","v"}, "<M-c>", "<Cmd>norm! m`1z=``<CR>")
 
 -- Add word to dictionary
-map({"i","n"}, "<M-s>a", "<Esc>zg")
-map("x",       "<M-s>a", "zg")
+map({"i","n"}, ldwrd.."a", "<Esc>zg")
+map("x",       ldwrd.."a", "zg")
 
 -- Add word to selected dict
-map({"i","n","x"}, "<M-s>ad", function()
+map({"i","n","x"}, ldwrd.."ad", function()
     local langs = vim.opt.spelllang:get()
     vim.ui.select(langs, { prompt = "Pick dict lang: " }, function(choice)
         if not choice then return end
@@ -1487,11 +1489,11 @@ end)
 
 
 -- Remove from dictionary
-map({"i","n"}, "<M-s>r", "<Esc>zug")
-map("x",       "<M-s>r", "zug")
+map({"i","n"}, ldwrd.."r", "<Esc>zug")
+map("x",       ldwrd.."r", "zug")
 
 -- Show definition for word
-map({"i","n","v"}, "<M-s>d", function()
+map({"i","n","v"}, ldwrd.."d", function()
     local word = vim.fn.expand("<cword>")
 
     vim.cmd("vsp|enew")

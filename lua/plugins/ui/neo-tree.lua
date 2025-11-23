@@ -25,6 +25,7 @@ return
                     { source = 'document_symbols', display_name = 'Outliner' }, -- 󰊢      
                 },
             },
+
             sources = { "filesystem", "buffers", "git_status", "document_symbols" },
 
             default_component_configs = {
@@ -83,9 +84,6 @@ return
                 },
 
                 window = {
-                    --Detect project root using LSP or common markers (.git)
-                    --follow_current_file = true, --Auto-open curr file's dir
-                    --use_libuv_file_watcher = true, --os Auto-refresh on files change
                     mappings = {
                         ["<Mouse-Left>"] = "open",
                         ["H"] = "toggle_hidden",
@@ -104,7 +102,7 @@ return
                             "add",
                             -- some commands may take optional config options, see `:h neo-tree-mappings` for details
                             config = {
-                            show_path = "none", --"none", "relative", "absolute"
+                                show_path = "none", --"none", "relative", "absolute"
                             }
                         },
                         ["<C-b>"] = "close_window",
@@ -139,5 +137,22 @@ return
                 },
             },
         })--setup
+
+        -- Try auto follow proj root
+        -- vim.api.nvim_create_autocmd('BufEnter', {
+        --     group = 'UserAutoCmds',
+        --     callback = function()
+        --         local fp = vim.api.nvim_buf_get_name(0)
+        --         local rootdir = require("utils.utils").find_proj_root_forfile(fp)
+
+        --         require("neo-tree.command").execute({
+        --             action = "",
+        --             reveal = false,
+        --             focus = false,
+        --             dir = rootdir
+        --         })
+        --     end,
+        -- })
+
     end,
 }

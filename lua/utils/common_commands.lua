@@ -548,34 +548,23 @@ vim.api.nvim_create_user_command("FileDelete", function()
     end
 end, {})
 
-vim.api.nvim_create_user_command("SymlinkToFile", function()
-    local bufid = vim.api.nvim_get_current_buf()
-    local fpath = vim.api.nvim_buf_get_name(bufid)
+vim.api.nvim_create_user_command("SymlinkFile", function()
+    local fpath = vim.api.nvim_buf_get_name(0)
+    local cwd   = vim.fn.getcwd()
 
-    local function prompt_user()
-        vim.ui.input({
-            prompt = "Symlink path: ", default = cwd, completion = "dir",
-        },
-        function(input)
-            vim.api.nvim_command("redraw") --Hide prompt
+    vim.ui.input({ prompt = "Symlink path: ", default = cwd, completion = "dir" },
+    function(input)
+        vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil then
-                vim.notify("linking cancelled. ", vim.log.levels.INFO) return
-            elseif input == "" then
-                vim.notify("Input cannot be empty!", vim.log.levels.WARN)
-                return prompt_user()
-            end
+        if input == nil then vim.notify("linking cancelled.", vim.log.levels.INFO) return end
 
-            local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
-            if res.code ~= 0 then
-                vim.notify("Linking failed!" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR)
-                return prompt_user()
-            end
+        local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
+        if res.code ~= 0 then
+            return vim.notify("Linking failed!"..res.stderr, vim.log.levels.ERROR)
+        end
 
-            vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
-        end)
-    end
-    prompt_user()
+        vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
+    end)
 end, {})
 
 vim.api.nvim_create_user_command("SymlinkFileToCwd", function()

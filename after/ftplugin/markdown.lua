@@ -8,13 +8,13 @@ local lsnip = require("luasnip")
 vim.opt_local.spell = true
 
 
--- [Gutter]
+-- ## [Gutter]
 vim.opt_local.signcolumn = "no"
 
 -- Numbers
 -- vim.opt_local.number = false
 
--- folds
+-- ### Folds
 vim.opt_local.foldcolumn = "1"
 vim.opt_local.foldenable = true
 
@@ -67,7 +67,7 @@ vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
 -- [Format]
 -- vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
 vim.opt_local.formatoptions:append("t") -- auto-wrap text at textwidth
-vim.opt_local.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
+-- vim.opt_local.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
 
 -- Indentation
 vim.opt_local.shiftwidth  = 2 --Number of spaces to use for indentation

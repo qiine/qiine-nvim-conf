@@ -497,17 +497,17 @@ map({"n","v"}, "<C-Down>", "m'3j")
 -- ### [Jump]
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>",  "<cmd>norm! 0<cr>")
-map("c",           "<M-Left>",  "<Home>", {noremap=true})
+map({"c","t"},     "<M-Left>", "<Home>", {noremap=true})
 
-map("i",           "<M-Right>", "<cmd>norm!A<cr>") -- notice the 'a'
+map("i",           "<M-Right>", "<C-o>A") -- notice the 'a'
 map({"n","v"},     "<M-Right>", function()
-    if vim.fn.getline(".") == "" then
+    if vim.fn.getline(".") == "" then -- to eol even if empty
         vim.cmd("norm! 0"..vim.opt.textwidth:get().."l")
     else
         vim.cmd("norm! $")
     end
 end)
-map("c",           "<M-Right>", "<End>", {noremap=true})
+map({"c","t"},     "<M-Right>", "<End>", {noremap=true})
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")

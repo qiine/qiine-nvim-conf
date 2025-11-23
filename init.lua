@@ -25,9 +25,8 @@ end
 
 
 -- Leader key
--- vim.g.mapleader = "<M-Space>"
--- vim.g.maplocalleader = "\\"
-
+vim.g.mapleader = ""
+vim.g.maplocalleader = ""
 
 
 -- [Modules]

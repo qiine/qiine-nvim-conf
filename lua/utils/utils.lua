@@ -262,7 +262,7 @@ end
 
 
 
---## [Files]
+--## [FileSystem]
 ----------------------------------------------------------------------
 function M.make_relative_path_to_root(root_path, path)
     local root = vim.fs.normalize(root_path)
@@ -270,28 +270,39 @@ function M.make_relative_path_to_root(root_path, path)
     return abs_path:sub(#root + 2)  -- +2 to remove root + "/" or "\"
 end
 
-function M.create_file(name, path, opts)
+---@param fpath string
+---@return string
+function M.find_proj_root_forfile(fpath)
+    if not fpath or fpath == "" or vim.fn.filereadable(fpath) == 0 then
+        return vim.fn.getcwd()
+    end
 
+    local root = vim.fs.root(fpath,
+        { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }
+    )
+
+    return root or vim.fn.getcwd()
 end
 
 
 
 -- ## [Windows]
 ----------------------------------------------------------------------
+
 -- TODO
 ---@param buf number?
 ---@param enter boolean?
 ---@param opts table?
+---@return number
 function M.fwin_open(buf, enter, opts)
     buf   = buf and buf or 0
     enter = enter and enter or true
     opts  = opts or {}
 
-
     local edw = { w = vim.o.columns, h = vim.o.lines }
 
     local wsize = { -- relative size
-        w = math.floor(edw.w * (opts.wratio and opts.wratio or 0.9) ),
+        w = math.floor(edw.w * (opts.wratio and opts.wratio or 0.85) ),
         h = math.floor(edw.h * (opts.hratio and opts.hratio or 0.8) ),
     }
 
@@ -299,7 +310,8 @@ function M.fwin_open(buf, enter, opts)
         title     = opts.title and opts.title or vim.fn.expand("%:t"),
         title_pos = opts.title_pos and opts.title_pos or "center",
 
-        relative  = "editor",
+        relative  = opts.relative and opts.relative or "editor",
+        anchor    = opts.anchor and opts.anchor or "NW",
         width     = wsize.w,
         height    = wsize.h,
         col       = math.floor((edw.w - wsize.w) / 2),
@@ -315,17 +327,19 @@ function M.fwin_open(buf, enter, opts)
     local fwin = vim.api.nvim_open_win(buf, enter, wopts)
 
     vim.api.nvim_set_option_value("winblend", 0, {win=fwin})
+
+    return fwin
 end
 
----@param buf number?
 ---@param enter boolean?
 ---@param wopts table?
 ---@return number
-function M.open_fterm(buf, enter, wopts, shell)
-    buf   = buf and buf or 0
+function M.open_term_fwin(enter, wopts, shell)
     enter = enter and enter or true
     wopts = wopts or {title="Terminal"}
     shell = shell and shell or "bash"
+
+    local buf = vim.api.nvim_create_buf(false, false)
 
     local winid = M.fwin_open(buf, enter, wopts)
 

@@ -21,21 +21,19 @@ return
                 style = "minimal",
                 border = "rounded",
             },
-            disable_signs = true,
+            disable_signs = false,
             disable_context_highlighting = true,
-            graph_style = "unicode", -- ascii
-            integrations = { diffview = true }, -- adds integration with diffview.nvim
             disable_hint = true,
 
             status = {
                 recent_commit_count = 50,
                 mode_text = {
                     M = "M",
-                    N = "new file",
+                    N = "N",
                     A = "A",
                     D = "D",
-                    C = "copied",
-                    U = "updated",
+                    C = "C",
+                    U = "U",
                     R = "R",
                     DD = "unmerged",
                     AU = "unmerged",
@@ -47,6 +45,23 @@ return
                 },
                 mode_padding = 1,
             },
+            signs = {
+                --     { CLOSED, OPENED }
+                hunk    = { " >", " ⌄" },
+                item    = { ">", "⌄" },
+                section = { ">", "⌄" },
+            },
+
+            sections = {
+                recent = {
+                    folded = false,
+                    hidden = false,
+                },
+            },
+
+            graph_style = "unicode", -- ascii
+
+            integrations = { diffview = true }, -- adds integration with diffview.nvim
 
             -- Automatically show console if a command takes more than console_timeout milliseconds
             auto_show_console = false,

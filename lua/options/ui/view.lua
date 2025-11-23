@@ -202,8 +202,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
-vim.o.foldlevelstart = 99 -- opens all folds on buf enter
 vim.o.foldnestmax    = 10
+vim.o.foldlevelstart = 99 -- opens all folds on buf enter
 
 vim.o.foldtext = "v:lua.FoldedText()"
 function FoldedText()

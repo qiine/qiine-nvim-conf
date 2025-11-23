@@ -29,11 +29,11 @@ M.quickfiles =
 
 M.quickactions =
 {
-    [1] = "CopyFileDir",
-    [2] = "CopyFileName",
-    [3] = "BuffInfo",
-    [4] = "",
-    [5] = "",
+    [1] = "CopyFilePath",
+    [2] = "CopyFileDir",
+    [3] = "CopyFileName",
+    [4] = "BuffInfo",
+    [5] = "WinInfo",
     [6] = "",
     [7] = "",
     [8] = "",

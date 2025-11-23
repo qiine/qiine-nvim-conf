@@ -1609,20 +1609,22 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-map({"i","n","v"}, "<S-Space>g",  "<Cmd>Neogit<CR>")
-map({"i","n","v"}, "<S-Space>gg", "<Cmd>Neogit<CR>")
+local ldvc = "<S-Space>"
+
+map({"i","n","v"}, ldvc.."g",  "<Cmd>Neogit<CR>")
+map({"i","n","v"}, ldvc.."gg", "<Cmd>Neogit<CR>")
 
 -- stage
-map({"i","n","v"}, "<S-Space>gs", function()
+map({"i","n","v"}, ldvc.."gs", function()
     vim.cmd("silent !git add %")
     vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
 -- Stage hunk under cursor
-map({"i","n","v"}, "<S-Space>gss", "<Cmd>Gitsigns stage_hunk<CR>")
+map({"i","n","v"}, ldvc.."gss", "<Cmd>Gitsigns stage_hunk<CR>")
 
 -- Stage edit patch file
-map({"i","n","v"}, "<S-Space>gae", function()
+map({"i","n","v"}, ldvc.."gae", function()
     local fp = vim.fn.expand("%:p")
 
     utils.open_term_fwin(nil, {
@@ -1634,13 +1636,13 @@ map({"i","n","v"}, "<S-Space>gae", function()
 end)
 
 -- unstage
-map({"i","n","v"}, "<S-Space>gu", function()
+map({"i","n","v"}, ldvc.."gu", function()
     vim.cmd("silent !git reset %")
     vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)
 end)
 
 -- git commit
-map({"i","n","v"}, "<S-Space>gc", function()
+map({"i","n","v"}, ldvc.."gc", function()
     utils.open_term_fwin(nil, {
         title = "Commit",
         wratio = 0.8, hratio = 0.75,
@@ -1650,7 +1652,7 @@ map({"i","n","v"}, "<S-Space>gc", function()
 end)
 
 -- Commit curr file
-map({"i","n","v"}, "<S-Space>gcc", function()
+map({"i","n","v"}, ldvc.."gcc", function()
     local fp = vim.fn.expand("%:p")
     local fdir = vim.fn.expand("%:h")
 
@@ -1665,7 +1667,7 @@ map({"i","n","v"}, "<S-Space>gcc", function()
 end)
 
 -- git push
-map({"i","n","v"}, "<S-Space>g<S-P>", function()
+map({"i","n","v"}, ldvc.."g<S-p>", function()
     local fp = vim.fn.expand("%:p")
 
     utils.fwin_open(0, true, {
@@ -1683,14 +1685,17 @@ map({"i","n","v"}, "<S-Space>g<S-P>", function()
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git push\n")
 end)
 
+-- diff with head curr file
+map({"i","n","v"}, ldvc.."d", "<Cmd>DiffRevision<CR>")
+
 -- git log curr file
-map("n", "<S-Space>gl", function()
+map("n", ldvc.."gl", function()
      require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
 end, {desc = "Neogit Log curr file"})
 
 
 -- Open LazyGit
-map(modes, "<S-Space>gz", "<Cmd>LazyGit<cr>")
+map(modes, ldvc.."gz", "<Cmd>LazyGit<cr>")
 
 
 

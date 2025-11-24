@@ -15,12 +15,12 @@
     },
 
     "new local function": {
-        "prefix": "loc func",
+        "prefix": "func loc",
         "body": [ "local function ${1:newfunc}() ${2:} end" ]
     },
 
     "new anonymous function": {
-        "prefix": "anon func",
+        "prefix": "func anon",
         "body": [ "function() ${1:} end" ]
     },
 
@@ -87,15 +87,24 @@
         "body": "os.getenv(\"HOME\")"
     },
 
+    "get nvim file path": {
+        "prefix": "get nvim file path",
+        "body": [ "vim.fn.expand(\"%:p\")" ]
+    },
 
-    "get nvim filetype": {
-        "prefix": "get nvim filetype",
-        "body": [ "vim.bo.filetype" ]
+    "get nvim file dir": {
+        "prefix": "get nvim file dir",
+        "body": [ "vim.fn.expand(\"%:h\")" ]
     },
 
     "get nvim filename": {
         "prefix": "get nvim filename",
         "body": [ "vim.fn.expand(\"%:t\")" ]
+    },
+
+    "get nvim filetype": {
+        "prefix": "get nvim filetype",
+        "body": [ "vim.bo.filetype" ]
     },
 
 
@@ -109,8 +118,8 @@
         "body": [ "vim.api.nvim_get_current_buf()" ]
     },
 
-    "get buffer filepath": {
-        "prefix": "get buf filepath",
+    "get nvim buffer path": {
+        "prefix": "get nvim buf path",
         "body": [ "vim.api.nvim_buf_get_name(0)" ]
     },
 

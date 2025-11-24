@@ -2,7 +2,8 @@
 -- Favor --
 -- Favoritisme --
 -- mom we have harpoon at home
-
+-- TODO using filename was an error we shoulduse path as unique obj,
+-- maybe whe could rename it as a shorthand purely, human cosmetic thingy.
 local M = {}
 
 

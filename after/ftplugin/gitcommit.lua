@@ -43,6 +43,10 @@ vim.opt_local.formatoptions:append("t") -- auto wrap
 -- Submit
 vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
 
+-- Avoid mapping collisions in nested nvim inst
+vim.keymap.set({"i","n","v","t"}, "<C-e>", "<Cmd>norm!$<CR>", {buffer=true})
+vim.keymap.set({"i","n","v","t"}, "<C-a>", "<Cmd>norm!0<CR>", {buffer=true})
+
 -- abbrev
 vim.keymap.set("ia", "fe",  "feat:",  {buffer=true})
 vim.keymap.set("ia", "ch",  "chore:", {buffer=true})

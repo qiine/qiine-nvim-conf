@@ -1466,7 +1466,7 @@ map({"i","n","x"}, ldwrd.."ad", function()
     vim.ui.select(langs, { prompt = "Pick dict lang: " }, function(choice)
         if not choice then return end
 
-        local langindex
+        local langindex -- find id for choice string
         for i, s in ipairs(langs) do
             if s == choice then langindex = i break end
         end
@@ -1479,13 +1479,13 @@ map({"i","n","x"}, ldwrd.."ad", function()
             word = vim.fn.getreg("z")
         end
 
-        local spelf = vim.fn.readfile(vim.opt.spellfile:get()[1])
+        local spelf = vim.fn.readfile(vim.opt.spellfile:get()[langindex])
         if vim.tbl_contains(spelf, word) then
-            vim.notify("Already in dictionary: " .. word) return
+            vim.notify(word.." Already in dictionary") return
         end
 
-        local cmd = vim.fn.mode() == "v" and "norm! " or "norm! gv"
-        vim.cmd(cmd .. langindex .. "zg")
+        vim.cmd(tostring(langindex).."spellgood "..word)
+        print("Word '"..word.."' added to dict "..choice)
     end)
 end)
 

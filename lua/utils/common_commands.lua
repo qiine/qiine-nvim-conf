@@ -237,6 +237,10 @@ vim.api.nvim_create_user_command("BuffInfo", function(opts)
     vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
 end, {nargs= "?"})
 
+vim.api.nvim_create_user_command("ClearBuf", function()
+    vim.cmd("%d_")
+end, {})
+
 vim.api.nvim_create_user_command("WipeHiddenBuffers", function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if not vim.api.nvim_buf_is_loaded(buf) then
@@ -906,10 +910,13 @@ end, {})
 
 --diff curr file with given rev
 vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
-    local rev = opts.args ~= "" and opts.args or "HEAD"
+    -- TODO use just a number as arg
+    local argrev = opts.args ~= "" and opts.args or "HEAD~0"
 
     local bufid = vim.api.nvim_get_current_buf()
     local fpath = vim.api.nvim_buf_get_name(bufid)
+    local gitroot = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    local fpath_rootrel = fpath:sub(#gitroot + 2)
     local ftype = vim.bo.filetype
 
     local curso_pos = vim.api.nvim_win_get_cursor(0)
@@ -918,39 +925,61 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     vim.cmd("vsplit")
     local difbuf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_win_set_buf(0, difbuf)
-
     vim.api.nvim_set_option_value("buftype",   "nofile", { buf = difbuf })
     vim.api.nvim_set_option_value("filetype",   ftype,   { buf = difbuf })
     vim.api.nvim_set_option_value("buflisted",  false,   { buf = difbuf })
     vim.api.nvim_set_option_value("bufhidden",  "wipe",  { buf = difbuf })
 
+    local revstr = argrev:gsub("HEAD~", "")
+    vim.b[difbuf].revision = tonumber(revstr)
+
     -- Pulling git data
-    local gitroot = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-    local fpath_rootrel = fpath:sub(#gitroot + 2)
+    -- TODO does not give correct value it seem
+    local res_count = vim.system({"git", "rev-list", "--count", "HEAD", "--", fpath_rootrel}, {text = true}):wait()
 
-    local git_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrel))
+    ---@param rev string
+    local function git_diffwrite(rev)
+        local res_metadata = vim.fn.systemlist(string.format("git log -1 %s -- %s", rev, fpath_rootrel))
 
-    vim.api.nvim_buf_set_lines(difbuf,  0,  0, false, git_metadata)
-    vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, {"============================================================"})
+        local res_rev = vim.system({"git", "show", rev..":"..fpath_rootrel}, {text=true}):wait()
+        if res_rev.code ~= 0 then vim.notify(res_rev.stderr, vim.log.levels.ERROR) end
 
-    local res = vim.system({"git", "show", rev..":"..fpath_rootrel}, {text=true}):wait()
-    if res.code ~= 0 then vim.notify(res.stderr, vim.log.levels.ERROR) end
+        -- write
+        vim.api.nvim_buf_set_lines(difbuf,  0,  -1, false, {}) --clear
 
-    local lines = vim.split(res.stdout, "\n", {})
-    vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, lines)
+        vim.api.nvim_buf_set_lines(difbuf,  0,  0, false, res_metadata)
+        vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, {"============================================================"})
+        local lines = vim.split(res_rev.stdout, "\n", {})
+        vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, lines)
+    end
+    git_diffwrite(argrev)
 
+    -- keymap
+    vim.keymap.set({"i","n","v"}, "<C-S-PageUp>", function()
+        local lcurso_pos = vim.api.nvim_win_get_cursor(0)
 
-    -- TODO increm/decrm curr rev
-    -- vim.keymap.set({"i","n","v"}, "<M-S-PageUp>", function()
-    --     local rev = "HEAD~"+1
-    --     local res = vim.system({"git", "show", rev..":"..fpath_rootrelative}, {text=true}):wait()
-    --     if res.code ~= 0 then
-    --         vim.notify("err "..res.stderr, vim.log.levels.INFO)
-    --     end
-    -- end, {noremap=true, buffer=true})
-    -- vim.keymap.set({"i","n","v"}, "<M-S-PageDown>", function()
+        local currev = vim.b[difbuf].revision
+        local newrev = currev+1
 
-    -- end, {noremap=true, buffer=true})
+        git_diffwrite("HEAD~"..tostring(newrev))
+        vim.b[difbuf].revision = newrev
+        vim.api.nvim_win_set_cursor(0, lcurso_pos)
+
+        print("Curr rev = HEAD~"..newrev.."/"..vim.trim(res_count.stdout))
+    end, {noremap=true, buffer=true})
+
+    vim.keymap.set({"i","n","v"}, "<C-S-PageDown>", function()
+        local lcurso_pos = vim.api.nvim_win_get_cursor(0)
+
+        local currev = vim.b[difbuf].revision
+        local newrev = math.max(currev-1, 0)
+
+        git_diffwrite("HEAD~"..tostring(newrev))
+        vim.b[difbuf].revision = newrev
+        vim.api.nvim_win_set_cursor(0, lcurso_pos)
+
+        print("Curr rev = HEAD~"..newrev.."/"..vim.trim(res_count.stdout))
+    end, {noremap=true, buffer=true})
 
 
     -- Enable diff mode in both windows
@@ -1216,5 +1245,6 @@ vim.api.nvim_create_user_command("FacingPages", function()
         end,
     })
 end, {})
+
 
 

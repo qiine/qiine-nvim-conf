@@ -103,6 +103,12 @@ return
                 rg_glob = true, -- enable glob parsing
                 glob_flag = "--iglob", -- case insensitive globs
                 glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
+
+                actions = {
+                    ["alt-q"] = {
+                        fn = require("fzf-lua").actions.file_sel_to_qf, prefix = "select-all"
+                    }
+                }
             },
 
             buffers = {
@@ -233,6 +239,16 @@ return
                 cwd = require("fzf-lua.path").git_root({})
             })
         end, {noremap=true, silent=true, desc="live grep selected in project"})
+
+        -- grep git file rev
+        -- git grep "OPTION_NAME" $(git rev-list --all) -- path/to/file
+        vim.keymap.set("v", "<M-f>gg", function()
+            -- local revs = git rev-list --all) -- path/to/file
+            require("fzf-lua").grep_visual({
+                cwd = require("fzf-lua.path").git_root({})
+            })
+        end, {noremap=true, silent=true, desc="grep git file rev"})
+
 
         -- grep in notes
         vim.keymap.set({"i","n","c","t"}, "<F13>", function()   --<S-F1>

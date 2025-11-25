@@ -221,7 +221,8 @@ end
 
 
 
---[cursor]--------------------------------------------------
+-- ## [cursor]
+----------------------------------------------------------------------
 function M.get_cursor_pos()
     local cpos = vim.api.nvim_win_get_cursor(0)
     --row is 1-based, col is 0-based, so we increment col to make both 1-based
@@ -249,7 +250,7 @@ end
 
 
 
---## [Keys]
+-- ## [Keys]
 ----------------------------------------------------------------------
 function M.send_keystroke(key, mode, immediate)
     if immediate == nil then immediate = true end   --default val
@@ -262,20 +263,20 @@ end
 
 
 
---## [FileSystem]
+-- ## [FileSystem]
 ----------------------------------------------------------------------
-function M.make_relative_path_to_root(root_path, path)
-    local root = vim.fs.normalize(root_path)
-    local abs_path = vim.fs.normalize(path)
-    return abs_path:sub(#root + 2)  -- +2 to remove root + "/" or "\"
+---@param path string
+---@param rootpath string
+---@return string
+function M.make_path_projr_rel(path, rootpath)
+    return path:sub(#rootpath+2)
 end
+
 
 ---@param fpath string
 ---@return string
-function M.find_proj_root_forfile(fpath)
-    if not fpath or fpath == "" or vim.fn.filereadable(fpath) == 0 then
-        return vim.fn.getcwd()
-    end
+function M.get_file_projr_dir(fpath)
+    if not fpath or fpath == "" then return vim.fn.getcwd() end
 
     local root = vim.fs.root(fpath,
         { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }

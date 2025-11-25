@@ -324,33 +324,45 @@ end)
 
 -- ## [Windows]
 ----------------------------------------------------------------------
+local ldwin = "<M-w>"
+
 -- Rebind win prefix
-map({"i","n","v"}, "<M-w>", "<esc><C-w>", {noremap=true})
-map("t",           "<M-w>", "<Esc> <C-\\><C-n><C-w>", {noremap=true})
+map({"i","n","v"}, ldwin, "<esc><C-w>", {noremap=true})
+map("t",           ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 
 -- ### Create
--- Open floating window
-map(modes, "<M-w>n",  function() utils.fwin_open() end)
-map(modes, "<M-w>nf", function() utils.fwin_open() end)
-
 -- Make ver split
-map(modes, "<M-w>s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
+map(modes, ldwin.."s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
 -- Make hor split
-map(modes, "<M-w>h", "<cmd>sp<cr>")
+map(modes, ldwin.."w", "<cmd>sp<cr>")
+map(modes, ldwin.."h", "<cmd>sp<cr>")
+
+-- Open floating window
+map(modes, ldwin.."n",  function() utils.fwin_open() end)
+map(modes, ldwin.."nf", function() utils.fwin_open() end)
+
+-- Swap splits
+map({"i","n","v"}, ldwin.."<S-Left>",  "<cmd>wincmd H<cr>")
+map({"i","n","v"}, ldwin.."<S-Right>", "<cmd>wincmd L<cr>")
+map({"i","n","v"}, ldwin.."<S-Up>",    "<cmd>wincmd K<cr>")
+map({"i","n","v"}, ldwin.."<S-Down>",  "<cmd>wincmd J<cr>")
 
 
 -- ### Nav
 -- To next window (include splits)
 map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
 
--- To Up window
-map(modes, "<M-w><S-Up>", "<cmd>wincmd k<cr>")
+-- To window
+map(modes, ldwin.."<C-Left>",  "<cmd>wincmd h<cr>")
+map(modes, ldwin.."<C-Right>", "<cmd>wincmd l<cr>")
+map(modes, ldwin.."<C-Up>",    "<cmd>wincmd k<cr>")
+map(modes, ldwin.."<C-Down>",  "<cmd>wincmd j<cr>")
 
 
 -- ### Size
 -- Maximize split toggle
-map(modes, "<M-w>f", function()
+map(modes, ldwin.."f", function()
     local win     = vim.api.nvim_get_current_win()
     local wwidth  = vim.api.nvim_win_get_width(win)
     local wheight = vim.api.nvim_win_get_height(win)
@@ -376,15 +388,15 @@ local function resize_win(dir, amount)
 end
 
 -- Resize hor split
-map({"i","n","v","t"}, "<M-w><Up>",    function() resize_win("hor", "-2")  end, {noremap = true})
-map({"i","n","v","t"}, "<M-w><Down>",  function() resize_win("",    "+2")  end, {noremap = true})
+map({"i","n","v","t"}, ldwin.."<Up>",    function() resize_win("hor", "-2")  end, {noremap = true})
+map({"i","n","v","t"}, ldwin.."<Down>",  function() resize_win("",    "+2")  end, {noremap = true})
 -- Resize vert split
-map({"i","n","v","t"}, "<M-w><Right>", function() resize_win("vert", "+4") end, {noremap = true})
-map({"i","n","v","t"}, "<M-w><Left>",  function() resize_win("vert", "-4") end, {noremap = true})
+map({"i","n","v","t"}, ldwin.."<Right>", function() resize_win("vert", "+4") end, {noremap = true})
+map({"i","n","v","t"}, ldwin.."<Left>",  function() resize_win("vert", "-4") end, {noremap = true})
 
 
 -- Detach win
-map(modes, "<M-w>d", function()
+map(modes, ldwin.."d", function()
     --TODO
     --the idea would be to close curr win save its buff and reopen as split and carry prev settings
 
@@ -401,12 +413,12 @@ end)
 
 
 -- hide fwindow
-map({"i","n","v"}, "<M-w>c", function()
+map({"i","n","v"}, ldwin.."c", function()
     vim.api.nvim_win_set_config(0, {hide=true})
     vim.cmd("wincmd w")
 end)
 -- show fwindow
-map({"i","n","v"}, "<M-w>C", function()
+map({"i","n","v"}, ldwin.."C", function()
     vim.api.nvim_win_set_config(0, {hide=false})
 end)
 

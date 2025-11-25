@@ -4,14 +4,17 @@
 -- cyclist
 -- togger
 
+-- TODO put this in a feature branch
 
 local M = {}
 
 -- cycle tables
 M.toggle_table = {
+    -- truth
     ["yes"]  = "no",    ["no"]    = "yes",
     ["true"] = "false", ["false"] = "true",
 
+    -- action
     ["on"]       = "off",        ["off"]        = "on",
     ["activate"] = "deactivate", ["deactivate"] = "activate",
     ["enable"]   = "disable",    ["disable"]    = "enable",
@@ -36,38 +39,23 @@ M.toggle_table = {
 }
 
 M.quotes = {
-    "'",
-    '"',
-    '`',
+    "'", '"', '`',
 }
-
 M.quote_increm = {
-    ["'"] = '"',
-    ['"'] = "`",
+    ["'"] = '"', ['"'] = "`",
 }
-
 M.quote_decrem = {
-    ["`"] = '"',
-    ['"'] = "'",
+    ["`"] = '"', ['"'] = "'",
 }
 
 M.parens = {
-    "(",
-    "{",
-    "[",
-    ")",
-    "}",
-    "]",
+    "(", "{", "[", ")", "}", "]",
 }
-
 M.paren_increm = {
-    ["("] = '{',
-    ['{'] = "[",
+    ["("] = '{', ['{'] = "[",
 }
-
 M.paren_decrem = {
-    ["["] = '{',
-    ['{'] = "(",
+    ["["] = '{', ['{'] = "(",
 }
 
 M.day_cycle = {
@@ -78,6 +66,11 @@ M.day_cycle = {
     "friday",
     "saturday",
     "sunday",
+}
+
+M.checkbox_states = {
+    ["[x]"] = "[ ]",
+    ["[ ]"] = "[x]",
 }
 
 ---@param text string
@@ -104,8 +97,10 @@ function M.get_prev_paren(text) return M.paren_decrem[text] end
 ---@return number
 function M.get_next_num(num) return num + 1 end
 
----@param day string
+---@param text string
 ---@return string
+function M.get_checkbox_state(text) return M.checkbox_states[text] end
+
 function M.get_next_day(day)
     for i, d in ipairs(M.day_cycle) do
         if d == day then
@@ -128,6 +123,23 @@ function M.is_quote(text) return vim.tbl_contains(M.quotes, text) end
 ---@return boolean
 function M.is_paren(text) return vim.tbl_contains(M.parens, text) end
 
+function M.is_checkbox(text) return vim.tbl_contains(M.checkbox_states, text) end
+
+---@return boolean
+function M.is_cursor_on_checkbox()
+    local line = vim.api.nvim_get_current_line()
+
+    local col  = vim.fn.col('.')
+    local lcol = vim.fn.col('.') - 1
+    local rcol = vim.fn.col('.') + 1
+
+    local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    local lchar = line:sub(lcol, lcol)
+    local rchar = line:sub(rcol, rcol)
+
+    return char:match("[x%s]") and lchar == "[" and rchar == "]"
+end
+
 
 ---@param text string
 ---@param reverse boolean
@@ -147,8 +159,12 @@ function M.cycle_omni_text(text, reverse)
         res = M.get_toggle(text)
     end
 
-    if not res then return false end
+    if M.is_checkbox(text) then
+        res = M.get_checkbox_state(text)
+    end
 
+    if not res then return false end
+    print(text) -- [ ]
     vim.cmd('norm! "_c'..res); return true
 end
 
@@ -188,9 +204,17 @@ function M.cycle_omni_atcursor(reverse)
         text = word; vim.cmd("norm! viw")
     end
 
+    if M.is_cursor_on_checkbox() then
+        vim.cmd('norm! mz')
+        vim.cmd('norm! hv2l"zy') -- TODO BUG fail for [ ] but not [x]
+        text = vim.fn.getreg("z")
+        vim.cmd('norm! `z')
+        vim.cmd('norm! hv2l')
+    end
+
     local num = tonumber(text)
     if num then
-        M.cycle_omni_num(reverse)
+        M.cycle_omni_num(reverse) -- TODO increm purely in lua
     else
         M.cycle_omni_text(text, reverse)
     end

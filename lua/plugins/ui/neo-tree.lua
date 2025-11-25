@@ -106,6 +106,7 @@ return
                             }
                         },
                         ["<C-b>"] = "close_window",
+                        ["<C-d>"] = "copy", -- mimic duplicate
                     },
                 },
             },--filesytem
@@ -143,7 +144,7 @@ return
         --     group = 'UserAutoCmds',
         --     callback = function()
         --         local fp = vim.api.nvim_buf_get_name(0)
-        --         local rootdir = require("utils.utils").find_proj_root_forfile(fp)
+        --         local rootdir = require("utils.utils").get_file_projr_dir(fp)
 
         --         require("neo-tree.command").execute({
         --             action = "",

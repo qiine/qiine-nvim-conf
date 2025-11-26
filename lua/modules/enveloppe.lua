@@ -96,6 +96,8 @@ function M.setup()
         end
     end, {expr=true, nowait=true})
 
+    vim.keymap.set("c", "(", function() return "()" end, {expr=true, nowait=true})
+
     -- surround
     vim.keymap.set({"i","n","x"}, '<C-S-s>', function()
         vim.api.nvim_echo({{"Surround:"}}, false, {})

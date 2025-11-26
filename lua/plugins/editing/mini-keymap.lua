@@ -46,7 +46,7 @@ return
             else
                 vim.api.nvim_feedkeys("^vg_", "n", true)
             end
-        end)
+        end, { delay = 40 })
         combo({"i","n","v"}, "<S-Right><S-Left>", function()
             vim.cmd('norm! ') -- hack for proper vis pos
             local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
@@ -56,7 +56,7 @@ return
             else
                 vim.api.nvim_feedkeys("^vg_", "n", true)
             end
-        end)
+        end, { delay = 40 })
 
 
         -- to vis line

@@ -1864,7 +1864,7 @@ map({"i","n","v"}, "<M-t>", function() utils.open_term_fwin() end)
 map({"i","n","v"}, "<M-t>f", function() utils.open_term_fwin() end)
 
 -- Exit term mode
-map("t", "<M-Esc>", "<Esc> <C-\\><C-n>", {noremap=true})
+map("t", "<M-Esc>", [[<Esc> <C-\><C-n>]], {noremap=true})
 
 
 

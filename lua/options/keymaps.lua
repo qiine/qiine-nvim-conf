@@ -1460,7 +1460,7 @@ map({"i","n","v","c","t"}, ldwrd.."s", function()
 end, { desc = "Toggle spell checking" })
 
 -- Pick documents language
-map({"i","n","v","c","t"}, ldwrd.."l", "<cmd>PickDocLanguage<CR>")
+map({"i","n","v","c","t"}, ldwrd.."l", "<Cmd>PickCurrDocLang<CR>")
 
 -- Suggest
 map({"i","n","v"}, ldwrd.."c", "<Cmd>FzfLua spell_suggest<CR>")

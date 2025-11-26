@@ -1,20 +1,7 @@
--- test
 --------------------------------------------------
 -- Conceal --
 --------------------------------------------------
 local tns = vim.api.nvim_create_namespace('testns')
-
-vim.api.nvim_create_user_command("Textext", function()
-    vim.api.nvim_buf_clear_namespace(0, tns, 0, -1)
-
-    vim.api.nvim_buf_set_extmark(0, tns, 0, 1, {
-        virt_text = {{"hello", "normal"}},
-        virt_text_pos = "overlay",
-        -- conceal = "abcd",
-        -- end_col = 6,
-    })
-end, {})
-
 local utils = require("utils.utils")
 
 local v    = vim
@@ -70,28 +57,26 @@ vim.api.nvim_create_autocmd("FileType", {
 
 
 
--- Extmarks overlays
-vim.g.extoverlays = true
+-- Textvision
+vim.g.textvision = true
 
-local ns_eo = vim.api.nvim_create_namespace('extoverlay')
+local ns_eo = vim.api.nvim_create_namespace('textvision')
 
 local overlays = {
     ["function"] = "󰊕unction",
     ["~="] = "!=",
 }
 
-local function apply_overlays(bufnr)
-    bufnr = bufnr or 0
+local function apply_overlays()
+    vim.api.nvim_buf_clear_namespace(0, ns_eo, 0, -1)
 
-    vim.api.nvim_buf_clear_namespace(bufnr, ns_eo, 0, -1)
-
-    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
     for lnum, line in ipairs(lines) do
         for word, overlay in pairs(overlays) do
             local col = 0
-            while true do
-                local start, finish = string.find(line, word, col, true)
+            while col <= #line do
+                local start, finish = line:find(word, col, true)
                 if not start then break end
 
                 -- Check if it's a whole word (not part of another word)
@@ -99,7 +84,7 @@ local function apply_overlays(bufnr)
                 local after = finish < #line and line:sub(finish + 1, finish + 1) or " "
 
                 if before:match("[%W_]") and after:match("[%W_]") then
-                    vim.api.nvim_buf_set_extmark(bufnr, ns_eo, lnum - 1, start - 1, {
+                    vim.api.nvim_buf_set_extmark(0, ns_eo, lnum - 1, start - 1, {
                         end_col = finish,
                         virt_text = { {overlay, "Keyword"} },
                         virt_text_pos = "overlay",
@@ -113,28 +98,28 @@ local function apply_overlays(bufnr)
     end
 end
 
-local function toggle_overlays()
+local function textvision_toggle()
     local bufnr    = vim.api.nvim_get_current_buf()
     local extmarks = vim.api.nvim_buf_get_extmarks(bufnr, ns_eo, 0, -1, {})
 
     if #extmarks > 0 then
         vim.api.nvim_buf_clear_namespace(bufnr, ns_eo, 0, -1)
         vim.g.overlays = false
-        print("extoverlays disabled")
+        print("textvision disabled")
     else
-        apply_overlays(bufnr)
+        apply_overlays()
         vim.g.overlays = true
-        print("extoverlays enabled")
+        print("textvision enabled")
     end
 end
 
-vim.api.nvim_create_user_command('ToggleOverlays', toggle_overlays, {})
+vim.api.nvim_create_user_command('TextVisionToggle', textvision_toggle, {})
 
 vim.api.nvim_create_autocmd({"BufEnter", "FileType", "TextChanged", "TextChangedI"}, {
     group = "UserAutoCmds",
     pattern = { "*.lua" },
     callback = function()
-        if vim.g.extoverlays == true then
+        if vim.g.textvision == true then
             apply_overlays()
         else
             return

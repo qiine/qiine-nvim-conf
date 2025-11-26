@@ -1,8 +1,10 @@
-TESTS_INIT=tests/init.lua
-TESTS_DIR=tests
+.DEFAULT_GOAL := run
+
+run:
 
 test:
-	@nvim \
-		--headless \
-		--noplugin \
-		-u ${TESTS_INIT} \
+
+clean:
+
+all: clean run
+

@@ -1666,6 +1666,12 @@ map({"i","n","v"}, ldvc.."ae", function()
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add -e "..fp.."\n")
 end)
 
+-- Stage all
+map({"i","n","v"}, ldvc.."sa", function()
+    vim.cmd("silent !git add -A :/")
+    vim.notify("git add all", vim.log.levels.INFO)
+end)
+
 -- unstage
 map({"i","n","v"}, ldvc.."u", function()
     vim.cmd("silent !git reset %")

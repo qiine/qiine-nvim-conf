@@ -197,10 +197,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
         local client = vim.lsp.get_client_by_id(args.data.client_id)
         if client and client:supports_method('textDocument/foldingRange') then
-            vim.opt_local.foldexpr = 'v:lua.vim.lsp.foldexpr()'
+            vim.defer_fn(function()
+                if vim.api.nvim_buf_is_valid(0) then
+                    vim.opt_local.foldexpr = 'v:lua.vim.lsp.foldexpr()'
+                end
+            end, 50) -- ms
         end
     end,
 })
+
 
 vim.o.foldnestmax    = 10
 vim.o.foldlevelstart = 99 -- opens all folds on buf enter

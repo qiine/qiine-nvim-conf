@@ -91,7 +91,9 @@ return
                         local entry = require('fzf-lua.path').entry_to_file(sel[1], o, o._uri)
                         local fpath = entry.bufname or entry.uri and entry.uri:match("^%a+://(.*)") or entry.path
 
-                        vim.cmd("file! " ..fpath.."|e!")
+                        local oldbuf = vim.api.nvim_get_current_buf()
+                        vim.cmd("e "..fpath)
+                        vim.api.nvim_buf_delete(oldbuf, {force=true})
                     end,
                 }
             },

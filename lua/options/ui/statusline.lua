@@ -1,7 +1,14 @@
 ----------------
 -- Statusline --
 ----------------
+-- [settings]
+vim.o.laststatus = 3
+--0 → Never show the statusline.
+--1 → Show the statusline only when there are multiple windows.
+--2 → Always show the statusline in evry window.
+--3 → (Global Statusline) A single statusline is displayed at the bottom, shared across all windows.
 
+-- [content]
 local mode_alias = {
     ['no']='O',['nov']='O-v',['noV']='O-Line',['no\22']='O-Block',
     ['n']='N',['niI']='Ni',['niR']='N',['niV']='N',['nt']='N',['ntT']='N',

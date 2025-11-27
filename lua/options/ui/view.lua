@@ -505,13 +505,5 @@ vim.o.messagesopt = "hit-enter,history:500"  --- wait:5000
 
 
 
--- ## [Statusline]
-----------------------------------------------------------------------
-vim.o.laststatus = 3
---0 → Never show the statusline.
---1 → Show the statusline only when there are multiple windows.
---2 → Always show the statusline in evry window.
---3 → (Global Statusline) A single statusline is displayed at the bottom, shared across all windows.
-
 
 

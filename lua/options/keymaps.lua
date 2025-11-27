@@ -136,55 +136,66 @@ end, {noremap=true})
 
 
 
--- ## [Files]
+-- ## [Filesystem]
 ----------------------------------------------------------------------
 -- Open surrounding files
-map({"i","n","v"}, "<M-C-S-PageUp>", function()
-    local curfile = vim.fn.expand("%:p") -- absolute path of current file
+map({"i","n","v"}, "<C-S-PageUp>", function()
+    local cwd = vim.fn.getcwd()
+    local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
 
-    local files = vim.fs.find(function(name, path)
-        return vim.fn.isdirectory(path .. "/" .. name) == 0
-    end, { type = "file", limit = math.huge })
+    local searchdir = cfdir == cwd and cfdir or cwd -- prefering cwd allow more nav freedom
 
-    table.sort(files)
-    local idx
-    for i, f in ipairs(files) do
-        if f == curfile then
-            idx = i break
-        end
+    local files = {}
+    for name, type in vim.fs.dir(searchdir) do
+        if type == "file" then table.insert(files, searchdir.."/"..name) end
     end
 
-    if not idx then print("Current file not found in cwd") return end
+    -- find curr file index
+    table.sort(files)
+    local idx = nil
+    for i, file in ipairs(files) do
+        if file == cfpath then idx = i break end
+    end
+    if not idx then idx = 1 end -- in case curfile != in cwd fallback to first item
 
-    local next_idx = (idx % #files) - 1
-    local next_file = files[next_idx]
+    -- local previdx = (idx - 2) % #files + 1 -- wraparound
+    local previdx = math.max(idx-1, 1)
+    local prevf = files[previdx]
 
-    if not next_file or not vim.uv.fs_stat(next_file) then return end
+    if not prevf or prevf == cfpath then return end
 
-    vim.cmd("file! next_file"); vim.cmd("e!")
+    local oldbuf = vim.api.nvim_get_current_buf()
+    vim.cmd("e! "..prevf)
+    vim.api.nvim_buf_delete(oldbuf, {force=true})
 end)
-map({"i","n","v"}, "<M-C-S-PageDown>", function()
-    local curfile = vim.fn.expand("%:p")
+map({"i","n","v"}, "<C-S-PageDown>", function()
+    local cwd = vim.fn.getcwd()
+    local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
 
-    local files = vim.fs.find(function(name, path)
-        return vim.fn.isdirectory(path .. "/" .. name) == 0
-    end, { type = "file", limit = math.huge })
+    local searchdir = cfdir == cwd and cfdir or cwd -- prefering cwd allow more nav freedom
 
-    table.sort(files)
-
-    local idx
-    for i, f in ipairs(files) do
-        if vim.fn.fnamemodify(f, ":p") == curfile then
-            idx = i
-            break
-        end
+    local files = {}
+    for name, type in vim.fs.dir(searchdir) do
+        if type == "file" then table.insert(files, searchdir.."/"..name) end
     end
 
-    if not idx then print("Current file not found in cwd") return end
+    -- find curr file index
+    table.sort(files)
+    local idx = nil
+    for i, file in ipairs(files) do
+        if file == cfpath then idx = i break end
+    end
+    if not idx then idx = 1 end -- in case curfile != in cwd fallback to first item
 
-    local next_idx = (idx % #files) + 1
-    vim.cmd.file(vim.fn.fnameescape(files[next_idx]))
-    vim.cmd("e!")
+    -- local nextidx = (idx - 2) % #files - 1 -- wraparound
+    local nextidx = math.min(idx+1, #files)
+    local nextf = files[nextidx]
+
+    if not nextf or nextf == cfpath then return end
+
+    local oldbuf = vim.api.nvim_get_current_buf()
+    vim.cmd("e! "..nextf)
+    vim.api.nvim_buf_delete(oldbuf, {force=true})
 end)
 
 

@@ -95,7 +95,27 @@ return
                                 -- title = 'Neo-tree Preview',
                             },
                         },
-                        ["<Del>"] = {"delete", config = {confirm = false}},
+                        ["<Del>"] = function(state)
+                            local node = state.tree:get_node()
+                            local filepath = node:get_id()
+                            local cmd = require("neo-tree.sources.filesystem.commands")
+
+                            local function back(result)
+                                if result then
+                                    if node and filepath then
+                                        local path = filepath
+                                        vim.fn.system({ "trash", path })
+                                    end
+                                else
+                                    cmd.refresh(state)
+                                    print("deletion was canceled")
+                                    return
+                                end
+
+                                cmd.refresh(state)
+                            end
+                            back(true)
+                        end,
                         ["<F2>"] = "rename",
                         ["N"] = "add_directory",
                         ["n"] = {

@@ -69,6 +69,14 @@ end, {expr = true, desc = "Escape and clear hlsearch"})
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
+-- Help
+map({"i","n"}, "<F1>", function()
+    if vim.bo.buftype == "help" then return vim.cmd("bwipeout!") end
+
+    vim.cmd("help")
+    vim.api.nvim_win_set_height(0, 18)
+end)
+
 
 
 -- ## [Buffers]

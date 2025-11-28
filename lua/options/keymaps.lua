@@ -1669,14 +1669,20 @@ end)
 
 -- Stage all
 map({"i","n","v"}, ldvc.."sa", function()
-    vim.cmd("silent !git add -A :/")
-    vim.notify("git add all", vim.log.levels.INFO)
+    vim.cmd("silent !git add -A")
+    vim.notify("git add all repo", vim.log.levels.INFO)
 end)
 
--- unstage
+-- Unstage
 map({"i","n","v"}, ldvc.."u", function()
     vim.cmd("silent !git reset %")
     vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)
+end)
+
+-- Unstage all
+map({"i","n","v"}, ldvc.."uu", function()
+    vim.cmd("silent !git reset")
+    vim.notify("git unstaged all", vim.log.levels.INFO)
 end)
 
 -- git commit

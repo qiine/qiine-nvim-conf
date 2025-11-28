@@ -203,6 +203,7 @@ end)
 map(modes, "<C-g>fm", "<Cmd>FileMove<CR>")
 map(modes, "<C-g>fr", "<Cmd>FileRename<CR>")
 map(modes, "<C-g>fd", "<Cmd>FileDelete<CR>")
+map({"i","n","v"}, "<M-C-S-Del>", "<Cmd>FileDelete<CR>")
 
 
 -- Save current

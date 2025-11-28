@@ -1864,29 +1864,37 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
 
 -- ## [Terminal]
 ----------------------------------------------------------------------
--- Open term
-map({"i","n","v"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
+-- Open term tab
+map({"i","n","v","t"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
 
+-- Term toggle vert
+map({"i","n","v","t"}, "<M-t>s", function()
+    if vim.bo.buftype == "terminal" then return vim.cmd("bd!") end
 
--- Quick split term
-map({"i","n","v"}, "<M-t>s", function()
     vim.cmd("vsp | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 end, {noremap=true})
 
-map({"i","n","v"}, "<M-t>h", function()
+-- Term toggle hor
+local function term_toggle_hor()
+    if vim.bo.buftype == "terminal" then return vim.cmd("bd!") end
+
     vim.cmd("split | term")
 
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-    vim.api.nvim_win_set_height(0, 12)
-end, {noremap=true})
 
--- float term
-map({"i","n","v"}, "<M-t>", function() utils.open_term_fwin() end)
-map({"i","n","v"}, "<M-t>f", function() utils.open_term_fwin() end)
+    vim.api.nvim_win_set_height(0, 11)
+end
+map({"i","n","v","t"}, "<M-t>h", function() term_toggle_hor() end, {noremap=true})
+map({"i","n","v","t"}, "<F6>", function() term_toggle_hor() end, {noremap=true})
+
+-- Float term
+map({"i","n","v","t"}, "<M-t>", function() utils.open_term_fwin() end)
+map({"i","n","v","t"}, "<M-t>f", function() utils.open_term_fwin() end)
+map({"i","n","v","t"}, "<F54>", function() utils.open_term_fwin() end)
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<Esc> <C-\><C-n>]], {noremap=true})

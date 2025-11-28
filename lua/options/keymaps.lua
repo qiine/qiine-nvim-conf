@@ -212,7 +212,7 @@ map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 -- Save as
 map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
 
--- Resource curr file
+-- Ressource curr file
 map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
     local cf = vim.fn.expand("%:p")
     vim.cmd("source "..cf)

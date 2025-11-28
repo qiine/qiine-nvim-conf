@@ -6,7 +6,7 @@
 
     "new variable table": {
         "prefix": "var table",
-        "body": [ "local ${1:newtable} = { ${2:}, }" ]
+        "body": [ "local ${1:newtable} = {${2:}}" ]
     },
 
     "new function": {

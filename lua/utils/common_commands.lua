@@ -55,6 +55,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
         vim.cmd("norm %") return --no bang ! to use custom keymap
     end
 
+    -- TODO maybe not optimal
     local clients = vim.lsp.get_clients({bufnr=0})
     local supported = false
     for _, client in ipairs(vim.lsp.get_clients({bufnr=0})) do
@@ -64,12 +65,15 @@ vim.api.nvim_create_user_command("HyperAct", function()
             return
         end
     end
+    if supported then return vim.lsp.buf.definition() end
 
-    if supported then
-        vim.lsp.buf.definition()
-    else
-        vim.cmd("norm! \29")
-    end
+    -- try go to tag C-]
+    local restag = pcall(vim.cmd, "norm! \29")
+    if restag then return end
+
+    -- try vim open file
+    local resgf = pcall(vim.cmd, "norm! gf")
+    if resgf then return end
 end, {})
 
 -- Quick ressource curr

@@ -363,21 +363,21 @@ map(modes, ldwin.."n",  function() utils.fwin_open() end)
 map(modes, ldwin.."nf", function() utils.fwin_open() end)
 
 -- Swap splits
-map({"i","n","v"}, ldwin.."<S-Left>",  "<cmd>wincmd H<cr>")
-map({"i","n","v"}, ldwin.."<S-Right>", "<cmd>wincmd L<cr>")
-map({"i","n","v"}, ldwin.."<S-Up>",    "<cmd>wincmd K<cr>")
-map({"i","n","v"}, ldwin.."<S-Down>",  "<cmd>wincmd J<cr>")
+map({"i","n","v"}, ldwin.."<S-Left>",  "<Cmd>wincmd H<CR>")
+map({"i","n","v"}, ldwin.."<S-Right>", "<Cmd>wincmd L<CR>")
+map({"i","n","v"}, ldwin.."<S-Up>",    "<Cmd>wincmd K<CR>")
+map({"i","n","v"}, ldwin.."<S-Down>",  "<Cmd>wincmd J<CR>")
 
 
 -- ### Nav
 -- To next window (include splits)
-map(modes, "<M-Tab>", "<cmd>wincmd w<cr>")
+map(modes, "<M-Tab>", "<Cmd>wincmd w<Cr>")
 
 -- To window
-map(modes, ldwin.."<C-Left>",  "<cmd>wincmd h<cr>")
-map(modes, ldwin.."<C-Right>", "<cmd>wincmd l<cr>")
-map(modes, ldwin.."<C-Up>",    "<cmd>wincmd k<cr>")
-map(modes, ldwin.."<C-Down>",  "<cmd>wincmd j<cr>")
+map(modes, ldwin.."<C-Left>",  "<Cmd>wincmd h<CR>")
+map(modes, ldwin.."<C-Right>", "<Cmd>wincmd l<CR>")
+map(modes, ldwin.."<C-Up>",    "<Cmd>wincmd k<CR>")
+map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
 
 
 -- ### Size

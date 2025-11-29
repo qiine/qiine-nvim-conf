@@ -190,6 +190,11 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             -- Select curr entry,
             vim.keymap.set("n", "<CR>", "<CR>zz<Cmd>wincmd w<CR>", {buffer=true, noremap=true})
 
+            -- Open entry and close
+            vim.keymap.set({"i","n"}, "<C-CR>", function()
+                vim.cmd("norm! \13zz")
+                vim.cmd("cclose")
+            end)
 
             -- Del entry
             vim.keymap.set("n", "d", function()

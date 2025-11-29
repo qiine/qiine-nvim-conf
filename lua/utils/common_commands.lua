@@ -32,13 +32,6 @@ vim.api.nvim_create_user_command("HyperAct", function()
         WORD = word
     end
 
-    -- Act
-    if buft == "quickfix" then
-        vim.cmd("norm! \13zz")
-        vim.cmd("cclose")
-        return
-    end
-
     if char == "" or char == " " then return end
 
     if WORD:match("^https?://") then

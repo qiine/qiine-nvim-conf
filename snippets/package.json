@@ -28,6 +28,10 @@
             {
                 "language": "json",
                 "path": "./json.json"
+            },
+            {
+                "language": "gitcommit",
+                "path": "./gitcommit.json"
             }
         ]
     }

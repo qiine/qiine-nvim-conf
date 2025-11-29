@@ -1,0 +1,13 @@
+{
+    "fix typo": {
+        "prefix": "fix typo",
+        "body": [ "fix: typo" ]
+    },
+
+    "feat": {
+        "prefix": "feat",
+        "body": [ "feat: ${1:}" ]
+    }
+}
+
+

@@ -52,9 +52,36 @@
         "body": [ "return ${1:}" ]
     },
 
-    "print": {
+    "lua print": {
         "prefix": "print",
         "body": [ "print(\"${1:hello!}\")" ]
+    },
+
+    "lua module": {
+        "prefix": "module",
+        "body": [
+            "local M = {}",
+            "",
+            "${1:}",
+            "",
+            "--------",
+            "return M"
+        ]
+    },
+
+    "lua type annotation param": {
+        "prefix": "type annotation param",
+        "body": ["---@param ${1:} ${2:}"]
+    },
+
+    "lua type annotation return": {
+        "prefix": "type annotation return",
+        "body": ["---@return ${1:}"]
+    },
+
+    "nvim print inspect": {
+        "prefix": "print inspect",
+        "body": [ "print(vim.inspect(${1:}))" ]
     },
 
     "nvim notify": {

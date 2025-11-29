@@ -1,0 +1,7 @@
+{
+    "c print": {
+        "prefix": "print",
+        "body": [ "printf(\"${1:hello!}\");" ]
+    }
+
+}

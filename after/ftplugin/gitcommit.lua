@@ -47,6 +47,15 @@ vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
 vim.keymap.set({"i","n","v","t"}, "<C-e>", "<Cmd>norm!$<CR>", {buffer=true})
 vim.keymap.set({"i","n","v","t"}, "<C-a>", "<Cmd>norm!0<CR>", {buffer=true})
 
+-- ### Quick snippets
+vim.keymap.set({"i","n","x"}, "<C-S-n>f", function()
+    lsnip.insert_snippet("feat")
+end, {buffer = true})
+
+vim.keymap.set({"i","n","x"}, "<C-S-n>ft", function()
+    lsnip.insert_snippet("fix typo")
+end, {buffer = true})
+
 -- abbrev
 vim.keymap.set("ia", "fe",  "feat:",  {buffer=true})
 vim.keymap.set("ia", "ch",  "chore:", {buffer=true})

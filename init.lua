@@ -73,7 +73,7 @@ safe_require("options.mousemaps")
 safe_require("options.internal")
 safe_require("options.editing")
 safe_require("options.textintel")
-safe_require("options.quickfix")
+safe_require("quickfix")
 
 -- ### ui
 safe_require("options.ui.theme")

@@ -59,14 +59,14 @@ vim.api.nvim_create_user_command("HyperAct", function()
     local supported = false
     for _, client in ipairs(vim.lsp.get_clients({bufnr=0})) do
         ---@type vim.lsp.Client
-        if client:supports_method('textDocument/implementation') then
-            vim.lsp.buf.implementation()
+        if client:supports_method('textDocument/definition') then
+            vim.lsp.buf.definition()
             return
         end
     end
 
     if supported then
-        vim.lsp.buf.implementation()
+        vim.lsp.buf.definition()
     else
         vim.cmd("norm! \29")
     end

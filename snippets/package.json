@@ -2,6 +2,14 @@
     "contributes": {
         "snippets": [
             {
+                "language": "all",
+                "path": "./general.json"
+            },
+            {
+                "language": "c",
+                "path": "./c.json"
+            },
+            {
                 "language": "lua",
                 "path": "./lua.json"
             },

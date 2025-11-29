@@ -8,32 +8,20 @@
 vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickfixToggle<CR>")
 
 -- Add text to qf
-vim.keymap.set({"i","n","v"}, "<M-q>a", function()
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-
-    local txt = ""
-    if vim.fn.mode():match("[in]") then
-        txt = vim.api.nvim_get_current_line()
-    else
-        txt = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
-    end
-
+    vim.keymap.set({"i","n","v"}, "<M-q>a", function()
     vim.fn.setqflist({}, "a", {
         items = {
             {
                 bufnr    = 0,
                 filename = vim.fn.expand("%:p"),
-                lnum     = cursopos[1],
-                col      = cursopos[2],
-                text     = txt
+                lnum     = vim.api.nvim_win_get_cursor(0)[1],
+                col      = vim.api.nvim_win_get_cursor(0)[2],
+                text     = vim.api.nvim_get_current_line()
             }
         }
     })
 
-    vim.notify(
-        (vim.fn.mode():match("[in]") and "Line" or "Selection") .. " added to qf",
-        vim.log.levels.INFO
-    )
+    vim.notify("Line added to qf", vim.log.levels.INFO)
 end)
 
 -- Add search to qf

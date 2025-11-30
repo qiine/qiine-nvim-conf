@@ -1,78 +1,109 @@
 
 -- Winbar --
 
+local M = {}
+
+-- theme
 vim.api.nvim_set_hl(0, "WinBar", { fg = "#595959", bg = "#e6e6e6", bold = false })
 vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#595959", bg = "#e6e6e6" })
 
---_G.on_click_handle = function(minwid, clicks, button, mods)
---    print("You clicked the 📁 icon!")
---end
 
-local function nvim_logo()
-    return '' --
+-- ## [Components]
+function M.nvim_logo()
+    _G.winbar_say_neovim = function()
+        print(" NEOVIM! ")
+    end
+
+    return "%@v:lua.winbar_say_neovim@%X"   --
 end
 
-local function toggle_filebrowser() --toggle neotree
-    --return "%@v:lua.require('config.ui.winbar').on_click_handler@%"..">>"
-    --return "%@v:lua.print('hello')@%T".."⇥"
-    return " ⇥ "
-    --on_click=function() vim.cmd("Neotree toggle") end,
+function M.toggle_filebrowser() --toggle neotree
+    _G.winbar_neotree_toggle = function()
+        vim.cmd("Neotree toggle")
+    end
+
+    return "%@v:lua.winbar_neotree_toggle@ ⇥ %X"
 end
 
-local function path_bar() --path
+-- fpath
+---@return string
+function M.path_bar()
     local fpath = vim.fn.expand("%:p")
+    local fdir  = vim.fn.expand("%:p:h")
+    -- fdir = vim.fs.normalize(vim.trim(fdir))
+    -- vim.fs.abspath(path)
 
-    local dir = vim.fn.fnamemodify(fpath, ":h")
-    if vim.bo.filetype == "oil" then
-        dir = vim.fn.getcwd()
-    end
+    if vim.bo.filetype == "oil" then fdir = vim.fn.getcwd() end
 
-    local shortened = ""
-    if #dir > 75 then
-        shortened = vim.fn.pathshorten(dir, 1)
+    local narrowin = vim.api.nvim_win_get_width(0) < 60
+
+    local pathbar = ""
+    if #fdir > 75 or narrowin then
+        pathbar = vim.fn.pathshorten(fdir, 1)
     else
-        local home = vim.fn.expand("~")
-        shortened = vim.fn.substitute(dir, "^" .. vim.fn.escape(home, "\\") .. "/", "~/", "")
+        pathbar = fdir
     end
 
-    local fancy = shortened:gsub("/", "🮥 ") --› > 〉  › ›
+    local pathchevrons = pathbar:gsub("/", "🮥 ") --› > 〉  › ›
 
-    return "📁│"..fancy..""  --/.
+    _G.winbar_path_toclipboard = function()
+        vim.fn.setreg("+", fpath); print("path copied")
+    end
+
+    return "%@v:lua.winbar_path_toclipboard@"..pathchevrons.."%X"
 end
 
-local function fav() --add to favorite butt
+function M.favs()
     local favz = require("modules.favorizer")
 
-    if favz.check_currfile_in_fav() then
+    if favz.check_file_infavs() then
         return favz.icon_infav
     else
         return favz.icon_notinfav
     end
 end
 
-local function burger() --burger
+function M.burger() --burger
     return "≡"
 end
 
---render all
-local function render()
+
+-- M.winbar_comps =
+
+function M.render()
+    -- local out = {}
+    -- for _, item in ipairs(M.winbar_comps) do
+    --     if type(item) == "function" then
+    --         local ok, res = pcall(item)
+    --         if ok and res then
+    --             table.insert(out, res)
+    --         end
+    --     else
+    --         table.insert(out, item)
+    --     end
+    -- end
+
+    -- return table.concat(out, "")
     return table.concat({
-        " ",
-        nvim_logo(),
-        " ",
-        toggle_filebrowser(),
-        path_bar(),
+    " ",
+    M.nvim_logo(),
+    " ",
+    M.toggle_filebrowser(),
+    M.path_bar(),
 
-        "%=", --middle split
+    "%=", --middle split
 
-        fav(),
-        " ",
-        burger(),
-        " ",
-    })
+    M.favs(),
+    " ",
+    M.burger(),
+    " ",
+}, "")
 end
 
-local excluded_filetype = {
+function M.show()  vim.o.winbar = M.render() end
+function M.clear() vim.o.winbar = ""         end
+
+M.excluded_filetype = {
     "help",
     "vim",
     "trouble",
@@ -80,118 +111,63 @@ local excluded_filetype = {
     "startify",
     "dashboard",
     "alpha",
-    "Outline"
+    "Outline",
+    "qf",
 }
 
-local excluded_buftype = {
+M.excluded_buftype = {
     "terminal",
-    "quickfix",
+    "prompt"
 }
 
---cond attach
+
+-- cmds
+vim.api.nvim_create_user_command("WinbarShow", function()
+    M.show()
+end, {})
+
+vim.api.nvim_create_user_command("WinbarClear", function()
+    M.clear()
+end, {})
+
+
+-- autocmds
 vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     group    = "UserAutoCmds",
-    pattern  = "*",
     callback = function(args)
         vim.defer_fn(function()
             -- win
             -- prevent errors with very small windows
             if vim.api.nvim_win_get_height(0) < 5 then return end
 
-            --off in floatwin
-            local wcfg = vim.api.nvim_win_get_config(vim.api.nvim_get_current_win())
-            if wcfg.relative ~= "" then vim.opt_local.winbar = nil return end
-
-            --buff
-            if vim.tbl_contains(excluded_buftype, vim.bo.buftype) then
+            -- off in floatwin
+            if vim.api.nvim_win_get_config(0).relative ~= "" then
                 vim.opt_local.winbar = nil return
             end
 
-            if not vim.api.nvim_get_option_value("buflisted",  { buf = 0 }) then
+
+            -- buff
+            if vim.tbl_contains(M.excluded_buftype, vim.bo.buftype) then
                 vim.opt_local.winbar = nil return
             end
 
-            --ft
-            if vim.tbl_contains(excluded_filetype, vim.bo.filetype) then
+            if not vim.api.nvim_get_option_value("buflisted",  {buf=0}) then
                 vim.opt_local.winbar = nil return
             end
 
-            vim.wo.winbar = require("options.ui.winbar").render()
-        end, 5)  -- delay give time for proper buftype update
+            -- off in diff mode
+            if vim.wo[0].diff then vim.opt_local.winbar = nil return end
+
+
+            -- ft
+            if vim.tbl_contains(M.excluded_filetype, vim.bo.filetype) then
+                vim.opt_local.winbar = nil return
+                end
+
+            vim.wo.winbar = M.render()
+        end, 5)  -- give time for proper buftype update
     end,
 })
 
-return { render = render }
 
-
-
-
---local M = {}
---- Window bar that shows the current file path (in a fancy way).
----@return string
---function M.render()
---    -- Get the path and expand variables.
---    local path = vim.fs.normalize(vim.fn.expand '%:p' --[[@as string]])
-
---    -- Replace slashes by arrows.
---    local separator = ' %#WinbarSeparator# '
-
---    local prefix, prefix_path = '', ''
-
---    -- If the window gets too narrow, shorten the path and drop the prefix.
---    if vim.api.nvim_win_get_width(0) < math.floor(vim.o.columns / 3) then
---        path = vim.fn.pathshorten(path)
---    else
---        -- For some special folders, add a prefix instead of the full path (making
---        -- sure to pick the longest prefix).
---        ---@type table<string, string>
---        local special_dirs = {
---            CODE = vim.g.projects_dir,
---            -- stylua: ignore
---            DOTFILES = vim.fn.stdpath 'config' --[[@as string]],
---            HOME = vim.env.HOME,
---            PERSONAL = vim.g.personal_projects_dir,
---        }
---        for dir_name, dir_path in pairs(special_dirs) do
---            if vim.startswith(path, vim.fs.normalize(dir_path)) and #dir_path > #prefix_path then
---                prefix, prefix_path = dir_name, dir_path
---            end
---        end
---        if prefix ~= '' then
---            path = path:gsub('^' .. prefix_path, '')
---            prefix = string.format('%%#WinBarSpecial#%s %s%s', "V", prefix, separator)
---        end
---    end
-
---    -- Remove leading slash.
---    path = path:gsub('^/', '')
-
---    return table.concat {
---        ' ',
---        prefix,
---        table.concat(
---            vim.tbl_map(function(segment)
---                return string.format('%%#Winbar#%s', segment)
---            end, vim.split(path, '/')),
---            separator
---        )
---    }
---end
-
-
---vim.api.nvim_create_autocmd('BufWinEnter', {
---    group = vim.api.nvim_create_augroup('mariasolos/winbar', { clear = true }),
---    desc = 'Attach winbar',
---    callback = function(args)
---        if
---            not vim.api.nvim_win_get_config(0).zindex -- Not a floating window
---            and vim.bo[args.buf].buftype == '' -- Normal buffer
---            and vim.api.nvim_buf_get_name(args.buf) ~= '' -- Has a file name
---            and not vim.wo[0].diff -- Not in diff mode
---            then
---                vim.wo.winbar = "%{%v:lua.require'winbar'.render()%}"
---            end
---        end,
---})
-
---return M
+return M

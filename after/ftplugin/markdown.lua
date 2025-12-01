@@ -76,6 +76,7 @@ vim.opt_local.softtabstop = 2 --Number of spaces to use for pressing TAB in inse
 
 
 -- [Keymaps]
+-- quick insert snip
 vim.keymap.set({"i","n","x"}, "<C-S-n>h", function()
     lsnip.insert_snippet("heading")
 end, {buffer = true})

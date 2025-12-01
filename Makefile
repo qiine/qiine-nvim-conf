@@ -2,9 +2,15 @@
 
 run:
 	nvim
+
 test:
 	nvim +checkhealth
+
+lint:
+	luacheck lua/
+
 clean:
 
-all: clean run
+
+all: clean lint run
 

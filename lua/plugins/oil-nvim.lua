@@ -64,11 +64,11 @@ return
                 rm = function(path) return true end,
             },
 
-            -- lsp_file_methods = {
-            --     enabled = true,
-            --     timeout_ms = 1000,
-            --     autosave_changes = true,
-            -- },
+            lsp_file_methods = {
+                enabled = true,
+                timeout_ms = 1000,
+                autosave_changes = false,
+            },
 
             use_default_keymaps = false,
             keymaps = {

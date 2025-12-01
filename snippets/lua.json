@@ -54,7 +54,7 @@
 
     "lua print": {
         "prefix": "print",
-        "body": [ "print(\"${1:hello!}\")" ]
+        "body": [ "print(\"${1:Hello!}\")" ]
     },
 
     "lua module": {

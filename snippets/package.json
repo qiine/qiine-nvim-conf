@@ -3,7 +3,7 @@
         "snippets": [
             {
                 "language": "all",
-                "path": "./general.json"
+                "path": "./all.json"
             },
             {
                 "language": "c",

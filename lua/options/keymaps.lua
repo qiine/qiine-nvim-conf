@@ -1640,6 +1640,7 @@ map({"i","n"}, "<C-h>", function()
         -- back to og winpos
         vim.api.nvim_create_autocmd('WinEnter', {
             group = 'UserAutoCmds',
+            once = true,
             buffer = ogbufid,
             callback = function()
                 vim.cmd("normal! zz")

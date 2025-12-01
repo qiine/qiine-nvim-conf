@@ -155,6 +155,17 @@
         "body": [ "vim.bo.buftype" ]
     },
 
+    "set nvim buffer variable": {
+        "prefix": "set nvim buffer variable",
+        "body": [ "vim.b[buf].${1:}" ]
+    },
+
+
+    "set nvim global variable": {
+        "prefix": "set nvim global variable",
+        "body": [ "vim.g.${1:}" ]
+    },
+
 
     "get nvim mode": {
         "prefix": "get nvim mode",

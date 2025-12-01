@@ -242,14 +242,24 @@ return
             })
         end, {noremap=true, silent=true, desc="live grep selected in project"})
 
-        -- grep git file rev
+        -- TODO FEAT grep file git rev
         -- git grep "OPTION_NAME" $(git rev-list --all) -- path/to/file
-        vim.keymap.set("v", "<M-f>gg", function()
-            -- local revs = git rev-list --all) -- path/to/file
-            require("fzf-lua").grep_visual({
-                cwd = require("fzf-lua.path").git_root({})
+        vim.keymap.set("n", "<M-f>gg", function()
+            local fzf = require("fzf-lua")
+            local git_root = require("fzf-lua.path").git_root({})
+            local file = vim.fn.expand("%:p") -- full path to current file
+
+            local cmd = string.format(
+                'git --no-pager show $(git rev-list --all -- "%s") | cat', file
+            )
+
+            fzf.fzf_exec(cmd, {
+                cwd = git_root,
+                actions = {
+                    ["default"] = fzf.actions.qf,  -- put selected line in quickfix
+                },
             })
-        end, {noremap=true, silent=true, desc="grep git file rev"})
+        end, {noremap=true, silent=true, desc="all lines from git history of current file"})
 
 
         -- grep in notes

@@ -74,6 +74,9 @@ vim.api.nvim_create_user_command("HyperAct", function()
     -- try vim open file
     local resgf = pcall(vim.cmd, "norm! gf")
     if resgf then return end
+
+    local resgd = pcall(vim.cmd, "norm! gd")
+    if resgd then return end
 end, {})
 
 -- Quick ressource curr
@@ -123,7 +126,7 @@ vim.api.nvim_create_user_command("ToggleMsgLog", function()
     vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
     vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
     vim.api.nvim_set_option_value("filetype", "log",   {buf=0})
-    vim.api.nvim_set_option_value("modifiable", false, {buf=0})
+    -- vim.api.nvim_set_option_value("modifiable", false, {buf=0})
 
     vim.cmd("stopinsert")
     vim.cmd("norm! G")
@@ -208,7 +211,9 @@ end, {})
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("BuffInfo", function(opts)
     local buf = tonumber(opts.args) or vim.api.nvim_get_current_buf()
-    -- local buf = tonumber(opts.args) or 0
+    -- buf = vim.api.nvim_buf_is_valid(buf) and buf or 0
+
+    buf = buf ~= -1 and buf or 0
 
     local infos = {
         "Name:       "..vim.api.nvim_buf_get_name(buf),
@@ -266,10 +271,11 @@ end, {})
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
     local fp = vim.api.nvim_buf_get_name(0)
-    local rdir = require("utils.utils").find_proj_root_forfile(fp)
+    local rdir = require("utils.utils").get_file_projr_dir(fp)
     print(rdir)
 end, {})
 
+-- Send file info to clipboard
 vim.api.nvim_create_user_command("CopyFileName", function()
     vim.fn.setreg("+", vim.fn.expand("%:t"))
     print("Copied file name: " ..'"'..vim.fn.getreg("+")..'"')
@@ -280,12 +286,21 @@ vim.api.nvim_create_user_command("CopyFilePath", function()
     print("Copied file path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
-vim.api.nvim_create_user_command("CopyFileDirPath", function()
+vim.api.nvim_create_user_command("CopyFileDir", function()
     vim.fn.setreg("+", vim.fn.expand("%:p:h"))
     print("Copied file dir path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
+vim.api.nvim_create_user_command("CopyFileProjRootDir", function()
+    local fpath    = vim.fn.expand("%:p")
+    local prdir    = utils.get_file_projr_dir(fpath)
+    local fpathprr = utils.make_path_projr_rel(fpath, prdir)
+    vim.fn.setreg("+", fpathprr)
+    print("Copied file dir path root rel: " ..'"'..vim.fn.getreg("+")..'"')
+end, {})
 
+
+-- cd
 vim.api.nvim_create_user_command("CdFileDir", function()
     vim.cmd("cd %:p:h")
     vim.cmd("pwd")
@@ -419,12 +434,7 @@ vim.api.nvim_create_user_command("FileMove", function()
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if     input == nil then
-                vim.notify("Move canceled. ", vim.log.levels.INFO) return
-            elseif input == ""  then
-                vim.notify("Input cannot be empty!", vim.log.levels.WARN)
-                return prompt_user()
-            end
+            if input == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end
 
             -- Check target dir
             if not vim.uv.fs_stat(input) then
@@ -451,14 +461,11 @@ vim.api.nvim_create_user_command("FileMove", function()
                 end
             end
 
-            -- now lets movein'
             local ret, err = vim.uv.fs_rename(fpath, target_path)
-            if not ret then
-                vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return
-            end
+            if not ret then vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return end
 
             -- Update buffer
-            vim.api.nvim_buf_set_name(0, target_path); vim.cmd("e!") --refresh buf to new path
+            vim.cmd("file "..target_path.." | e!") -- need refresh buf
             vim.notify("Moved to: " .. input, vim.log.levels.INFO)
         end)
     end
@@ -500,12 +507,7 @@ vim.api.nvim_create_user_command("FileRename", function()
         function(input)
             vim.api.nvim_command("redraw") --Hide init prompt
 
-            if     input == nil then
-                vim.notify("Rename canceled.", vim.log.levels.INFO) return
-            elseif input == "" then
-                vim.notify("Input cannot be empty!", vim.log.levels.WARN)
-                return prompt_user()
-            end
+            if input == nil then vim.notify("Rename canceled.", vim.log.levels.INFO) return end
 
             local new_fpath = vim.fs.joinpath(old_dir,input)
 
@@ -520,12 +522,9 @@ vim.api.nvim_create_user_command("FileRename", function()
 
             -- Now rename
             local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
-            if not ret then
-                vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return
-            end
+            if not ret then vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return end
 
-            -- Need to reload buffer with new file
-            vim.api.nvim_buf_set_name(0, new_fpath); vim.cmd("e!") --refresh buf to new name
+            vim.cmd("file "..new_fpath.." | e!") -- need refresh buf
             vim.notify('Renamed to: "'..input..'"', vim.log.levels.INFO)
         end)
     end
@@ -646,7 +645,7 @@ end, {})
 
 
 -- #### Extended attributes
-vim.api.nvim_create_user_command("FileSetLangFattr", function(opts)
+vim.api.nvim_create_user_command("FileSetLangFileattr", function(opts)
     if opts.args == "" then vim.notify("cmd need a lang! ", vim.log.levels.ERROR) return end
 
     local lang = opts.args
@@ -661,7 +660,7 @@ vim.api.nvim_create_user_command("FileSetLangFattr", function(opts)
     end
 end, {nargs = 1})
 
-vim.api.nvim_create_user_command("FileGetLangFattr", function()
+vim.api.nvim_create_user_command("FileGetLangFileattr", function()
     local fpath = vim.fn.expand("%:p")
     local fname = vim.fn.expand("%:t")
 
@@ -901,24 +900,20 @@ end, {nargs="?"})
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("GitPrintRoot", function()
-    print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
-end, {})
-
 --diff curr file with given rev
 vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     -- TODO use just a number as arg
     local argrev = opts.args ~= "" and opts.args or "HEAD~0"
 
-    local bufid = vim.api.nvim_get_current_buf()
-    local fpath = vim.api.nvim_buf_get_name(bufid)
-    local fdir  = vim.fn.expand("%:h")
-
-    local res_groot = vim.system({"git", "rev-parse", "--show-toplevel"}, {cwd=fdir, text=true}):wait()
-    local fpath_rootrel = fpath:sub(#(vim.trim(res_groot.stdout)) + 2)
+    local cbufid = vim.api.nvim_get_current_buf()
+    local fpath = vim.api.nvim_buf_get_name(cbufid)
+    local fdir  = vim.fn.expand("%:p:h")
     local ftype = vim.bo.filetype
 
     local curso_pos = vim.api.nvim_win_get_cursor(0)
+
+    local res_groot = vim.system({"git", "rev-parse", "--show-toplevel"}, {cwd=fdir, text=true}):wait()
+    local fpath_rootrel = fpath:sub(#(vim.trim(res_groot.stdout)) + 2)
 
     -- Create diffbuf
     vim.cmd("vsplit")
@@ -933,12 +928,13 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     vim.b[difbuf].revision = tonumber(revstr)
 
     -- Pulling git data
-    -- TODO does not give correct value it seem
-    local res_count = vim.system({"git", "rev-list", "--count", "HEAD", "--", fpath_rootrel}, {text = true}):wait()
+    -- TODO BUG does not give correct value it seem
+    -- TODO BUG get confused if cwd is not inside repo of curr file
+    local res_count = vim.system({"git", "rev-list", "--count", "HEAD", "--", fpath_rootrel}, {cwd=fdir, text=true}):wait()
 
     ---@param rev string
     local function git_diffwrite(rev)
-        local res_log = vim.system({"git", "log", "-1", rev, "--", fpath}, {cwd=fdir, text=true}):wait()
+        local res_log = vim.system({"git", "log", "-1", rev, "--", fpath_rootrel}, {cwd=fdir, text=true}):wait()
         local res_rev = vim.system({"git", "show", rev..":"..fpath_rootrel}, {cwd=fdir, text=true}):wait()
         if res_rev.code ~= 0 then vim.notify(res_rev.stderr, vim.log.levels.ERROR) end
 
@@ -949,12 +945,11 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
         vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, {"============================================================"})
         vim.api.nvim_buf_set_lines(difbuf, -1, -1, false, vim.split(res_rev.stdout, "\n"))
 
-
         print("Curr rev = "..rev.."/"..vim.trim(res_count.stdout))
     end
     git_diffwrite(argrev)
 
-    -- keymap
+    -- Keymap
     vim.keymap.set({"i","n","v"}, "<C-S-PageUp>", function()
         local lcurso_pos = vim.api.nvim_win_get_cursor(0)
 
@@ -1012,84 +1007,7 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     vim.cmd("wincmd w") --back to diff
 end, {nargs = "?"})
 
-vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
-    local rev = opts.args ~= "" and opts.args or "HEAD"
 
-    local fpath = vim.api.nvim_buf_get_name(0)
-
-    -- Check if file exists in rev
-    local ls_res = vim.system({"git", "ls-tree", "-r", "--name-only", rev, fpath}, {text=true}):wait()
-    if ls_res.code ~= 0 or ls_res.stdout == "" then
-        vim.notify("File does not exist at revision " .. rev, vim.log.levels.ERROR)
-        return
-    end
-
-    local res = vim.system({"git", "restore", "-s", rev, "--", fpath}, {text=true}):wait()
-    if res.code == 0 then
-        vim.cmd("edit!")
-        vim.notify("File restored to ".. rev, vim.log.levels.INFO)
-    else
-        vim.notify("git restore failed: " .. git_res.stderr, vim.log.levels.ERROR)
-    end
-end, {nargs="?"})
-
-vim.api.nvim_create_user_command("GitLogFile", function()
-    require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
-end, {})
-
-vim.api.nvim_create_user_command("GitLogFileSplit", function()
-    local fp =  vim.fn.expand("%:p")
-
-    vim.cmd("vs | term dash")
-
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
-    vim.api.nvim_set_option_value("buflisted", false,  { buf = 0 })
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git log HEAD "..fp.."\n")
-end, {})
-
-vim.api.nvim_create_user_command("GitHunksHighlight", function()
-    local ns = vim.api.nvim_create_namespace("githunks")
-
-    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-
-    local fp = vim.fn.expand("%:p")
-    local diff = vim.fn.systemlist("git --no-pager diff -U0 HEAD -- " .. fp)
-
-    local added_start, added_count
-    local deleted_start, deleted_count
-
-    for _, line in ipairs(diff) do
-        -- Hunk header like @@ -12,0 +34,5 @@
-        local ds, dc, as, ac = line:match("^@@ %-(%d+),?(%d*) %+(%d+),?(%d*) @@")
-        if ds and as then
-            deleted_start = tonumber(ds)
-            deleted_count = tonumber(dc ~= "" and dc or "1")
-            added_start = tonumber(as)
-            added_count = tonumber(ac ~= "" and ac or "1")
-
-            -- Highlight added lines
-            for i = 0, added_count - 1 do
-                local lnum = added_start + i - 1
-                vim.api.nvim_buf_set_extmark(0, ns, lnum, 0, {
-                    hl_group = "DiffAdd",
-                    line_hl_group = "DiffAdd",
-                    hl_mode = "combine",
-                })
-            end
-
-            -- For deleted lines: cannot highlight buffer lines; could use signs or virtual text
-            -- Example: place virtual text to show deletions
-            for i = 0, deleted_count - 1 do
-                local lnum = deleted_start + i - 1
-                vim.api.nvim_buf_set_extmark(0, ns, lnum, 0, {
-                    virt_text = {{"-", "DiffDelete"}},
-                    virt_text_pos = "overlay",
-                })
-            end
-        end
-    end
-end, {})
 
 
 vim.api.nvim_create_user_command("GitHunkToggleHighlight", function()
@@ -1253,6 +1171,4 @@ vim.api.nvim_create_user_command("FacingPages", function()
         end,
     })
 end, {})
-
-
 

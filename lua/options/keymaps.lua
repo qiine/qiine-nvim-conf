@@ -8,13 +8,22 @@
 --          |___/                |_|
 
 local utils    = require("utils.utils")
+
+local fs       = require("fs")
+local gact     = require("git.git")
+
 local ts_utils = require("nvim-treesitter.ts_utils")
 local lsnip    = require("luasnip")
 
+
 local v   = vim
 local map = vim.keymap.set
-----------------------------------------
 
+-- Modes helpers
+local modes = { "i", "n", "v", "o", "s", "t", "c" }
+
+
+----------------------------------------
 
 -- ## [key Options]
 vim.o.timeoutlen = 400 --delay between key press to register shortcuts
@@ -41,11 +50,6 @@ vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
         if mode == "" then vim.o.virtualedit = "block"   return end
     end,
 })
-
-
--- Modes helpers
-local modes = { "i", "n", "v", "o", "s", "t", "c" }
-
 
 
 -- ## [General]
@@ -99,14 +103,14 @@ map(modes, "<C-w>", function()
     local bufwindows = vim.fn.win_findbuf(bufid)
     local ftype      = vim.bo.filetype
 
+    -- Try close cmdline before
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
     -- custom save warning if buf modified and it is it's last win
-    if bufmodif and #bufwindows <= 1 then
+    if bufmodif then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
         if choice ~= 1 then return end
     end
-
-    -- try close cmdline before
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
     if ftype == "oil" then
         for _, bid in ipairs(vim.api.nvim_list_bufs()) do
@@ -117,6 +121,7 @@ map(modes, "<C-w>", function()
         end
     end
 
+    -- TODO IMPROV close is not super reliable
     -- Try :close first, in case both splits are same buf (fails if no split)
     -- It avoids wiping the shared buffer in this case
     -- #vim.fn.win_findbuf(0)
@@ -145,6 +150,7 @@ map({"i","n","v"}, "<C-S-PageUp>", function()
 
     local searchdir = cfdir == cwd and cfdir or cwd -- prefering cwd allow more nav freedom
 
+    -- TODO FEAT allow to filter certain files like bin
     local files = {}
     for name, type in vim.fs.dir(searchdir) do
         if type == "file" then table.insert(files, searchdir.."/"..name) end
@@ -167,6 +173,7 @@ map({"i","n","v"}, "<C-S-PageUp>", function()
     local oldbuf = vim.api.nvim_get_current_buf()
     vim.cmd("e! "..prevf)
     vim.api.nvim_buf_delete(oldbuf, {force=true})
+    -- print(vim.inspect(files))
 end)
 map({"i","n","v"}, "<C-S-PageDown>", function()
     local cwd = vim.fn.getcwd()
@@ -174,6 +181,7 @@ map({"i","n","v"}, "<C-S-PageDown>", function()
 
     local searchdir = cfdir == cwd and cfdir or cwd -- prefering cwd allow more nav freedom
 
+    -- TODO FEAT allow to filter certain files like bin
     local files = {}
     for name, type in vim.fs.dir(searchdir) do
         if type == "file" then table.insert(files, searchdir.."/"..name) end
@@ -203,14 +211,17 @@ end)
 map(modes, "<C-g>fm", "<Cmd>FileMove<CR>")
 map(modes, "<C-g>fr", "<Cmd>FileRename<CR>")
 map(modes, "<C-g>fd", "<Cmd>FileDelete<CR>")
-map({"i","n","v"}, "<M-C-S-Del>", "<Cmd>FileDelete<CR>")
+map({"i","n","v"}, "<M-S-Del>", "<Cmd>FileDelete<CR>")
 
-
+-- ### Write
 -- Save current
 map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
 
 -- Save as
 map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
+
+map("v", "<C-g>fa", function() fs.append_select_to_file() end)
+map("v", "<C-g>fc", function() fs.move_select_to_file() end)
 
 -- Ressource curr file
 map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
@@ -219,10 +230,11 @@ map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
     print("Ressourced: "..'"'..vim.fn.fnamemodify(cf, ":t")..'"')
 end)
 
--- ### File explore
+
+-- ### File explorer
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
-    local rootdir = utils.find_proj_root_forfile(vim.api.nvim_buf_get_name(0))
+    local rootdir = utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))
 
     require("neo-tree.command").execute({
         action = "show",
@@ -506,17 +518,17 @@ map({"n","v"}, "<Down>", "g<Down>")
 -- vim.keymap.set('n', 'k', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'k']], { expr = true })
 
 
--- ### [Fast and furious cursor move]
 -- ### [Scrolling]
 map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
 
--- m' is used to write into jump list
+
+-- ### [Fast and furious cursor move]
 -- Fast left/right move in normal mode
-map({"n","v"}, "<C-Right>", "<cmd>norm! m'7l<CR>")
-map({"n","v"}, "<C-Left>",  "<cmd>norm! m'7h<CR>")
+map({"n","v"}, "<C-Right>", "<Cmd>norm! 7l<CR>")
+map({"n","v"}, "<C-Left>",  "<Cmd>norm! 7h<CR>")
 
 -- ctrl+up/down to move fast
 map("i",       "<C-Up>", "<esc>m'3ki")
@@ -530,7 +542,7 @@ map({"n","v"}, "<C-Down>", "m'3j")
 -- Jump to start/end of line
 map({"i","n","v"}, "<M-Left>", "<cmd>norm! 0<cr>")
 map("c",           "<M-Left>", "<C-b>", {noremap=true})
--- map("t",           "<M-Left>", "<Home>", {noremap=true}) -- cause issues with nested nvim
+map("t",           "<M-Left>", "<C-a>", {noremap=true})
 
 map("i",           "<M-Right>", "<C-o>A") -- notice the 'a'
 map({"n","v"},     "<M-Right>", function()
@@ -541,7 +553,7 @@ map({"n","v"},     "<M-Right>", function()
     end
 end)
 map("c",           "<M-Right>", "<C-e>", {noremap=true})
--- map("t",           "<M-Right>", "<End>", {}) -- cause issues with nested nvim
+map("t",           "<M-Right>", "<C-e>", {noremap=true})
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")
@@ -721,12 +733,12 @@ end)
 -- cd shortcuts
 -- cd curr file dir
 map({"i","n","v"}, "<C-S-Home>", function()
-    vim.cmd("cd "..vim.fn.expand("%:h").." | pwd")
+    vim.cmd("cd "..vim.fn.expand("%:p:h").." | pwd")
 end)
 
 -- cd curr file proj root dir
 map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = utils.find_proj_root_forfile(vim.api.nvim_buf_get_name(0))
+    local rootdir = utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))
     vim.cmd("cd "..rootdir.." | pwd")
 end)
 
@@ -782,7 +794,7 @@ end)
 -- Search Help for selection
 map("v", "<F1>", 'y:h <C-r>"<CR>')
 
-map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
+-- map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
 
 
 
@@ -934,7 +946,8 @@ map({"i","n"}, "<C-S-n>vt", function() lsnip.insert_snippet("var table") end)
 
 -- Insert func
 map({"i","n"}, "<C-S-n>f",  function() lsnip.insert_snippet("func") end)
-map({"i","n"}, "<C-S-n>fa", function() lsnip.insert_snippet("anon func") end)
+map({"i","n"}, "<C-S-n>fl", function() lsnip.insert_snippet("func loc") end)
+map({"i","n"}, "<C-S-n>fa", function() lsnip.insert_snippet("func anon") end)
 
 -- Insert if
 map({"i","n"}, "<C-S-n>i",  function() lsnip.insert_snippet("if") end)
@@ -945,7 +958,6 @@ map({"i","n"}, "<C-S-n>fe", function() lsnip.insert_snippet("for each") end)
 map({"i","n"}, "<C-S-n>r",  function() lsnip.insert_snippet("return") end)
 
 
--- Insert print
 map({"i","n"}, "<C-S-n>p",  function() lsnip.insert_snippet("print") end)
 
 
@@ -1013,16 +1025,16 @@ map({"i","n"}, "<C-x>", function()
 
     if char:match("[(){}%[%]'\"`<>]") and obj ~= "" then
         vim.cmd('norm! mz"+di'..char..'`z')
-        print("Obj cut") return
+        return print("Obj cut")
     end
 
     if vim.fn.match(word, [[\k]]) ~= -1 then
         vim.cmd('norm! mz"+diw`z')
-        print("Word cut") return
+        return print("Word cut")
     end
 
     vim.cmd('norm! "+dl')
-    print("Char cut") return
+    return print("Char cut")
 end, {noremap=true})
 
 
@@ -1061,6 +1073,7 @@ map("n", "<C-v>", function()
 end)
 
 -- Paste swap selected
+-- TODO BUG buggy if swap from right to left
 map("v", "<C-S-v>", function()
     local text = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "["), vim.api.nvim_buf_get_mark(0, "]")
@@ -1159,7 +1172,6 @@ map({"n","v"}, "<BS>", 'r ')
 --kmap({"i","n"}, "<M-BS>", "<cmd>norm! v0r <CR>"
 
 -- Clear line
--- map({"i","n","v"}, "<S-BS>", '<Cmd>norm!Vr <CR>') -- TODO leave only one blank char on each line
 map({"i","n","v"}, "<S-BS>", function()
     vim.cmd('norm! '..(vim.fn.mode() == "V" and 'r ' or 'Vr ') )
 end)
@@ -1172,18 +1184,20 @@ map("v", "<Del>", '"_di')
 -- Delete right word
 map("i",       "<C-Del>", '<C-o>"_dw')
 map({"n","v"}, "<C-Del>", '"_dw')
-map("c",       "<C-Del>", '<C-right><C-w>')
+-- TODO BUG with word with "."
+map("c",       "<C-Del>", "<C-Right><C-w>")
 
 -- Del to end of line
 map({"i","n","v"}, "<M-Del>", function()
     vim.cmd('norm! '..(vim.fn.mode() == "" and '$"_d' or 'v$h"_d') )
 end)
+map("c", "<M-Del>", "<C-Right><C-w><C-Right><C-w><C-Right><C-w>") -- TODO very ugly
 
 -- Delete line
 map({"i","n","v"}, "<S-Del>", function()
     vim.cmd("norm! "..(vim.fn.mode() == "V" and '"_d' or 'V"_d') )
 end)
-map("c", "<S-Del>", "<C-u>")
+map("c", "<S-Del>", "<C-Left><C-w>")
 
 -- Del line, detect empty line without trashing reg
 map("n", "dd", function()
@@ -1268,7 +1282,7 @@ map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitute mode"})
 
--- Substitute in selection
+-- Substitute inside selection
 map("v", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitute mode in selection"})
@@ -1569,7 +1583,7 @@ map({"i","n","v"}, "<F10>", "<Cmd>Trouble diagnostics toggle focus=true filter.b
 
 map({"i","n","v"}, "<F58>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
-
+-- To next diag
 map({"i","n","v"}, "<C-PageUp>d",  "]d")
 map({"i","n","v"}, "<C-PageDow>d", "[d")
 
@@ -1580,12 +1594,41 @@ map("n", "gr", "<Cmd>lua vim.lsp.buf.references()<CR>")
 -- Goto definition
 map("i", "<F12>", "<Esc>gdi")
 map("n", "<F12>", "gd")
--- map("n", "<F12>", ":lua vim.lsp.buf.definition()<cr>")
-map("v", "<F12>", "<Esc>gd")
+map("n", "<F24>", ":lua vim.lsp.buf.definition()<cr>")
+map("n", "<F60>", ":lua vim.lsp.buf.implementation()<cr>")
+
+map({"i","n"}, "<C-h>", function()
+    local ogbuf = vim.api.nvim_buf_get_name(0)
+
+    local params = vim.lsp.util.make_position_params(0, "utf-8")
+
+    vim.lsp.buf_request(0, "textDocument/definition", params, function(err, result)
+        if err or not result or vim.tbl_isempty(result) then
+            return vim.cmd([[echohl ErrorMsg | echom "Definition not found" | echohl None]])
+        end
+
+        local def   = result[1]
+        local uri   = def.uri or def.targetUri
+        local range = def.range or def.targetSelectionRange
+
+        local filepath = vim.uri_to_fname(uri)
+        local line = range.start.line
+
+        vim.cmd("split | e " .. filepath)
+        if ogbuf ~= vim.api.nvim_buf_get_name(0) then
+            vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+            vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+            vim.opt_local.winbar = nil
+        end
+
+        local byte_col = vim.lsp.util.character_offset(0, line, range.start.character, "utf-16")
+        vim.api.nvim_win_set_cursor(0, { line + 1, byte_col })
+    end)
+end)
 
 
 -- Show hover window
-map({"i","n"}, "<C-h>", function()
+map({"i","n"}, "<C-S-h>", function()
     vim.lsp.buf.hover()
     vim.lsp.buf.hover() -- weird but needed to enter win
 
@@ -1606,6 +1649,7 @@ map({"i","n"}, "<F2>", function()
     -- live-rename is a plugin for fancy in buffer rename preview
     require("live-rename").rename({ insert = true })
 end)
+
 
 
 -- ### Diff
@@ -1640,24 +1684,21 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 
 
 
--- ## [Version control]
+-- ## [git]
 ----------------------------------------------------------------------
 local ldvc = "<S-Space>g"
 
 map({"i","n","v"}, ldvc,  "<Cmd>Neogit<CR>")
 map({"i","n","v"}, ldvc.."g", "<Cmd>Neogit<CR>")
 
--- stage
-map({"i","n","v"}, ldvc.."s", function()
-    vim.cmd("silent !git add %")
-    vim.notify("git add "..vim.fn.expand("%:p"), vim.log.levels.INFO)
-end)
+-- Stage file
+map({"i","n","v"}, ldvc.."s", gact.add_file)
 
 -- Stage hunk under cursor
 map({"i","n","v"}, ldvc.."ss", "<Cmd>Gitsigns stage_hunk<CR>")
 
 -- Stage edit patch file
-map({"i","n","v"}, ldvc.."ae", function()
+map({"i","n","v"}, ldvc.."se", function()
     local fp = vim.fn.expand("%:p")
 
     utils.open_term_fwin(nil, {
@@ -1669,22 +1710,13 @@ map({"i","n","v"}, ldvc.."ae", function()
 end)
 
 -- Stage all
-map({"i","n","v"}, ldvc.."sa", function()
-    vim.cmd("silent !git add -A")
-    vim.notify("git add all repo", vim.log.levels.INFO)
-end)
+map({"i","n","v"}, ldvc.."sa", gact.add_all_repo)
 
--- Unstage
-map({"i","n","v"}, ldvc.."u", function()
-    vim.cmd("silent !git reset %")
-    vim.notify("git unstaged "..vim.fn.expand("%:p"), vim.log.levels.INFO)
-end)
+-- Unstage file
+map({"i","n","v"}, ldvc.."u", gact.unstage_file)
 
 -- Unstage all
-map({"i","n","v"}, ldvc.."uu", function()
-    vim.cmd("silent !git reset")
-    vim.notify("git unstaged all", vim.log.levels.INFO)
-end)
+map({"i","n","v"}, ldvc.."uu", gact.unstage_all_repo)
 
 -- git commit
 map({"i","n","v"}, ldvc.."c", function()
@@ -1698,8 +1730,8 @@ end)
 
 -- Commit curr file
 map({"i","n","v"}, ldvc.."cc", function()
-    local fp = vim.fn.expand("%:p")
-    local fdir = vim.fn.expand("%:h")
+    local fp   = vim.fn.expand("%:p")
+    local fdir = vim.fn.expand("%:p:h")
 
     utils.open_term_fwin(nil, {
         title = "Commit file",
@@ -1768,7 +1800,7 @@ map({"i","n","v"}, "<F56>", function()  end)
 -- run project
 map({"i","n","v"}, "<F8>", function()
     local cwd     = vim.fn.getcwd()
-    local markers = {".git", "Makefile", "package.json"}
+        local markers = {".git", "Makefile", "package.json"}
     local diroot  = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
 
     local file   = vim.fn.expand("%:p")
@@ -1795,7 +1827,7 @@ map({"i","n","v"}, "<F8>", function()
         elseif ft == "sh" then
             cmd = "bash " .. vim.fn.shellescape(file)
         else
-            vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
+            return vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
         end
 
         if buft ~= "terminal" then
@@ -1806,6 +1838,7 @@ map({"i","n","v"}, "<F8>", function()
 
             vim.cmd("startinsert")
         end
+
         vim.fn.setreg("z", cmd)
         vim.cmd('norm! "zP')
         vim.api.nvim_feedkeys("\13", "t", false)
@@ -1855,6 +1888,7 @@ map("t", "<M-`>", '<Esc><C-\\><C-n>q:')
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     group = "UserAutoCmds",
     callback = function()
+        vim.cmd("startinsert")
         vim.keymap.set("n", "<M-`>", ':quit<CR>' , {buffer=true})
     end,
 })
@@ -1902,7 +1936,7 @@ map({"i","n","v","t"}, "<F6>", function() term_toggle_hor() end, {noremap=true})
 -- Float term
 map({"i","n","v","t"}, "<M-t>", function() utils.open_term_fwin() end)
 map({"i","n","v","t"}, "<M-t>f", function() utils.open_term_fwin() end)
-map({"i","n","v","t"}, "<F54>", function() utils.open_term_fwin() end)
+map({"i","n","v","t"}, "<F18>", function() utils.open_term_fwin() end)
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<Esc> <C-\><C-n>]], {noremap=true})

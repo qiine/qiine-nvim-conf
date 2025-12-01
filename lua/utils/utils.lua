@@ -278,11 +278,20 @@ end
 function M.get_file_projr_dir(fpath)
     if not fpath or fpath == "" then return vim.fn.getcwd() end
 
-    local root = vim.fs.root(fpath,
+    local froot = vim.fs.root(fpath,
         { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }
     )
 
-    return root or vim.fn.getcwd()
+    if froot then
+        return froot
+    else
+        local fdir = vim.fn.fnamemodify(fpath, ':h')
+        local stat = vim.uv.fs_stat(fdir)
+
+        if not stat or not stat.type == "directory" then return vim.fn.getcwd() end
+
+        return fdir
+    end
 end
 
 

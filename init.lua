@@ -68,20 +68,20 @@ safe_require("options.lazy")
 safe_require("options.keymaps")
 safe_require("options.abbreviations")
 safe_require("options.mousemaps")
+safe_require("quickfix")
 
 -- ## options
 safe_require("options.internal")
 safe_require("options.editing")
 safe_require("options.textintel")
-safe_require("quickfix")
-
--- ### ui
 safe_require("options.ui.theme")
 safe_require("options.ui.conceal")
 safe_require("options.ui.view")
 safe_require("options.ui.menus")
-safe_require("options.ui.winbar")
 safe_require("options.ui.statusline")
+
+-- ## ui
+safe_require("ui.winbar")
 
 
 

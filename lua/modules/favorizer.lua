@@ -28,6 +28,9 @@ M.quickfiles =
     [9] = "",
 }
 
+-- TODO FEAT refactor quick objects, files, dir
+-- /home/qm/.local/share/nvim/
+
 M.quickactions =
 {
     [1] = "CopyFilePath",
@@ -185,7 +188,7 @@ function M.get_favs_names()
 end
 
 ---@return boolean
-function M.check_currfile_in_fav()
+function M.check_file_infavs()
     return M.check_is_faved(M.get_favs(), vim.fn.expand("%:t"))
 end
 

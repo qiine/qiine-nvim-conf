@@ -50,7 +50,7 @@ vim.api.nvim_create_autocmd('BufRead', {
 -- ## [Spelling]
 ----------------------------------------------------------------------
 vim.opt.spell = false
---TODO make it ignore fenced code in marksown
+--TODO make it ignore fenced code in markdown
 --maybe allow only for comment for other filetypes?
 
 -- SpellIgnore rules
@@ -70,6 +70,7 @@ vim.opt.spell = false
 -- })
 
 
+-- vim.o.spelloptions = ""
 vim.o.spellsuggest = "best,6"
 
 vim.o.spellcapcheck = ""

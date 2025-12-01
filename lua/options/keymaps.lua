@@ -1575,6 +1575,7 @@ map({"i","n","v"}, "<C-PageDow>d", "[d")
 
 -- Ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
+map("n", "gr", "<Cmd>lua vim.lsp.buf.references()<CR>")
 
 -- Goto definition
 map("i", "<F12>", "<Esc>gdi")

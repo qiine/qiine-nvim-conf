@@ -1598,7 +1598,9 @@ map("n", "<F24>", ":lua vim.lsp.buf.definition()<cr>")
 map("n", "<F60>", ":lua vim.lsp.buf.implementation()<cr>")
 
 map({"i","n"}, "<C-h>", function()
-    local ogbuf = vim.api.nvim_buf_get_name(0)
+    local ogbufid  = vim.api.nvim_get_current_buf()
+    local ogbufpah = vim.api.nvim_buf_get_name(0)
+    local ogwinh   = vim.api.nvim_win_get_height(0)
 
     local params = vim.lsp.util.make_position_params(0, "utf-8")
 
@@ -1614,15 +1616,35 @@ map({"i","n"}, "<C-h>", function()
         local filepath = vim.uri_to_fname(uri)
         local line = range.start.line
 
-        vim.cmd("split | e " .. filepath)
-        if ogbuf ~= vim.api.nvim_buf_get_name(0) then
+        -- put og text at win bottom
+        local wheight = vim.api.nvim_win_get_height(0)
+        local cpos    = vim.api.nvim_win_get_cursor(0)
+
+        vim.cmd("norm! zz"..(math.floor(wheight / 2)).."")
+        vim.api.nvim_win_set_cursor(0, cpos)
+
+        -- Create peakwin
+        vim.cmd("split | e "..filepath)
+
+        if ogbufpah ~= vim.api.nvim_buf_get_name(0) then
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-            vim.opt_local.winbar = nil
         end
+
+        vim.api.nvim_win_set_height(0, math.floor(ogwinh * 0.65 ))
+        vim.opt_local.winbar = nil
 
         local byte_col = vim.lsp.util.character_offset(0, line, range.start.character, "utf-16")
         vim.api.nvim_win_set_cursor(0, { line + 1, byte_col })
+
+        -- back to og winpos
+        vim.api.nvim_create_autocmd('WinEnter', {
+            group = 'UserAutoCmds',
+            buffer = ogbufid,
+            callback = function()
+                vim.cmd("normal! zz")
+            end,
+        })
     end)
 end)
 

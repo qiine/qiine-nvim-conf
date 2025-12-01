@@ -1001,7 +1001,7 @@ end)
 map("v", "<C-x>", '"+d<esc>', {noremap=true})
 
 -- Cut line
-map({"i","n"}, "<C-S-x>", '<Cmd>norm! mz0"+d$`z<CR>')
+map({"i","n"}, "<C-S-x>", '<Cmd>norm! mz0"+dd`z<CR>')
 
 -- Smart cut
 map({"i","n"}, "<C-x>", function()

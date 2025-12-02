@@ -145,7 +145,15 @@ local M =
     pin = "",
     keyboard = "⌨",
     starts   =  "✨",
-    clock    = "",
+
+    -- time
+    clock     = "🕒",
+    clock2    = "🕘",
+    rewind    = "",
+    calendar  = "📅",
+    calendar2 = "📆",
+    calendar3 = "🗓️",
+    notepad   = "🗒️",
 
     -- ui
     Boolean   = "󰨙",
@@ -155,7 +163,13 @@ local M =
     reload    = "⟳",
     reload2   = "",
     bookmark  = "󰃀",
-    --
+    -- ▦
+    -- ▧
+    quarter1 = "◷",
+    quarter2 = "◶",
+    quarter3 = "◵",
+    quarter4 = "◴",
+
     -- logo
     vim = "",
     neovim = "",

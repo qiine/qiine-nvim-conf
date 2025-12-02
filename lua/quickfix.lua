@@ -92,7 +92,7 @@ end, {})
 vim.api.nvim_create_user_command("QuickfixSendProjTODOs", function()
     vim.cmd("cd ".. vim.lsp.buf.list_workspace_folders()[1])
 
-    vim.cmd("vimgrep /".."TODO".."/g `git ls-files`")
+    vim.cmd("vimgrep /".."TODO".."/ `git ls-files`")
     vim.cmd("copen")
 end, {})
 
@@ -150,6 +150,8 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
     group = "QuickfixAutoCmd",
     callback = function()
         if vim.bo.buftype == 'quickfix' then
+            local qfbufid = vim.api.nvim_get_current_buf()
+
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
@@ -161,16 +163,28 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             -- Nav
             -- To next entry
             vim.keymap.set("n", "<Tab>", function()
+                local qfwinid = vim.api.nvim_get_current_win()
+
                 vim.cmd("norm! j")
-                vim.cmd("cc "..vim.fn.line("."))
-                vim.cmd("wincmd w")
+                vim.cmd("cc " .. vim.fn.line("."))
+
+                local b = vim.api.nvim_get_current_buf()
+                vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = b })
+
+                vim.api.nvim_set_current_win(qfwinid)
             end, {buffer=true, noremap=true})
 
             -- To prev entry
             vim.keymap.set("n", "<S-Tab>", function()
+                local qfwinid = vim.api.nvim_get_current_win()
+
                 vim.cmd("norm! k")
-                vim.cmd("cc "..vim.fn.line("."))
-                vim.cmd("wincmd w")
+                vim.cmd("cc " .. vim.fn.line("."))
+
+                local b = vim.api.nvim_get_current_buf()
+                vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = b })
+
+                vim.api.nvim_set_current_win(qfwinid)
             end, {buffer=true, noremap=true})
 
             -- Select curr entry,

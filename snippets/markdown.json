@@ -41,14 +41,14 @@
     "new task": {
         "prefix": "task",
         "body": [
-            "- [ ] ${1:new_task}"
+            "* [ ] ${1:new_task}"
         ]
     },
 
     "new task advanced": {
         "prefix": "task adv",
         "body": [
-            "- [ ] ${1:new_task} [p${2:1}] [#${3:tag}] [${4:01/01/1970}]"
+            "* [ ] ${1:new_task} [p${2:1}] [#${3:tag}] [${4:01/01/1970}]"
         ]
     }
 

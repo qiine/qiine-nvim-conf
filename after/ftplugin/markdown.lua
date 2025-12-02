@@ -63,8 +63,11 @@ vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
 --     return "="
 -- end
 
+-- greyed folds off for markdown
+vim.api.nvim_set_hl(0, "Folded", { link = "Normal" })
 
--- [Format]
+
+-- ### [Format]
 -- vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
 vim.opt_local.formatoptions:append("t") -- auto-wrap text at textwidth
 -- vim.opt_local.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.

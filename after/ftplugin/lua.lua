@@ -1,6 +1,5 @@
 
 -- lua --
--- vim.opt_local.formatoptions = ""
 
 vim.keymap.set("ia", "fn",  "function", {buffer=true})
 vim.keymap.set("ia", "loc", "local",    {buffer=true})

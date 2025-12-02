@@ -6,6 +6,10 @@
                 "path": "./all.json"
             },
             {
+                "language": "text",
+                "path": "./text.json"
+            },
+            {
                 "language": "c",
                 "path": "./c.json"
             },

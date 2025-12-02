@@ -26,13 +26,6 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 -- ## [Editing]
 ----------------------------------------------------------------------
--- Prevent cursor left offsetting when going from insert to normal mode and back to insert
-vim.api.nvim_create_autocmd("InsertLeave", {
-    group = "UserAutoCmds",
-    command = "norm! `^",
-})
-
-
 --local conf = vim.fn.stdpath('config')
 ---- TODO Autocommand to reload the configuration when any file in the config directory is saved
 --vim.api.nvim_create_autocmd('BufWritePost', {

@@ -331,12 +331,13 @@ return
             },
         }
 
-        vim.api.nvim_create_autocmd("User", {
+        -- vim.api.nvim_create_autocmd("User", {
+        vim.api.nvim_create_autocmd("FileType", {
             group = vim.api.nvim_create_augroup("Alpha-nvim", { clear = true }),
-            pattern = "AlphaReady",
+            pattern = "alpha",
             callback = function()
                 vim.api.nvim_set_option_value("buflisted", true, { buf = 0 })
-                vim.api.nvim_set_option_value("bufhidden", "",   { buf = 0 })
+                -- vim.api.nvim_set_option_value("bufhidden", nil,   { buf = 0 })
 
                 vim.opt_local.statuscolumn   = ""
                 vim.opt_local.signcolumn     = "no"

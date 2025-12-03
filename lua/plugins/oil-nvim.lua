@@ -2,7 +2,7 @@ return
 {
     "stevearc/oil.nvim",
     enabled = true,
-    event = "UIEnter",
+    -- event = "UIEnter",
 
     dependencies = {
         "refractalize/oil-git-status.nvim",
@@ -18,10 +18,10 @@ return
             watch_for_changes = true,
 
             buf_options = {
-                buflisted = true,
-                bufhidden = "wipe" --"hide", "wipe"
+                buflisted = false,
+                bufhidden = "hide" --"hide", "wipe" -- warn! wipe destroy oil reg data
             },
-            cleanup_delay_ms = 1000000000, --auto delete oil hidden buffers, false to turn this off
+            cleanup_delay_ms = 1, --auto delete oil hidden buffers, false to turn this off
 
             columns = {
                 "icon",
@@ -73,57 +73,86 @@ return
             use_default_keymaps = false,
             keymaps = {
                 ["<CR>"] = {
+                    mode = {"i","n","v"},
                     callback = function()
                         vim.cmd("norm! \27")
+
                         local oil = require("oil")
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
                             oil.select({}, function()
-                                require("oil.actions").cd.callback()
+                                require("oil.actions").cd.callback(nil, true)
                             end)
                         else
                             require("oil.actions").select.callback()
                         end
                     end,
                     desc = "Open entry, and cd if directory",
-                    mode = {"i","n","v"},
                 },
                 ["<2-LeftMouse>"] = {
                     callback = function()
                         vim.cmd("norm! \27")
+
                         local oil = require("oil")
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
                             oil.select({}, function()
-                                require("oil.actions").cd.callback()
+                                require("oil.actions").cd.callback(nil, true)
                             end)
                         else
                             require("oil.actions").select.callback()
                         end
                     end,
                     desc = "Open entry, and cd if directory",
-                    mode = {"i","n","v"},
                 },
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
                 ["gx"] = "actions.open_external",
 
-                ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
-
+                -- nav
+                ["<Up>"] = { -- cd upward
+                    mode = {"i","n","v"},
+                    callback = function()
+                        local line = vim.api.nvim_win_get_cursor(0)[1]
+                        if line == 1 then
+                            require("oil.actions").parent.callback()
+                            require("oil.actions").cd.callback(nil, true)
+                        else
+                            vim.api.nvim_feedkeys("k", "n", false)
+                        end
+                    end,
+                },
                 ["<C-Home>"] = { -- cd upward
+                    mode = {"i","n","v"},
                     callback = function()
                         require("oil.actions").parent.callback()
-                        require("oil.actions").cd.callback()
+                        require("oil.actions").cd.callback(nil, true)
                     end,
-                    mode = {"i","n","v"},
                 },
-                ["<C-End>"] = { -- cd prev
+                ["<M-C-S-Up>"] = { -- cd upward
+                    mode = {"i","n","v"},
+                    callback = function()
+                        require("oil.actions").parent.callback()
+                        require("oil.actions").cd.callback(nil, true)
+                    end,
+                },
+
+                ["<C-End>"] = { -- cd previous visited dir
+                    mode = {"i","n","v"},
                     callback = function()
                         require("oil").select({}, function() -- select curr
-                            require("oil.actions").cd.callback()
+                            require("oil.actions").cd.callback(nil, true)
                         end)
                     end,
-                    mode = {"i","n","v"}
                 },
+                ["<M-C-S-Down>"] = { -- cd previous visited dir
+                    mode = {"i","n","v"},
+                    callback = function()
+                        require("oil").select({}, function() -- select curr
+                            require("oil.actions").cd.callback(nil, true)
+                        end)
+                    end,
+                },
+
                 ["<M-Home>"] = {
                     desc = "cd to project root",
                     callback = function()
@@ -167,7 +196,7 @@ return
                     function()
                         vim.cmd("norm! o")
                         vim.api.nvim_put({ "new_dir/" }, "", false, true)
-                        vim.cmd("norm! 0v$")
+                        vim.cmd("norm! 0v$hh")
                     end,
                     desc = "New dir",
                 },
@@ -187,13 +216,21 @@ return
                 end},
 
                 ["?"] = { "actions.show_help", mode = "n" },
+
+                -- Exit oil
+                ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
             },
         })
 
         vim.api.nvim_create_autocmd({"FileType"}, {
             group   = "UserAutoCmds",
             pattern = "oil",
-            command = "stopinsert",
+            callback = function()
+                vim.cmd("stopinsert")
+                -- vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true}) -- ensure CR is unmapped
+                vim.keymap.set("n", "dd", function() return "dd" end, {expr=true}) -- ensure orig dd is unmapped
+                vim.keymap.set("n", "yy", function() return "yy" end, {expr=true}) -- ensure orig dd is unmapped
+            end
         })
 
 

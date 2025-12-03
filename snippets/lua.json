@@ -121,12 +121,12 @@
 
     "get nvim file dir": {
         "prefix": "get nvim file dir",
-        "body": [ "vim.fn.expand(\"%:h\")" ]
+        "body": [ "vim.fn.expand(\"%:p:h\")" ]
     },
 
     "get nvim filename": {
         "prefix": "get nvim filename",
-        "body": [ "vim.fn.expand(\"%:t\")" ]
+        "body": [ "vim.fn.expand(\"%:p:t\")" ]
     },
 
     "get nvim filetype": {

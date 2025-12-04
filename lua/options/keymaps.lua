@@ -232,6 +232,8 @@ end)
 
 
 -- ### File explorer
+map({"i","n","v"}, "<C-g>fl", "<Cmd>!ls -lFAh<CR>")
+
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
     local rootdir = utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))

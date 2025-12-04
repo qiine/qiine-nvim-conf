@@ -82,19 +82,19 @@ function M.file_open_next(reverse)
         nextfid = math.max(idx-1, 1)
     end
     -- local previdx = (idx - 2) % #files + 1 -- wraparound
-    local prevf = files[nextfid-1]
+    local prevf = files[nextfid+1]
     local nextf  = files[nextfid]
-    local afterf  = files[nextfid+1]
+    local afterf  = files[nextfid-1]
 
-    local prevfname = prevf and vim.fn.fnamemodify(afterf, ':t') or " "
+    local prevfname = prevf and vim.fn.fnamemodify(prevf, ':t') or "   "
     local nextfname  = vim.fn.fnamemodify(nextf, ':t')
-    local afterfname  = prevf and vim.fn.fnamemodify(prevf, ':t') or " "
+    local afterfname  = afterf and vim.fn.fnamemodify(afterf, ':t') or " / "
 
-    if not nextf or nextf == cfpath then return end
-
-    local oldbuf = vim.api.nvim_get_current_buf()
-    vim.cmd("e! "..nextf)
-    vim.api.nvim_buf_delete(oldbuf, {force=true})
+    if nextf and nextf ~= cfpath then
+        local oldbuf = vim.api.nvim_get_current_buf()
+        vim.cmd("e! " .. nextf)
+        vim.api.nvim_buf_delete(oldbuf, { force = true })
+    end
 
     local cwdls = {
         "| "..afterfname,

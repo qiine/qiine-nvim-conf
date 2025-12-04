@@ -21,7 +21,7 @@ return
                 buflisted = false,
                 bufhidden = "hide" --"hide", "wipe" -- warn! wipe destroy oil reg data
             },
-            cleanup_delay_ms = 1, --auto delete oil hidden buffers, false to turn this off
+            cleanup_delay_ms = 2000, --auto delete oil hidden buffers, false to turn this off
 
             columns = {
                 "icon",
@@ -39,7 +39,7 @@ return
                 foldcolumn    = "0",
                 number        = false,
                 wrap          = false,
-                spell         = true,
+                    spell         = true,
                 list          = true,
                 conceallevel  = 3,
                 concealcursor = "nvic",
@@ -200,20 +200,26 @@ return
                     end,
                     desc = "New dir",
                 },
-                ["<F2>"] = { function() vim.cmd('norm! "_ciw');vim.cmd("startinsert") end, mode = {"i","n"} },
+
+                ["<C-c>"] = { function() vim.cmd('norm! yy') end, mode = {"i","n"} },
+                ["<C-x>"] = { function() vim.cmd('norm! dd') end, mode = {"i","n"} },
+                ["<C-v>"] = { function() vim.cmd('norm! p') end, mode = {"i","n"} },
+                -- rename
+                ["<F2>"] = { function() vim.cmd('norm! "_viw') end, mode = {"i","n"} },
                 ["<Del>"] = { function() vim.cmd('norm! "_dd') end, mode = "n" },
 
                 -- save
                 ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
 
-                ["qf"] = { "actions.add_to_qflist", mode = "n" },
 
-                ["gs"] = { "actions.change_sort", mode = "n" },
                 ["gp"] = "actions.preview",
+                ["gs"] = { "actions.change_sort", mode = "n" },
                 ["gh"] = { "actions.toggle_hidden", mode = "n" },
                 ["<F5>"] = {function()
                     require("oil").open(vim.fn.getcwd())
                 end},
+
+                ["qf"] = { "actions.add_to_qflist", mode = "n" },
 
                 ["?"] = { "actions.show_help", mode = "n" },
 
@@ -227,12 +233,18 @@ return
             pattern = "oil",
             callback = function()
                 vim.cmd("stopinsert")
-                -- vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true}) -- ensure CR is unmapped
+                vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true}) -- ensure CR is unmapped
                 vim.keymap.set("n", "dd", function() return "dd" end, {expr=true}) -- ensure orig dd is unmapped
                 vim.keymap.set("n", "yy", function() return "yy" end, {expr=true}) -- ensure orig dd is unmapped
             end
         })
 
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "oil_preview",
+            callback = function(params)
+                vim.keymap.set("n", "<CR>", "o", {buffer=params.buf, remap=true, nowait=true})
+            end,
+        })
 
         -- For git signs
         -- require("oil-git-status").setup()

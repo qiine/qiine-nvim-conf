@@ -11,6 +11,11 @@ return
                 -- If true, don't clear the buffer when a task restarts
                 preserve_output = false,
             },
+
+            -- templates = {
+            --     vim.fn.stdpath("config") .. "/overseer/tasks",
+            -- },
+
             keymaps = {
                 ["<M-q>"] = {
                     "keymap.run_action",

@@ -160,7 +160,11 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
                 vim.opt_local.winbar = nil return
             end
 
-            if vim.bo.buftype == "nofile" and vim.api.nvim_buf_get_name(0) == "" then
+            -- probably don't need winbar here
+            if  vim.bo.buftype == "nofile"         and
+                vim.api.nvim_buf_get_name(0) == "" and
+                vim.bo[0].bufhidden == "wipe"      then
+
                 vim.opt_local.winbar = nil return
             end
 

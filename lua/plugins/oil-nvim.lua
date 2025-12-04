@@ -88,7 +88,7 @@ return
                         end
                     end,
                 },
-                ["<2-LeftMouse>"] = {
+                ["<2-LeftMouse>"] = { mode={"n","i","v"},
                     desc = "Open entry, and cd if directory",
                     callback = function()
                         vim.cmd("norm! \27")
@@ -175,7 +175,7 @@ return
                     end,
                 },
 
-                ["<C-S-n>"] = {
+                ["<C-S-n>"] = { mode = { "n", "i", "v" },
                     desc = "New file",
                     function()
                         vim.cmd("norm! o")
@@ -183,7 +183,7 @@ return
                         vim.cmd("norm! 0vt.")
                     end,
                 },
-                ["<C-S-n>d"] = {
+                ["<C-S-n>d"] = { mode = { "n", "i", "v" },
                     desc = "New dir",
                     function()
                         vim.cmd("norm! o")
@@ -202,10 +202,10 @@ return
                 -- save
                 ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
 
-                ["gp"] = "actions.preview",
+                ["gp"] = "actions.preview", mode = { "n", "i", "v" },
                 ["gs"] = { "actions.change_sort", mode = {"i","n"} },
                 ["gh"] = { "actions.toggle_hidden", mode = {"i","n"} },
-                ["<F5>"] = { mode = { "n", "i", "x" },
+                ["<F5>"] = { mode = { "n", "i", "v" },
                     function()
                         require("oil").open(vim.fn.getcwd())
                         print("oil refreshed")
@@ -214,7 +214,7 @@ return
 
                 ["qf"] = { "actions.add_to_qflist", mode = {"i","n"} },
 
-                ["?"] = { "actions.show_help", mode = "n" },
+                ["?"] = { "actions.show_help", mode={"n","i","v"}, },
 
                 -- Exit oil
                 ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },

@@ -188,8 +188,6 @@ end)
 
 -- Open file explorer
 map({"i","n","v","t"}, "<C-e>", function()
-    local curbufh = vim.bo[0].bufhidden
-
     require("oil").open(
         vim.fn.getcwd(),
         nil,
@@ -197,7 +195,7 @@ map({"i","n","v","t"}, "<C-e>", function()
             if vim.fn.winlayout()[1] ~= 'leaf' then -- detect if curr tab has split
                 vim.bo[0].buflisted = false
             else -- else rem curr buf or let it del itself if it can
-                if curbufh == "" then vim.cmd("silent! bd #") end
+              if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
             end
         end
     )

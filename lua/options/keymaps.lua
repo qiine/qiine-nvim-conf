@@ -7,9 +7,10 @@
 --           __/ |               | |
 --          |___/                |_|
 
-local utils    = require("utils.utils")
-
+local utils    = require("utils")
 local fs       = require("fs")
+local win      = require("ui.win")
+
 local gact     = require("git.git")
 
 local ts_utils = require("nvim-treesitter.ts_utils")
@@ -140,85 +141,24 @@ map(modes, "<C-w>", function()
 end, {noremap=true})
 
 
-
 -- ## [Filesystem]
 ----------------------------------------------------------------------
 -- Open surrounding files
-map({"i","n","v"}, "<C-S-PageUp>", function()
-    local cwd = vim.fn.getcwd()
-    local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
-
-    local searchdir = cfdir == cwd and cfdir or cwd -- prefering cwd allow more nav freedom
-
-    -- TODO FEAT allow to filter certain files like bin
-    local files = {}
-    for name, type in vim.fs.dir(searchdir) do
-        if type == "file" then table.insert(files, searchdir.."/"..name) end
-    end
-
-    -- find curr file index
-    table.sort(files)
-    local idx = nil
-    for i, file in ipairs(files) do
-        if file == cfpath then idx = i break end
-    end
-    if not idx then idx = 1 end -- in case curfile != in cwd fallback to first item
-
-    -- local previdx = (idx - 2) % #files + 1 -- wraparound
-    local previdx = math.max(idx-1, 1)
-    local prevf = files[previdx]
-
-    if not prevf or prevf == cfpath then return end
-
-    local oldbuf = vim.api.nvim_get_current_buf()
-    vim.cmd("e! "..prevf)
-    vim.api.nvim_buf_delete(oldbuf, {force=true})
-    -- print(vim.inspect(files))
-end)
-map({"i","n","v"}, "<C-S-PageDown>", function()
-    local cwd = vim.fn.getcwd()
-    local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
-
-    local searchdir = cfdir == cwd and cfdir or cwd -- prefering cwd allow more nav freedom
-
-    -- TODO FEAT allow to filter certain files like bin
-    local files = {}
-    for name, type in vim.fs.dir(searchdir) do
-        if type == "file" then table.insert(files, searchdir.."/"..name) end
-    end
-
-    -- find curr file index
-    table.sort(files)
-    local idx = nil
-    for i, file in ipairs(files) do
-        if file == cfpath then idx = i break end
-    end
-    if not idx then idx = 1 end -- in case curfile != in cwd fallback to first item
-
-    -- local nextidx = (idx - 2) % #files - 1 -- wraparound
-    local nextidx = math.min(idx+1, #files)
-    local nextf = files[nextidx]
-
-    if not nextf or nextf == cfpath then return end
-
-    local oldbuf = vim.api.nvim_get_current_buf()
-    vim.cmd("e! "..nextf)
-    vim.api.nvim_buf_delete(oldbuf, {force=true})
-end)
-
+map({"i","n","v"}, "<C-S-PageUp>", function() fs.file_open_next(false) end)
+map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 
 -- File action
-map(modes, "<C-g>fm", "<Cmd>FileMove<CR>")
-map(modes, "<C-g>fr", "<Cmd>FileRename<CR>")
-map(modes, "<C-g>fd", "<Cmd>FileDelete<CR>")
+map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
+map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
+map({"i","n","v"}, "<C-g>fd", "<Cmd>FileDelete<CR>")
 map({"i","n","v"}, "<M-S-Del>", "<Cmd>FileDelete<CR>")
 
 -- ### Write
 -- Save current
-map({"i","n","v","c"}, "<C-s>", "<cmd>FileSaveInteractive<CR>")
+map({"i","n","v","c"}, "<C-s>", "<Cmd>FileSaveInteractive<CR>")
 
 -- Save as
-map({"i","n","v","c"}, "<C-M-s>", "<cmd>FileSaveAsInteractive<CR>")
+map({"i","n","v","c"}, "<C-M-s>", "<Cmd>FileSaveAsInteractive<CR>")
 
 map("v", "<C-g>fa", function() fs.append_select_to_file() end)
 map("v", "<C-g>fc", function() fs.move_select_to_file() end)
@@ -232,7 +172,7 @@ end)
 
 
 -- ### File explorer
-map({"i","n","v"}, "<C-g>fl", "<Cmd>!ls -lFAh<CR>")
+map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
 
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
@@ -254,7 +194,8 @@ map({"i","n","v","t"}, "<C-e>", function()
         function()
             if vim.fn.winlayout()[1] ~= 'leaf' then -- detect if curr tab has split
                 vim.bo[0].buflisted = false
-            else
+            else -- else rem curr buf or let it del itself if it can
+                if vim.bo[0].bufhidden ~= "" then return end
                 vim.cmd("silent! bd #")
             end
         end
@@ -396,22 +337,7 @@ map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
 
 -- ### Size
 -- Maximize split toggle
-map(modes, ldwin.."f", function()
-    local win     = vim.api.nvim_get_current_win()
-    local wwidth  = vim.api.nvim_win_get_width(win)
-    local wheight = vim.api.nvim_win_get_height(win)
-
-    local tab_width  = vim.o.columns
-    local tab_height = vim.o.lines - vim.o.cmdheight
-
-    local focused = wwidth >= tab_width * 0.9 and wheight >= tab_height * 0.9
-    if focused then
-        vim.cmd("wincmd =") -- equalize all win size
-    else
-        vim.cmd("wincmd |") -- try Maximise
-        vim.cmd("wincmd _")
-    end
-end)
+map(modes, ldwin.."f", win.split_maximize_toggle)
 
 -- Auto Resize wins splits
 local function resize_win(dir, amount)
@@ -525,6 +451,7 @@ map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
+
 
 
 -- ### [Fast and furious cursor move]
@@ -758,10 +685,18 @@ map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
 -- Task manager
 -- General task
 map({"i","n","v","c","t"}, "<F4>", function()
-    if vim.fn.expand("%:t") == "plan.md" then vim.cmd("bwipeout") return end
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
-    vim.cmd("e /home/qm/Personal/Org/plan.md")
-    vim.opt_local.foldlevel = 2
+    if vim.fn.expand("%:t") == "plan.txt" then vim.cmd("bwipeout") return end
+
+    vim.cmd("enew")
+    vim.cmd("e /home/qm/Personal/Org/plan.txt")
+
+    vim.opt_local.number = false
+
+    vim.wo.foldlevel=0
+    vim.opt_local.foldmethod="expr"
+    vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
 end)
 
 -- Project task <S-F4>
@@ -1377,7 +1312,7 @@ map("x", "<C-=>", "=")
 
 
 -- ### [Line break]
-map("n", "<cr>", function()
+map("n", "<CR>", function()
     return vim.bo.buftype == "" and "i<CR><esc>" or "<CR>"
 end, {expr=true})
 
@@ -1607,6 +1542,7 @@ map({"i","n"}, "<C-h>", function()
     local params = vim.lsp.util.make_position_params(0, "utf-8")
 
     vim.lsp.buf_request(0, "textDocument/definition", params, function(err, result)
+        -- gather lsp data
         if err or not result or vim.tbl_isempty(result) then
             return vim.cmd([[echohl ErrorMsg | echom "Definition not found" | echohl None]])
         end
@@ -1638,6 +1574,7 @@ map({"i","n"}, "<C-h>", function()
 
         local byte_col = vim.lsp.util.character_offset(0, line, range.start.character, "utf-16")
         vim.api.nvim_win_set_cursor(0, { line + 1, byte_col })
+        -- vim.cmd("norm! zz")
 
         -- back to og winpos
         vim.api.nvim_create_autocmd('WinEnter', {
@@ -1825,7 +1762,7 @@ map({"i","n","v"}, "<F56>", function()  end)
 -- run project
 map({"i","n","v"}, "<F8>", function()
     local cwd     = vim.fn.getcwd()
-        local markers = {".git", "Makefile", "package.json"}
+    local markers = {".git", "Makefile", "package.json"}
     local diroot  = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
 
     local file   = vim.fn.expand("%:p")

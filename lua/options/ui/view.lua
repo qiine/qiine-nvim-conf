@@ -2,7 +2,7 @@
 -- View --
 -------------------------------------------------------
 
-local utils = require("utils.utils")
+local utils = require("utils")
 ------------------------------------
 
 
@@ -219,6 +219,8 @@ end
 -- fold color
 vim.api.nvim_set_hl(0, "Folded", { fg = "#555555", bg = "NONE" })
 
+-- Those action opens fold
+vim.o.foldopen = "block,hor,mark,percent,quickfix,search,tag,undo" -- hor -- open fold with arrows
 
 -- No gutter for terms
 vim.api.nvim_create_autocmd('TermOpen', {
@@ -501,7 +503,7 @@ vim.opt.wildoptions = "pum"
 --})
 
 
-vim.o.messagesopt = "hit-enter,history:500"  --- wait:5000
+vim.o.messagesopt = "hit-enter,history:500"  -- wait:3000,
 
 
 

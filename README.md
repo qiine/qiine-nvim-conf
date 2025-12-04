@@ -1,5 +1,4 @@
 
-# 
 # About
 ---
 Probably **overcomplicated**   
@@ -32,7 +31,6 @@ I hesitated a bit between nvim and emacs, but lua and the motions intrigued me..
   completion
 - Built-in auto save with a timer every 7min
 
-
 ### Advance nav
 ---
 fast move using modifier + arrows
@@ -56,12 +54,10 @@ nav dir using keymaps without file browser
 - **conform.nvim**  
 * sniprun  
 
-
 ### 📂 Version control
 ---
 neogit
 custom git thin wrapper
-
 
 
 ### 📂 File Management

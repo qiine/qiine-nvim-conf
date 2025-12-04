@@ -1,10 +1,10 @@
 {
-    "new variable": {
+    "new var": {
         "prefix": "var",
         "body": [ "local ${1:newvar} = ${2:}" ]
     },
 
-    "new variable table": {
+    "new var table": {
         "prefix": "var table",
         "body": [ "local ${1:newtable} = {${2:}}" ]
     },
@@ -54,7 +54,7 @@
 
     "lua print": {
         "prefix": "print",
-        "body": [ "print(\"${1:Hello!}\")" ]
+        "body": [ "print(${1:\"Hello!\"})" ]
     },
 
     "lua module": {
@@ -155,14 +155,14 @@
         "body": [ "vim.bo.buftype" ]
     },
 
-    "set nvim buffer variable": {
-        "prefix": "set nvim buffer variable",
+    "set nvim buffer var": {
+        "prefix": "set nvim buffer var",
         "body": [ "vim.b[buf].${1:}" ]
     },
 
 
-    "set nvim global variable": {
-        "prefix": "set nvim global variable",
+    "set nvim global var": {
+        "prefix": "set nvim global var",
         "body": [ "vim.g.${1:}" ]
     },
 

@@ -96,18 +96,20 @@ vim.api.nvim_create_user_command("QuickfixSendProjTODOs", function()
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickfixSendDiag", function(opts)
+vim.api.nvim_create_user_command("QuickfixSendDiags", function(opts)
     local args = opts.args
 
     vim.diagnostic.setqflist({})
+    vim.cmd('copen')
 end, {
     nargs = "?",
     complete = function() return { "buffer" } end,
     desc = "Send diagnostics to quickfix list",
 })
 
-vim.api.nvim_create_user_command("QuickfixSendDiagErr", function()
+vim.api.nvim_create_user_command("QuickfixSendDiagsErr", function()
     vim.diagnostic.setqflist({open = true, nil, severity=vim.diagnostic.severity.ERROR})
+    vim.cmd('copen')
 end, {})
 
 vim.api.nvim_create_user_command("ShowJumpLocList", function()

@@ -18,8 +18,8 @@ M.db_path = home .. "/Personal/Org/fav.json"
 M.quickfiles =
 {
     [1] = "keymaps.lua",
-    [2] = "common_commands.lua",
-    [3] = "common_autocmds.lua",
+    [2] = "commands.lua",
+    [3] = "autocmds.lua",
     [4] = "init.lua",
     [5] = "Neovim.md",
     [6] = "",

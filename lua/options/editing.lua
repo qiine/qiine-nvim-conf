@@ -2,7 +2,7 @@
 -- [Edit] --
 ----------------------------------------------------------------------
 
-local utils = require("utils.utils")
+local utils = require("utils")
 local v = vim
 
 
@@ -30,6 +30,26 @@ vim.api.nvim_create_autocmd('BufEnter', {
     end,
 })
 
+-- Prevent cursor left offsetting when alterning insert/normal/insert.. (only with i)
+vim.api.nvim_create_autocmd("InsertLeave", {
+    group = "UserAutoCmds",
+    command = "norm! `^",
+})
+
+-- go to last loc when opening a Buffer
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = "UserAutoCmds",
+    callback = function()
+        if vim.bo.buftype == "" then
+            local mark = vim.api.nvim_buf_get_mark(0, '"')
+            local lcount = vim.api.nvim_buf_line_count(0)
+            if mark[1] > 0 and mark[1] <= lcount then
+                pcall(vim.api.nvim_win_set_cursor, 0, mark)
+            end
+        end
+    end,
+    desc = "go to last loc when opening a Buffer",
+})
 
 
 -- ## [File]

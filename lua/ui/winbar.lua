@@ -28,26 +28,30 @@ end
 -- fpath
 ---@return string
 function M.path_bar()
-    local fpath = vim.fn.expand("%:p")
-    local fdir  = vim.fn.expand("%:p:h")
     -- fdir = vim.fs.normalize(vim.trim(fdir))
     -- vim.fs.abspath(path)
 
-    if vim.bo.filetype == "oil" then fdir = vim.fn.getcwd() end
+    local fpath = vim.fn.expand("%:p")
+    local fdir  = vim.fn.expand("%:p:h")
+    local fname  = vim.fn.expand("%:p:t")
 
-    local narrowin = vim.api.nvim_win_get_width(0) < 60
+    local path = fpath
+    if vim.bo.filetype == "oil" then path = vim.fn.getcwd() end
 
-    local pathbar = ""
-    if #fdir > 75 or narrowin then
-        pathbar = vim.fn.pathshorten(fdir, 1)
+    local is_narrowin = vim.api.nvim_win_get_width(0) < 60
+
+    local barpath = ""
+
+    if #fdir > 75 or is_narrowin then
+        barpath = vim.fn.pathshorten(path, 1)
     else
-        pathbar = fdir
+        barpath = path
     end
 
-    local pathchevrons = pathbar:gsub("/", "🮥 ") --› > 〉  › ›
+    local pathchevrons = barpath:gsub("/", "🮥 ")   --› > 〉  › ›
 
     _G.winbar_path_toclipboard = function()
-        vim.fn.setreg("+", fpath); print("path copied")
+        vim.fn.setreg("+", fpath); print("path copied") -- always ues abs fpath, the more useful
     end
 
     return "%@v:lua.winbar_path_toclipboard@"..pathchevrons.."%X"
@@ -153,9 +157,9 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
                 vim.opt_local.winbar = nil return
             end
 
-            if not vim.api.nvim_get_option_value("buflisted",  {buf=0}) then
-                vim.opt_local.winbar = nil return
-            end
+            -- if not vim.api.nvim_get_option_value("buflisted",  {buf=0}) then
+            --     vim.opt_local.winbar = nil return
+            -- end
 
             -- off in diff mode
             if vim.wo[0].diff then vim.opt_local.winbar = nil return end
@@ -164,8 +168,10 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
             -- ft
             if vim.tbl_contains(M.excluded_filetype, vim.bo.filetype) then
                 vim.opt_local.winbar = nil return
-                end
+            end
 
+            -- TODO Smarter way to redraw winbar taht allow to turn it off
+            -- bo a given buffer
             vim.wo.winbar = M.draw()
         end, 5)  -- give time for proper buftype update
     end,

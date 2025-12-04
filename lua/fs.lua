@@ -27,9 +27,9 @@ end
 
 
 -- fs
-local F = {}
+local M = {}
 
-function F.append_select_to_file()
+function M.append_select_to_file()
     vim.ui.input({prompt="Append selected to: ", default=vim.fn.getcwd(), completion="file"},
     function(input)
         if input == nil then vim.notify("Append canceled. ", vim.log.levels.INFO) return end
@@ -40,7 +40,7 @@ function F.append_select_to_file()
     end)
 end
 
-function F.move_select_to_file()
+function M.move_select_to_file()
     vim.ui.input({prompt="Move selected to: ", default=vim.fn.getcwd(), completion="file"},
     function(input)
         if input == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end
@@ -53,7 +53,7 @@ function F.move_select_to_file()
 end
 
 -- nav
-function F.file_open_surrounding(reverse)
+function M.file_open_next(reverse)
     reverse = reverse or false
 
     local cwd = vim.fn.getcwd()
@@ -82,18 +82,34 @@ function F.file_open_surrounding(reverse)
         nextfid = math.max(idx-1, 1)
     end
     -- local previdx = (idx - 2) % #files + 1 -- wraparound
-    local nextf = files[nextfid]
+    local prevf = files[nextfid-1]
+    local nextf  = files[nextfid]
+    local afterf  = files[nextfid+1]
+
+    local prevfname = prevf and vim.fn.fnamemodify(afterf, ':t') or " "
+    local nextfname  = vim.fn.fnamemodify(nextf, ':t')
+    local afterfname  = prevf and vim.fn.fnamemodify(prevf, ':t') or " "
 
     if not nextf or nextf == cfpath then return end
 
     local oldbuf = vim.api.nvim_get_current_buf()
     vim.cmd("e! "..nextf)
     vim.api.nvim_buf_delete(oldbuf, {force=true})
-    print("File: "..nextfid.."/"..#files)
+
+    local cwdls = {
+        "| "..afterfname,
+        " | ",
+        "*"..nextfname,
+        " | ",
+        ""..prevfname,
+        " | ",
+        "["..nextfid.."/"..#files.."]",
+    }
+    print(table.concat(cwdls, ""))
 end
 
 
 --------
-F.utils = U
-return F
+M.utils = U
+return M
 

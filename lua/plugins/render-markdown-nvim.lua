@@ -52,24 +52,19 @@ return
                 right_pad = 5,
             },
             bullet = {
+                enabled = true,
                 --icons = { '●', '○', '◆', '◇' },
                 icons = { '•', '-', '-', '-' },
-            },
-            indent = {
-                enabled = true,
-                render_modes = false,
-                per_level = 2,
-                skip_level = 1,
-                skip_heading = false,
-                icon = '▎',
-                highlight = 'RenderMarkdownIndent',
+                left_pad = 0,
+                right_pad = 0,
             },
             checkbox = {
                 enabled = true,
                 render_modes = false,
                 bullet = true,
                 right_pad = 0,
-                position = "inline",
+                left_pad = 0,
+                -- position = "inline",
 
                 unchecked = {
                     icon = '󰄱 ',
@@ -179,6 +174,16 @@ return
                     youtube = { pattern = 'youtube%.com', icon = '󰗃 ' },
                 },
             },
+            indent = {
+                enabled = true,
+                render_modes = false,
+                per_level = 2,
+                skip_level = 1,
+                skip_heading = false,
+                icon = '▎',
+                highlight = 'RenderMarkdownIndent',
+            },
+
         })
     end
 }

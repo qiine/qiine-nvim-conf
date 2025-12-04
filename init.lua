@@ -53,14 +53,12 @@ safe_require("modules.tiny-session")
 safe_require("modules.historybuf")
 safe_require("modules.favorizer")
 safe_require("modules.arbores")
-safe_require("modules.rouleau-nvim")
 safe_require("modules.planv")
--- safe_require("modules.panneau")
 
 -- ## Commands
-safe_require("utils.common_commands")
-safe_require("utils.commands_aliases")
-safe_require("utils.common_autocmds")
+safe_require("commands")
+safe_require("commands_aliases")
+safe_require("autocmds")
 
 -- ## Plugins
 safe_require("options.lazy")
@@ -68,7 +66,7 @@ safe_require("options.lazy")
 safe_require("options.keymaps")
 safe_require("options.abbreviations")
 safe_require("options.mousemaps")
-safe_require("quickfix")
+safe_require("ui.quickfix")
 
 -- ## options
 safe_require("options.internal")

@@ -2,7 +2,7 @@
 -- Conceal --
 --------------------------------------------------
 local tns = vim.api.nvim_create_namespace('testns')
-local utils = require("utils.utils")
+local utils = require("utils")
 
 local v    = vim
 local vap  = vim.api
@@ -61,6 +61,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.g.textvision = true
 
 local ns_eo = vim.api.nvim_create_namespace('textvision')
+
 
 local overlays = {
     ["function"] = "󰊕unction",

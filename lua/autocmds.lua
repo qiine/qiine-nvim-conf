@@ -2,7 +2,7 @@
 -- User autocmds --
 ----------------------------------------------------------------------
 
-local utils = require("utils.utils")
+local utils = require("utils")
 
 local v = vim
 -----------------------------------

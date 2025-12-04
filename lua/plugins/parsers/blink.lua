@@ -55,7 +55,7 @@ return
             window = {
                 min_width = 1,
                 max_width = 100,
-                max_height = 10,
+                max_height = 7,
                 border = nil, -- Defaults to `vim.o.winborder` on nvim 0.11+ or 'padded' when not defined/<=0.10
                 winblend = 0,
                 winhighlight = 'Normal:BlinkCmpSignatureHelp,FloatBorder:BlinkCmpSignatureHelpBorder',

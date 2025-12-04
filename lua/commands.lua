@@ -4,7 +4,7 @@
 local v = vim
 
 
-local utils = require("utils.utils")
+local utils = require("utils")
 -------------------------
 
 
@@ -271,7 +271,7 @@ end, {})
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
     local fp = vim.api.nvim_buf_get_name(0)
-    local rdir = require("utils.utils").get_file_projr_dir(fp)
+    local rdir = require("utils").get_file_projr_dir(fp)
     print(rdir)
 end, {})
 
@@ -741,7 +741,7 @@ end, {range=true})
 
 vim.api.nvim_create_user_command("TrimTrailSpacesBuffer", function()
     local curpos = vim.api.nvim_win_get_cursor(0)
-    vim.cmd([[keeppatterns %s/\s\+$//e]])
+    vim.cmd("silent "..[[keeppatterns %s/\s\+$//e]])
     vim.api.nvim_win_set_cursor(0, curpos)
 end, {})
 

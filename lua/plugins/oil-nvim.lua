@@ -39,7 +39,7 @@ return
                 foldcolumn    = "0",
                 number        = false,
                 wrap          = false,
-                    spell         = true,
+                spell         = true,
                 list          = true,
                 conceallevel  = 3,
                 concealcursor = "nvic",
@@ -81,7 +81,7 @@ return
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
                             oil.select({}, function()
-                                require("oil.actions").cd.callback(nil, true)
+                                require("oil.actions").cd.callback({silent=true})
                             end)
                         else
                             require("oil.actions").select.callback()
@@ -97,7 +97,7 @@ return
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
                             oil.select({}, function()
-                                require("oil.actions").cd.callback(nil, true)
+                                require("oil.actions").cd.callback({silent=true})
                             end)
                         else
                             require("oil.actions").select.callback()
@@ -115,7 +115,7 @@ return
                         local line = vim.api.nvim_win_get_cursor(0)[1]
                         if line == 1 then
                             require("oil.actions").parent.callback()
-                            require("oil.actions").cd.callback(nil, true)
+                            require("oil.actions").cd.callback({silent=true})
                         else
                             vim.api.nvim_feedkeys("k", "n", false)
                         end
@@ -125,14 +125,14 @@ return
                     mode = {"i","n","v"},
                     callback = function()
                         require("oil.actions").parent.callback()
-                        require("oil.actions").cd.callback(nil, true)
+                        require("oil.actions").cd.callback({silent=true})
                     end,
                 },
                 ["<M-C-S-Up>"] = { -- cd upward
                     mode = {"i","n","v"},
                     callback = function()
                         require("oil.actions").parent.callback()
-                        require("oil.actions").cd.callback(nil, true)
+                        require("oil.actions").cd.callback({silent=true})
                     end,
                 },
 
@@ -140,7 +140,7 @@ return
                     mode = {"i","n","v"},
                     callback = function()
                         require("oil").select({}, function() -- select curr
-                            require("oil.actions").cd.callback(nil, true)
+                            require("oil.actions").cd.callback({silent=true})
                         end)
                     end,
                 },
@@ -148,7 +148,7 @@ return
                     mode = {"i","n","v"},
                     callback = function()
                         require("oil").select({}, function() -- select curr
-                            require("oil.actions").cd.callback(nil, true)
+                            require("oil.actions").cd.callback({silent=true})
                         end)
                     end,
                 },
@@ -228,15 +228,17 @@ return
             },
         })
 
-        vim.api.nvim_create_autocmd({"FileType"}, {
-            group   = "UserAutoCmds",
-            pattern = "oil",
+        vim.api.nvim_create_autocmd('User', {
+            group = "UserAutoCmds",
+            pattern = 'OilEnter',
             callback = function()
                 vim.cmd("stopinsert")
+                -- require('oil').open_preview()
+
                 vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true}) -- ensure CR is unmapped
                 vim.keymap.set("n", "dd", function() return "dd" end, {expr=true}) -- ensure orig dd is unmapped
                 vim.keymap.set("n", "yy", function() return "yy" end, {expr=true}) -- ensure orig dd is unmapped
-            end
+            end,
         })
 
         vim.api.nvim_create_autocmd("FileType", {

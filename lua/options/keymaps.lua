@@ -188,6 +188,8 @@ end)
 
 -- Open file explorer
 map({"i","n","v","t"}, "<C-e>", function()
+    local curbufh = vim.bo[0].bufhidden
+
     require("oil").open(
         vim.fn.getcwd(),
         nil,
@@ -195,8 +197,7 @@ map({"i","n","v","t"}, "<C-e>", function()
             if vim.fn.winlayout()[1] ~= 'leaf' then -- detect if curr tab has split
                 vim.bo[0].buflisted = false
             else -- else rem curr buf or let it del itself if it can
-                if vim.bo[0].bufhidden ~= "" then return end
-                vim.cmd("silent! bd #")
+                if curbufh == "" then vim.cmd("silent! bd #") end
             end
         end
     )
@@ -450,7 +451,7 @@ map({"n","v"}, "<Down>", "g<Down>")
 map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
 
 
 
@@ -1556,10 +1557,7 @@ map({"i","n"}, "<C-h>", function()
 
         -- put og text at win bottom
         local wheight = vim.api.nvim_win_get_height(0)
-        local cpos    = vim.api.nvim_win_get_cursor(0)
-
-        vim.cmd("norm! zz"..(math.floor(wheight / 2)).."")
-        vim.api.nvim_win_set_cursor(0, cpos)
+        vim.cmd("norm! zz"..math.floor(wheight / 2).."")
 
         -- Create peakwin
         vim.cmd("split | e "..filepath)
@@ -1569,12 +1567,15 @@ map({"i","n"}, "<C-h>", function()
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
         end
 
-        vim.api.nvim_win_set_height(0, math.floor(ogwinh * 0.65 ))
+        vim.api.nvim_win_set_height(0, math.floor(ogwinh * 0.70 ))
         vim.opt_local.winbar = nil
 
         local byte_col = vim.lsp.util.character_offset(0, line, range.start.character, "utf-16")
         vim.api.nvim_win_set_cursor(0, { line + 1, byte_col })
-        -- vim.cmd("norm! zz")
+
+        -- scroll peak view
+        local pkw_height = vim.api.nvim_win_get_height(0)-1
+        vim.cmd("norm! "..(math.floor(pkw_height / 2)).."")
 
         -- back to og winpos
         vim.api.nvim_create_autocmd('WinEnter', {
@@ -1761,53 +1762,62 @@ map({"i","n","v"}, "<F56>", function()  end)
 
 -- run project
 map({"i","n","v"}, "<F8>", function()
-    local cwd     = vim.fn.getcwd()
-    local markers = {".git", "Makefile", "package.json"}
-    local diroot  = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
-
-    local file   = vim.fn.expand("%:p")
-    local ft     = vim.bo.filetype
-    local nofile = file == "" or vim.fn.filereadable(file) == 0
-    local buft   = vim.bo.buftype
-
-    if diroot and vim.fn.filereadable(diroot .. "/Makefile") == 1 then
-        vim.fn.chdir(diroot)
-        vim.cmd("silent! make")
-        vim.cmd("copen")
-    else
-        local cmd
-        if nofile then -- Dump buffer to temp file
-            local tmp = vim.fn.tempname() .. "." .. ft
-            vim.fn.writefile(vim.api.nvim_buf_get_lines(0, 0, -1, false), tmp)
-            file = tmp
+    print("Hello!")
+    require('overseer').run_task({}, function(task)
+        if task then
+            require('overseer').open({ enter = false })
         end
-
-        if ft == "lua" then
-            cmd = "lua " .. vim.fn.shellescape(file)
-        elseif ft == "python" then
-            cmd = "python " .. vim.fn.shellescape(file)
-        elseif ft == "sh" then
-            cmd = "bash " .. vim.fn.shellescape(file)
-        else
-            return vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
-        end
-
-        if buft ~= "terminal" then
-            vim.cmd("split | resize 9")
-            vim.cmd("terminal")
-            vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-            vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-
-            vim.cmd("startinsert")
-        end
-
-        vim.fn.setreg("z", cmd)
-        vim.cmd('norm! "zP')
-        vim.api.nvim_feedkeys("\13", "t", false)
-    end
-
-    vim.fn.chdir(cwd)
+    end)
 end)
+
+-- map({"i","n","v"}, "<F8>", function()
+--     local cwd     = vim.fn.getcwd()
+--     local markers = {".git", "Makefile", "package.json"}
+--     local diroot  = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
+
+--     local file   = vim.fn.expand("%:p")
+--     local ft     = vim.bo.filetype
+--     local nofile = file == "" or vim.fn.filereadable(file) == 0
+--     local buft   = vim.bo.buftype
+
+--     if diroot and vim.fn.filereadable(diroot .. "/Makefile") == 1 then
+--         vim.fn.chdir(diroot)
+--         vim.cmd("silent! make")
+--         vim.cmd("copen")
+--     else
+--         local cmd
+--         if nofile then -- Dump buffer to temp file
+--             local tmp = vim.fn.tempname() .. "." .. ft
+--             vim.fn.writefile(vim.api.nvim_buf_get_lines(0, 0, -1, false), tmp)
+--             file = tmp
+--         end
+
+--         if ft == "lua" then
+--             cmd = "lua " .. vim.fn.shellescape(file)
+--         elseif ft == "python" then
+--             cmd = "python " .. vim.fn.shellescape(file)
+--         elseif ft == "sh" then
+--             cmd = "bash " .. vim.fn.shellescape(file)
+--         else
+--             return vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
+--         end
+
+--         if buft ~= "terminal" then
+--             vim.cmd("split | resize 9")
+--             vim.cmd("terminal")
+--             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+--             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+
+--             vim.cmd("startinsert")
+--         end
+
+--         vim.fn.setreg("z", cmd)
+--         vim.cmd('norm! "zP')
+--         vim.api.nvim_feedkeys("\13", "t", false)
+--     end
+
+--     vim.fn.chdir(cwd)
+-- end)
 
 
 

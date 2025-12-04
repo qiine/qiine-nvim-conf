@@ -91,9 +91,11 @@ function M.file_open_next(reverse)
     local afterfname  = afterf and vim.fn.fnamemodify(afterf, ':t') or " / "
 
     if nextf and nextf ~= cfpath then
-        local oldbuf = vim.api.nvim_get_current_buf()
+        local curbufh = vim.bo[0].bufhidden
+
         vim.cmd("e! " .. nextf)
-        vim.api.nvim_buf_delete(oldbuf, { force = true })
+        -- rem curr buf or let it del itself if it can
+        if curbufh == "" then vim.cmd("silent! bd #") end
     end
 
     local cwdls = {

@@ -119,6 +119,7 @@ M.excluded_filetype = {
     "dashboard",
     "alpha",
     "Outline",
+    "OverseerList",
 }
 
 M.excluded_buftype = {
@@ -153,7 +154,13 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
 
 
             -- buff
+
+            -- ignore buftype
             if vim.tbl_contains(M.excluded_buftype, vim.bo.buftype) then
+                vim.opt_local.winbar = nil return
+            end
+
+            if vim.bo.buftype == "nofile" and vim.api.nvim_buf_get_name(0) == "" then
                 vim.opt_local.winbar = nil return
             end
 
@@ -166,9 +173,11 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
 
 
             -- ft
+            -- ignore ftype
             if vim.tbl_contains(M.excluded_filetype, vim.bo.filetype) then
                 vim.opt_local.winbar = nil return
             end
+
 
             -- TODO Smarter way to redraw winbar taht allow to turn it off
             -- bo a given buffer

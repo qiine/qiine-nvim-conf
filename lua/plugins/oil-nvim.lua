@@ -72,8 +72,8 @@ return
 
             use_default_keymaps = false,
             keymaps = {
-                ["<CR>"] = {
-                    mode = {"i","n","v"},
+                ["<CR>"] = { mode = {"i","n","v"},
+                    desc = "Open entry, and cd if directory",
                     callback = function()
                         vim.cmd("norm! \27")
 
@@ -87,9 +87,9 @@ return
                             require("oil.actions").select.callback()
                         end
                     end,
-                    desc = "Open entry, and cd if directory",
                 },
                 ["<2-LeftMouse>"] = {
+                    desc = "Open entry, and cd if directory",
                     callback = function()
                         vim.cmd("norm! \27")
 
@@ -103,14 +103,12 @@ return
                             require("oil.actions").select.callback()
                         end
                     end,
-                    desc = "Open entry, and cd if directory",
                 },
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
                 ["gx"] = "actions.open_external",
 
                 -- nav
-                ["<Up>"] = { -- cd upward
-                    mode = {"i","n","v"},
+                ["<Up>"] = { mode = {"i","n","v"}, -- cd upward
                     callback = function()
                         local line = vim.api.nvim_win_get_cursor(0)[1]
                         if line == 1 then
@@ -121,31 +119,27 @@ return
                         end
                     end,
                 },
-                ["<C-Home>"] = { -- cd upward
-                    mode = {"i","n","v"},
+                ["<C-Home>"] = { mode = {"i","n","v"}, -- cd upward
                     callback = function()
                         require("oil.actions").parent.callback()
                         require("oil.actions").cd.callback({silent=true})
                     end,
                 },
-                ["<M-C-S-Up>"] = { -- cd upward
-                    mode = {"i","n","v"},
+                ["<M-C-S-Up>"] = { mode = {"i","n","v"}, -- cd upward
                     callback = function()
                         require("oil.actions").parent.callback()
                         require("oil.actions").cd.callback({silent=true})
                     end,
                 },
 
-                ["<C-End>"] = { -- cd previous visited dir
-                    mode = {"i","n","v"},
+                ["<C-End>"] = { mode = {"i","n","v"}, -- cd previous visited dir
                     callback = function()
                         require("oil").select({}, function() -- select curr
                             require("oil.actions").cd.callback({silent=true})
                         end)
                     end,
                 },
-                ["<M-C-S-Down>"] = { -- cd previous visited dir
-                    mode = {"i","n","v"},
+                ["<M-C-S-Down>"] = { mode = {"i","n","v"}, -- cd previous visited dir
                     callback = function()
                         require("oil").select({}, function() -- select curr
                             require("oil.actions").cd.callback({silent=true})
@@ -153,7 +147,7 @@ return
                     end,
                 },
 
-                ["<M-Home>"] = {
+                ["<M-Home>"] = { mode = { "n", "i", "v" },
                     desc = "cd to project root",
                     callback = function()
                         local rootdir = vim.fs.dirname(vim.fs.find({ ".git", "Makefile", "package.json" }, { upward = true })[1])
@@ -165,40 +159,37 @@ return
                             vim.notify("No project root found", vim.log.levels.WARN)
                         end
                     end,
-                    mode = { "n", "i", "x" },
                 },
-                ["<M-S-Home>"] = {
+                ["<M-S-Home>"] = { mode = { "n", "i", "v" },
                     desc = "cd to home",
                     callback = function()
                         vim.cmd("cd ")
                         require("oil").open(vim.fn.getcwd())
                     end,
-                    mode = { "n", "i", "x" },
                 },
-                ["<M-C-S-Home>"] = {
+                ["<M-C-S-Home>"] = { mode = { "n", "i", "v" },
                     desc = "cd root",
                     callback = function()
                         vim.cmd("cd /")
                         require("oil").open(vim.fn.getcwd())
                     end,
-                    mode = { "n", "i", "x" },
                 },
 
                 ["<C-S-n>"] = {
+                    desc = "New file",
                     function()
                         vim.cmd("norm! o")
-                        vim.api.nvim_put({ "new_file.txt" }, "", false, true)
+                        vim.api.nvim_put({"new_file.txt"}, "", false, true)
                         vim.cmd("norm! 0vt.")
                     end,
-                    desc = "New file",
                 },
                 ["<C-S-n>d"] = {
+                    desc = "New dir",
                     function()
                         vim.cmd("norm! o")
                         vim.api.nvim_put({ "new_dir/" }, "", false, true)
                         vim.cmd("norm! 0v$hh")
                     end,
-                    desc = "New dir",
                 },
 
                 ["<C-c>"] = { function() vim.cmd('norm! yy') end, mode = {"i","n"} },
@@ -211,15 +202,17 @@ return
                 -- save
                 ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
 
-
                 ["gp"] = "actions.preview",
-                ["gs"] = { "actions.change_sort", mode = "n" },
-                ["gh"] = { "actions.toggle_hidden", mode = "n" },
-                ["<F5>"] = {function()
-                    require("oil").open(vim.fn.getcwd())
-                end},
+                ["gs"] = { "actions.change_sort", mode = {"i","n"} },
+                ["gh"] = { "actions.toggle_hidden", mode = {"i","n"} },
+                ["<F5>"] = { mode = { "n", "i", "x" },
+                    function()
+                        require("oil").open(vim.fn.getcwd())
+                        print("oil refreshed")
+                    end
+                },
 
-                ["qf"] = { "actions.add_to_qflist", mode = "n" },
+                ["qf"] = { "actions.add_to_qflist", mode = {"i","n"} },
 
                 ["?"] = { "actions.show_help", mode = "n" },
 
@@ -230,14 +223,15 @@ return
 
         vim.api.nvim_create_autocmd('User', {
             group = "UserAutoCmds",
-            pattern = 'OilEnter',
-            callback = function()
+            pattern = 'oil',
+            callback = function(params)
+                -- if vim.bo.filetype ~= "oil" then return end
                 vim.cmd("stopinsert")
                 -- require('oil').open_preview()
 
-                vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true}) -- ensure CR is unmapped
-                vim.keymap.set("n", "dd", function() return "dd" end, {expr=true}) -- ensure orig dd is unmapped
-                vim.keymap.set("n", "yy", function() return "yy" end, {expr=true}) -- ensure orig dd is unmapped
+                vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true, buffer=params.buf}) -- ensure CR is unmapped
+                vim.keymap.set("n", "dd", function() return "dd" end, {expr=true, buffer=params.buf}) -- ensure orig dd is unmapped
+                vim.keymap.set("n", "yy", function() return "yy" end, {expr=true, buffer=params.buf}) -- ensure orig dd is unmapped
             end,
         })
 

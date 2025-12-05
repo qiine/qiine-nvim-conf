@@ -10,7 +10,7 @@ vim.keymap.set("ia", "!=",  "~=",       {buffer=true})
 
 
 -- custom buf vars
-vim.b[0].runcmd = "lua"
+-- vim.b[0].runcmd = "lua"
 
 
 

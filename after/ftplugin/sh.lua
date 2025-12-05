@@ -2,4 +2,4 @@
 
 
 -- custom buf vars
-vim.b[0].runcmd = "bash"
+-- vim.b[0].runcmd = "bash"

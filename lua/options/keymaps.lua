@@ -1737,7 +1737,7 @@ map(modes, ldvc.."z", "<Cmd>LazyGit<cr>")
 
 
 
--- ## [Code runner]
+-- ## [Task]
 ----------------------------------------------------------------------
 -- Exec sel
 vim.keymap.set("v", "<M-S-p>", function()
@@ -1755,12 +1755,27 @@ map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
 -- Run whole file until curr line and insert res
 map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
--- run current file F56 is <M-F8>
-map({"i","n","v"}, "<F56>", function()  end)
+-- run current file or buf (F56 is <M-F8>)
+map({"i","n","v"}, "<F56>", function()
+    local fpath = vim.fn.expand('%:p')
+
+    if vim.fn.filereadable(fpath) == 1 then
+        require('overseer').run_task({name = "run file"}, function(task)
+            if task then
+                require('overseer').open({ enter = false })
+            end
+        end)
+    else
+        require("overseer").run_task({name = "run buf"}, function(task)
+            if task then
+                require('overseer').open({ enter = false })
+            end
+        end)
+    end
+end)
 
 -- run project
 map({"i","n","v"}, "<F8>", function()
-    print("Hello!")
     require('overseer').run_task({}, function(task)
         if task then
             require('overseer').open({ enter = false })
@@ -1768,54 +1783,14 @@ map({"i","n","v"}, "<F8>", function()
     end)
 end)
 
--- map({"i","n","v"}, "<F8>", function()
---     local cwd     = vim.fn.getcwd()
---     local markers = {".git", "Makefile", "package.json"}
---     local diroot  = vim.fs.dirname(vim.fs.find(markers, {upward=true})[1])
-
---     local file   = vim.fn.expand("%:p")
---     local ft     = vim.bo.filetype
---     local nofile = file == "" or vim.fn.filereadable(file) == 0
---     local buft   = vim.bo.buftype
-
---     if diroot and vim.fn.filereadable(diroot .. "/Makefile") == 1 then
---         vim.fn.chdir(diroot)
---         vim.cmd("silent! make")
---         vim.cmd("copen")
---     else
---         local cmd
---         if nofile then -- Dump buffer to temp file
---             local tmp = vim.fn.tempname() .. "." .. ft
---             vim.fn.writefile(vim.api.nvim_buf_get_lines(0, 0, -1, false), tmp)
---             file = tmp
---         end
-
---         if ft == "lua" then
---             cmd = "lua " .. vim.fn.shellescape(file)
---         elseif ft == "python" then
---             cmd = "python " .. vim.fn.shellescape(file)
---         elseif ft == "sh" then
---             cmd = "bash " .. vim.fn.shellescape(file)
---         else
---             return vim.notify("No runner defined for filetype: " .. ft, vim.log.levels.WARN)
---         end
-
---         if buft ~= "terminal" then
---             vim.cmd("split | resize 9")
---             vim.cmd("terminal")
---             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
---             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-
---             vim.cmd("startinsert")
---         end
-
---         vim.fn.setreg("z", cmd)
---         vim.cmd('norm! "zP')
---         vim.api.nvim_feedkeys("\13", "t", false)
---     end
-
---     vim.fn.chdir(cwd)
--- end)
+map({"i","n","v"}, "<S-Space>tv", "<Cmd>OverseerToggle<Cr>", {nowait=true})
+map({"i","n","v"}, "<S-Space>tr", function()
+    require('overseer').run_task({}, function(task)
+        if task then
+            require('overseer').open({ enter = false })
+        end
+    end)
+end)
 
 
 

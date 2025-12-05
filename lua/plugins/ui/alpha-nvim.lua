@@ -189,7 +189,7 @@ local function dashlayout()
     ---@return table
     local function menu()
         return {
-            button("n", " New file",     function() set_wipe_dashboard() vim.cmd("enew") end),
+            button("n", " New file",     function() set_wipe_dashboard() vim.cmd("enew | FzfLua filetypes") end),
             button("f", "☆ Fav files",    "<Cmd>FzfLua favorites<CR>"),
             button("r", "󰈢 Recent files", function()
                 require("fzf-lua").oldfiles({

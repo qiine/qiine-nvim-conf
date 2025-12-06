@@ -303,26 +303,29 @@ end)
 local ldwin = "<M-w>"
 
 -- Rebind win prefix
-map({"i","n","v"}, ldwin, "<esc><C-w>", {noremap=true})
+map({"i","n","v","c"}, ldwin, "<esc><C-w>", {noremap=true})
 map("t",           ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 
 -- ### Create
 -- Make ver split
-map(modes, ldwin.."s", "<cmd>vsp<cr>") --default nvim sync both, we don't want that
+map(modes, ldwin.."s", "<Cmd>vsp<Cr>") --default nvim sync both, we don't want that
 -- Make hor split
-map(modes, ldwin.."w", "<cmd>sp<cr>")
-map(modes, ldwin.."h", "<cmd>sp<cr>")
+map(modes, ldwin.."w", "<Cmd>sp<Cr>")
+map(modes, ldwin.."h", "<Cmd>sp<Cr>")
 
 -- Open floating window
 map(modes, ldwin.."n",  function() utils.fwin_open() end)
 map(modes, ldwin.."nf", function() utils.fwin_open() end)
 
+map({"i","n","v","t"}, ldwin.."<S-f>", "<Cmd>only<CR>")
+
+
 -- Swap splits
-map({"i","n","v"}, ldwin.."<S-Left>",  "<Cmd>wincmd H<CR>")
-map({"i","n","v"}, ldwin.."<S-Right>", "<Cmd>wincmd L<CR>")
-map({"i","n","v"}, ldwin.."<S-Up>",    "<Cmd>wincmd K<CR>")
-map({"i","n","v"}, ldwin.."<S-Down>",  "<Cmd>wincmd J<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Left>",  "<Cmd>wincmd H<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Right>", "<Cmd>wincmd L<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Up>",    "<Cmd>wincmd K<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Down>",  "<Cmd>wincmd J<CR>")
 
 
 -- ### Nav

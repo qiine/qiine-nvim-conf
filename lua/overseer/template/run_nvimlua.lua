@@ -6,10 +6,12 @@ return {
         vim.fn.writefile(lines, ftmp)
 
         return {
-            name = 'run nvimlua',
+            -- name = 'run nvimlua',
             cmd  = { "nvim" },
-            args = { "-l", ftmp },
-            -- args = { "--headless", "--clean", "--noplugin", "-u", "NONE", "-l", ftmp },
+            args = { "--headless", "-l", ftmp },
+            -- args = { "--headless", "--clean", "--noplugin", "-u", "NONE",  },
+            -- "-l", ftmp
+            --headless --noplugin  }"
             cwd  = vim.fn.getcwd()
         }
     end,

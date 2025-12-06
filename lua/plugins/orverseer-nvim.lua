@@ -4,7 +4,6 @@ return
 
     config = function()
         require('overseer').setup({
-
             output = {
                 -- Use a terminal buffer to display output. If false, a normal buffer is used
                 use_terminal = true,
@@ -21,13 +20,8 @@ return
             },
 
             -- templates = {
-            --     vim.fn.stdpath("config") .. "/overseer/tasks",
+                --     vim.fn.stdpath("config") .. "/overseer/tasks",
             -- },
-
-            -- custom template
-            -- require('overseer').register_template({
-                -- Template definition (see below)
-                -- })
 
             keymaps = {
                 ["d"] = { "keymap.run_action", opts = { action = "dispose" }, desc = "Dispose task" },
@@ -37,6 +31,22 @@ return
                     desc = "Open task output in the quickfix",
                 },
             },
+
+
+            -- custom template
+            -- require('overseer').register_template({
+            --     name = "run",
+            --     builder = function()
+            --         return {
+            --             name = "run",
+            --             cmd  = {},
+            --             args = {},
+            --             cwd  = vim.fn.getcwd()
+            --         }
+            --     end,
+            --     condition = { filetype = { "lua", "bash", "python" }, },
+            -- })
+
         })
 
         vim.api.nvim_create_user_command("OverseerRunNvimLua", function()

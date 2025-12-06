@@ -13,7 +13,7 @@ function U.dir_get_files_path(dirpath, ignore)
     local files = {}
     for name, type in vim.fs.dir(dirpath) do
         if type == "file" then
-            local fpath =  dirpath.."/"..name
+            local fpath = dirpath.."/"..name
             local ft    = vim.filetype.match({ filename = fpath })
 
             if not vim.tbl_contains(ignore, ft) then
@@ -25,12 +25,28 @@ function U.dir_get_files_path(dirpath, ignore)
     return files
 end
 
+---@param path? string
+---@return string
+function U.find_proj_rdir(path)
+    path = path or vim.fn.getcwd()
+
+    local root = vim.fs.root(path,
+        { "Makefile", ".git", "Cargo.toml", "package.json" }
+    )
+
+    if root then
+        return root
+    else
+        return vim.fn.getcwd()
+    end
+end
+
 
 -- fs
 local M = {}
 ---@param fpath? string
 ---@param focus? boolean
-function M.File_Dup(fpath, focus)
+function M.file_dup(fpath, focus)
     fpath = fpath or vim.fn.expand("%:p")
     if focus == nil then focus = true end
 
@@ -61,7 +77,7 @@ end
 
 ---@param dir? string
 ---@param focus? boolean
-function M.File_Create(dir, focus)
+function M.file_create(dir, focus)
     dir = dir or vim.fn.getcwd()
     if focus == nil then focus = true end
 
@@ -93,7 +109,7 @@ function M.append_select_to_file()
     function(input)
         if input == nil then vim.notify("Append canceled. ", vim.log.levels.INFO) return end
 
-       vim.cmd("norm! ")
+        vim.cmd("norm! ")
         local lines = vim.fn.getline("'<","'>")
         vim.fn.writefile(lines, input, "a")
     end)
@@ -142,22 +158,34 @@ function M.file_open_next(reverse)
         nextfid = math.max(idx-1, 1)
     end
     -- local previdx = (idx - 2) % #files + 1 -- wraparound
-    local prevf = files[nextfid+1]
+    local prevf  = files[nextfid+1]
     local nextf  = files[nextfid]
-    local afterf  = files[nextfid-1]
+    local afterf = files[nextfid-1]
 
-    local prevfname = prevf and vim.fn.fnamemodify(prevf, ':t') or "   "
+    local prevfname  = prevf and vim.fn.fnamemodify(prevf, ':t') or "   "
     local nextfname  = vim.fn.fnamemodify(nextf, ':t')
-    local afterfname  = afterf and vim.fn.fnamemodify(afterf, ':t') or " / "
+    local afterfname = afterf and vim.fn.fnamemodify(afterf, ':t') or " / "
 
     if nextf and nextf ~= cfpath then
-        local curbufh = vim.bo[0].bufhidden
+        -- TODO set relevant split unlisted proper
+        -- reuse split
+        if vim.fn.winlayout()[1] ~= 'leaf' then -- detect if curr tab has split
+            local bufid = vim.api.nvim_get_current_buf()
+            local wins = vim.fn.win_findbuf(bufid)
+            local wcnt = #wins
+            if wcnt == 1 then
+                vim.bo[bufid].buflisted = false
+                vim.bo[bufid].bufhidden = "wipe"
+            end
+            vim.cmd("e "..nextf); --vim.cmd("e!")
+        else -- rem curr buf or let it del itself if it can
+            vim.cmd("e " .. nextf); --vim.cmd("e!")
+            if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
+        end
 
-        vim.cmd("e! " .. nextf)
-        -- rem curr buf or let it del itself if it can
-        if curbufh == "" then vim.cmd("silent! bd #") end
     end
 
+    -- ls surrounding files
     local cwdls = {
         "| "..afterfname,
         " | ",

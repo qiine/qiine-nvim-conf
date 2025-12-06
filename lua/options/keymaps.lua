@@ -1781,7 +1781,7 @@ end)
 
 -- run project
 map({"i","n","v"}, "<F8>", function()
-    require('overseer').run_task({}, function(task)
+    require('overseer').run_task({name = "run smart"}, function(task)
         if task then
             require('overseer').open({ enter = false })
         end

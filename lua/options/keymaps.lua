@@ -148,6 +148,8 @@ map({"i","n","v"}, "<C-S-PageUp>", function() fs.file_open_next(false) end)
 map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 
 -- File action
+map({"i","n","v"}, "<C-g>fn", fs.File_Create)
+map({"i","n","v"}, "<C-g>fd", fs.File_Dup)
 map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
 map({"i","n","v"}, "<C-g>fd", "<Cmd>FileDelete<CR>")

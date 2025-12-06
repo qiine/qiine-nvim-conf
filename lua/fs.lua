@@ -7,7 +7,7 @@ local U = {}
 ---@param dirpath string
 ---@param ignore? table
 ---@return table
-function U.dir_get_files(dirpath, ignore)
+function U.dir_get_files_path(dirpath, ignore)
     ignore = ignore and ignore or {}
 
     local files = {}
@@ -28,6 +28,65 @@ end
 
 -- fs
 local M = {}
+---@param fpath? string
+---@param focus? boolean
+function M.File_Dup(fpath, focus)
+    fpath = fpath or vim.fn.expand("%:p")
+    if focus == nil then focus = true end
+
+    local fdir       = vim.fn.fnamemodify(fpath, ":h")
+    local fpathnoext = vim.fn.fnamemodify(fpath, ":r")
+    local fext       = vim.fn.fnamemodify(fpath, ":e")
+
+    -- Check existing
+    local dupfpath = ""
+
+    local fpaths = U.dir_get_files_path(fdir)
+    local count = 0
+    for _, f in ipairs(fpaths) do
+        if vim.startswith(vim.fn.fnamemodify(f, ":r"), fpathnoext) then
+            count = count + 1
+        end
+    end
+
+    dupfpath = fpathnoext.."("..tostring(count)..")".."."..fext
+
+    -- write
+    vim.fn.writefile(vim.fn.readfile(fpath), dupfpath)
+
+    print("Dup created: "..dupfpath)
+
+    if focus then vim.cmd.edit(dupfpath) end
+end
+
+---@param dir? string
+---@param focus? boolean
+function M.File_Create(dir, focus)
+    dir = dir or vim.fn.getcwd()
+    if focus == nil then focus = true end
+
+    -- auto name
+    local nfpath = ""
+
+    nfpath = dir.."/".."newfile"
+
+    local cwdfpaths = U.dir_get_files_path(dir)
+    local count = 0
+    for _, f in ipairs(cwdfpaths) do
+        if vim.startswith(f, nfpath) then
+            count = count + 1
+        end
+    end
+    local cntstr = count > 0 and tostring("("..count..")") or ""
+
+    nfpath = nfpath..cntstr
+
+    vim.fn.writefile({}, nfpath)
+
+    print("File created: "..nfpath)
+
+    if focus then vim.cmd.edit(nfpath) end
+end
 
 function M.append_select_to_file()
     vim.ui.input({prompt="Append selected to: ", default=vim.fn.getcwd(), completion="file"},
@@ -52,7 +111,8 @@ function M.move_select_to_file()
     end)
 end
 
--- nav
+
+-- ### Nav
 function M.file_open_next(reverse)
     reverse = reverse or false
 

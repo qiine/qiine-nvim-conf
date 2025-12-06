@@ -189,22 +189,9 @@ local function dashlayout()
     ---@return table
     local function menu()
         return {
-            button("n", " New file",     function() set_wipe_dashboard() vim.cmd("enew | FzfLua filetypes") end),
-            button("f", "☆ Fav files",    "<Cmd>FzfLua favorites<CR>"),
-            button("r", "󰈢 Recent files", function()
-                require("fzf-lua").oldfiles({
-                    actions = {
-                        ["default"] = function(selected, opts)
-                            require("fzf-lua").actions.file_edit_or_qf(selected, opts)
-
-                            local alt = vim.fn.bufnr("#")
-                            if vim.bo[alt].filetype == "alpha" then
-                                vim.cmd("bwipeout " .. alt)
-                            end
-                        end,
-                    }
-                })
-            end),
+            button("n", " New file", function() set_wipe_dashboard() vim.cmd("enew | FzfLua filetypes") end),
+            button("f", "☆ Fav files", "<Cmd>FzfLua favorites<CR>"),
+            button("r", "󰈢 Recent files", function() set_wipe_dashboard() vim.cmd("enew | FzfLua oldfiles") end),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
             button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
             button("s", " Load session", function() set_wipe_dashboard() vim.cmd("LoadGlobalSession") end),

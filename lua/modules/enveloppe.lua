@@ -77,108 +77,108 @@ local function enveloppe_selection(open, close)
     vim.cmd('norm! `>')
 end
 
-function M.setup()
-    -- Smart auto pairing
-    vim.keymap.set("i", "<", function()
-        local curso_pos    = vim.fn.getpos(".")
-        local left_chr_pos = {0, curso_pos[2], curso_pos[3], 0}
-        local left_chr     = vim.fn.getregion(left_chr_pos, left_chr_pos)[1]
+-- ## [Keymaps]
+----------------------------------------------------------------------
+-- Smart auto pairing
+vim.keymap.set("i", "<", function()
+    local curso_pos    = vim.fn.getpos(".")
+    local left_chr_pos = {0, curso_pos[2], curso_pos[3], 0}
+    local left_chr     = vim.fn.getregion(left_chr_pos, left_chr_pos)[1]
 
-        local not_inif =  not vim.fn.getline('.'):match('%f[%w]if%f[%W]')
+    local not_inif =  not vim.fn.getline('.'):match('%f[%w]if%f[%W]')
 
-        if vim.bo.buftype == "" and
-           not_inif and
-           (left_chr == " " or left_chr == "")
-        then
-            return "<><Cmd>silent! norm! h<CR>"
-        else
-            return "<"
-        end
-    end, {expr=true, nowait=true})
+    if vim.bo.buftype == "" and
+        not_inif and
+        (left_chr == " " or left_chr == "")
+    then
+        return "<><Cmd>silent! norm! h<CR>"
+    else
+        return "<"
+    end
+end, {expr=true, nowait=true})
 
-    vim.keymap.set("c", "(", function() return "()<Left>" end, {expr=true, nowait=true})
+vim.keymap.set("c", "(", function() return "()<Left>" end, {expr=true, nowait=true})
 
-    -- surround
-    vim.keymap.set({"i","n","x"}, '<C-S-s>', function()
-        vim.api.nvim_echo({{"Surround:"}}, false, {})
+-- surround
+vim.keymap.set({"i","n","x"}, '<C-S-s>', function()
+    vim.api.nvim_echo({{"Surround:"}}, false, {})
 
-        local schar = vim.fn.getcharstr()
-        if schar == "" then
-            vim.api.nvim_echo({}, false, {})
-            return
-        end
-
-        local matchchar = find_matchingpair_char(schar)
-        if matchchar then
-            local m = vim.fn.mode()
-            if m == "v" or m == "V" or m == "\22" then
-                enveloppe_selection(schar, matchchar)
-            else
-                vim.cmd("norm! viw")
-                enveloppe_selection(schar, matchchar)
-            end
-        end
-
+    local schar = vim.fn.getcharstr()
+    if schar == "" then
         vim.api.nvim_echo({}, false, {})
-    end, {noremap=true})
+        return
+    end
+
+    local matchchar = find_matchingpair_char(schar)
+    if matchchar then
+        local m = vim.fn.mode()
+        if m == "v" or m == "V" or m == "\22" then
+            enveloppe_selection(schar, matchchar)
+        else
+            vim.cmd("norm! viw")
+            enveloppe_selection(schar, matchchar)
+        end
+    end
+
+    vim.api.nvim_echo({}, false, {})
+end, {noremap=true})
 
 
-    -- replace pair
-    vim.keymap.set('n', "<C-r>", function()
-        local baseguicursor = vim.opt.guicursor:get()
-        vim.opt_local.guicursor = { "n:hor90", "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor" }
+-- replace pair
+vim.keymap.set('n', "<C-r>", function()
+    local baseguicursor = vim.opt.guicursor:get()
+    vim.opt_local.guicursor = { "n:hor90", "a:blinkwait900-blinkoff900-blinkon950-Cursor/lCursor" }
 
-        local cchar  = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
-        local inchar = vim.fn.getcharstr()
+    local cchar  = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
+    local inchar = vim.fn.getcharstr()
 
-        if inchar ~= "" then
-            if inchar == vim.keycode("<Del>") then
-                local curso_startpos  = vim.api.nvim_win_get_cursor(0)
-                -- local match = find_matchingpair_pos(cchar, cpos)
-                -- vim.api.nvim_buf_set_text(
-                --     0,
-                --     cpos[1]-1, cpos[2]-1,
-                --     cpos[1]-1, cpos[2]+1,
-                --     {""}
-                -- )
-                -- vim.api.nvim_buf_set_text(
-                --     0,
-                --     match[1]-1, match[2]-1,
-                --     match[1]-1, match[2],
-                --     {""}
-                -- )
-                -- vim.api.nvim_win_set_cursor(0, cpos)
+    if inchar ~= "" then
+        if inchar == vim.keycode("<Del>") then
+            local curso_startpos  = vim.api.nvim_win_get_cursor(0)
+            -- local match = find_matchingpair_pos(cchar, cpos)
+            -- vim.api.nvim_buf_set_text(
+            --     0,
+            --     cpos[1]-1, cpos[2]-1,
+            --     cpos[1]-1, cpos[2]+1,
+            --     {""}
+            -- )
+            -- vim.api.nvim_buf_set_text(
+            --     0,
+            --     match[1]-1, match[2]-1,
+            --     match[1]-1, match[2],
+            --     {""}
+            -- )
+            -- vim.api.nvim_win_set_cursor(0, cpos)
 
+            jumptomatch(cchar)
+            local curso_newpos = vim.api.nvim_win_get_cursor(0)
+            if  curso_startpos[2] > curso_newpos[2] then
                 jumptomatch(cchar)
-                local curso_newpos = vim.api.nvim_win_get_cursor(0)
-                if  curso_startpos[2] > curso_newpos[2] then
-                    jumptomatch(cchar)
-                    vim.cmd('norm! "_x')
-                    vim.api.nvim_win_set_cursor(0, curso_newpos)
-                    vim.cmd('norm! "_x')
-                    vim.api.nvim_win_set_cursor(0, curso_startpos)
-                    vim.cmd('norm! g_')
-                else
-                    vim.cmd('norm! "_x')
-                    vim.api.nvim_win_set_cursor(0, curso_startpos)
-                    vim.cmd('norm! "_x')
-                end
+                vim.cmd('norm! "_x')
+                vim.api.nvim_win_set_cursor(0, curso_newpos)
+                vim.cmd('norm! "_x')
+                vim.api.nvim_win_set_cursor(0, curso_startpos)
+                vim.cmd('norm! g_')
             else
-                local matchchar = find_matchingpair_char(inchar)
+                vim.cmd('norm! "_x')
+                vim.api.nvim_win_set_cursor(0, curso_startpos)
+                vim.cmd('norm! "_x')
+            end
+        else
+            local matchchar = find_matchingpair_char(inchar)
 
-                if matchchar then
-                    vim.cmd('norm! mz'); jumptomatch(cchar)
-                    vim.cmd('norm! r' .. matchchar)
-                    vim.cmd('norm! `z')
-                    vim.cmd('norm! r' .. inchar)
-                end
+            if matchchar then
+                vim.cmd('norm! mz'); jumptomatch(cchar)
+                vim.cmd('norm! r' .. matchchar)
+                vim.cmd('norm! `z')
+                vim.cmd('norm! r' .. inchar)
             end
         end
+    end
 
-        vim.opt.guicursor = baseguicursor --reset curso
-    end)
+    vim.opt.guicursor = baseguicursor --reset curso
+end)
 
-end -- setup
 
 
 --------

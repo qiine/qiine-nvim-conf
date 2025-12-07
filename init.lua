@@ -46,9 +46,7 @@ local function safe_require(module_name)
 end
 
 -- ## Custom modules
-local module   --will hold special local modules
-
-module = safe_require("modules.enveloppe") if module then module.setup() end
+safe_require("modules.enveloppe")
 safe_require("modules.tiny-session")
 safe_require("modules.historybuf")
 safe_require("modules.favorizer")

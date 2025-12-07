@@ -158,7 +158,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
 
             vim.api.nvim_win_set_height(0, 9)
-            vim.opt_local.signcolumn = "no" -- show error/warning/hint and others
+            vim.opt_local.signcolumn = "no"
 
             vim.cmd("stopinsert")
 
@@ -194,8 +194,8 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 
             -- Open entry and close
             vim.keymap.set({"i","n"}, "<C-CR>", function()
-                vim.cmd("norm! \13zz")
-                vim.cmd("cclose")
+                local ok = pcall(vim.cmd, "norm! \13zz")
+                if ok then vim.cmd("cclose") end
             end)
 
             -- Del entry

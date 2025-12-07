@@ -177,26 +177,26 @@ return
                         end,
                         padding={left=1,right=0},
                     },
-                    {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
-                    {--filesize
-                        function()
-                            local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
+                    -- {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
+                --     {--filesize
+                --         function()
+                --             local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
 
-                            local function human_readable_size(bytes)
-                                local units = { "B", "KB", "MB", "GB", "TB" }
-                                local i = 1
-                                while bytes >= 1024 and i < #units do
-                                    bytes = bytes / 1024
-                                    i = i + 1
-                                end
-                                return string.format("%.1f%s", bytes, units[i])
-                            end
+                --             local function human_readable_size(bytes)
+                --                 local units = { "B", "KB", "MB", "GB", "TB" }
+                --                 local i = 1
+                --                 while bytes >= 1024 and i < #units do
+                --                     bytes = bytes / 1024
+                --                     i = i + 1
+                --                 end
+                --                 return string.format("%.1f%s", bytes, units[i])
+                --             end
 
-                            local file_size_human = human_readable_size(file_size_bytes)
-                            return file_size_human
-                        end,
-                        padding=0,
-                    },
+                --             local file_size_human = human_readable_size(file_size_bytes)
+                --             return file_size_human
+                --         end,
+                --         padding=0,
+                --     },
                 },
 
                 lualine_y = {

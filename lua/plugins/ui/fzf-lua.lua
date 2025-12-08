@@ -32,7 +32,7 @@ return
                     default    = "builtin",
                     border     = "border", -- single, border
                     layout     = "horizontal",
-                    horizontal = "right:47%",
+                    horizontal = "right:49%",
                     -- hidden     = "hidden",
                     winopts = {  -- builtin previewer window options
                         signcolumn    = "no",
@@ -106,6 +106,12 @@ return
                 glob_flag = "--iglob", -- case insensitive globs
                 glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
 
+                winopts = {
+                    preview = {
+                        horizontal = "right:60%",
+                    },
+                },
+
                 actions = {
                     ["alt-q"] = {
                         fn = require("fzf-lua").actions.file_sel_to_qf, prefix = "select-all"
@@ -128,6 +134,15 @@ return
                 stat_file = true,                --check file still exist
                 include_current_session = true,  -- include bufs from current session
             },
+
+            helptags = {
+                winopts = {
+                    preview = {
+                        horizontal = "right:62%",
+                    },
+                },
+            },
+
         })
 
         -- Custom previewer

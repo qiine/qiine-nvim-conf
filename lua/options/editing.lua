@@ -3,6 +3,9 @@
 ----------------------------------------------------------------------
 
 local utils = require("utils")
+local fs    = require("fs")
+local bufrs = require("bufrs")
+
 local v = vim
 
 
@@ -52,58 +55,17 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 })
 
 
+
 -- ## [File]
 ----------------------------------------------------------------------
 -- Smart autosave
 vim.g.autosave_enabled = true
+vim.g.autosave_delay = 420000
 
----@return boolean
-local function file_was_saved_manually(path)
-    if vim.fn.filereadable(path) == 1 then
-        --A file can be readable but fs_stat can still fail in some case:
-        -- - Race condition: file was deleted after the readable check.
-        -- - Permissions issues.
-        -- - Path is a symlink to a broken target.
-        local stat = vim.uv.fs_stat(path)
-
-        if stat then
-            local mtime = os.date("*t", stat.mtime.sec)
-            local now   = os.date("*t")
-
-            local was_saved_manually = mtime.year  == now.year  and
-                                       mtime.month == now.month and
-                                       mtime.day   == now.day
-            return was_saved_manually
-        else
-            return false
-        end
-    else
-        return false
-    end
-end
-
-local function save_buffers()
-    for _, buf in ipairs(v.api.nvim_list_bufs()) do
-        local bufname = v.api.nvim_buf_get_name(buf)
-
-        if v.api.nvim_buf_is_loaded(buf) and v.fn.filereadable(bufname) == 1 then
-            --nvim_buf_call Ensure proper bufs info
-            v.api.nvim_buf_call(buf, function()
-                if v.bo.modifiable and not v.bo.readonly and v.bo.buftype == "" then
-                    if file_was_saved_manually then
-                        v.cmd("silent! write") --we can safely write
-                        --print("autosaved: " .. bufname)
-                    end
-                end
-            end)
-        end
-    end
-end
-
-local timer_autosave = vim.loop.new_timer()
-timer_autosave:start(420000, 420000, vim.schedule_wrap(function ()
+local timer_autosave = vim.uv.new_timer()
+timer_autosave:start(vim.g.autosave_delay, vim.g.autosave_delay, vim.schedule_wrap(function ()
     if vim.g.autosave_enabled then
-        save_buffers()
+        bufrs.save_buffers()
     else
         timer_autosave:stop()
         timer_autosave:close()
@@ -123,11 +85,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
             vim.bo.buflisted          and
             not vim.bo.readonly
         then
-            local ok, err = pcall(vim.cmd, "TrimTrailSpacesBuffer")
+            local ok, err = pcall( function() vim.cmd("TrimTrailSpacesBuffer") end)
             if not ok then vim.notify("Trim failed: " .. err, vim.log.levels.WARN) end
         end
     end
 })
+
 
 
 

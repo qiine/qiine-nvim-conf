@@ -4,6 +4,20 @@
 -- fs utils
 local U = {}
 
+
+---@param path string
+---@return boolean
+function U.is_dir(path)
+    return vim.fn.isdirectory(path) == 1
+end
+
+---@param path string
+---@param rootpath string
+---@return string
+function U.make_path_projr_rel(path, rootpath)
+    return path:sub(#rootpath+2)
+end
+
 ---@param dirpath string
 ---@param ignore? table
 ---@return table
@@ -41,9 +55,100 @@ function U.find_proj_rdir(path)
     end
 end
 
+---@param fpath string
+---@return string
+function U.get_file_projr_dir(fpath)
+    if not fpath or fpath == "" then return vim.fn.getcwd() end
+
+    local froot = vim.fs.root(fpath,
+        { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }
+    )
+
+    if froot then
+        return froot
+    else
+        local fdir = vim.fn.fnamemodify(fpath, ':h')
+        local stat = vim.uv.fs_stat(fdir)
+
+        if not stat or not stat.type == "directory" then return vim.fn.getcwd() end
+
+        return fdir
+    end
+end
+
 
 -- fs
 local M = {}
+
+---@param oldpath string
+---@param newpath string
+function M.rename(oldpath, newpath, force)
+    if force == nil then force = false end
+
+    if vim.fn.filereadable(newpath) == 1 and not force then return end
+
+    -- Now rename
+    local ret, err = vim.uv.fs_rename(oldpath, newpath)
+    if not ret then vim.notify("Rename failed: "..err, vim.log.levels.ERROR) return end
+
+    -- will use oil for now
+    -- require("oil.fs").recursive_move("file", oldpath, newpath, vim.schedule_wrap(function(err)
+    --     if not err then
+    --         vim.notify("File moved successfully!", vim.log.levels.INFO)
+    --     else
+    --         vim.notify("Error moving file: " .. err, vim.log.levels.ERROR)
+    --     end
+    -- end))
+
+    -- lsp
+    local changes = { files = { {
+        oldUri = vim.uri_from_fname(oldpath),
+        newUri = vim.uri_from_fname(newpath),
+    } } }
+
+    local clients = vim.lsp.get_clients()
+
+    for _, client in ipairs(clients) do
+        if client:supports_method("workspace/willRenameFiles") then
+            local resp = client:request_sync("workspace/willRenameFiles", changes)
+            if resp and resp.result ~= nil then
+                vim.lsp.util.apply_workspace_edit(resp.result, client.offset_encoding)
+            end
+        end
+    end
+
+    -- Some servers support only didRenameFiles (rare).
+    for _, client in ipairs(clients) do
+        if client:supports_method("workspace/didRenameFiles") then
+            client:notify("workspace/didRenameFiles", changes)
+        end
+    end
+end
+
+---@param target string
+function M.file_move_cur_interac(target)
+    local fpath = vim.api.nvim_buf_get_name(0)
+    local fdir  = vim.fn.fnamemodify(fpath, ":h")
+    local fname = vim.fn.fnamemodify(fpath, ":t")
+
+    local function prompt_user()
+        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
+        function(input)
+            vim.api.nvim_command("redraw") -- ensure prompt hidden
+            if input == nil then vim.notify("Rename canceled.", vim.log.levels.INFO) return end
+
+            local newfpath = vim.fs.joinpath(input, fname)
+
+            M.rename(fpath, newfpath)
+
+            vim.cmd("e "..newfpath); vim.cmd("e!")
+            if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
+            vim.notify('Moved to: "'..input..'"', vim.log.levels.INFO)
+        end)
+    end
+    prompt_user()
+end
+
 ---@param fpath? string
 ---@param focus? boolean
 function M.file_dup(fpath, focus)
@@ -130,8 +235,7 @@ end
 
 -- ### Nav
 function M.file_open_next(reverse)
-    reverse = reverse or false
-
+    if reverse == nil then reverse = true end
     local cwd = vim.fn.getcwd()
     local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
 

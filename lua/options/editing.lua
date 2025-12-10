@@ -60,17 +60,19 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 ----------------------------------------------------------------------
 -- Smart autosave
 vim.g.autosave_enabled = true
-vim.g.autosave_delay = 420000
+vim.g.autosave_delay = 500000
 
-local timer_autosave = vim.uv.new_timer()
-timer_autosave:start(vim.g.autosave_delay, vim.g.autosave_delay, vim.schedule_wrap(function ()
-    if vim.g.autosave_enabled then
-        bufrs.save_buffers()
-    else
-        timer_autosave:stop()
-        timer_autosave:close()
-    end
-end))
+if vim.g.autosave_enabled then
+    local timer_autosave = vim.uv.new_timer()
+    timer_autosave:start(vim.g.autosave_delay, vim.g.autosave_delay, vim.schedule_wrap(function()
+        if vim.g.autosave_enabled then
+            bufrs.save_buffers()
+        else
+            timer_autosave:stop()
+            timer_autosave:close()
+        end
+    end))
+end
 
 -- Pre-process file before saving
 -- Auto Trim trail spaces in Curr Buffer on save

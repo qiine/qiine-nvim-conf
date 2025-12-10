@@ -54,7 +54,7 @@
 
     "lua print": {
         "prefix": "print",
-        "body": [ "print(${1:\"Hello!\"})" ]
+        "body": [ "print(${1:\"Hello\"})" ]
     },
 
     "lua module": {
@@ -114,6 +114,7 @@
         "body": "os.getenv(\"HOME\")"
     },
 
+
     "get nvim file path": {
         "prefix": "get nvim file path",
         "body": [ "vim.fn.expand(\"%:p\")" ]
@@ -125,13 +126,13 @@
     },
 
     "get nvim filename": {
-        "prefix": "get nvim filename",
+        "prefix": "get nvim file name",
         "body": [ "vim.fn.expand(\"%:p:t\")" ]
     },
 
-    "get nvim filetype": {
-        "prefix": "get nvim filetype",
-        "body": [ "vim.bo.filetype" ]
+    "get nvim file extension": {
+        "prefix": "get nvim file extension",
+        "body": [ "vim.fn.expand(\"%:p:e\")" ]
     },
 
 

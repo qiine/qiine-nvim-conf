@@ -196,7 +196,7 @@ return
                 ["<C-x>"] = { function() vim.cmd('norm! dd') end, mode = {"i","n"} },
                 ["<C-v>"] = { function() vim.cmd('norm! p') end, mode = {"i","n"} },
                 -- rename
-                ["<F2>"] = { function() vim.cmd('norm! "_viw') end, mode = {"i","n"} },
+                ["<F2>"] = { function() vim.cmd('stopinsert | norm! viw') end, mode = {"i","n"} },
                 ["<Del>"] = { function() vim.cmd('norm! "_dd') end, mode = "n" },
 
                 -- save

@@ -190,15 +190,23 @@ end)
 
 -- Open file explorer
 map({"i","n","v","t"}, "<C-e>", function()
+    local pbuf       = vim.api.nvim_get_current_buf()
+    local pbufwincnt = #(vim.fn.win_findbuf(pbuf))
+    local pbufhide   = vim.bo[pbuf].bufhidden ~= ""
+
     require("oil").open(
         vim.fn.getcwd(),
         nil,
         function()
-            if vim.fn.winlayout()[1] ~= 'leaf' then -- detect if curr tab has split
+            if pbufhide then return end
+
+            if vim.fn.winlayout()[1] ~= "leaf" then -- detect if curr tab has splits
+                if pbufwincnt > 1 then return end -- avoids destroying buf we want to keep
+
                 vim.bo[0].buflisted = false
-            else -- else rem curr buf or let it del itself if it can
-              if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
             end
+
+            vim.cmd("silent! bd "..pbuf)
         end
     )
 end)

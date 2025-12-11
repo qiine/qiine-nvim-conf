@@ -1533,8 +1533,9 @@ map({"i","n","v"}, "<F10>", "<Cmd>Trouble diagnostics toggle focus=true filter.b
 map({"i","n","v"}, "<F58>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
 -- To next diag
-map({"i","n","v"}, "<C-PageUp>d",  "]d")
-map({"i","n","v"}, "<C-PageDow>d", "[d")
+map({"i","n","v"}, "<M-C-S-PageUp>", function() vim.diagnostic.jump({count=-1}) end)
+
+map({"i","n","v"}, "<M-C-S-PageDown>", function() vim.diagnostic.jump({count=1}) end)
 
 -- Ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")

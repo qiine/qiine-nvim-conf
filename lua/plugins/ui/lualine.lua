@@ -177,26 +177,6 @@ return
                         end,
                         padding={left=1,right=0},
                     },
-                    -- {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
-                --     {--filesize
-                --         function()
-                --             local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
-
-                --             local function human_readable_size(bytes)
-                --                 local units = { "B", "KB", "MB", "GB", "TB" }
-                --                 local i = 1
-                --                 while bytes >= 1024 and i < #units do
-                --                     bytes = bytes / 1024
-                --                     i = i + 1
-                --                 end
-                --                 return string.format("%.1f%s", bytes, units[i])
-                --             end
-
-                --             local file_size_human = human_readable_size(file_size_bytes)
-                --             return file_size_human
-                --         end,
-                --         padding=0,
-                --     },
                 },
 
                 lualine_y = {
@@ -268,33 +248,24 @@ return
                         separator={left="▐"}
                     },
 
-                    --{--Get curr LSP
-                    --    function()
-                    --        local clients = vim.lsp.get_active_clients({ bufnr = 0 })
-                    --        if #clients == 0 then
-                    --            return "ⓘ NoLSP"
-                    --    end
-                    --    local names = {}
-                    --    for _, client in ipairs(clients) do
-                    --        table.insert(names, client.name)
-                    --    end
-                    --        return "{"..table.concat(names, ", ").."}"
-                    --    end,
+                    {--Get curr LSP
+                        function()
+                            local clients = vim.lsp.get_clients()
 
-                    --    on_click = function()
-                    --        local clients = vim.lsp.get_active_clients({ bufnr = 0 })
-                    --        if #clients == 0 then
-                    --            print("No active LSP clients")
-                    --            return
-                    --        end
-                    --        local client = clients[1] -- Assuming only one client
-                    --        local root_dir = client.config.root_dir
-                    --        print("LSP root dir: " .. root_dir)
-                    --    end,
-                    --    padding = 0,
-                    --    --separator={left=''},
-                    --},--Get curr LSP
-                    --{
+                            -- spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
+
+                            if #clients == 0 then return "" end
+
+                            if #vim.lsp.status() > 0 then
+                                return ""
+                            else
+                                return "🞛" --🝎 ❖ ✦
+                            end
+                        end,
+                        padding = 0,
+                    },
+
+                    -- {
                     --    'lsp_status',
                     --    icon = '', -- f013
                     --    symbols = {
@@ -305,46 +276,28 @@ return
                     --    },
                     --    -- List of LSP names to ignore (e.g., `null-ls`):
                     --    ignore_lsp = {},
-                    --},
+                    -- },
 
                     {
                         "filetype",
                         icon_only = true,
                         on_click = function()
-                            local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+                            local clients = vim.lsp.get_clients()
 
                             if #clients == 0 then return "ⓘ NoLSP" end
+
                             local names = {}
                             for _, client in ipairs(clients) do
                                 table.insert(names, client.name)
                             end
+
                             print("LSPs: "..table.concat(names, ", "))
                         end,
                         padding = 0
                     },
+                },--section z
 
-                    {
-                        -- --"os"
-                        -- function()
-                        --     if     vim.fn.has("win32")   == 1 then return ""
-                        --     elseif vim.fn.has("macunix") == 1 then return ""
-                        --     elseif vim.fn.has("unix")    == 1 then return ""
-                        --     else                                   return "OS"
-                        --     end
-                        -- end,
-                        -- padding = 0,
-                        -- color={fg = "#1f1f1f", bg = '#e6e6e6'},
-                    }
-                },
             },
-
-            winbar =
-            {
-                --lualine_a = {},
-                --lualine_b = {},
-                --lualine_z = {},
-            },
-
 
         })--setup
     end,

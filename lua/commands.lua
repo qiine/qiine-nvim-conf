@@ -268,6 +268,46 @@ end, {})
 
 -- ## [FileSystem]
 ----------------------------------------------------------------------
+vim.api.nvim_create_user_command("FileInfo", function()
+    local fpath   = vim.fn.expand("%:p")
+    local fname   = vim.fn.expand("%:p:t")
+    local fsize_b = vim.fn.getfsize(vim.fn.expand("%:p"))
+
+    local stt = vim.uv.fs_stat(fpath)
+
+    ---@return string|osdate
+    local function fmt_time(sec)
+        return os.date("%H:%M:%S %d/%m/%Y", sec)
+    end
+
+    local function fsize_hreadable(bytes)
+        local units = { "B", "KB", "MB", "GB", "TB" }
+
+        local i = 1
+        while bytes >= 1024 and i < #units do
+            bytes = bytes / 1024
+            i = i + 1
+        end
+
+        return string.format("%.1f%s", bytes, units[i])
+    end
+
+    local permres = vim.system({"stat", "-c", "%A", fpath}, {text=true}):wait()
+
+    local finfos = {
+        "Name:     "..fname,
+        "Path:     "..fpath,
+        "Type:     "..stt.type,
+        "Size:     "..fsize_hreadable(fsize_b),
+        "Mode:     "..vim.fn.trim(permres.stdout),
+        "Modified: "..fmt_time(stt.mtime.sec),
+        "Created:  "..fmt_time(stt.birthtime.sec),
+    }
+    local outstr = table.concat(finfos, "\n")
+
+    print(outstr)
+end, {})
+
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
     local fp = vim.api.nvim_buf_get_name(0)

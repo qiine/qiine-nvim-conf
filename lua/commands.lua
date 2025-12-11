@@ -108,28 +108,7 @@ vim.api.nvim_create_user_command("RestartSafeMode", function()
 end, {})
 
 vim.api.nvim_create_user_command("ToggleMsgLog", function()
-    if vim.fn.expand("%:t") == "msglog" then vim.cmd("bwipeout") return end
-
-    local cmd_output = vim.fn.execute('messages')
-
-    vim.cmd("split"); vim.cmd("enew") vim.cmd("file! msglog")
-
-    vim.api.nvim_win_set_height(0, 10)
-
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(cmd_output, '\n'))
-
-    vim.opt_local.spell      = false
-    vim.opt_local.signcolumn = "no"
-    vim.opt_local.foldcolumn = "0"
-
-    vim.api.nvim_set_option_value("buftype", "nofile", {buf=0})
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-    vim.api.nvim_set_option_value("filetype", "log",   {buf=0})
-    -- vim.api.nvim_set_option_value("modifiable", false, {buf=0})
-
-    vim.cmd("stopinsert")
-    vim.cmd("norm! G")
+    msglog.toggle()
 end, {})
 
 -- Insert today

@@ -92,7 +92,7 @@ return
         close_automatic_events = {"switch_buffer", "unsupported" },
 
         on_attach = function(bufnr)
-            -- require("aerial").tree_close_all(bufnr) -- auto close folds
+            -- require("aerial").tree_close_all() -- auto close folds
         end,
 
         show_guides = true,
@@ -152,13 +152,13 @@ return
             -- ["[["] = "actions.prev_up",
             -- ["]]"] = "actions.next_up",
 
-            ["<C-Tab>"] = { mode = {"i", "n", "v" },
-            desc = "next buf",
-            callback = function()
-                vim.cmd("cd /")
-                require("oil").open(vim.fn.getcwd())
-            end,
-        },
+            -- ["<C-Tab>"] = { mode = {"i","n","v"},
+            --     desc = "next buf",
+            --     callback = function()
+            --         vim.cmd("bnext")
+            --         -- vim.cmd("bp")
+            --     end
+            -- },
 
             ["q"] = "actions.close",
 

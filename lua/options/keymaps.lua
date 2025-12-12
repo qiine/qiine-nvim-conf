@@ -122,6 +122,11 @@ map(modes, "<C-w>", function()
         end
     end
 
+    -- close aerial when killing curr buf
+    if ftype ~= "aerial" then
+        vim.cmd("AerialCloseAll")
+    end
+
     -- TODO IMPROV close is not super reliable
     -- Try :close first, in case both splits are same buf (fails if no split)
     -- It avoids wiping the shared buffer in this case

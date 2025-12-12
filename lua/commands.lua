@@ -925,7 +925,7 @@ vim.api.nvim_create_user_command("GitCommitAll", function()
         return vim.notify(ga_res.stderr , vim.log.levels.ERROR)
     end
 
-    utils.open_term_fwin(nil, {
+    term.open_fwin(nil, {
         title = "Commit all",
         wratio = 0.8, hratio = 0.75,
     }, "bash --norc")

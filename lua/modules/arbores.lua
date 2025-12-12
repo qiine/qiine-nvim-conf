@@ -89,11 +89,11 @@ end, {})
 
 
 -- arbores toggle open
-vim.keymap.set({"i","n","v","c"}, "<C-S-b>", function()
-    if vim.bo.filetype == "arbores" then vim.cmd("bd") return end
+-- vim.keymap.set({"i","n","v","c"}, "<C-S-b>", function()
+--     if vim.bo.filetype == "arbores" then vim.cmd("bd") return end
 
-    M.arbores_open_win()
-end)
+--     M.arbores_open_win()
+-- end)
 
 
 

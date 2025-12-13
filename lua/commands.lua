@@ -349,6 +349,9 @@ vim.api.nvim_create_user_command("FileSaveInteractive", function()
     local fstat       = vim.uv.fs_stat(fpath)
     local freadonly   = fstat and (bit.band(fstat.mode, 0x80) == 0)
     local fprivileged = fstat and fstat.uid == 0
+    local buft        = vim.bo.buftype
+
+    if not (buft == "" or buft == "acwrite") then return vim.notify("Cannot save this buftype", vim.log.levels.INFO) end
 
     if not fstat then
         local choice = vim.fn.confirm("File does not exist. Create it?", "&Yes\n&No", 1)

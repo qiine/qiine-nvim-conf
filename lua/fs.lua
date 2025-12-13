@@ -4,16 +4,78 @@
 -- fs utils
 local U = {}
 
+function U.has_trailslash(path)
+    return path:sub(-1) == "/"
+end
 
----@param path string
----@return boolean
 function U.is_dir(path)
-    return vim.fn.isdirectory(path) == 1
+    return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
+end
+
+function U.is_abs(path)
+    return path:sub(1, 1) == "/"
 end
 
 ---@param path string
----@param rootpath string
----@return string
+---@param opts? table
+---@return string|nil
+function U.path_shorten_adaptative(path, opts)
+    local defopts = {
+        minln = 2,
+        maxln = 3,
+        keeproot = true,
+        keeptail = true,
+        longpathlen = 78,
+    }
+    opts = vim.tbl_deep_extend("force", defopts,  opts or {})
+
+    if not path or path == "" then return vim.notify("Invalid path", vim.log.levels.ERROR) end
+
+    if path == "/" then return path end
+
+    local isdir = U.is_dir(path)
+    local isabs = U.is_abs(path)
+
+    local islongpath = #path > opts.longpathlen
+    local hastrailslash = U.has_trailslash(path)
+
+    -- Cut into pieces
+    local subpaths = vim.split(path, "/", {plain=true})
+    -- Trim slashes for now
+    if subpaths[1] == "" then table.remove(subpaths, 1) end
+    if hastrailslash then table.remove(subpaths, #subpaths) end
+
+    local shortsubpaths = {}
+
+    local mid = math.ceil((#subpaths+1) / 2)
+
+    for i, subpath in ipairs(subpaths) do
+        if opts.keeproot and i == 1 then -- Keep first, makes path easier to read
+            table.insert(shortsubpaths, subpath)
+
+        elseif islongpath and math.abs(i - mid) <= 1 then -- Cut more aggressively in the middle
+            table.insert(shortsubpaths, subpath:sub(1, opts.minln).."…")
+
+        elseif opts.keeptail and i == #subpaths then -- Spare end subpath of dir
+            table.insert(shortsubpaths, subpath)
+
+        elseif #subpath > opts.maxln then -- trim long subpaths
+            table.insert(shortsubpaths, subpath:sub(1, opts.maxln).."…")
+
+        else
+            table.insert(shortsubpaths, subpath)
+        end
+    end
+
+    local out = table.concat(shortsubpaths, "/")
+
+    -- Post process
+    if isabs then out = "/"..out end
+    if hastrailslash then out = out.."/" end
+
+    return out
+end
+
 function U.make_path_projr_rel(path, rootpath)
     return path:sub(#rootpath+2)
 end
@@ -21,7 +83,7 @@ end
 ---@param dirpath string
 ---@param ignore? table
 ---@return table
-function U.dir_get_files_path(dirpath, ignore)
+function U.get_files_path_in_dir(dirpath, ignore)
     ignore = ignore and ignore or {}
 
     local files = {}
@@ -162,7 +224,7 @@ function M.file_dup(fpath, focus)
     -- Check existing
     local dupfpath = ""
 
-    local fpaths = U.dir_get_files_path(fdir)
+    local fpaths = U.get_files_path_in_dir(fdir)
     local count = 0
     for _, f in ipairs(fpaths) do
         if vim.startswith(vim.fn.fnamemodify(f, ":r"), fpathnoext) then
@@ -191,7 +253,7 @@ function M.file_create(dir, focus)
 
     nfpath = dir.."/".."newfile"
 
-    local cwdfpaths = U.dir_get_files_path(dir)
+    local cwdfpaths = U.get_files_path_in_dir(dir)
     local count = 0
     for _, f in ipairs(cwdfpaths) do
         if vim.startswith(f, nfpath) then
@@ -286,7 +348,6 @@ function M.file_open_next(reverse)
             vim.cmd("e " .. nextf); --vim.cmd("e!")
             if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
         end
-
     end
 
     -- ls surrounding files

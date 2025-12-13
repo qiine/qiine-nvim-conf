@@ -1,6 +1,8 @@
 
 -- Winbar --
 
+local fs = require("fs")
+
 local M = {}
 
 -- theme
@@ -33,25 +35,29 @@ function M.path_bar()
 
     local fpath = vim.fn.expand("%:p")
     local fdir  = vim.fn.expand("%:p:h")
-    local fname  = vim.fn.expand("%:p:t")
+    local fname = vim.fn.expand("%:p:t")
 
-    local path = fpath
-    if vim.bo.filetype == "oil" then path = vim.fn.getcwd() end
+    local wwidth = vim.api.nvim_win_get_width(0)
+    local is_narrowin = wwidth < 65
 
-    local is_narrowin = vim.api.nvim_win_get_width(0) < 60
-
+    -- Process bar path
     local barpath = ""
 
-    if #fdir > 75 or is_narrowin then
-        barpath = vim.fn.pathshorten(path, 1)
-    else
-        barpath = path
+    barpath = fpath
+    if vim.bo.filetype == "oil" then barpath = vim.fn.getcwd() end
+
+    -- Shorten
+    barpath = vim.fn.fnamemodify(barpath, ":~")
+
+    if #fpath > 75 or (#fpath > math.floor(wwidth*0.80)) then
+        barpath = fs.utils.path_compress(barpath)
     end
 
     local pathchevrons = barpath:gsub("/", "🮥 ")   --› > 〉  › ›
 
+    -- click func
     _G.winbar_path_toclipboard = function()
-        vim.fn.setreg("+", fpath); print("path copied") -- always ues abs fpath, the more useful
+        vim.fn.setreg("+", fpath); print("path copied") -- always use abs fpath, bcs more useful imao
     end
 
     return "%@v:lua.winbar_path_toclipboard@"..pathchevrons.."%X"
@@ -120,6 +126,7 @@ M.excluded_filetype = {
     "alpha",
     "Outline",
     "OverseerList",
+    "msglog",
 }
 
 M.excluded_buftype = {
@@ -152,9 +159,11 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
                 vim.opt_local.winbar = nil return
             end
 
+            if vim.w[0].type == "drawer" then
+                vim.opt_local.winbar = nil return
+            end
 
             -- buff
-
             -- ignore buftype
             if vim.tbl_contains(M.excluded_buftype, vim.bo.buftype) then
                 vim.opt_local.winbar = nil return

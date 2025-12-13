@@ -4,63 +4,94 @@
 -- fs utils
 local U = {}
 
+function U.is_dir(path)
+    return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
+end
+
 function U.has_trailslash(path)
     return path:sub(-1) == "/"
 end
 
-function U.is_dir(path)
-    return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
+function U.is_home_rel(path)
+    return path:sub(1, 2) == "~/"
+end
+
+function U.is_abspath_inhome(path)
+    local home = vim.fn.fnamemodify(path, ":~")
+    return path ~= home
 end
 
 function U.is_abs(path)
     return path:sub(1, 1) == "/"
 end
 
+---Shorten whole path by cuting each subpath based on their length.
+---it Can shorten even more by cutting subpath at the middle even more.
+---Also has the ability to convert an abs path into home relative one.
+---Options to keep relevant starting subpath and/or preserve file name+extension.
+---
 ---@param path string
----@param opts? table
----@return string|nil
-function U.path_shorten_adaptative(path, opts)
+---@param opts? table compression settings
+---@return string
+function U.path_compress(path, opts)
     local defopts = {
         minln = 2,
         maxln = 3,
-        keeproot = true,
-        keeptail = true,
+        make_homerel = true,
+        keepstart    = true,
+        keeptail     = true,
         longpathlen = 78,
+        compressratio = 0.4,
+        replacechar = "…",
     }
     opts = vim.tbl_deep_extend("force", defopts,  opts or {})
 
-    if not path or path == "" then return vim.notify("Invalid path", vim.log.levels.ERROR) end
+    if not path or path == "" then return "" end
+    if path == "/" or path == "~/" or path == "~" then return path end
 
-    if path == "/" then return path end
+    -- Try Convert to home rel if applicable
+    if opts.make_homerel then path = vim.fn.fnamemodify(path, ":~") end
 
-    local isdir = U.is_dir(path)
-    local isabs = U.is_abs(path)
+    local is_abs         = U.is_abs(path)
+    local is_home_rel    = U.is_home_rel(path)
 
-    local islongpath = #path > opts.longpathlen
-    local hastrailslash = U.has_trailslash(path)
+    local is_longpath    = #path > opts.longpathlen
+    local has_trailslash = U.has_trailslash(path)
 
-    -- Cut into pieces
+    -- path pre-process
+    if is_abs then
+        path = path:sub(2)
+    elseif is_home_rel then
+        path = path:sub(3)
+    end
+
+    if has_trailslash then path = path:sub(1, #path-1) end
+
+    -- Cut path into pieces
     local subpaths = vim.split(path, "/", {plain=true})
-    -- Trim slashes for now
-    if subpaths[1] == "" then table.remove(subpaths, 1) end
-    if hastrailslash then table.remove(subpaths, #subpaths) end
+
+    local function in_compress_range(i, ln, ratio)
+        local band_size  = math.max(1, math.floor(ln * ratio))
+        local band_start = math.floor((ln - band_size) / 2) + 1
+        local band_end   = band_start + band_size - 1
+
+        return i >= band_start and i <= band_end
+    end
 
     local shortsubpaths = {}
 
-    local mid = math.ceil((#subpaths+1) / 2)
-
     for i, subpath in ipairs(subpaths) do
-        if opts.keeproot and i == 1 then -- Keep first, makes path easier to read
+        if opts.keepstart and i == 1 then -- Keep first, makes path easier to read
             table.insert(shortsubpaths, subpath)
 
-        elseif islongpath and math.abs(i - mid) <= 1 then -- Cut more aggressively in the middle
-            table.insert(shortsubpaths, subpath:sub(1, opts.minln).."…")
+        elseif is_longpath and in_compress_range(i, #subpaths, opts.compressratio) then -- aggressive Cut in the middle
+            table.insert(shortsubpaths, subpath:sub(1, opts.minln)..opts.replacechar)
 
-        elseif opts.keeptail and i == #subpaths then -- Spare end subpath of dir
+        elseif opts.keeptail and i == #subpaths then -- Spare path end
             table.insert(shortsubpaths, subpath)
 
         elseif #subpath > opts.maxln then -- trim long subpaths
-            table.insert(shortsubpaths, subpath:sub(1, opts.maxln).."…")
+            table.insert(shortsubpaths, subpath:sub(1, opts.maxln)..opts.replacechar)
 
         else
             table.insert(shortsubpaths, subpath)
@@ -70,8 +101,10 @@ function U.path_shorten_adaptative(path, opts)
     local out = table.concat(shortsubpaths, "/")
 
     -- Post process
-    if isabs then out = "/"..out end
-    if hastrailslash then out = out.."/" end
+    if is_abs         then out = "/"..out  end
+    if is_home_rel    then out = "~/"..out end
+
+    if has_trailslash then out = out.."/"  end
 
     return out
 end

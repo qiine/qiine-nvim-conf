@@ -700,12 +700,46 @@ end, {})
 
 
 -- ### Dirs
+vim.api.nvim_create_user_command("FSPrintProjRootDir", function()
+    print(fs.utils.find_proj_rdir() )
+end, {})
 
+
+-- cd vim stdpaths
+vim.api.nvim_create_user_command("CdVimStdpathConfig", function()
+    vim.cmd("cd "..vim.fn.stdpath("config"))
+    vim.cmd("pwd")
+end, {})
+
+vim.api.nvim_create_user_command("CdVimStdpathData", function()
+    vim.cmd("cd "..vim.fn.stdpath("data"))
+    vim.cmd("pwd")
+end, {})
+
+vim.api.nvim_create_user_command("CdVimStdpathLog", function()
+    vim.cmd("cd "..vim.fn.stdpath("log"))
+    vim.cmd("pwd")
+end, {})
+
+vim.api.nvim_create_user_command("CdVimStdpathCache", function()
+    vim.cmd("cd "..vim.fn.stdpath("cache"))
+    vim.cmd("pwd")
+end, {})
+
+vim.api.nvim_create_user_command("CdVimStdpathRun", function()
+    vim.cmd("cd "..vim.fn.stdpath("run"))
+    vim.cmd("pwd")
+end, {})
+
+vim.api.nvim_create_user_command("CdVimStdpathState", function()
+    vim.cmd("cd "..vim.fn.stdpath("state"))
+    vim.cmd("pwd")
+end, {})
 
 
 -- ## [Windows]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("CreateFloatingWindow", function()
+vim.api.nvim_create_user_command("OpenScratchpad", function()
     local bufid = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufid })
 

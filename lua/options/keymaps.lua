@@ -322,10 +322,38 @@ map("t",           ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 -- ### Create
 -- Make ver split
-map(modes, ldwin.."s", "<Cmd>vsp<Cr>") --default nvim sync both, we don't want that
+map(modes, ldwin.."v", function()
+    vim.cmd("vsplit")
+    local winid = vim.api.nvim_get_current_win()
+
+    -- mark any buffer opened in this wind unlisted, wipe
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+        group    = "UserAutoCmds",
+        callback = function(args)
+            if vim.api.nvim_get_current_win() == winid then
+                vim.bo[args.buf].buflisted = false
+                vim.bo[args.buf].bufhidden = "wipe"
+            end
+        end,
+    })
+end)
+
 -- Make hor split
-map(modes, ldwin.."w", "<Cmd>sp<Cr>")
-map(modes, ldwin.."h", "<Cmd>sp<Cr>")
+map(modes, ldwin.."w", function()
+    vim.cmd("split")
+    local winid = vim.api.nvim_get_current_win()
+
+    -- mark any buffer opened in this wind unlisted, wipe
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+        group    = "UserAutoCmds",
+        callback = function(args)
+            if vim.api.nvim_get_current_win() == winid then
+                vim.bo[args.buf].buflisted = false
+                vim.bo[args.buf].bufhidden = "wipe"
+            end
+        end,
+    })
+end)
 
 -- Open floating window
 map(modes, ldwin.."n",  function() utils.fwin_open() end)

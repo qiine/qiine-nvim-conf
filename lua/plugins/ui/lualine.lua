@@ -262,6 +262,18 @@ return
                                 return "🞛" --🝎 ❖ ✦
                             end
                         end,
+                        on_click = function()
+                            local clients = vim.lsp.get_clients()
+
+                            if #clients == 0 then return "ⓘ NoLSP" end
+
+                            local names = {}
+                            for _, client in ipairs(clients) do
+                                table.insert(names, client.name)
+                            end
+
+                            print("LSPs: "..table.concat(names, ", "))
+                        end,
                         padding = 0,
                     },
 
@@ -281,18 +293,6 @@ return
                     {
                         "filetype",
                         icon_only = true,
-                        on_click = function()
-                            local clients = vim.lsp.get_clients()
-
-                            if #clients == 0 then return "ⓘ NoLSP" end
-
-                            local names = {}
-                            for _, client in ipairs(clients) do
-                                table.insert(names, client.name)
-                            end
-
-                            print("LSPs: "..table.concat(names, ", "))
-                        end,
                         padding = 0
                     },
                 },--section z

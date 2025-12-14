@@ -98,52 +98,61 @@ map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
 
 -- Omni close
 map(modes, "<C-w>", function()
-    local bufid      = vim.api.nvim_get_current_buf()
-    local buftype    = vim.api.nvim_get_option_value("buftype", {buf=bufid})
-    local bufmodif   = vim.api.nvim_get_option_value("modified", {buf=bufid})
-    local bufwindows = vim.fn.win_findbuf(bufid)
-    local ftype      = vim.bo.filetype
+    local tabwins = vim.tbl_filter(
+        function(input)
+            local buf = vim.api.nvim_win_get_buf(input)
+            return (vim.bo[buf].buflisted and vim.bo[buf].bufhidden == "")
+            -- return true
+        end,
+        vim.api.nvim_tabpage_list_wins(0)
+    )
+    local tabwincnt  = #tabwins
+    local isfloatwin = vim.api.nvim_win_get_config(0).relative ~= ""
 
-    -- Try close cmdline before
+    local bufid     = vim.api.nvim_win_get_buf(0)
+    local bufwincnt = #(vim.fn.win_findbuf(bufid))
+    local buftype   = vim.bo[bufid].buftype
+    local bufmodif  = vim.bo[bufid].modified
+    local ftype     = vim.bo[bufid].filetype
+
+    -- Try close cmdline before anything
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
-    -- custom save warning if buf modified and it is it's last win
-    if bufmodif then
+    -- Custom unsaved warning
+    if bufmodif and bufwincnt == 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
         if choice ~= 1 then return end
     end
 
-    if ftype == "oil" then
-        for _, bid in ipairs(vim.api.nvim_list_bufs()) do
-            local ft = vim.bo[bid].filetype
-            if ft == "neo-tree" then
-                vim.cmd("bwipeout "..bid)
+    if vim.fn.winlayout()[1] ~= "leaf" or isfloatwin then -- detect if curr tab has splits
+        if bufwincnt == 1 then -- avoids destroying buf we want to keep
+            if tabwincnt == 1 then
+                -- Try close aerial/neo-tree when killing curr buf bc :close is buggy on it
+                vim.cmd("AerialCloseAll")
+
+                -- Try close neo-tree
+                for _, bfid in ipairs(vim.api.nvim_list_bufs()) do
+                    if vim.bo[bfid].filetype == "neo-tree" then
+                        vim.cmd("bwipeout "..bfid)
+                    end
+                end
             end
-        end
-    end
 
-    -- close aerial when killing curr buf
-    if ftype ~= "aerial" then
-        vim.cmd("AerialCloseAll")
-    end
-
-    -- TODO IMPROV close is not super reliable
-    -- Try :close first, in case both splits are same buf (fails if no split)
-    -- It avoids wiping the shared buffer in this case
-    -- #vim.fn.win_findbuf(0)
-    local res, err = pcall(vim.cmd, "close")
-    if not res then
-        if buftype == "terminal" then
-            vim.cmd("bwipeout!")
+            vim.cmd("bd!")
         else
-            vim.cmd("bwipeout!")
-            -- vim.cmd("bd!")
-            -- can also close tabs,
-            -- bypass save warnings,
-            -- not bwipeout to preserve alternate file '#'
+            vim.cmd("close")
         end
+        return
+    end
+
+    -- no split so destroy cur buf
+    if buftype == "terminal" then
+        vim.cmd("bwipeout!")
+    else
+        vim.cmd("bd!") -- bd! preserve alternate buf "#"
     end
 end, {noremap=true})
+
 
 
 -- ## [Filesystem]

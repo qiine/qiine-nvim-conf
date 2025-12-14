@@ -1190,6 +1190,40 @@ vim.api.nvim_create_user_command("GitDashboard", function()
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git status\n")
 end, {})
 
+vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
+    local url = opts.args
+
+    local hash = vim.fn.sha256(url):sub(1, 8)
+    local name = url:gsub("[:/\\?#@.]", "_")
+    local reponame = name.."_"..hash
+
+    local dir = vim.fn.stdpath("cache").."/git_remote_browse/"..reponame
+
+    if vim.uv.fs_stat(dir) then
+        vim.cmd("cd "..dir)
+        require("oil").open(dir)
+        return
+    end
+
+    vim.fn.mkdir(dir, "p")
+
+    vim.system(
+        { "git", "clone", "--depth=10", url, dir },
+        {text=true},
+        function(res)
+            vim.schedule(function()
+                if res.code ~= 0 then
+                    vim.notify("clone failed\n"..res.stderr, vim.log.levels.ERROR)
+                    return
+                end
+
+                vim.cmd("cd "..dir)
+                require("oil").open(dir)
+            end)
+        end
+    )
+end, {nargs="?"})
+
 vim.api.nvim_create_user_command("LazyGit", function(opts)
     local bufid = vim.api.nvim_create_buf(false, true)
 

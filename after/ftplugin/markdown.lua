@@ -11,7 +11,7 @@ vim.opt_local.spell = true
 -- ## [Gutter]
 vim.opt_local.signcolumn = "no"
 
--- Numbers
+-- ### Numbers
 -- vim.opt_local.number = false
 
 -- ### Folds

@@ -36,12 +36,12 @@ M.quickactions =
     [1] = "CopyFilePath",
     [2] = "CopyFileDir",
     [3] = "CopyFileName",
-    [4] = "BuffInfo",
+    [4] = "BufInfo",
     [5] = "WinInfo",
-    [6] = "",
+    [6] = "FileInfo",
     [7] = "",
     [8] = "",
-    [9] = "",
+    [9] = "TestCmd",
 }
 
 M.icon_infav    = "★"
@@ -215,8 +215,12 @@ function M.open_fav(name)
     vim.cmd("edit "..vim.fn.fnameescape(path)); return {stat=true, msg="Opened favorite: " .. name, loglvl="info"}
 end
 
-function M.trigger_action(cmd)
-    vim.cmd(cmd)
+---@param act string
+function M.trigger_action(act)
+    -- local cmd = act and act or ""
+    -- local ok, res = pcall(vim.cmd(), tostring(cmd))
+    -- if not ok then vim.notfy("cmd err "..res, vim.log.levels.ERROR) end
+    vim.cmd(act)
 end
 
 

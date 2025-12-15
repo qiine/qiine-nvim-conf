@@ -1709,11 +1709,8 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 ----------------------------------------------------------------------
 local ldvc = "<S-Space>g"
 
-map({"i","n","v"}, ldvc,  "<Cmd>Neogit<CR>")
-map({"i","n","v"}, ldvc.."g", "<Cmd>Neogit<CR>")
-
--- Stage file
-map({"i","n","v"}, ldvc.."s", gact.add_file)
+-- Staging
+map({"i","n","v"}, ldvc.."s", git.add_file)
 
 -- Stage hunk under cursor
 map({"i","n","v"}, ldvc.."ss", "<Cmd>Gitsigns stage_hunk<CR>")
@@ -1722,28 +1719,24 @@ map({"i","n","v"}, ldvc.."ss", "<Cmd>Gitsigns stage_hunk<CR>")
 map({"i","n","v"}, ldvc.."se", function()
     local fp = vim.fn.expand("%:p")
 
-    utils.open_term_fwin(nil, {
+    term.open_fwin(nil, {
         title = "Stage patches",
-        wratio = 0.8, hratio = 0.75,
+        wratio = 0.85, hratio = 0.75,
     }, "dash")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add -e "..fp.."\n")
 end)
 
--- Stage all
-map({"i","n","v"}, ldvc.."sa", gact.add_all_repo)
+map({"i","n","v"}, ldvc.."sa", git.add_all_repo)
 
--- Unstage file
-map({"i","n","v"}, ldvc.."u", gact.unstage_file)
-
--- Unstage all
-map({"i","n","v"}, ldvc.."uu", gact.unstage_all_repo)
+map({"i","n","v"}, ldvc.."u", git.unstage_file)
+map({"i","n","v"}, ldvc.."uu", git.unstage_all_repo)
 
 -- git commit
 map({"i","n","v"}, ldvc.."c", function()
-    utils.open_term_fwin(nil, {
+    term.open_fwin(nil, {
         title = "Commit",
-        wratio = 0.8, hratio = 0.75,
+        wratio = 0.85, hratio = 0.75,
     }, "bash --norc")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -v\n")
@@ -1754,9 +1747,9 @@ map({"i","n","v"}, ldvc.."cc", function()
     local fp   = vim.fn.expand("%:p")
     local fdir = vim.fn.expand("%:p:h")
 
-    utils.open_term_fwin(nil, {
+    term.open_fwin(nil, {
         title = "Commit file",
-        wratio = 0.8, hratio = 0.75,
+        wratio = 0.85, hratio = 0.75,
     }, "bash --norc")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "cd "..fdir.."\n")
@@ -1766,19 +1759,10 @@ end)
 
 -- git push
 map({"i","n","v"}, ldvc.."<S-p>", function()
-    local fp = vim.fn.expand("%:p")
-
-    utils.fwin_open(0, true, {
+    term.open_fwin(nil, {
         title = "Push",
-        wratio = 0.75,
-        hratio = 0.65,
+        wratio = 0.75, hratio = 0.65,
     })
-
-    vim.cmd("term")
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-
-    vim.cmd("startinsert")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git push\n")
 end)
@@ -1786,14 +1770,22 @@ end)
 -- diff with head curr file
 map({"i","n","v"}, ldvc.."d", "<Cmd>GitDiffFileRevision<CR>")
 
+
+map({"i","n","v"}, ldvc.."h", git.log_pretty)
+
 -- git log curr file
-map("n", ldvc.."l", function()
+map("n", ldvc.."hf", function()
      require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
 end, {desc = "Neogit Log curr file"})
 
 
 -- Open LazyGit
 map(modes, ldvc.."z", "<Cmd>LazyGit<cr>")
+
+-- neogit
+map({"i","n","v"}, ldvc,  "<Cmd>Neogit<CR>")
+map({"i","n","v"}, ldvc.."g", "<Cmd>Neogit<CR>")
+
 
 
 

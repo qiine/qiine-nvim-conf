@@ -98,15 +98,14 @@ map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
 
 -- Omni close
 map(modes, "<C-w>", function()
-    local tabwins = vim.tbl_filter(
+    local tabwins_valid = vim.tbl_filter(
         function(input)
             local buf = vim.api.nvim_win_get_buf(input)
-            return (vim.bo[buf].buflisted and vim.bo[buf].bufhidden == "")
-            -- return true
+            return vim.bo[buf].filetype ~= "scrollview"
         end,
         vim.api.nvim_tabpage_list_wins(0)
     )
-    local tabwincnt  = #tabwins
+    local tabwincnt  = #tabwins_valid
     local isfloatwin = vim.api.nvim_win_get_config(0).relative ~= ""
 
     local bufid     = vim.api.nvim_win_get_buf(0)
@@ -125,8 +124,8 @@ map(modes, "<C-w>", function()
     end
 
     if vim.fn.winlayout()[1] ~= "leaf" or isfloatwin then -- detect if curr tab has splits
-        if bufwincnt == 1 then -- avoids destroying buf we want to keep
-            if tabwincnt == 1 then
+        if bufwincnt == 1 then -- avoids destroying buf we want to keep if in 2+ splits
+            if tabwincnt == 2 then
                 -- Try close aerial/neo-tree when killing curr buf bc :close is buggy on it
                 vim.cmd("AerialCloseAll")
 
@@ -136,16 +135,19 @@ map(modes, "<C-w>", function()
                         vim.cmd("bwipeout "..bfid)
                     end
                 end
-            end
+            end --tabwincnt?
 
-            vim.cmd("bd!")
+            vim.cmd("silent! close")
+            vim.cmd("silent! bd! "..bufid) -- "bd!" bc I tend to not want to keep bufs in splits
+            vim.bo[0].buflisted = true
+            vim.bo[0].bufhidden = ""
         else
             vim.cmd("close")
         end
         return
     end
 
-    -- no split so destroy cur buf
+    -- No split so destroy cur buf
     if buftype == "terminal" then
         vim.cmd("bwipeout!")
     else
@@ -340,8 +342,10 @@ map(modes, ldwin.."v", function()
         group    = "UserAutoCmds",
         callback = function(args)
             if vim.api.nvim_get_current_win() == winid then
-                vim.bo[args.buf].buflisted = false
-                vim.bo[args.buf].bufhidden = "wipe"
+                if vim.fn.winlayout()[1] ~= "leaf" then
+                    vim.bo[args.buf].buflisted = false
+                    vim.bo[args.buf].bufhidden = "wipe"
+                end
             end
         end,
     })

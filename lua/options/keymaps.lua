@@ -98,21 +98,20 @@ map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
 
 -- Omni close
 map(modes, "<C-w>", function()
-    local tabwins_valid = vim.tbl_filter(
+    local curtabwins_valid = vim.tbl_filter(
         function(input)
             local buf = vim.api.nvim_win_get_buf(input)
             return vim.bo[buf].filetype ~= "scrollview"
         end,
         vim.api.nvim_tabpage_list_wins(0)
     )
-    local tabwincnt  = #tabwins_valid
+    local tabwincnt  = #curtabwins_valid
     local isfloatwin = vim.api.nvim_win_get_config(0).relative ~= ""
 
     local bufid     = vim.api.nvim_win_get_buf(0)
     local bufwincnt = #(vim.fn.win_findbuf(bufid))
     local buftype   = vim.bo[bufid].buftype
     local bufmodif  = vim.bo[bufid].modified
-    local ftype     = vim.bo[bufid].filetype
 
     -- Try close cmdline before anything
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
@@ -121,6 +120,17 @@ map(modes, "<C-w>", function()
     if bufmodif and bufwincnt == 1 then
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
         if choice ~= 1 then return end
+    end
+
+    -- determine if last valid buf
+    local bufs = vim.tbl_filter(function(buf)
+        return vim.bo[buf].filetype ~= "scrollview"
+        and vim.bo[buf].buflisted
+    end, vim.api.nvim_list_bufs())
+
+    if #bufs == 1 then -- create default buf (dashboard)
+        vim.cmd("enew");  vim.bo[0].buflisted=false; vim.bo[0].bufhidden="wipe"
+        vim.cmd("Alpha"); vim.cmd("stopinsert")
     end
 
     if vim.fn.winlayout()[1] ~= "leaf" or isfloatwin then -- detect if curr tab has splits
@@ -135,23 +145,25 @@ map(modes, "<C-w>", function()
                         vim.cmd("bwipeout "..bfid)
                     end
                 end
+
+                vim.cmd("cclose")
             end --tabwincnt?
 
             vim.cmd("silent! close")
             vim.cmd("silent! bd! "..bufid) -- "bd!" bc I tend to not want to keep bufs in splits
-            vim.bo[0].buflisted = true
-            vim.bo[0].bufhidden = ""
+
+            if buftype == "" and vim.bo[0].filetype ~= "alpha" then -- help merge splits if other buf is unlist, wipe
+                vim.bo[0].buflisted = true; vim.bo[0].bufhidden = ""
+            end
         else
             vim.cmd("close")
         end
-        return
-    end
-
-    -- No split so destroy cur buf
-    if buftype == "terminal" then
-        vim.cmd("bwipeout!")
-    else
-        vim.cmd("bd!") -- bd! preserve alternate buf "#"
+    else -- no splits so just destroy curbuf
+        if buftype == "terminal" then
+            vim.cmd("silent! bwipeout! "..bufid)
+        else
+            vim.cmd("silent! bd! "..bufid)
+        end
     end
 end, {noremap=true})
 

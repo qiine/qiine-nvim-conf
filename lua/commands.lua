@@ -1191,7 +1191,16 @@ vim.api.nvim_create_user_command("GitDashboard", function()
 end, {})
 
 vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
-    local url = opts.args
+    local path = opts.args
+
+    local cachepath = vim.fn.stdpath("cache").."/git_remote_browse/"
+
+    -- check existing
+    if vim.uv.fs_stat(cachepath..path) then
+        vim.cmd("cd "..cachepath..path)
+        require("oil").open(cachepath..path)
+        return
+    end
 
     local function make_reponame(text)
         -- trim url
@@ -1206,21 +1215,17 @@ vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
 
         return text.."_"..hash
     end
+    local reponame = make_reponame(path)
 
-    local reponame = make_reponame(url)
+    -- make repo dir
+    local repodir = cachepath..reponame
+    repodir = vim.fs.normalize(repodir)
 
-    local dir = vim.fn.stdpath("cache").."/git_remote_browse/"..reponame
+    local mkdir_ok = vim.fn.mkdir(repodir, "p")
 
-    if vim.uv.fs_stat(dir) then
-        vim.cmd("cd "..dir)
-        require("oil").open(dir)
-        return
-    end
-
-    local mkdir_ok = vim.fn.mkdir(dir, "p")
-
+    -- clone
     vim.system(
-        { "git", "clone", "--depth=10", url, dir },
+        { "git", "clone", "--depth=10", path, repodir },
         {text=true},
         function(res)
             vim.schedule(function()
@@ -1229,14 +1234,25 @@ vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
                     return
                 end
 
-                vim.cmd("cd "..dir)
-                require("oil").open(dir)
+                vim.cmd("cd "..repodir)
+                require("oil").open(repodir)
 
                 vim.notify("Created: "..reponame, vim.log.levels.INFO)
             end)
         end
     )
-end, {nargs="?"})
+end, {
+    nargs="?",
+    complete = function()
+        local srchpath = vim.fn.stdpath("cache").."/git_remote_browse/"
+        local dirs = {}
+        for name, type in vim.fs.dir(srchpath) do
+            if type == "directory" then table.insert(dirs, name) end
+        end
+
+        return dirs
+    end,
+})
 
 vim.api.nvim_create_user_command("LazyGit", function(opts)
     local bufid = vim.api.nvim_create_buf(false, true)

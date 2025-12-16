@@ -706,32 +706,32 @@ end, {})
 
 
 -- cd vim stdpaths
-vim.api.nvim_create_user_command("CdVimStdpathConfig", function()
+vim.api.nvim_create_user_command("CdNvimStdpathConfig", function()
     vim.cmd("cd "..vim.fn.stdpath("config"))
     vim.cmd("pwd")
 end, {})
 
-vim.api.nvim_create_user_command("CdVimStdpathData", function()
+vim.api.nvim_create_user_command("CdNvimStdpathData", function()
     vim.cmd("cd "..vim.fn.stdpath("data"))
     vim.cmd("pwd")
 end, {})
 
-vim.api.nvim_create_user_command("CdVimStdpathLog", function()
+vim.api.nvim_create_user_command("CdNvimStdpathLog", function()
     vim.cmd("cd "..vim.fn.stdpath("log"))
     vim.cmd("pwd")
 end, {})
 
-vim.api.nvim_create_user_command("CdVimStdpathCache", function()
+vim.api.nvim_create_user_command("CdNvimStdpathCache", function()
     vim.cmd("cd "..vim.fn.stdpath("cache"))
     vim.cmd("pwd")
 end, {})
 
-vim.api.nvim_create_user_command("CdVimStdpathRun", function()
+vim.api.nvim_create_user_command("CdNvimStdpathRun", function()
     vim.cmd("cd "..vim.fn.stdpath("run"))
     vim.cmd("pwd")
 end, {})
 
-vim.api.nvim_create_user_command("CdVimStdpathState", function()
+vim.api.nvim_create_user_command("CdNvimStdpathState", function()
     vim.cmd("cd "..vim.fn.stdpath("state"))
     vim.cmd("pwd")
 end, {})

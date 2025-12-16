@@ -1193,9 +1193,21 @@ end, {})
 vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
     local url = opts.args
 
-    local hash = vim.fn.sha256(url):sub(1, 8)
-    local name = url:gsub("[:/\\?#@.]", "_")
-    local reponame = name.."_"..hash
+    local function make_reponame(text)
+        -- trim url
+        text = text:gsub("https?://", "")
+        text = text:gsub("github", "")
+        text = text:gsub("%.com/",  "")
+
+        -- replace remaining separators and punctuation
+        text = text:gsub("[:/\\?#@.]", "_")
+
+        local hash = vim.fn.sha256(text):sub(1, 6)
+
+        return text.."_"..hash
+    end
+
+    local reponame = make_reponame(url)
 
     local dir = vim.fn.stdpath("cache").."/git_remote_browse/"..reponame
 
@@ -1205,7 +1217,7 @@ vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
         return
     end
 
-    vim.fn.mkdir(dir, "p")
+    local mkdir_ok = vim.fn.mkdir(dir, "p")
 
     vim.system(
         { "git", "clone", "--depth=10", url, dir },
@@ -1213,12 +1225,14 @@ vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
         function(res)
             vim.schedule(function()
                 if res.code ~= 0 then
-                    vim.notify("clone failed\n"..res.stderr, vim.log.levels.ERROR)
+                    vim.notify("Clone failed\n"..res.stderr, vim.log.levels.ERROR)
                     return
                 end
 
                 vim.cmd("cd "..dir)
                 require("oil").open(dir)
+
+                vim.notify("Created: "..reponame, vim.log.levels.INFO)
             end)
         end
     )

@@ -183,13 +183,16 @@ return
         -- Find files in currdir
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>c", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").files({})
+            require("fzf-lua").files({
+                winopts = { title = "Find file cwd", },
+            })
         end, {silent=true, desc="Fuzzy find dir in cwd"})
 
         -- Find files in project
         vim.keymap.set({"i","n","v","c","t"}, "<C-S-f>", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({
+                winopts = { title = "Find file project", },
                 cwd = require("fzf-lua.path").git_root({}),
             })
         end, {silent=true, desc="Fuzzy find file in project" })
@@ -197,13 +200,16 @@ return
         -- find files in home
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").files({ cwd="~", })
+            require("fzf-lua").files({
+                winopts = { title = "Find file home", },
+                cwd="~", })
         end, { silent=true, desc="Fuzzy find file in HOME"})
 
         -- find files in notes
         vim.keymap.set({"i","n","v","c","t"}, "<F49>", function()  --<M-F1>
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").files({
+                winopts = { title = "Find file notes", },
                 prompt = "Notes> ",
                 cwd = "~/Personal/Org/Notes/"
             })
@@ -213,6 +219,7 @@ return
         vim.keymap.set("v", "<F49>", function()   --<M-F1>
             vim.cmd('norm! "zy')
             require("fzf-lua").files({
+                winopts = { title = "Find file selected", },
                 prompt = "Notes> ",
                 cwd = "~/Personal/Org/Notes/",
                 fzf_opts = {
@@ -233,26 +240,32 @@ return
         -- grep curr dir
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>gc", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").live_grep({})
+            require("fzf-lua").live_grep({
+                winopts = { title = "Grep cwd", },
+            })
         end, { silent = true, desc = "grep curr dir" })
 
         -- grep in home
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>g", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").live_grep({ cwd = "~" })
+            require("fzf-lua").live_grep({
+                winopts = { title = "Grep home", },
+                cwd = "~" })
         end, { silent = true, desc = "Live grep in home" })
 
         -- grep curr project
         vim.keymap.set({"i","n","v","c","t"}, "<C-S-g>", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
+                winopts = { title = "Grep project", },
                 cwd = require("fzf-lua.path").git_root({}),
             })
-        end, { noremap = true, silent = true, desc = "live grep project" })
+        end, {silent=true, desc="live grep project"})
 
         -- grep curr project for selected
         vim.keymap.set("v", "<C-S-g>", function()
             require("fzf-lua").grep_visual({
+                winopts = { title = "Grep project selected", },
                 cwd = require("fzf-lua.path").git_root({})
             })
         end, {noremap=true, silent=true, desc="live grep selected in project"})
@@ -269,6 +282,7 @@ return
             )
 
             fzf.fzf_exec(cmd, {
+                winopts = { title = "Grep git rev file" },
                 cwd = git_root,
                 actions = {
                     ["default"] = fzf.actions.qf,  -- put selected line in quickfix
@@ -281,6 +295,7 @@ return
         vim.keymap.set({"i","n","c","t"}, "<F13>", function()   --<S-F1>
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
+                winopts = { title = "Grep notes", },
                 prompt = "Notes> ",
                 cwd = "~/Personal/Org/Notes/"
             })
@@ -288,6 +303,7 @@ return
         -- grep in notes for selected
         vim.keymap.set("v", "<F13>", function()   --<S-F1>
             require("fzf-lua").grep_visual({
+                winopts = { title = "Grep notes selected", },
                 cwd = "~/Personal/Org/Notes/"
             })
         end)
@@ -321,11 +337,12 @@ return
 
 
         -- ## Custom pickers
-        -- Fuzzy cd from curr dir
+        -- Find dir from curr dir
         fzfl.fuzzy_cd = function()
             local cwd = vim.fn.getcwd()
 
             fzfl.fzf_exec("fdfind . --type d", {     --or fd
+                winopts = {title = "Find dir cwd"},
                 prompt = "cd ",
                 cwd = cwd,
                 actions = {
@@ -347,9 +364,10 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>dc", function() fzfl.fuzzy_cd() end,
         {silent=true, desc="Fuzzy cd to directory"})
 
-        -- Fuzzy cd from root
+        -- Find dir from root
         fzfl.fuzzy_cd_fromroot = function()
             fzfl.fzf_exec("fdfind . --type d", {     --or fd
+                winopts = { title = "Find dir root", },
                 prompt = "cd /",
                 cwd = "/",
                 actions = {
@@ -376,6 +394,7 @@ return
             local favz = require("modules.favorizer")
             local favs, favs_names = favz.get_favs(), favz.get_favs_names()
             fzfl.fzf_exec(favs_names, {
+                winopts = { title = "Favorites", },
                 prompt = "Fav> ",
                 -- previewer = "builtin",
                 previewer = function()
@@ -407,6 +426,7 @@ return
         -- https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
         fzfl.projects = function()
             fzfl.fzf_exec("fdfind '.git$' -t d -d 20 -a -HI | xargs -I{} dirname {}", {
+                winopts = { title = "find projects", },
                 prompt = "Project> ",
                 cwd = "~/Personal/",
                 actions = {
@@ -423,7 +443,7 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>p", function() fzfl.projects() end,
         {silent=true, desc = "Search projects"})
 
-        -- Symbol explorer
+        -- Symbol picker
         fzfl.snippet = function()
             local snips = require("luasnip").get_snippets(vim.bo.filetype)
 
@@ -436,6 +456,7 @@ return
             end
 
             fzfl.fzf_exec(items, {
+                winopts = { title = "symbol picker", },
                 prompt = "insert snippet> ",
                 actions = {
                     ["default"] = function(selected)
@@ -457,6 +478,7 @@ return
         -- API explorer
         fzfl.api = function()
             fzfl.fzf_exec(vim.tbl_keys(vim.api), {
+                winopts = { title = "snippets api", },
                 prompt = "insert api> ",
                 actions = {
                     ["default"] = function(selected)
@@ -483,6 +505,7 @@ return
                     end)
                 end,
                 winopts = {
+                    title = "Dictionary",
                     height = 0.80, width = 1.00,
                     preview = {
                         layout = "horizontal",
@@ -519,6 +542,7 @@ return
             end
 
             fzfl.fzf_exec(entries, {
+                winopts = { title = "env var", },
                 prompt = "Env> ",
                 actions = {
                     ["default"] = function(selected)

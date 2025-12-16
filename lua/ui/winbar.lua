@@ -126,10 +126,13 @@ M.excluded_filetype = {
     "alpha",
     "Outline",
     "OverseerList",
+    "OverseerForm",
     "msglog",
 }
 
 M.excluded_buftype = {
+    "nofile",
+    -- "acwrite",
     "terminal",
     "prompt"
 }
@@ -155,9 +158,9 @@ vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
             if vim.api.nvim_win_get_height(0) < 5 then return end
 
             -- off in floatwin
-            if vim.api.nvim_win_get_config(0).relative ~= "" then
-                vim.opt_local.winbar = nil return
-            end
+            -- if vim.api.nvim_win_get_config(0).relative ~= "" then
+                -- vim.opt_local.winbar = nil return
+            -- end
 
             if vim.w[0].type == "drawer" then
                 vim.opt_local.winbar = nil return

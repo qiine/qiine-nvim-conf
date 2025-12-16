@@ -188,35 +188,32 @@ end, {})
 
 -- ## [Buffers]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("BuffInfo", function(opts)
+vim.api.nvim_create_user_command("BufInfo", function(opts)
     local buf = tonumber(opts.args) or vim.api.nvim_get_current_buf()
-    -- buf = vim.api.nvim_buf_is_valid(buf) and buf or 0
 
-    buf = buf ~= -1 and buf or 0
+    if type(buf) ~= "number" or not vim.api.nvim_buf_is_valid(buf) then buf = 0 end
+
+    local prev = vim.fn.bufnr("#")
 
     local infos = {
         "Name:       "..vim.api.nvim_buf_get_name(buf),
         "Id:         "..buf,
-
-        "Buftype:    "..vim.api.nvim_get_option_value("buftype", {buf = buf}),
-        "Loaded:     "..tostring(vim.api.nvim_buf_is_loaded(buf)), --hidden
-        "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", {buf = buf})),
-        "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", {buf = buf})),
-        "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", {buf = buf})),
-        "OnHidden:   "..tostring(vim.api.nvim_get_option_value("bufhidden", {buf = buf})),
-
+        "Buftype:    "..vim.api.nvim_get_option_value("buftype", { buf = buf }),
+        "Loaded:     "..tostring(vim.api.nvim_buf_is_loaded(buf)),
+        "Listed:     "..tostring(vim.api.nvim_get_option_value("buflisted", { buf = buf })),
+        "Modifiable: "..tostring(vim.api.nvim_get_option_value("modifiable", { buf = buf })),
+        "Modified:   "..tostring(vim.api.nvim_get_option_value("modified", { buf = buf })),
+        "BufHidden:  "..vim.api.nvim_get_option_value("bufhidden", { buf = buf }),
         "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = buf }),
-        "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(buf))==1),
-        "linecount:  "..vim.api.nvim_buf_line_count(buf),
-
-        "PrevBuf:    "..vim.api.nvim_buf_get_name(vim.fn.bufnr("#")),
-        "PrevBufId:  "..vim.fn.bufnr("#"),
-
-        "windowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(buf)), ", "),
+        "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1),
+        "LineCount:  "..vim.api.nvim_buf_line_count(buf),
+        "PrevBuf:    "..(prev > 0 and vim.api.nvim_buf_get_name(prev) or ""),
+        "PrevBufId:  "..(prev > 0 and prev or ""),
+        "WindowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(buf)), ", "),
     }
 
     vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
-end, {nargs= "?"})
+end, {nargs="?"})
 
 vim.api.nvim_create_user_command("ClearBuf", function()
     vim.cmd("%d_")

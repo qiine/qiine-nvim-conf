@@ -10,7 +10,7 @@ return
     opts = {
         -- This can be a filetype map (see :help aerial-filetype-map)
         backends = {
-            ['_']  = {"lsp", "treesitter"}, -- "man"
+            ['_']  = {"lsp"}, -- "man" "treesitter"
             markdown = {"markdown", "treesitter"}, -- asciidoc
         },
 
@@ -52,11 +52,11 @@ return
         -- To see all available values, see :help SymbolKind
         filter_kind = {
             -- "Array",
-            "Boolean",
+            -- "Boolean",
             -- "Class",
-            "Constant",
+            -- "Constant",
             -- "Constructor",
-            "Enum",
+            -- "Enum",
             -- "EnumMember",
             -- "Field",
             -- "Event",
@@ -68,15 +68,15 @@ return
             -- "Module",
             -- "Namespace",
             -- "Null",
-            "Number",
+            -- "Number",
             -- "Object",
             -- "Operator",
             -- "Package",
             -- "Property",
-            "String",
+            -- "String",
             -- "Struct",
             -- "TypeParameter",
-            "Variable",
+            -- "Variable",
         },
 
         -- Jump to symbol in source window when the cursor moves

@@ -125,7 +125,8 @@ map(modes, "<C-w>", function()
     -- determine if last valid buf
     local bufs = vim.tbl_filter(function(buf)
         return vim.bo[buf].filetype ~= "scrollview"
-        and vim.bo[buf].buflisted
+                and vim.bo[buf].buflisted
+                or vim.bo[buf].filetype == "oil"
     end, vim.api.nvim_list_bufs())
 
     if #bufs == 1 then -- create default buf (dashboard)

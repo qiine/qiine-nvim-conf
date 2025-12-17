@@ -382,8 +382,8 @@ map(modes, ldwin.."w", function()
 end)
 
 -- Open floating window
-map(modes, ldwin.."n",  function() utils.fwin_open() end)
-map(modes, ldwin.."nf", function() utils.fwin_open() end)
+map(modes, ldwin.."n",  function() win.fwin_open() end)
+map(modes, ldwin.."nf", function() win.fwin_open() end)
 
 map({"i","n","v","t"}, ldwin.."<S-f>", "<Cmd>only<CR>")
 

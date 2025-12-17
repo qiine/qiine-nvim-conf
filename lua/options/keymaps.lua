@@ -177,11 +177,11 @@ map({"i","n","v"}, "<C-S-PageUp>", function() fs.file_open_next(false) end)
 map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 
 -- File action
-map({"i","n","v"}, "<C-g>fn", fs.File_Create)
-map({"i","n","v"}, "<C-g>fd", fs.File_Dup)
-map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
+map({"i","n","v"}, "<C-g>fn", fs.file_create)
+map({"i","n","v"}, "<C-g>fd", fs.file_dup)
+-- map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
+map({"i","n","v"}, "<C-g>fm", fs.file_move_cur_interac)
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
-map({"i","n","v"}, "<C-g>fd", "<Cmd>FileDelete<CR>")
 map({"i","n","v"}, "<M-S-Del>", "<Cmd>FileDelete<CR>")
 
 -- ### Write
@@ -207,7 +207,7 @@ map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
 
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
-    local rootdir = utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))
 
     require("neo-tree.command").execute({
         action = "show",

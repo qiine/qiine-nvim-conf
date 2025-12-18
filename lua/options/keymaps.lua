@@ -443,14 +443,25 @@ map(modes, ldwin.."d", function()
 end)
 
 
--- hide fwindow
+-- fwin hide
 map({"i","n","v"}, ldwin.."c", function()
     vim.api.nvim_win_set_config(0, {hide=true})
     vim.cmd("wincmd w")
 end)
--- show fwindow
+
+-- fwin show all
 map({"i","n","v"}, ldwin.."C", function()
-    vim.api.nvim_win_set_config(0, {hide=false})
+    local tabfwins = vim.tbl_filter(
+        function(input)
+            return vim.api.nvim_win_get_config(input).relative ~= ""
+        end,
+        vim.api.nvim_tabpage_list_wins(0)
+    )
+
+    for _, fwin in ipairs(tabfwins) do
+        vim.api.nvim_win_set_config(fwin, {hide=false})
+        -- vim.api.nvim_set_current_win(fwin) -- does nto ficus the correc win
+    end
 end)
 
 

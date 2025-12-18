@@ -249,7 +249,7 @@ vim.api.nvim_create_user_command("FileInfo", function()
     local fname   = vim.fn.expand("%:p:t")
     local fsize_b = vim.fn.getfsize(vim.fn.expand("%:p"))
 
-    local stt = vim.uv.fs_stat(fpath)
+    local stt = vim.uv.fs_stat(fpath); if not stt then print("No file") return end
 
     ---@return string|osdate
     local function fmt_time(sec)
@@ -270,7 +270,7 @@ vim.api.nvim_create_user_command("FileInfo", function()
 
     local permres = vim.system({"stat", "-c", "%A", fpath}, {text=true}):wait()
 
-    local finfos = {
+    print(table.concat({
         "Name:     "..fname,
         "Path:     "..fpath,
         "Type:     "..stt.type,
@@ -278,10 +278,7 @@ vim.api.nvim_create_user_command("FileInfo", function()
         "Mode:     "..vim.fn.trim(permres.stdout),
         "Modified: "..fmt_time(stt.mtime.sec),
         "Created:  "..fmt_time(stt.birthtime.sec),
-    }
-    local outstr = table.concat(finfos, "\n")
-
-    print(outstr)
+    }, "\n"))
 end, {})
 
 -- ### [Files]

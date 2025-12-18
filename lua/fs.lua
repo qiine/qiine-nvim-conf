@@ -25,49 +25,58 @@ function U.is_abs(path)
     return path:sub(1, 1) == "/"
 end
 
----Shorten whole path by cuting each subpath based on their length.
----it Can shorten even more by cutting subpath at the middle even more.
+---Shorten path by cuting each subpath based on their length.
+---
+---It can shorten even more by cutting subpath at the middle more.
 ---Also has the ability to convert an abs path into home relative one.
----Options to keep relevant starting subpath and/or preserve file name+extension.
+---Configurable, keep relevant starting subpath and/or preserve file name+extension.
+---
+---@class pathcompress_opts
+---@field minln number
+---@field maxln number
+---@field keepstart boolean
+---@field keeptail boolean
+---@field make_homerel boolean
+---@field longpathlen number
+---@field compressratio number
+---@field replacestring string
 ---
 ---@param path string
----@param opts? table compression settings
----@return string
+---@param opts? pathcompress_opts compression settings
+---@return string|nil
 function U.path_compress(path, opts)
     local defopts = {
-        minln = 2,
-        maxln = 3,
-        make_homerel = true,
-        keepstart    = true,
-        keeptail     = true,
-        longpathlen = 78,
+        minln         = 2,
+        maxln         = 3,
+        keepstart     = true,
+        keeptail      = true,
+        make_homerel  = true,
+        longpathlen   = 78,
         compressratio = 0.4,
-        replacechar = "…",
+        replacestring = "…",
     }
-    opts = vim.tbl_deep_extend("force", defopts,  opts or {})
+    opts = vim.tbl_deep_extend("force", opts or {}, defopts)
 
-    if not path or path == "" then return "" end
-    if path == "/" or path == "~/" or path == "~" then return path end
+    if not path then return nil end
+    if path == "" or path == "/" or path == "~/" or path == "~" then return path end
 
-    -- Try Convert to home rel if applicable
+    path = vim.fs.normalize(path)
+
+    -- Try Convert to home rel
     if opts.make_homerel then path = vim.fn.fnamemodify(path, ":~") end
 
-    local is_abs         = U.is_abs(path)
-    local is_home_rel    = U.is_home_rel(path)
+    local is_abs      = U.is_abs(path)
+    local is_home_rel = U.is_home_rel(path)
 
     local is_longpath    = #path > opts.longpathlen
     local has_trailslash = U.has_trailslash(path)
 
-    -- path pre-process
-    if is_abs then
-        path = path:sub(2)
-    elseif is_home_rel then
-        path = path:sub(3)
-    end
-
-    if has_trailslash then path = path:sub(1, #path-1) end
-
     -- Cut path into pieces
+    if     is_abs      then path = path:sub(2)
+    elseif is_home_rel then path = path:sub(3) end
+
+    if has_trailslash  then path = path:sub(1, #path-1) end
+
     local subpaths = vim.split(path, "/", {plain=true})
 
     local function in_compress_range(i, ln, ratio)
@@ -84,14 +93,14 @@ function U.path_compress(path, opts)
         if opts.keepstart and i == 1 then -- Keep first, makes path easier to read
             table.insert(shortsubpaths, subpath)
 
-        elseif is_longpath and in_compress_range(i, #subpaths, opts.compressratio) then -- aggressive Cut in the middle
-            table.insert(shortsubpaths, subpath:sub(1, opts.minln)..opts.replacechar)
+        elseif is_longpath and in_compress_range(i, #subpaths, opts.compressratio) then
+            table.insert(shortsubpaths, subpath:sub(1, opts.minln)..opts.replacestring)
 
         elseif opts.keeptail and i == #subpaths then -- Spare path end
             table.insert(shortsubpaths, subpath)
 
         elseif #subpath > opts.maxln then -- trim long subpaths
-            table.insert(shortsubpaths, subpath:sub(1, opts.maxln)..opts.replacechar)
+            table.insert(shortsubpaths, subpath:sub(1, opts.maxln)..opts.replacestring)
 
         else
             table.insert(shortsubpaths, subpath)
@@ -109,7 +118,7 @@ function U.path_compress(path, opts)
     return out
 end
 
-function U.make_path_projr_rel(path, rootpath)
+function U.make_path_projroot_rel(path, rootpath)
     return path:sub(#rootpath+2)
 end
 
@@ -136,23 +145,16 @@ end
 
 ---@param path? string
 ---@return string
-function U.find_proj_rdir(path)
-    path = path or vim.fn.getcwd()
-
-    local root = vim.fs.root(path,
-        { "Makefile", ".git", "Cargo.toml", "package.json" }
-    )
-
-    if root then
-        return root
-    else
-        return vim.fn.getcwd()
-    end
+function U.find_proj_rootdir(path)
+    return vim.fs.root(
+        path or vim.fn.getcwd(),
+        {"Makefile", ".git", "Cargo.toml", "package.json"}
+    ) or vim.fn.getcwd()
 end
 
 ---@param fpath string
 ---@return string
-function U.get_file_projr_dir(fpath)
+function U.get_file_proj_rootdir(fpath)
     if not fpath or fpath == "" then return vim.fn.getcwd() end
 
     local froot = vim.fs.root(fpath,
@@ -330,7 +332,8 @@ end
 
 -- ### Nav
 function M.file_open_next(reverse)
-    if reverse == nil then reverse = true end
+    reverse = reverse ~= nil and reverse or false
+
     local cwd = vim.fn.getcwd()
     local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
 

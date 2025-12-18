@@ -1,5 +1,5 @@
     -------------------------
--- utils --
+-- win.--
 -------------------------
 
 local v    = vim
@@ -67,7 +67,8 @@ M.math = {
 
 
 
---[strings]--------------------------------------------------
+-- ## [Strings]
+----------------------------------------------------------------------
 function M.isword(string)
     return string:match("%S") ~= nil
 end
@@ -75,6 +76,8 @@ end
 function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
+
+
 
 --TODO fancy make spreadshit from string func
 --local function format_to_table(str, delimiter, row, col)
@@ -96,35 +99,6 @@ end
 --    return table.concat(out, "\n")
 --end
 --,a = 2, b = 3, c = 10,
-
---Get selected text
--- -@return table
-function M.get_slectedtext()
-    local mode = vim.fn.mode()
-    --if mode ~= 'v' and mode ~= 'V' and mode ~= '\22' then
-    --    return ""
-    --end
-
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<esc>gv', true, false, true), "n", false)
-    local start_pos = vim.fn.getpos("'<")
-    local end_pos = vim.fn.getpos("'>")
-    local lines = vim.fn.getline(start_pos[2], end_pos[2])
-
-    -- Adjust start and end columns
-    local start_col = start_pos[3]
-    local end_col = end_pos[3]
-
-    --if #lines == 0 then return {""} end
-
-    -- Trim the first and last lines to selection
-    --lines[1] = lines[1]:sub(start_col, #lines[1])
-    --if #lines > 1 then
-    --    lines[#lines] = lines[#lines]:sub(1, end_col)
-    --end
-
-    --return table.concat(lines, "\n")
-    return lines
-end
 
 
 
@@ -263,104 +237,8 @@ end
 
 
 
--- ## [FileSystem]
-----------------------------------------------------------------------
----@param path string
----@param rootpath string
----@return string
-function M.make_path_projr_rel(path, rootpath)
-    return path:sub(#rootpath+2)
-end
 
 
----@param fpath string
----@return string
-function M.get_file_projr_dir(fpath)
-    if not fpath or fpath == "" then return vim.fn.getcwd() end
-
-    local froot = vim.fs.root(fpath,
-        { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }
-    )
-
-    if froot then
-        return froot
-    else
-        local fdir = vim.fn.fnamemodify(fpath, ':h')
-        local stat = vim.uv.fs_stat(fdir)
-
-        if not stat or not stat.type == "directory" then return vim.fn.getcwd() end
-
-        return fdir
-    end
-end
-
-
-
--- ## [Windows]
-----------------------------------------------------------------------
-
--- TODO
----@param buf number?
----@param enter boolean?
----@param opts table?
----@return number
-function M.fwin_open(buf, enter, opts)
-    buf   = buf and buf or 0
-    enter = enter and enter or true
-    opts  = opts or {}
-
-    local edw = { w = vim.o.columns, h = vim.o.lines }
-
-    local wsize = { -- relative size
-        w = math.floor(edw.w * (opts.wratio and opts.wratio or 0.85) ),
-        h = math.floor(edw.h * (opts.hratio and opts.hratio or 0.8) ),
-    }
-
-    local wopts = {
-        title     = opts.title and opts.title or vim.fn.expand("%:t"),
-        title_pos = opts.title_pos and opts.title_pos or "center",
-
-        relative  = opts.relative and opts.relative or "editor",
-        anchor    = opts.anchor and opts.anchor or "NW",
-        width     = wsize.w,
-        height    = wsize.h,
-        col       = math.floor((edw.w - wsize.w) / 2),
-        row       = math.floor((edw.h - wsize.h) / 2) - 1,
-
-        border    = opts.border and opts.border or "single",
-    }
-
-    -- if opts then
-    --     wopts = vim.tbl_deep_extend("force", wopts, opts)
-    -- end
-
-    local fwin = vim.api.nvim_open_win(buf, enter, wopts)
-
-    vim.api.nvim_set_option_value("winblend", 0, {win=fwin})
-
-    return fwin
-end
-
----@param enter boolean?
----@param wopts table?
----@return number
-function M.open_term_fwin(enter, wopts, shell)
-    enter = enter and enter or true
-    wopts = wopts or {title="Terminal"}
-    shell = shell and shell or "bash"
-
-    local buf = vim.api.nvim_create_buf(false, false)
-
-    local winid = M.fwin_open(buf, enter, wopts)
-
-    vim.cmd("term "..shell)
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=buf})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=buf})
-
-    vim.cmd("startinsert")
-
-    return winid
-end
 
 --------
 return M

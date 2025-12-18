@@ -1,14 +1,18 @@
 
-local gu = require("git.utils")
+-- git --
+
+local gu   = require("git.utils")
+local win  = require("ui.win")
+local term = require("term")
 
 local M = {}
 
 function M.print_gitroot_dir()
-    print(gu.search_gitroot(vim.fn.getcwd()))
+    print(gu.find_gitroot(vim.fn.getcwd()))
 end
 
 
--- ### [Staging]
+-- ## [Staging]
 ---@param fpath? string
 function M.add_file(fpath)
     fpath = fpath and fpath or vim.fn.expand("%:p")
@@ -37,9 +41,25 @@ function M.unstage_all_repo()
     vim.notify("git unstaged all", vim.log.levels.INFO)
 end
 
+function M.log_pretty()
+    local repname = gu.find_gitroot_cwd()
+
+    term.open_fwin(nil, {
+        title = "git log: "..repname,
+        wratio = 0.95, hratio = 0.85,
+    }, "dash")
+
+    local cmd = "git log --graph --decorate --pretty=oneline --abbrev-commit --all"
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, cmd.."\n")
+
+    vim.cmd("stopinsert")
+end
+
 
 
 --------
 return M
+
 
 

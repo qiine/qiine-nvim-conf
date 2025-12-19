@@ -352,72 +352,29 @@ map("t",               ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 
 -- ### Create
--- Make ver split
-map(modes, ldwin.."v", function()
-    vim.cmd("vsplit")
-    local winid = vim.api.nvim_get_current_win()
+-- Open hor/ver split
+map(modes, ldwin.."v", function() win.open_split_ephem("vert") end)
+map(modes, ldwin.."w", function() win.open_split_ephem("hor") end)
 
-    -- mark any buffer opened in this wind unlisted, wipe
-    vim.api.nvim_create_autocmd("BufWinEnter", {
-        group    = "UserAutoCmds",
-        callback = function(args)
-            if vim.api.nvim_get_current_win() == winid then
-                if vim.fn.winlayout()[1] ~= "leaf" then
-                    vim.bo[args.buf].buflisted = false
-                    vim.bo[args.buf].bufhidden = "wipe"
-                end
-            end
-        end,
-    })
-end)
-
--- Make hor split
-map(modes, ldwin.."w", function()
-    vim.cmd("split")
-    local winid = vim.api.nvim_get_current_win()
-
-    -- mark any buffer opened in this wind unlisted, wipe
-    vim.api.nvim_create_autocmd("BufWinEnter", {
-        group    = "UserAutoCmds",
-        callback = function(args)
-            if vim.api.nvim_get_current_win() == winid then
-                vim.bo[args.buf].buflisted = false
-                vim.bo[args.buf].bufhidden = "wipe"
-            end
-        end,
-    })
-end)
-
--- Open floating window
-map(modes, ldwin.."n",  function() win.fwin_open() end)
-map(modes, ldwin.."nf", function() win.fwin_open() end)
-
-map({"i","n","v","t"}, ldwin.."<S-f>", "<Cmd>only<CR>")
-
+-- Open float win
+map(modes, ldwin.."n",  win.fwin_open)
+map(modes, ldwin.."nf", win.fwin_open)
 
 -- Swap splits
-map({"i","n","v","t"}, ldwin.."<S-Left>",  "<Cmd>wincmd H<CR>")
-map({"i","n","v","t"}, ldwin.."<S-Right>", "<Cmd>wincmd L<CR>")
-map({"i","n","v","t"}, ldwin.."<S-Up>",    "<Cmd>wincmd K<CR>")
-map({"i","n","v","t"}, ldwin.."<S-Down>",  "<Cmd>wincmd J<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Left>",  "<cmd>wincmd H<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Right>", "<cmd>wincmd L<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Up>",    "<cmd>wincmd K<CR>")
+map({"i","n","v","t"}, ldwin.."<S-Down>",  "<cmd>wincmd J<CR>")
 
-
--- ### Nav
--- To next window (include splits)
-map(modes, "<M-Tab>", "<Cmd>wincmd w<Cr>")
-
--- To window
-map(modes, ldwin.."<C-Left>",  "<Cmd>wincmd h<CR>")
-map(modes, ldwin.."<C-Right>", "<Cmd>wincmd l<CR>")
-map(modes, ldwin.."<C-Up>",    "<Cmd>wincmd k<CR>")
-map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
+-- Focus cur split close all others
+map({"i","n","v","t"}, ldwin.."<S-f>", "<cmd>only<CR>")
 
 
 -- ### Size
 -- Maximize split toggle
 map(modes, ldwin.."f", win.split_maximize_toggle)
 
--- Auto Resize wins splits
+-- Auto resize wins splits
 local function resize_win(dir, amount)
     local curwin = vim.api.nvim_get_current_win()
 
@@ -428,12 +385,11 @@ local function resize_win(dir, amount)
 end
 
 -- Resize hor split
-map({"i","n","v","t"}, ldwin.."<Up>",    function() resize_win("hor", "-2")  end, {noremap = true})
-map({"i","n","v","t"}, ldwin.."<Down>",  function() resize_win("",    "+2")  end, {noremap = true})
+map({"i","n","v","t"}, ldwin.."<Up>",    function() resize_win("hor", "-2")  end, {noremap=true})
+map({"i","n","v","t"}, ldwin.."<Down>",  function() resize_win("",    "+2")  end, {noremap=true})
 -- Resize vert split
-map({"i","n","v","t"}, ldwin.."<Right>", function() resize_win("vert", "+4") end, {noremap = true})
-map({"i","n","v","t"}, ldwin.."<Left>",  function() resize_win("vert", "-4") end, {noremap = true})
-
+map({"i","n","v","t"}, ldwin.."<Right>", function() resize_win("vert", "+4") end, {noremap=true})
+map({"i","n","v","t"}, ldwin.."<Left>",  function() resize_win("vert", "-4") end, {noremap=true})
 
 -- Detach win
 map(modes, ldwin.."d", function()
@@ -451,34 +407,26 @@ map(modes, ldwin.."d", function()
     --vim.api.nvim_win_set_config(winid, wopts)
 end)
 
-
 -- fwin toggle hide
-map({"i","n","v"}, ldwin.."c", function()
-    if vim.api.nvim_win_get_config(0).hide then
-        vim.api.nvim_win_set_config(0, {hide=false})
-    else
-        vim.api.nvim_win_set_config(0, {hide=true})
-    end
-end)
+map({"i","n","v","t"}, ldwin.."c", win.fwin_hide_toggle)
 
 -- fwin show all
-map({"i","n","v"}, ldwin.."C", function()
-    local tabfwins = vim.tbl_filter(
-        function(input)
-            return vim.api.nvim_win_get_config(input).relative ~= ""
-        end,
-        vim.api.nvim_tabpage_list_wins(0)
-    )
-
-    for _, fwin in ipairs(tabfwins) do
-        vim.api.nvim_win_set_config(fwin, {hide=false})
-        -- vim.api.nvim_set_current_win(fwin) -- does nto ficus the correc win
-    end
-end)
+map({"i","n","v","t"}, ldwin.."C", win.fwin_show_all)
 
 
 -- Drawer
 map({"i","n","v","t"}, "<F7>", drawer.toggle)
+
+
+-- ### Nav
+-- To next window (include splits)
+map(modes, "<M-Tab>", "<Cmd>wincmd w<Cr>")
+
+-- To window
+map(modes, ldwin.."<C-Left>",  "<Cmd>wincmd h<CR>")
+map(modes, ldwin.."<C-Right>", "<Cmd>wincmd l<CR>")
+map(modes, ldwin.."<C-Up>",    "<Cmd>wincmd k<CR>")
+map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
 
 
 

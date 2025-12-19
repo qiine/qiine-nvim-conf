@@ -443,10 +443,13 @@ map(modes, ldwin.."d", function()
 end)
 
 
--- fwin hide
+-- fwin toggle hide
 map({"i","n","v"}, ldwin.."c", function()
-    vim.api.nvim_win_set_config(0, {hide=true})
-    vim.cmd("wincmd w")
+    if vim.api.nvim_win_get_config(0).hide then
+        vim.api.nvim_win_set_config(0, {hide=false})
+    else
+        vim.api.nvim_win_set_config(0, {hide=true})
+    end
 end)
 
 -- fwin show all

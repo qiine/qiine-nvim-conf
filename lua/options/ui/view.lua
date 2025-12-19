@@ -201,7 +201,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
                 if vim.api.nvim_buf_is_valid(0) then
                     vim.opt_local.foldexpr = 'v:lua.vim.lsp.foldexpr()'
                 end
-            end, 50) -- ms
+            end, 70) -- ms -- need to wait a bit to give time to lsp
         end
     end,
 })
@@ -223,14 +223,18 @@ vim.api.nvim_set_hl(0, "Folded", { fg = "#555555", bg = "NONE" })
 vim.o.foldopen = "block,hor,mark,percent,quickfix,search,tag,undo" -- hor -- open fold with arrows
 
 -- No gutter for terms
-vim.api.nvim_create_autocmd('TermOpen', {
+vim.api.nvim_create_autocmd('BufWinEnter', {
     group    = 'UserAutoCmds',
-    callback = function()
-        vim.opt_local.statuscolumn   = ""
-        vim.opt_local.signcolumn     = "no"
-        vim.opt_local.number         = false
-        vim.opt_local.relativenumber = false
-        vim.opt_local.foldcolumn     = "0"
+    callback = function(param)
+        vim.schedule(function()
+            if vim.bo[0].buftype == "terminal" then
+                vim.opt_local.statuscolumn   = ""
+                vim.opt_local.signcolumn     = "no"
+                vim.opt_local.number         = false
+                vim.opt_local.relativenumber = false
+                vim.opt_local.foldcolumn     = "0"
+            end
+        end)
     end,
 })
 
@@ -504,7 +508,7 @@ vim.opt.wildoptions = "pum"
 
 
 vim.o.messagesopt = "hit-enter,history:500"  -- wait:3000,
-
+-- vim.o.messagesopt = "wait:3000,history:500"  -- wait:3000,
 
 
 

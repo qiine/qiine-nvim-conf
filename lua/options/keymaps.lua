@@ -10,8 +10,10 @@
 local utils    = require("utils")
 local fs       = require("fs")
 local win      = require("ui.win")
+local drawer   = require("ui.drawer")
+local term     = require("term")
 
-local gact     = require("git.git")
+local git      = require("git.git")
 
 local ts_utils = require("nvim-treesitter.ts_utils")
 local lsnip    = require("luasnip")
@@ -41,15 +43,15 @@ vim.o.virtualedit = "none" -- Snap cursor to closest char at eol
 -- "all"     -- Enables virtual editing in all modes.
 
 vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
-    group = "UserAutoCmds",
-    callback = function()
-        local mode = vim.fn.mode()
-        if mode == "n"  then vim.o.virtualedit = "all"     return end
-        if mode == "i"  then vim.o.virtualedit = "none"    return end
-        if mode == "v"  then vim.o.virtualedit = "onemore" return end
-        if mode == "V"  then vim.o.virtualedit = "onemore" return end
-        if mode == "" then vim.o.virtualedit = "block"   return end
-    end,
+group = "UserAutoCmds",
+callback = function()
+    local mode = vim.fn.mode()
+    if mode == "n"  then vim.o.virtualedit = "all"     return end
+    if mode == "i"  then vim.o.virtualedit = "none"    return end
+    if mode == "v"  then vim.o.virtualedit = "onemore" return end
+    if mode == "V"  then vim.o.virtualedit = "onemore" return end
+    if mode == "" then vim.o.virtualedit = "block"   return end
+end,
 })
 
 
@@ -207,7 +209,7 @@ map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
 
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
-    local rootdir = fs.utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.get_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
 
     require("neo-tree.command").execute({
         action = "show",
@@ -271,6 +273,11 @@ end)
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
+
+
+-- ### Outliner
+map({"i","n","v"}, "<C-S-B>", "<cmd>AerialToggle<CR>")
+-- map({"i","n","v"}, "<C-S-B>", "<cmd>AerialToggle!<CR>") -- ! prevent focus
 
 
 
@@ -341,7 +348,7 @@ local ldwin = "<M-w>"
 
 -- Rebind win prefix
 map({"i","n","v","c"}, ldwin, "<esc><C-w>", {noremap=true})
-map("t",           ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
+map("t",               ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 
 -- ### Create
@@ -413,8 +420,10 @@ map(modes, ldwin.."f", win.split_maximize_toggle)
 -- Auto Resize wins splits
 local function resize_win(dir, amount)
     local curwin = vim.api.nvim_get_current_win()
+
     vim.cmd('wincmd t') -- always resize from top left
     vim.cmd(dir.." resize "..amount)
+
     vim.api.nvim_set_current_win(curwin)
 end
 
@@ -468,29 +477,25 @@ map({"i","n","v"}, ldwin.."C", function()
 end)
 
 
+-- Drawer
+map({"i","n","v","t"}, "<F7>", drawer.toggle)
+
 
 
 -- ## [Tabs]
 ----------------------------------------------------------------------
 -- Create new tab
 map(modes, "<C-t>", function()
-    if vim.bo.filetype == "alpha"then
-        vim.cmd("enew")
-        vim.bo.buftype   = "nofile"
-        vim.bo.buflisted = false
-        vim.bo.bufhidden = "wipe"
-
-        vim.cmd("Alpha")
-    else
-        vim.cmd("Alpha")
-    end
+    vim.cmd("Alpha")
 end)
 
 -- Tabs nav
 -- next
-map(modes, "<C-Tab>",   "<cmd>bnext<cr>")
+-- map(modes, "<C-Tab>",   "<cmd>bnext<CR>")
+map(modes, "<C-Tab>",   "<cmd>BufferNext<CR>")
 -- Prev
-map(modes, "<C-S-Tab>", "<cmd>bp<cr>")
+-- map(modes, "<C-S-Tab>", "<cmd>bp<CR>")
+map(modes, "<C-S-Tab>", "<cmd>BufferPrevious<CR>")
 
 
 
@@ -520,11 +525,11 @@ end)
 -- ## [Navigation]
 ----------------------------------------------------------------------
 -- Threat wrapped lines as distinct lines for up/down nav
-map("i",       "<Up>", "<cmd>norm! g<Up><CR>") -- use norm to avoid visual glitch
-map({"n","v"}, "<Up>", "g<up>")
+-- map("i",       "<Up>", "<cmd>norm! g<Up><CR>") -- use norm to avoid visual glitch
+-- map({"n","v"}, "<Up>", "g<up>")
 
-map("i",       "<Down>", "<cmd>norm! g<Down><CR>")
-map({"n","v"}, "<Down>", "g<Down>")
+-- map("i",       "<Down>", "<cmd>norm! g<Down><CR>")
+-- map({"n","v"}, "<Down>", "g<Down>")
 
 --maybe?
 -- vim.keymap.set('n', 'j', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'j']], { expr = true })
@@ -736,12 +741,10 @@ map({"i","n","v"}, "<C-End>", "<Cmd>cd - | pwd<CR>")
 map({"i","n","v","c"}, "<M-End>", function()
     vim.api.nvim_feedkeys(":cd ", "n", false)
     vim.api.nvim_feedkeys("	", "c", false) --triggers comp menu
-    -- vim.api.nvim_create_autocmd('DirChanged', {
-    --     group = 'UserAutoCmds',
-    --     callback = function()
-    --         print(vim.fn.getcwd())
-    --     end,
-    -- })
+    vim.api.nvim_create_autocmd('DirChanged', {
+        group = 'UserAutoCmds',
+        command = "pwd",
+    })
 end)
 
 -- cd shortcuts
@@ -767,7 +770,7 @@ map({"i","n","v"}, "<M-C-S-Home>", function() vim.cmd("cd / | pwd") end)
 map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
 
 
--- Task manager
+-- Task planner
 -- General task
 map({"i","n","v","c","t"}, "<F4>", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
@@ -1008,7 +1011,7 @@ map({"i","n"}, "<C-c>", function()
     end
 
     vim.fn.setreg("+", char)
-    print("Char copied") return
+    print("Char copied")
 end, {noremap=true})
 
 -- Copy line
@@ -1607,12 +1610,11 @@ map({"i","n","v"}, "<F58>", "<Cmd>DiagnosticVirtualTextToggle<CR>")
 
 -- To next diag
 map({"i","n","v"}, "<M-C-S-PageUp>", function() vim.diagnostic.jump({count=-1}) end)
-
 map({"i","n","v"}, "<M-C-S-PageDown>", function() vim.diagnostic.jump({count=1}) end)
 
 -- Ref panel
 map({"i","n","v"}, "<F11>", "<cmd>Trouble lsp_references toggle focus=true<cr>")
-map("n", "gr", "<Cmd>lua vim.lsp.buf.references()<CR>")
+map("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>")
 
 -- Goto definition
 map("i", "<F12>", "<Esc>gdi")
@@ -1620,6 +1622,7 @@ map("n", "<F12>", "gd")
 map("n", "<F24>", ":lua vim.lsp.buf.definition()<cr>")
 map("n", "<F60>", ":lua vim.lsp.buf.implementation()<cr>")
 
+-- Peak win open
 map({"i","n"}, "<C-h>", function()
     local ogbufid  = vim.api.nvim_get_current_buf()
     local ogbufpah = vim.api.nvim_buf_get_name(0)
@@ -1640,45 +1643,40 @@ map({"i","n"}, "<C-h>", function()
         local filepath = vim.uri_to_fname(uri)
         local line = range.start.line
 
-        -- put og text at win bottom
-        local wheight = vim.api.nvim_win_get_height(0)
-        vim.cmd("norm! zz"..math.floor(wheight / 2).."")
+        vim.cmd("norm! zb") -- put og text at win bottom
 
-        -- Create peakwin
-        vim.cmd("split | e "..filepath)
+        -- Create peakwin --
+        vim.cmd("split"); vim.cmd("e "..filepath)
+        vim.api.nvim_win_set_height(0, math.floor(ogwinh * 0.70 ))
+
+        vim.w.wintype = "peakwin"
 
         if ogbufpah ~= vim.api.nvim_buf_get_name(0) then
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
         end
 
-        vim.api.nvim_win_set_height(0, math.floor(ogwinh * 0.70 ))
-        vim.opt_local.winbar = nil
-
-        local byte_col = vim.lsp.util.character_offset(0, line, range.start.character, "utf-16")
-        vim.api.nvim_win_set_cursor(0, { line + 1, byte_col })
+        vim.api.nvim_win_set_cursor(0, {line + 1, range.start.character})
 
         -- scroll peak view
-        local pkw_height = vim.api.nvim_win_get_height(0)-1
-        vim.cmd("norm! "..(math.floor(pkw_height / 2)).."")
+        vim.cmd("norm! zt")
+        vim.cmd("norm! zt") -- It seem to work better if called twice..
 
-        -- back to og winpos
+        -- back to og win cursorpos
         vim.api.nvim_create_autocmd('WinEnter', {
             group = 'UserAutoCmds',
             once = true,
             buffer = ogbufid,
-            callback = function()
-                vim.cmd("normal! zz")
-            end,
+            command = "normal! zz",
         })
     end)
 end)
 
 
 -- Show hover window
-map({"i","n"}, "<C-S-h>", function()
+map({"i","n"}, "<C-S-H>", function()
     vim.lsp.buf.hover()
-    vim.lsp.buf.hover() -- weird but needed to enter win
+    vim.lsp.buf.hover() -- weird but needed to enter hover win
 
     -- vim.wo[winid].wrap       = false
     -- vim.wo[winid].spell      = false
@@ -1855,7 +1853,7 @@ end)
 
 -- run project
 map({"i","n","v"}, "<F8>", function()
-    require('overseer').run_task({name = "run smart"}, function(task)
+    require('overseer').run_task({name = "run project"}, function(task)
         if task then
             require('overseer').open({ enter = false })
         end
@@ -1934,33 +1932,16 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
 map({"i","n","v","t"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
 
 -- Term toggle vert
-map({"i","n","v","t"}, "<M-t>s", function()
-    if vim.bo.buftype == "terminal" then return vim.cmd("bd!") end
-
-    vim.cmd("vsp | term")
-
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-end, {noremap=true})
+map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 
 -- Term toggle hor
-local function term_toggle_hor()
-    if vim.bo.buftype == "terminal" then return vim.cmd("bd!") end
-
-    vim.cmd("split | term")
-
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-
-    vim.api.nvim_win_set_height(0, 11)
-end
-map({"i","n","v","t"}, "<M-t>h", function() term_toggle_hor() end, {noremap=true})
-map({"i","n","v","t"}, "<F6>", function() term_toggle_hor() end, {noremap=true})
+map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
+map({"i","n","v","t"}, "<F6>",   term.toggle_hor)
 
 -- Float term
-map({"i","n","v","t"}, "<M-t>", function() utils.open_term_fwin() end)
-map({"i","n","v","t"}, "<M-t>f", function() utils.open_term_fwin() end)
-map({"i","n","v","t"}, "<F18>", function() utils.open_term_fwin() end)
+map({"i","n","v","t"}, "<M-t>",  term.open_fwin)
+map({"i","n","v","t"}, "<M-t>f", term.open_fwin)
+map({"i","n","v","t"}, "<F18>",  term.open_fwin)
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<Esc> <C-\><C-n>]], {noremap=true})

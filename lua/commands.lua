@@ -196,6 +196,7 @@ vim.api.nvim_create_user_command("BufInfo", function(opts)
     local prev = vim.fn.bufnr("#")
 
     local infos = {
+        "[Buffer info]",
         "Name:       "..vim.api.nvim_buf_get_name(buf),
         "Id:         "..buf,
         "Buftype:    "..vim.api.nvim_get_option_value("buftype", { buf = buf }),
@@ -271,6 +272,7 @@ vim.api.nvim_create_user_command("FileInfo", function()
     local permres = vim.system({"stat", "-c", "%A", fpath}, {text=true}):wait()
 
     print(table.concat({
+        "[File info]",
         "Name:     "..fname,
         "Path:     "..fpath,
         "Type:     "..stt.type,
@@ -762,6 +764,18 @@ vim.api.nvim_create_user_command("WinInfo", function()
         vim.api.nvim_win_get_config(winid),
         {winid = winid}
     )))
+    -- local config = vim.api.nvim_win_get_config(0)
+
+    -- "[Window info]",
+
+    -- local t = {}
+    -- table.insert(t, "Window properties:")
+    -- for k, v in pairs(config) do
+    --     table.insert(t, k.." = "..(tostring(v) or '"a"'))
+    -- end
+
+    -- local s = table.concat(t, "\n")
+    -- print(s)
 end, {})
 
 vim.api.nvim_create_user_command("WinFocus", function(opts)

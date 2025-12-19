@@ -250,11 +250,11 @@ return
 
                     {--Get curr LSP
                         function()
-                            local clients = vim.lsp.get_clients()
+                            local cclients = vim.lsp.get_clients({bufnr=0})
 
                             -- spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
 
-                            if #clients == 0 then return "" end
+                            if #cclients == 0 then return "" end
 
                             if #vim.lsp.status() > 0 then
                                 return ""
@@ -263,16 +263,28 @@ return
                             end
                         end,
                         on_click = function()
-                            local clients = vim.lsp.get_clients()
+                            local clients    = vim.lsp.get_clients()
+                            local bufclients = vim.lsp.get_clients({bufnr=0})
 
                             if #clients == 0 then return "ⓘ NoLSP" end
 
-                            local names = {}
-                            for _, client in ipairs(clients) do
-                                table.insert(names, client.name)
+                            local infos = {}
+
+                            table.insert(infos, "[LSP info]")
+
+                            table.insert(infos, "Buffer LSP: ")
+                            for _, bufclient in ipairs(bufclients) do
+                                table.insert(infos, "- "..bufclient.name)
                             end
 
-                            print("LSPs: "..table.concat(names, ", "))
+                            table.insert(infos, "")
+
+                            table.insert(infos, "Active LSP:")
+                            for _, client in ipairs(clients) do
+                                table.insert(infos, "- "..client.name)
+                            end
+
+                            print(table.concat(infos, "\n"))
                         end,
                         padding = 0,
                     },

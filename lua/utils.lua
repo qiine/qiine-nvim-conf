@@ -1,5 +1,5 @@
-    -------------------------
--- win.--
+-------------------------
+-- utils --
 -------------------------
 
 local v    = vim
@@ -122,76 +122,6 @@ end
 
 
 
---[Editing]--------------------------------------------------
-function M.bool_toggle(bword)
-    local toggle_map = {
-        ["true"] = "false", ["false"] = "true",
-        ["yes"] = "no", ["no"] = "yes",
-        ["on"] = "off", ["off"] = "on",
-        ["activate"] = "deactivate", ["deactivate"] = "activate",
-        ["enable"] = "disable", ["disable"] = "enable",
-        ["always"] = "never", ["never"] = "always",
-        ["ascending"] = "descending", ["descending"] = "ascending",
-    }
-
-    --Store case
-
-    local bwtoggle = toggle_map[string.lower(bword)]
-
-    --apply case back
-
-    if bwtoggle then
-        vim.cmd("normal! ciw" .. bwtoggle) vim.cmd("normal! b")
-    end
-end
-
-function M.lessergreater_toggle(lessgreat)
-    if lessgreat == ">" then vim.cmd("normal! r<")
-    elseif lessgreat == "<" then vim.cmd("normal! r>")
-    end
-end
-
-function M.smartincrement()
-    local word = vim.fn.expand("<cword>")
-    local num = tonumber(word) --also check if word is a number in a string
-
-    if num then
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-A>", true, false, true), "n", false)
-        return
-    end
-
-    --increment letter so a becomes b (roman alphabet)
-    if #word == 1 and word:match("%a") then
-        local next_char = string.char(word:byte() + 1)
-        vim.cmd("normal! r"..next_char)
-        return
-    end
-
-    M.bool_toggle(word)
-
-    M.lessergreater_toggle(word)
-end
-
-function M.smartdecrement()
-    local word = vim.fn.expand("<cword>")
-    local num = tonumber(word) --also check if word is a number in a string
-
-    if num then
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-X>", true, false, true), "n", false)
-        return
-    end
-
-    --decrement letter so b becomes a (roman alphabet)
-    if #word == 1 and word:match("%a") then
-        local next_char = string.char(word:byte() - 1)
-        vim.cmd("normal! r"..next_char)
-        return
-    end
-
-    M.bool_toggle(word)
-
-    M.lessergreater_toggle(word)
-end
 
 
 

@@ -761,8 +761,8 @@ map({"i","n","v","c","t"}, "<C-f>", function()
         vim.api.nvim_feedkeys([[/\V]], "n", false) -- need feedkey, avoid glitchy cmd
     else
         vim.cmd("norm! y")
-        vim.api.nvim_feedkeys([[/\V"]], "c", false)
-        vim.api.nvim_feedkeys("\13", "c", false) -- enter auto start search
+        vim.api.nvim_feedkeys([[/\V\<"\>]], "c", false)
+        vim.api.nvim_feedkeys("\13", "c", false) -- <CR> to auto start search
     end
 end)
 

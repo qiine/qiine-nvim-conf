@@ -526,8 +526,9 @@ map("t",           "<M-Right>", "<C-e>", {noremap=true})
 map("i",       "<Home>", "<Esc>ggI")
 map({"n","v"}, "<Home>", "gg0")
 
-map("i",       "<End>", "<Esc>GA")
-map({"n","v"}, "<End>", "G$")
+map("i", "<End>", "<Esc>GA")
+map("n", "<End>", "G")
+map("v", "<End>", "G$")
 
 -- Jump screen up/down
 map({"i","n","v"}, "<M-Up>", function()

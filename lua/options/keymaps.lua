@@ -703,7 +703,7 @@ end)
 
 -- cd curr file proj root dir
 map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = utils.get_file_projr_dir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.get_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
     vim.cmd("cd "..rootdir.." | pwd")
 end)
 

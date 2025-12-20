@@ -405,14 +405,6 @@ return
                 actions = {
                     ["default"] = function(selected)
                         favz.open_fav(selected[1])
-
-                        -- TODO find way to put this inside alpha.nvim instead
-                        -- ensure destroy dashboard
-                        local alt = vim.fn.bufnr("#")
-                        if vim.bo[alt].filetype == "alpha" then
-                            vim.cmd("bwipeout " .. alt)
-                        end
-
                     end
                 },
             })

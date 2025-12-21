@@ -108,14 +108,15 @@ return
                 ["gx"] = "actions.open_external",
 
                 -- nav
-                ["<Up>"] = { mode = {"i","n","v"}, -- cd upward
+                ["<Up>"] = { mode = "n", -- cd upward if on "/."
                     callback = function()
                         local line = vim.api.nvim_win_get_cursor(0)[1]
                         if line == 1 then
                             require("oil.actions").parent.callback()
                             require("oil.actions").cd.callback({silent=true})
                         else
-                            vim.api.nvim_feedkeys("k", "n", false)
+                            local upkey = vim.api.nvim_replace_termcodes("<Up>", true, true, true)
+                            vim.api.nvim_feedkeys(upkey, "n", false)
                         end
                     end,
                 },
@@ -147,7 +148,7 @@ return
                     end,
                 },
 
-                ["<M-Home>"] = { mode = { "n", "i", "v" },
+                ["<M-Home>"] = { mode = { "i", "n", "v" },
                     desc = "cd to project root",
                     callback = function()
                         local rootdir = vim.fs.dirname(vim.fs.find({ ".git", "Makefile", "package.json" }, { upward = true })[1])
@@ -160,14 +161,14 @@ return
                         end
                     end,
                 },
-                ["<M-S-Home>"] = { mode = { "n", "i", "v" },
+                ["<M-S-Home>"] = { mode = {"i","n","v"},
                     desc = "cd to home",
                     callback = function()
                         vim.cmd("cd ")
                         require("oil").open(vim.fn.getcwd())
                     end,
                 },
-                ["<M-C-S-Home>"] = { mode = { "n", "i", "v" },
+                ["<M-C-S-Home>"] = { mode = {"i","n","v"},
                     desc = "cd root",
                     callback = function()
                         vim.cmd("cd /")
@@ -175,7 +176,7 @@ return
                     end,
                 },
 
-                ["<C-S-n>"] = { mode = { "n", "i", "v" },
+                ["<C-S-n>"] = { mode = {"i","n", "v" },
                     desc = "New file",
                     function()
                         vim.cmd("norm! o".."new_file.txt")
@@ -183,7 +184,7 @@ return
                         vim.cmd("norm! 0vt.")
                     end,
                 },
-                ["<C-S-n>d"] = { mode = { "n", "i", "v" },
+                ["<C-S-n>d"] = { mode = { "i", "n", "v" },
                     desc = "New dir",
                     function()
                         vim.cmd("norm! o".."new_dir/")
@@ -235,6 +236,7 @@ return
             end,
         })
 
+        -- Allow to accept with <CR>
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "oil_preview",
             callback = function(params)

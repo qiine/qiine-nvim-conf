@@ -224,13 +224,9 @@ return
 
         vim.api.nvim_create_autocmd('User', {
             group = "UserAutoCmds",
-            pattern = 'oil',
+            pattern = 'OilEnter',
             callback = function(params)
-                -- if vim.bo.filetype ~= "oil" then return end
                 vim.cmd("stopinsert")
-                -- require('oil').open_preview()
-
-                vim.keymap.set("n", "<CR>", function() return "<CR>" end, {expr=true, buffer=params.buf}) -- ensure CR is unmapped
                 vim.keymap.set("n", "dd", function() return "dd" end, {expr=true, buffer=params.buf}) -- ensure orig dd is unmapped
                 vim.keymap.set("n", "yy", function() return "yy" end, {expr=true, buffer=params.buf}) -- ensure orig dd is unmapped
             end,

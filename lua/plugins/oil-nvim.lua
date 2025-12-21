@@ -9,12 +9,14 @@ return
     },
 
     config = function()
-        require("oil").setup({
+        local oil = require("oil")
+
+        oil.setup({
             default_file_explorer = false,
 
             delete_to_trash = true,
             prompt_save_on_select_new_entry = true,
-            skip_confirm_for_simple_edits = true,
+            skip_confirm_for_simple_edits   = true,
             watch_for_changes = true,
 
             buf_options = {
@@ -26,8 +28,8 @@ return
             columns = {
                 "icon",
                 --"permissions",
-                --"size",
-                --"mtime",
+                -- "size",
+                -- "mtime",
             },
             view_options = {
                 show_hidden = true,
@@ -77,7 +79,6 @@ return
                     callback = function()
                         vim.cmd("norm! \27")
 
-                        local oil = require("oil")
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
                             oil.select({}, function()
@@ -93,7 +94,6 @@ return
                     callback = function()
                         vim.cmd("norm! \27")
 
-                        local oil = require("oil")
                         local entry = oil.get_cursor_entry()
                         if entry and entry.type == "directory" then
                             oil.select({}, function()
@@ -108,7 +108,8 @@ return
                 ["gx"] = "actions.open_external",
 
                 -- nav
-                ["<Up>"] = { mode = "n", -- cd upward if on "/."
+                ["<Up>"] = {
+                    mode = "n", -- cd upward if on "/."
                     callback = function()
                         local line = vim.api.nvim_win_get_cursor(0)[1]
                         if line == 1 then
@@ -120,59 +121,54 @@ return
                         end
                     end,
                 },
-                ["<C-Home>"] = { mode = {"i","n","v"}, -- cd upward
+                ["<C-Home>"] = {
+                    mode = {"i","n","v"}, -- cd upward
                     callback = function()
                         require("oil.actions").parent.callback()
                         require("oil.actions").cd.callback({silent=true})
                     end,
                 },
-                ["<M-C-S-Up>"] = { mode = {"i","n","v"}, -- cd upward
+                ["<C-End>"] = {
+                    mode = {"i","n","v"}, -- cd previous visited dir
                     callback = function()
-                        require("oil.actions").parent.callback()
-                        require("oil.actions").cd.callback({silent=true})
-                    end,
-                },
-
-                ["<C-End>"] = { mode = {"i","n","v"}, -- cd previous visited dir
-                    callback = function()
-                        require("oil").select({}, function() -- select curr
-                            require("oil.actions").cd.callback({silent=true})
-                        end)
-                    end,
-                },
-                ["<M-C-S-Down>"] = { mode = {"i","n","v"}, -- cd previous visited dir
-                    callback = function()
-                        require("oil").select({}, function() -- select curr
+                        oil.select({}, function() -- select curr
                             require("oil.actions").cd.callback({silent=true})
                         end)
                     end,
                 },
 
-                ["<M-Home>"] = { mode = { "i", "n", "v" },
+                ["<M-Home>"] = {
+                    mode = {"i","n","v"},
                     desc = "cd to project root",
                     callback = function()
                         local rootdir = vim.fs.dirname(vim.fs.find({ ".git", "Makefile", "package.json" }, { upward = true })[1])
                         if rootdir then
-                            vim.cmd("cd " .. rootdir)
-                            require("oil").open(rootdir)  -- open that directory in Oil
-                            -- require("oil.actions").cd.callback()
+                            vim.cmd("cd "..rootdir)
+                            oil.open(rootdir, nil, function()
+                                vim.cmd("pwd")
+                            end)
                         else
                             vim.notify("No project root found", vim.log.levels.WARN)
                         end
                     end,
                 },
-                ["<M-S-Home>"] = { mode = {"i","n","v"},
+                ["<M-S-Home>"] = {
+                    mode = {"i","n","v"},
                     desc = "cd to home",
                     callback = function()
                         vim.cmd("cd ")
-                        require("oil").open(vim.fn.getcwd())
+                        oil.open(vim.fn.getcwd(), nil, function()
+                            vim.cmd("pwd")
+                        end)
                     end,
                 },
                 ["<M-C-S-Home>"] = { mode = {"i","n","v"},
                     desc = "cd root",
                     callback = function()
                         vim.cmd("cd /")
-                        require("oil").open(vim.fn.getcwd())
+                        oil.open(vim.fn.getcwd(), nil, function()
+                            vim.cmd("pwd")
+                        end)
                     end,
                 },
 
@@ -208,7 +204,7 @@ return
                 ["gh"] = { "actions.toggle_hidden", mode = {"i","n"} },
                 ["<F5>"] = { mode = { "n", "i", "v" },
                     function()
-                        require("oil").open(vim.fn.getcwd())
+                        oil.open(vim.fn.getcwd())
                         print("oil refreshed")
                     end
                 },

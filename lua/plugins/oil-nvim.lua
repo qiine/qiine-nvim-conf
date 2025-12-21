@@ -178,17 +178,17 @@ return
                 ["<C-S-n>"] = { mode = { "n", "i", "v" },
                     desc = "New file",
                     function()
-                        vim.cmd("norm! o")
-                        vim.api.nvim_put({"new_file.txt"}, "", false, true)
+                        vim.cmd("norm! o".."new_file.txt")
+                        vim.cmd("stopinsert")
                         vim.cmd("norm! 0vt.")
                     end,
                 },
                 ["<C-S-n>d"] = { mode = { "n", "i", "v" },
                     desc = "New dir",
                     function()
-                        vim.cmd("norm! o")
-                        vim.api.nvim_put({ "new_dir/" }, "", false, true)
-                        vim.cmd("norm! 0v$hh")
+                        vim.cmd("norm! o".."new_dir/")
+                        vim.cmd("stopinsert")
+                        vim.cmd("norm! 0vt/")
                     end,
                 },
 

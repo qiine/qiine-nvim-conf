@@ -120,8 +120,9 @@ map(modes, "<C-w>", function()
 
     -- Custom unsaved warning
     if bufmodif and bufwincnt == 1 then
-        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No", 1)
-        if choice ~= 1 then return end
+        local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No\n&SaveQuit", 1)
+        if choice == 2 then return       end -- "No" do nothing
+        if choice == 3 then vim.cmd("w") end
     end
 
     -- determine if last valid buf

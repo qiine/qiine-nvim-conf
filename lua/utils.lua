@@ -166,6 +166,25 @@ function M.send_keystroke(key, mode, immediate)
 end
 
 
+-- ## [Filesystem]
+----------------------------------------------------------------------
+---@return boolean|nil
+function M.is_bin(path)
+    if vim.fn.filereadable(path) ~= 1 then
+        return nil
+    end
+
+    local res = vim.system(
+        { "file", "-b", "--mime", path },
+        { text = true }
+    ):wait()
+
+    if res.code ~= 0 or not res.stdout then return nil end
+    local restrim = vim.fn.trim(res.stdout)
+
+    return restrim:find("charset=binary") ~= nil
+end
+
 
 
 

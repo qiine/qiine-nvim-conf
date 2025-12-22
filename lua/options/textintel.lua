@@ -1,6 +1,10 @@
 ----------------------------------------------------------------------
--- # [Text intel] --
+-- #Text intel --
 ----------------------------------------------------------------------
+
+local utils  = require("utils")
+
+
 -- Define word delim
 vim.o.iskeyword = "@,48-57,192-255,-,_"
 -- @       -> alphabet,
@@ -10,27 +14,21 @@ vim.o.iskeyword = "@,48-57,192-255,-,_"
 -- vim.opt.keywordprg = "dict"
 
 -- Detect binary files
--- vim.api.nvim_create_autocmd("BufReadPost", {
---     group = "UserAutoCmds",
---     callback = function(args)
---        local path = args.file
---        if path == "" then return end
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = "UserAutoCmds",
+    callback = function()
+        local bufid = vim.api.nvim_get_current_buf()
+        local path = vim.api.nvim_buf_get_name(bufid)
+        if path == "" then return end
 
---         local result = vim.system(
---             { "file", "--mime-type", "-b", path },
---             { text = true }
---         ):wait()
---         if result.code ~= 0 then return end
+        if vim.bo.ft ~= "" then return false end
 
---         local mime = vim.trim(result.stdout or "")
---         if not mime:match("^text/") then
---             vim.cmd("%!xxd")
---         end
---     end,
--- })
-
-
-vim.opt.makeprg = "make"
+        if utils.is_bin(path) then
+            vim.cmd("HexMode")
+            vim.cmd("bd "..bufid)
+        end
+    end,
+})
 
 
 
@@ -124,6 +122,8 @@ vim.api.nvim_create_user_command("PickDocsLang", function()
 end, {})
 
 
+-- make
+vim.opt.makeprg = "make"
 
 
 -- ## [LSP]

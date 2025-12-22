@@ -252,6 +252,8 @@ vim.api.nvim_create_user_command("FileInfo", function()
 
     local stt = vim.uv.fs_stat(fpath); if not stt then print("No file") return end
 
+    local isbin = utils.is_bin(fpath)
+
     ---@return string|osdate
     local function fmt_time(sec)
         return os.date("%H:%M:%S %d/%m/%Y", sec)
@@ -280,14 +282,13 @@ vim.api.nvim_create_user_command("FileInfo", function()
         "Mode:     "..vim.fn.trim(permres.stdout),
         "Modified: "..fmt_time(stt.mtime.sec),
         "Created:  "..fmt_time(stt.birthtime.sec),
+        "bin:      "..tostring(isbin),
     }, "\n"))
 end, {})
 
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
-    local fp = vim.api.nvim_buf_get_name(0)
-    local rdir = require("utils").get_file_projr_dir(fp)
-    print(rdir)
+    print(fs.utils.find_file_proj_rootdir(vim.api.nvim_buf_get_name(0)))
 end, {})
 
 -- Send file info to clipboard
@@ -876,22 +877,29 @@ vim.api.nvim_create_user_command("OpenDigraph", function()
     vim.opt_local.foldcolumn   = "0"
 end, {})
 
-vim.api.nvim_create_user_command("ShowHex", function()
+-- Hex
+vim.api.nvim_create_user_command("HexMode", function()
     local fpath = vim.api.nvim_buf_get_name(0)
+    local fname = vim.fn.fnamemodify(fpath, ":t")
 
     local res = vim.system({"xxd", "-g", "1", "-u", fpath}, {text=true}):wait()
 
     if res.code ~= 0 then vim.notify(res.stderr, vim.log.levels.ERROR) return end
 
-    vim.cmd("enew")
-    vim.bo.buftype   = "nofile"
-    vim.bo.filetype  = "hex"
-    vim.bo.bufhidden = "wipe"
-    vim.bo.buflisted = false
+    -- vim.cmd("enew")
+    vim.cmd("e "..fname)
+
+    -- vim.bo[0].buftype   = "nofile"
+    vim.bo[0].filetype  = "hex"
+    -- vim.bo[0].bufhidden = "wipe"
+    vim.bo[0].buflisted = true
+    vim.bo[0].bin       = true
 
     local lines = vim.split(res.stdout, "\n", { trimempty = true })
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-end, {desc = "Show current file's hex representation in another buffer" })
+
+    vim.bo[0].modifiable = false
+end, {desc = "Show current file's hex representation" })
 
 vim.api.nvim_create_user_command("HexModeToggle", function()
     local ft = vim.bo.filetype

@@ -275,6 +275,8 @@ end)
 -- Open file picker
 map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
 
+map({"i","n","v"}, "<C-S-O>", "<cmd>Open %<CR>")
+
 
 -- ### Outliner
 map({"i","n","v"}, "<C-S-B>", "<cmd>AerialToggle<CR>")

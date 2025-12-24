@@ -245,7 +245,8 @@ map({"i","n","v","t"}, "<C-e>", function()
 
             -- Place cursor on curr fname if applicable
             vim.cmd("normal! gg")
-            vim.cmd("silent! /"..pbufname)
+            vim.cmd([[silent! /\<]]..pbufname..[[\>]])
+            vim.cmd("noh")
         end
     )
 end)

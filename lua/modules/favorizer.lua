@@ -33,12 +33,13 @@ M.quickfiles =
 
 M.quickactions =
 {
+    [0] = "CopyCWD",
     [1] = "CopyFilePath",
     [2] = "CopyFileDir",
     [3] = "CopyFileName",
-    [4] = "BufInfo",
-    [5] = "WinInfo",
-    [6] = "FileInfo",
+    [4] = "FileInfo",
+    [5] = "BufInfo",
+    [6] = "WinInfo",
     [7] = "",
     [8] = "",
     [9] = "TestCmd",

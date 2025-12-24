@@ -223,6 +223,9 @@ end)
 -- Open file explorer
 map({"i","n","v","t"}, "<C-e>", function()
     local pbuf       = vim.api.nvim_get_current_buf()
+    local pbufpath   = vim.api.nvim_buf_get_name(pbuf)
+    local pbufname   = vim.fn.fnamemodify(pbufpath, ":t")
+
     local pbufwincnt = #(vim.fn.win_findbuf(pbuf))
     local pbufhide   = vim.bo[pbuf].bufhidden ~= ""
 
@@ -239,6 +242,10 @@ map({"i","n","v","t"}, "<C-e>", function()
             end
 
             vim.cmd("silent! bd "..pbuf)
+
+            -- Place cursor on curr fname if applicable
+            vim.cmd("normal! gg")
+            vim.cmd("silent! /"..pbufname)
         end
     )
 end)

@@ -213,11 +213,11 @@ vim.o.foldlevelstart = 99 -- opens all folds on buf enter
 vim.o.foldtext = "v:lua.FoldedText()"
 function FoldedText()
     local line = vim.fn.getline(vim.v.foldstart)
-    return line.." ⋯"
+    return line --.." ⋯" -- add ellipsis
 end
 
 -- fold color
-vim.api.nvim_set_hl(0, "Folded", { fg = "#555555", bg = "NONE" })
+vim.api.nvim_set_hl(0, "Folded", { link = "Normal" })
 
 -- Those action opens fold
 vim.o.foldopen = "block,hor,mark,percent,quickfix,search,tag,undo" -- hor -- open fold with arrows
@@ -241,7 +241,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
 
 -- Fillchars
 vim.opt.fillchars:append({
-    fold      = " ", --in place of the folded text  - ⋯
+    fold      = " ", --in place of folded text, leave with one space to avoid repeating dots
     foldopen  = "⌄", --   ⌄ ▾
     foldclose = ">", -- > ▸
     foldsep   = " ", -- │  --separate folds (for open folds)

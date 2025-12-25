@@ -156,6 +156,11 @@
         "body": [ "vim.bo.buftype" ]
     },
 
+    "get nvim buffer filetype": {
+        "prefix": "get filetype",
+        "body": [ "vim.bo.filetype" ]
+    },
+
     "set nvim buffer var": {
         "prefix": "set nvim buffer var",
         "body": [ "vim.b[buf].${1:}" ]

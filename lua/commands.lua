@@ -341,6 +341,17 @@ vim.api.nvim_create_user_command("OpenDesktopFilePicker", function()
     end
 end, {})
 
+vim.api.nvim_create_user_command("OpenNvimConfig", function()
+    local confpath = vim.fn.stdpath("config")
+
+    vim.cmd("cd "..confpath)
+    vim.cmd("e init.lua")
+
+    vim.cmd("pwd")
+end, {})
+
+
+-- File write
 vim.api.nvim_create_user_command("FileSaveInteractive", function()
     local fpath       = vim.api.nvim_buf_get_name(0)
     local fstat       = vim.uv.fs_stat(fpath)

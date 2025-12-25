@@ -199,40 +199,12 @@ local function dashlayout()
     end
 
     ---@return table
-    --local function mru()
-    --    local result = {}
-    --    for _, filename in ipairs(vim.v.oldfiles) do
-    --        if vim.loop.fs_stat(filename) then
-    --            local icon, hl = require("nvim-web-devicons").get_icon(filename, vim.fn.fnamemodify(filename, ":e"))
-    --            local filename_short = string.sub(vim.fn.fnamemodify(filename, ":t"), 1, 30)
-    --            table.insert(
-    --                result,
-    --                button(
-    --                    tostring(#result + 1),
-    --                    string.format("%s  %s", icon, filename_short),
-    --                    string.format("<Cmd>e %s<CR>", filename),
-    --                    nil,
-    --                    { hl = { { hl, 0, 3 }, { "Normal", 5, #filename_short + 5 } } }
-    --                )
-    --            )
-    --            if #result == 9 then break end
-    --        end
-    --    end
-    --    return result
-    --end
-
-    ---@return table
     local function fortune()
         local rng = math.random(10)
         if rng > 3 then return require("alpha.fortune")()
         else            return {}
         end
     end
-
-
-    --conf path
-    local nvim_cfg_path = vim.fn.stdpath("config")
-    local nvim_cfg_init = nvim_cfg_path.."/init.lua"
 
     return {
         { type = "padding", val = 1 },
@@ -270,7 +242,7 @@ local function dashlayout()
         {type = "padding", val = 1 }, --
         {   --options
             val  = {
-                button("c", " Config", function() set_wipe_dashboard(); vim.cmd("e "..nvim_cfg_init.." | cd %:h | pwd") end),
+                button("c", " Config", function() set_wipe_dashboard(); vim.cmd("OpenNvimConfig") end),
                 button("e", "󰏗 Plugins", "<Cmd>Lazy<CR>"), -- 󰂖 🧩 󱁤
             },
             type = "group",

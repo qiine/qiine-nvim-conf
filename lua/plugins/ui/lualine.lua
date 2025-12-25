@@ -41,7 +41,7 @@ return
                                 ['r']='r',['R']='R',['Rc']='Rc',['Rx']='Rx',['Rv']='V-R',['Rvc']='V-R',['Rvx']='V-R',
                                 ['c']='CMD',['cv']='EX',['ce']='EX',
                                 ['rm']='MORE',['r?']='CONFIRM',
-                                ['!']='SHELL',['t']='TERMINAL'
+                                ['!']='SHELL',['t']='TERM'
                             }
                             local ma = mode_alias[m]
                             if ma then m=ma end

@@ -1872,7 +1872,7 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     group = "UserAutoCmds",
     callback = function()
         vim.cmd("startinsert")
-        vim.keymap.set("n", "<M-`>", ':quit<CR>' , {buffer=true})
+        vim.keymap.set({"i","n","v"}, "<M-`>", "<cmd>quit<CR>" , {buffer=true})
     end,
 })
 

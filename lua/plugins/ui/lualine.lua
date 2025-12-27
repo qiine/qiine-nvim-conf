@@ -182,21 +182,20 @@ return
                 lualine_y = {
                     {--curr buftype
                         function()
-                            local buft
-                            if vim.bo.buftype == "" then
-                                buft = "regular"
-                            else
-                                buft = vim.bo.buftype
-                            end
+                            local bt = {
+                                [""]         = "",
+                                ["acwrite"]  = "acw",
+                                ["help"]     = "?",
+                                ["nofile"]   = "!",
+                                ["nowrite"]  = "!󰃉",
+                                ["quickfix"] = "qf",
+                                ["terminal"] = "",
+                                ["prompt"]   = "",
+                            }
 
-                            local bufmodif
-                            if vim.bo.modifiable then
-                                bufmodif = ""  -- 🪶 🖋
-                            else
-                                bufmodif = "🚫"
-                            end
+                            local bufmodif = vim.bo.modifiable and "" or "🚫" --🚫
 
-                            return "" .. buft .. bufmodif
+                            return bt[vim.bo.buftype]..bufmodif
                         end,
                         on_click = function()
                             local output = vim.fn.execute("ls")

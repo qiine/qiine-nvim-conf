@@ -83,33 +83,33 @@ return
                         padding=1,
                     },
                     {function() return "|" end, padding = 0, color={fg='#a8a7a7'}},
-                    {--term
-                        function() return ' ' end, --[] 💻   🖳
-                        on_click = function()
-                            vim.cmd('below split')
+                --     {--term
+                --         function() return ' ' end, --[] 💻   🖳
+                --         on_click = function()
+                --             vim.cmd('below split')
 
-                            vim.cmd("term")
-                            vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-                            vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-                            local lines = vim.fn.line('$')
-                            local new_height = math.floor(lines / 2)+3
-                            vim.cmd('resize ' .. new_height)
-                        end,
-                        left_padding = 1,
-                        --color = { fg = '#0c0c0c'},
-                    },
-                    { --cmd win
-                        function() return '⌨' end, --🖵
-                        on_click = function()
-                            if vim.bo.filetype == "vim" then
-                                vim.api.nvim_input('<esc>:quit<cr>')
-                            else
-                                vim.api.nvim_input('<esc>q:')
-                            end
-                        end,
-                        padding = 0,
-                        color = { fg = '#545454'},
-                    },
+                --             vim.cmd("term")
+                --             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
+                --             vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+                --             local lines = vim.fn.line('$')
+                --             local new_height = math.floor(lines / 2)+3
+                --             vim.cmd('resize ' .. new_height)
+                --         end,
+                --         left_padding = 1,
+                --         --color = { fg = '#0c0c0c'},
+                --     },
+                --     { --cmd win
+                --         function() return '⌨' end, --🖵
+                --         on_click = function()
+                --             if vim.bo.filetype == "vim" then
+                --                 vim.api.nvim_input('<esc>:quit<cr>')
+                --             else
+                --                 vim.api.nvim_input('<esc>q:')
+                --             end
+                --         end,
+                --         padding = 0,
+                --         color = { fg = '#545454'},
+                --     },
                 },--line c
 
                 lualine_x =
@@ -175,7 +175,26 @@ return
                             local lines = vim.api.nvim_buf_line_count(0)
                             return lines..'L'
                         end,
-                        padding={left=1,right=0},
+                        padding={left=1,right=1},
+                    },
+                    {--filesize
+                        function()
+                            local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
+
+                            local function human_readable_size(bytes)
+                                local units = { "B", "KB", "MB", "GB", "TB" }
+                                local i = 1
+                                while bytes >= 1024 and i < #units do
+                                    bytes = bytes / 1024
+                                    i = i + 1
+                                end
+                                return string.format("%.1f%s", bytes, units[i])
+                            end
+
+                            local file_size_human = human_readable_size(file_size_bytes)
+                            return file_size_human
+                        end,
+                        padding=0,
                     },
                 },
 

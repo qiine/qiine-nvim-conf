@@ -1793,36 +1793,45 @@ map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
 -- Run whole file until curr line and insert res
 map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
--- run current file or buf (F56 is <M-F8>)
+-- run current buf (<M-F8>)
 map({"i","n","v"}, "<F56>", function()
-    local fpath = vim.fn.expand('%:p')
-
-    if vim.fn.filereadable(fpath) == 1 then
-        require('overseer').run_task({name = "run file"}, function(task)
-            if task then
-                require('overseer').open({ enter = false })
-            end
-        end)
-    else
-        require("overseer").run_task({name = "run buf"}, function(task)
-            if task then
-                require('overseer').open({ enter = false })
-            end
-        end)
-    end
-end)
-
--- run project
-map({"i","n","v"}, "<F8>", function()
-    require('overseer').run_task({name = "run project"}, function(task)
+    require("overseer").run_task({name = "run buf"}, function(task)
         if task then
+            for _, prevtask in ipairs(require('overseer').list_tasks()) do
+                if prevtask.status == "RUNNING" then
+                    require('overseer').run_action(prevtask, "stop")
+                end
+            end
+
             require('overseer').open({ enter = false })
+            -- require('overseer').run_action(task, 'open hsplit')
+            -- vim.cmd("startinsert")
+            -- vim.api.nvim_win_set_height(0, 11)
         end
     end)
 end)
 
-map({"i","n","v"}, "<S-Space>tv", "<Cmd>OverseerToggle<Cr>", {nowait=true})
-map({"i","n","v"}, "<S-Space>tr", function()
+-- run project
+map({"i","n","v","t"}, "<F8>", function()
+    require("overseer").run_task({name = "run project"}, function(task)
+        if task then
+            for _, prevtask in ipairs(require('overseer').list_tasks()) do
+                if prevtask.status == "RUNNING" then
+                    require('overseer').run_action(prevtask, "stop")
+                end
+            end
+
+            require('overseer').open({ enter = false })
+            -- require('overseer').run_action(task, 'open hsplit')
+            -- vim.cmd("startinsert")
+            -- vim.api.nvim_win_set_height(0, 11)
+        end
+    end)
+end)
+
+-- overseer panels
+map({"i","n","v","t"}, "<S-Space>tv", "<Cmd>OverseerToggle<Cr>", {nowait=true})
+map({"i","n","v","t"}, "<S-Space>tr", function()
     require('overseer').run_task({}, function(task)
         if task then
             require('overseer').open({ enter = false })

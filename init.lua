@@ -32,10 +32,10 @@ end
 -- [Modules]
 ----------------------------------------------------------------------
 -- This avoid breaking everything when a lua modules has errors
-local function safe_require(module)
+local function pcall_require(module)
     local ok, res = pcall(require, module)
     if not ok then
-        vim.notify("error: in "..module.."\n"..res, vim.log.levels.ERROR)
+        vim.notify("error: "..res.."\n", vim.log.levels.ERROR)
         return nil
     end
 
@@ -43,38 +43,39 @@ local function safe_require(module)
 end
 
 -- ## Custom modules
-safe_require("modules.enveloppe")
-safe_require("modules.tiny-session")
-safe_require("modules.historybuf")
-safe_require("modules.favorizer")
-safe_require("modules.arbores")
-safe_require("modules.planv")
+pcall_require("modules.enveloppe")
+pcall_require("modules.tiny-session")
+pcall_require("modules.historybuf")
+pcall_require("modules.favorizer")
+pcall_require("modules.arbores")
+pcall_require("modules.planv")
+pcall_require("modules.lsv")
 
 -- ## Commands
-safe_require("commands")
-safe_require("commands_aliases")
-safe_require("autocmds")
+pcall_require("commands")
+pcall_require("commands_aliases")
+pcall_require("autocmds")
 
 -- ## Plugins
-safe_require("options.lazy")
+pcall_require("options.lazy")
 
-safe_require("options.keymaps")
-safe_require("options.abbreviations")
-safe_require("options.mousemaps")
+pcall_require("options.keymaps")
+pcall_require("options.abbreviations")
+pcall_require("options.mousemaps")
 
 -- ## options
-safe_require("options.internal")
-safe_require("options.editing")
-safe_require("options.textintel")
-safe_require("options.ui.theme")
-safe_require("options.ui.conceal")
-safe_require("options.ui.view")
-safe_require("options.ui.menus")
-safe_require("options.ui.statusline")
+pcall_require("options.internal")
+pcall_require("options.editing")
+pcall_require("options.textintel")
+pcall_require("options.ui.theme")
+pcall_require("options.ui.conceal")
+pcall_require("options.ui.view")
+pcall_require("options.ui.menus")
+pcall_require("options.ui.statusline")
 
 -- ## ui
-safe_require("ui.winbar")
-safe_require("ui.quickfix")
+pcall_require("ui.winbar")
+pcall_require("ui.quickfix")
 
 
 

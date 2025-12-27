@@ -2,17 +2,20 @@ return {
     name = "run selection",
     builder = function()
         local buft = vim.bo.filetype
+
         local runcmd = {
             ["lua"]    = "lua",
             ["bash"]   = "bash",
             ["python"] = "python",
         }
+
         local tmpfext = {
             ["lua"]    = ".lua",
             ["bash"]   = ".sh",
             ["python"] = ".py",
         }
 
+        -- send sel to temp filetype
         local lines = vim.fn.getline("'<","'>")
         local ftmp  = vim.fn.tempname()..tmpfext[buft]
         vim.fn.writefile(lines, ftmp)
@@ -32,7 +35,11 @@ return {
             name = 'run selection',
             cmd  = { vimapi and "nvim" or runcmd[buft] },
             args = args,
-            cwd  = vim.fn.getcwd()
+            cwd  = vim.fn.getcwd(),
+            components = {
+                -- {"open_output", direction="dock"},
+                {"on_exit_set_status"},
+            },
         }
     end,
     condition = {

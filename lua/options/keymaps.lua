@@ -535,10 +535,10 @@ map("t",           "<M-Right>", "<C-e>", {noremap=true})
 
 -- Jump home/end
 map("i",       "<Home>", "<Esc>ggI")
-map({"n","v"}, "<Home>", "gg0")
+map({"n","v","o"}, "<Home>", "gg0")
 
 map("i", "<End>", "<Esc>GA")
-map("n", "<End>", "G")
+map({"n","o"}, "<End>", "G")
 map("v", "<End>", "G$")
 
 -- Jump screen up/down

@@ -105,6 +105,7 @@ local M =
     Constant      = "󰏿",
     Operator      = "󰆕",
     pi            = "π",
+    triplewave    = "≋",
 
     -- geometry
     dot      = "",
@@ -112,6 +113,7 @@ local M =
     squares4 = "",
     cube     = "",
     star     = "★",
+    star2    = "✦",
 
     -- code
     func      = "ƒ",
@@ -122,7 +124,7 @@ local M =
     interface = "",
 
     --markdown
-    rendermarkdown = { ' ', ' ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
+    rendermarkdown = { ' ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
 
     -- objects
     packages = "󰏖",
@@ -130,8 +132,8 @@ local M =
     magnifiersmall = "",
     magnifier = "🔎",
     padlock = "",
-    plug = "",
-    tag   = "",
+    plug   = "",
+    tag    = "",
     cog     = "",
     cogdual = "",
     Key  = "󰌋",
@@ -145,6 +147,7 @@ local M =
     pin = "",
     keyboard = "⌨",
     starts   =  "✨",
+    crown = "🜲",
 
     -- time
     clock     = "🕒",
@@ -169,6 +172,7 @@ local M =
     quarter2 = "◶",
     quarter3 = "◵",
     quarter4 = "◴",
+    quarter5 = "🜨",
 
     -- logo
     vim = "",

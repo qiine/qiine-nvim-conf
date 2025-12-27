@@ -23,7 +23,7 @@ return
                 buflisted = false,
                 bufhidden = "hide" --"hide", "wipe" -- warn! wipe destroy oil reg data
             },
-            cleanup_delay_ms = 2000, --auto delete oil hidden buffers, false to turn this off
+            cleanup_delay_ms = 1000, --auto delete oil hidden buffers, false to turn this off
 
             columns = {
                 "icon",

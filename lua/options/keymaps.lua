@@ -710,7 +710,9 @@ end)
 -- cd shortcuts
 -- cd curr file dir
 map({"i","n","v"}, "<C-S-Home>", function()
-    vim.cmd("cd "..vim.fn.expand("%:p:h").." | pwd")
+    local dir = vim.fn.expand("%:p:h")
+    if not vim.uv.fs_stat(dir) then print("Cannot cd, invalid path: "..dir) return end
+    vim.cmd("cd "..dir.." | pwd")
 end)
 
 -- cd curr file proj root dir

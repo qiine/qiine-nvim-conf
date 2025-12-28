@@ -3,9 +3,13 @@
 -------------------------
 local v = vim
 
+local utils  = require("utils")
+local fs     = require("fs")
+local win    = require("ui.win")
+local msglog = require("ui.msglog")
+local term   = require("term")
 
-local utils = require("utils")
--------------------------
+local git    = require("git.git")
 
 
 -- ## [Common]
@@ -68,14 +72,14 @@ vim.api.nvim_create_user_command("HyperAct", function()
     if supported then return vim.lsp.buf.definition() end
 
     -- try go to tag C-]
-    local restag = pcall(vim.cmd, "norm! \29")
+    local restag = pcall(function() vim.cmd("norm! \29") end)
     if restag then return end
 
     -- try vim open file
-    local resgf = pcall(vim.cmd, "norm! gf")
+    local resgf = pcall(function() vim.cmd("norm! gf") end)
     if resgf then return end
 
-    local resgd = pcall(vim.cmd, "norm! gd")
+    local resgd = pcall(function() vim.cmd("norm! gd") end)
     if resgd then return end
 end, {})
 
@@ -252,7 +256,11 @@ vim.api.nvim_create_user_command("FileInfo", function()
 
     local stt = vim.uv.fs_stat(fpath); if not stt then print("No file") return end
 
-    local isbin = utils.is_bin(fpath)
+    local fres = vim.system(
+        { "file", "-b", "--mime", fpath },
+        { text = true }
+    ):wait()
+    local ftype = fres.code == 0 and vim.fn.trim(fres.stdout) or "unknown"
 
     ---@return string|osdate
     local function fmt_time(sec)
@@ -277,12 +285,13 @@ vim.api.nvim_create_user_command("FileInfo", function()
         "[File info]",
         "Name:     "..fname,
         "Path:     "..fpath,
-        "Type:     "..stt.type,
+        -- "Type:     "..stt.type,
+        "Type:     "..ftype,
+        -- "bin:      "..isbin,
         "Size:     "..fsize_hreadable(fsize_b),
         "Mode:     "..vim.fn.trim(permres.stdout),
         "Modified: "..fmt_time(stt.mtime.sec),
         "Created:  "..fmt_time(stt.birthtime.sec),
-        "bin:      "..tostring(isbin),
     }, "\n"))
 end, {})
 
@@ -307,23 +316,22 @@ vim.api.nvim_create_user_command("CopyFileDir", function()
     print("Copied file dir path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
-vim.api.nvim_create_user_command("CopyFileProjRootDir", function()
-    local fpath    = vim.fn.expand("%:p")
-    local prdir    = utils.get_file_projr_dir(fpath)
-    local fpathprr = utils.make_path_projr_rel(fpath, prdir)
-    vim.fn.setreg("+", fpathprr)
+vim.api.nvim_create_user_command("CopyFileProjRootDirRel", function()
+    local fpath     = vim.fn.expand("%:p")
+    local prdir     = fs.utils.find_file_proj_rootdir(fpath)
+    local fpath_prr = fs.utils.make_path_projroot_rel(fpath, prdir)
+    vim.fn.setreg("+", fpath_prr)
     print("Copied file dir path root rel: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
+vim.api.nvim_create_user_command("CopyCWD", function()
+    vim.fn.setreg("+", vim.fn.getcwd())
+    print("Copied cwd: " ..'"'..vim.fn.getreg("+")..'"')
+end, {})
 
 -- cd
 vim.api.nvim_create_user_command("CdFileDir", function()
-    vim.cmd("cd %:p:h")
-    vim.cmd("pwd")
-end, {})
-
-vim.api.nvim_create_user_command("FileStat", function()
-    print(vim.inspect(vim.uv.fs_stat(vim.fn.expand("%"))))
+    vim.cmd("cd %:p:h"); vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("OpenDesktopFilePicker", function()
@@ -391,11 +399,8 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if     input == nil then
+            if input == nil then
                 vim.notify("Save cancelled.", vim.log.levels.INFO) return
-            elseif input == ""  then
-                vim.notify("Input cannot be empty!", vim.log.levels.INFO)
-                return prompt_user()
             end
 
             local dir = vim.fs.dirname(input) -- check target dir
@@ -421,17 +426,20 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
                 end
             end
 
-            vim.api.nvim_buf_set_name(0, input); vim.cmd("w!|e!") return --w! to bypass builtin overwite check
+            vim.api.nvim_buf_set_name(0, input); vim.cmd("w!|e!") --w! to bypass builtin overwite check
         end)
     end
     prompt_user()
 end, {})
 
 vim.api.nvim_create_user_command('SudoWrite', function()
-    local fpath = vim.fn.shellescape(vim.fn.expand("%:p"))
-    local tmp = vim.fn.tempname()
+    local fpath       = vim.fn.shellescape(vim.fn.expand("%:p"))
+    local startbuf_id = vim.api.nvim_get_current_buf()
+    local tmp         = vim.fn.tempname()
 
-    vim.cmd('write! ' .. tmp)
+    vim.cmd('write! '..tmp) -- write curr buf to tmpf
+
+    local permbuf_id = vim.api.nvim_create_buf(false, true)
 
     local edw_w = vim.o.columns
     local edw_h = vim.o.lines
@@ -449,9 +457,31 @@ vim.api.nvim_create_user_command('SudoWrite', function()
         col       = math.floor((edw_w - wsize.w) / 2),
         row       = math.floor((edw_h - wsize.h) / 2),
     }
-    vim.api.nvim_open_win(0, true, wopts)
+    vim.api.nvim_open_win(permbuf_id, true, wopts)
 
-    vim.cmd("term sudo tee "..fpath.." < "..tmp.." > /dev/null")
+    local cmd = {
+        "bash",
+        "--norc",
+        "-c",
+        "sudo tee "..fpath.." < "..tmp.." > /dev/null"
+    }
+
+    local job_id = vim.fn.jobstart(cmd, {
+        term = true,
+        on_exit = function(_, code, _)
+            if code == 0 or code == 130 then
+                vim.api.nvim_create_autocmd('WinEnter', {
+                    group   = 'UserAutoCmds',
+                    once    = true,
+                    buffer  = startbuf_id,
+                    command = "e!", -- refresh original buf
+                })
+                vim.cmd("bwipeout")
+            else
+                print("failed, exit code:", code)
+            end
+        end,
+    })
 end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
@@ -709,7 +739,7 @@ end, {})
 
 -- ### Dirs
 vim.api.nvim_create_user_command("FSPrintProjRootDir", function()
-    print(fs.utils.find_proj_rdir() )
+    print(fs.utils.find_proj_rootdir() )
 end, {})
 
 
@@ -759,14 +789,14 @@ vim.api.nvim_create_user_command("OpenScratchpad", function()
     local wopts = {
         title = "Scratchpad",
         title_pos = "center",
-        relative = "editor",
+        relative = "pwdeditor",
         border = "single",
         width  = wsize.w,
         height = wsize.h,
         col = math.floor((edw_w - wsize.w) / 2),
         row = math.floor((edw_h - wsize.h) / 2),
     }
-    local win = vim.api.nvim_open_win(bufid, true, wopts)
+    vim.api.nvim_open_win(bufid, true, wopts)
 end, {})
 
 vim.api.nvim_create_user_command("WinInfo", function()
@@ -956,6 +986,28 @@ vim.api.nvim_create_user_command("BigfileModeToggle", function()
     end
 
     vim.notify("Bigfile mode: " .. tostring(vim.b.is_bigfile))
+    local deffoldm = vim.opt.foldmethod:get()
+    local defundol = vim.opt.undolevels:get()
+    local defundof = vim.opt.undofile:get()
+
+    if not vim.b.is_bigfile then
+        vim.cmd("BigfileMode")
+    else
+        vim.b.is_bigfile = false
+
+        vim.opt.foldmethod = deffoldm
+        vim.opt.undolevels = defundol
+        vim.opt.undofile   = defundof
+        vim.cmd("LspRestart")
+        vim.cmd("silent! DiagnosticVirtualTextToggle")
+    end
+
+    vim.notify("Bigfile mode: " .. tostring(vim.b.is_bigfile))
+end, {})
+
+vim.api.nvim_create_user_command("PrintWordCount", function()
+    local wc = vim.fn.wordcount().words
+    print("Word count: ", wc)
 end, {})
 
 
@@ -986,15 +1038,24 @@ end, {nargs="?"})
 vim.api.nvim_create_user_command("GitCommitAll", function()
     local ga_res = vim.system({"git", "add", "-A"}, {cwd=vim.fn.getcwd(), text=true}):wait()
     if ga_res.code ~= 0 then
-        return vim.notify(ga_res.stderr , vim.log.levels.ERROR)
+        vim.notify(ga_res.stderr , vim.log.levels.ERROR); return
     end
 
     term.open_fwin(nil, {
         title = "Commit all",
-        wratio = 0.8, hratio = 0.75,
+        wratio = 0.85, hratio = 0.75,
     }, "bash --norc")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit".."\n")
+end, {})
+
+vim.api.nvim_create_user_command("GitAmend", function(opts)
+    term.open_fwin(nil, {
+        title = "Commit amend",
+        wratio = 0.85, hratio = 0.75,
+    }, "bash --norc")
+
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit --amend".."\n")
 end, {})
 
 vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
@@ -1034,6 +1095,8 @@ end, {})
 vim.api.nvim_create_user_command("GitPrintRoot", function()
     print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
 end, {})
+
+vim.api.nvim_create_user_command("GitLog", git.log_pretty, {})
 
 vim.api.nvim_create_user_command("GitLogFile", function()
     require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
@@ -1082,16 +1145,15 @@ vim.api.nvim_create_user_command("GitHunksHighlight", function()
     end
 end, {})
 
-
 --diff curr file with given rev
 vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     -- TODO use just a number as arg
     local argrev = opts.args ~= "" and opts.args or "HEAD~0"
 
     local cbufid = vim.api.nvim_get_current_buf()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local fdir  = vim.fn.expand("%:p:h")
-    local ftype = vim.bo.filetype
+    local fpath  = vim.api.nvim_buf_get_name(0)
+    local fdir   = vim.fn.expand("%:p:h")
+    local ftype  = vim.bo.filetype
 
     local curso_pos = vim.api.nvim_win_get_cursor(0)
 
@@ -1100,12 +1162,14 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
 
     -- Create diffbuf
     vim.cmd("vsplit")
+
     local difbuf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_win_set_buf(0, difbuf)
-    vim.api.nvim_set_option_value("buftype",   "nofile", {buf=difbuf})
-    vim.api.nvim_set_option_value("filetype",   ftype,   {buf=difbuf})
-    vim.api.nvim_set_option_value("buflisted",  false,   {buf=difbuf})
-    vim.api.nvim_set_option_value("bufhidden",  "wipe",  {buf=difbuf})
+
+    vim.api.nvim_set_option_value("buftype",  "nofile", {scope="local", buf=difbuf})
+    vim.api.nvim_set_option_value("filetype",  ftype,   {scope="local", buf=difbuf})
+    vim.api.nvim_set_option_value("buflisted", false,   {scope="local", buf=difbuf})
+    vim.api.nvim_set_option_value("bufhidden", "wipe",  {scope="local", buf=difbuf})
 
     local revstr = argrev:gsub("HEAD~", "")
     vim.b[difbuf].revision = tonumber(revstr)
@@ -1131,6 +1195,7 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
         print("Curr rev = "..rev.."/"..vim.trim(res_count.stdout))
     end
     git_diffwrite(argrev)
+
     -- Keymap
     vim.keymap.set({"i","n","v"}, "<C-S-PageUp>", function()
         local lcurso_pos = vim.api.nvim_win_get_cursor(0)
@@ -1200,19 +1265,11 @@ vim.api.nvim_create_user_command("GitHunkToggleHighlight", function()
 end, {})
 
 vim.api.nvim_create_user_command("GitDashboard", function()
-    local fp = vim.fn.expand("%:p")
-
-    utils.fwin_open(0, true, {
+    term.open_fwin(nil, {
         title = "Push",
         wratio = 0.75,
         hratio = 0.65,
     })
-
-    vim.cmd("term")
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
-
-    vim.cmd("startinsert")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git status\n")
 end, {})
@@ -1238,7 +1295,7 @@ vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
         -- replace remaining separators and punctuation
         text = text:gsub("[:/\\?#@.]", "_")
 
-        local hash = vim.fn.sha256(text):sub(1, 6)
+        local hash = vim.fn.sha256(text):sub(1, 5)
 
         return text.."_"..hash
     end
@@ -1414,4 +1471,11 @@ vim.api.nvim_create_user_command("FacingPages", function()
         end,
     })
 end, {})
+
+
+vim.api.nvim_create_user_command("TestCmd", function(opts)
+    print(opts.fargs[1]..", "..opts.fargs[2])
+end, {nargs="*"})
+
+
 

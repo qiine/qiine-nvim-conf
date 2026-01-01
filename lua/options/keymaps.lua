@@ -1368,19 +1368,35 @@ map("n", "<CR>", function()
 end, {expr=true})
 
 -- Line break above
-map({"i","n"}, "<S-CR>", function() vim.cmd('norm! '..vim.v.count..'O') end)
---TODO buggy
-map("v",       "<S-CR>", "<esc>O<esc>gv")
+map("i",       "<S-CR>", "<C-o>O")
+map({"n","o"}, "<S-CR>", "O<esc>")
+map("v",       "<S-CR>", function()
+    vim.cmd('norm! ') -- hack to refresh vis pos
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+    if vsh[1] > vst[1] then vim.api.nvim_win_set_cursor(0, vst) end
+
+    vim.cmd("norm! O")
+    vim.cmd("norm! gv")
+end)
 
 -- Line break below
-map({"i","n"}, "<M-CR>", function() vim.cmd('norm! '..vim.v.count..'o') end)
-map("v",       "<M-CR>", "<esc>o<esc>gv")
+map("i",       "<M-CR>", "<C-o>o")
+map({"n","o"}, "<M-CR>", "o<esc>")
+map("v",       "<M-CR>", function()
+    vim.cmd('norm! ') -- hack to refresh vis pos
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+    if vsh[1] > vst[1] then vim.api.nvim_win_set_cursor(0, vsh) end
+
+    vim.cmd("norm! o")
+    vim.cmd("norm! gv")
+end)
 
 -- Line break above and below
-map({"i","n"}, "<S-M-cr>", "<cmd>norm!mzo<CR><cmd>norm!kO<CR><cmd>norm!`z<CR>")
--- map({"i","n"}, "<S-M-cr>", "<Cmd>norm! ]\<space><CR>")
+map({"i","n"}, "<S-M-CR>", function() vim.cmd("norm! okOj") end)
+map("v",       "<S-M-CR>", function() vim.cmd("norm! `<O`>ogv") end)
 
-map("v", "<S-M-cr>", function() vim.cmd("norm! `<O`>ogv") end)
 
 
 -- ### [Line join/split]

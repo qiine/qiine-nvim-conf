@@ -21,6 +21,11 @@ vim.o.nrformats = "bin,hex,alpha"
 -- This defines what bases Vim will consider for numbers when using the
 -- CTRL-A and CTRL-X commands for adding to and subtracting from a number
 
+vim.api.nvim_create_autocmd("BufEnter", {
+    group   = 'UserAutoCmds',
+    command = "set noreadonly",
+})
+
 -- Avoid insert when relevant
 vim.api.nvim_create_autocmd('BufEnter', {
     group   = 'UserAutoCmds',

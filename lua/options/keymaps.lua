@@ -253,7 +253,7 @@ end)
 
 -- Open file explorer in hor split
 map({"i","n","v","t"}, "<C-S-e>s", function()
-    vim.cmd("split h")
+    vim.cmd("split")
 
     require("oil").open(
         vim.fn.getcwd(),

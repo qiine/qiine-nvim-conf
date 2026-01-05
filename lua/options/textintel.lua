@@ -14,21 +14,21 @@ vim.o.iskeyword = "@,48-57,192-255,-,_"
 -- vim.opt.keywordprg = "dict"
 
 -- Detect binary files
-vim.api.nvim_create_autocmd("BufReadPost", {
-    group = "UserAutoCmds",
-    callback = function()
-        local bufid = vim.api.nvim_get_current_buf()
-        local path = vim.api.nvim_buf_get_name(bufid)
-        if path == "" then return end
+-- vim.api.nvim_create_autocmd("BufReadPost", {
+--     group = "UserAutoCmds",
+--     callback = function()
+--         local bufid = vim.api.nvim_get_current_buf()
+--         local path = vim.api.nvim_buf_get_name(bufid)
+--         if path == "" then return end
 
-        if vim.bo.ft ~= "" then return false end
+--         if vim.bo.ft ~= "" then return false end
 
-        if utils.is_bin(path) then
-            vim.cmd("HexMode")
-            vim.cmd("bd "..bufid)
-        end
-    end,
-})
+--         if utils.is_bin(path) then
+--             vim.cmd("HexMode")
+--             vim.cmd("bd "..bufid)
+--         end
+--     end,
+-- })
 
 
 
@@ -129,9 +129,17 @@ vim.opt.makeprg = "make"
 -- ## [LSP]
 ----------------------------------------------------------------------
 vim.lsp.enable({
-    "lua-ls",
-    "ts-ls",
+    "lua_ls",
+
+    "jsonls",
+    "cssls",
+    "html",
+    "eslint",
+
     "rust-analyzer",
+
+    "nixd",
+
     "marksman",
 })
 

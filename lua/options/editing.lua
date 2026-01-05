@@ -69,9 +69,27 @@ vim.g.autosave_delay = 500000
 
 if vim.g.autosave_enabled then
     local timer_autosave = vim.uv.new_timer()
+
     timer_autosave:start(vim.g.autosave_delay, vim.g.autosave_delay, vim.schedule_wrap(function()
         if vim.g.autosave_enabled then
-            bufrs.save_buffers()
+            local bufs = vim.api.nvim_list_bufs()
+
+            for _, buf in ipairs(bufs) do
+                vim.api.nvim_buf_call(buf, function() -- nvim_buf_call, ensure proper bufs info
+                    local bname = vim.api.nvim_buf_get_name(buf)
+
+                    if
+                        vim.bo[buf].buftype == ""
+                        and vim.bo[buf].modifiable
+                        and not vim.bo[buf].readonly
+                        and vim.fn.filereadable(bname) == 1
+                        and vim.uv.fs_access(bname, "W")
+                    then
+                        vim.cmd("silent update")
+                        -- print("autosaved: "..bname)
+                    end
+                end)
+            end
         else
             timer_autosave:stop()
             timer_autosave:close()

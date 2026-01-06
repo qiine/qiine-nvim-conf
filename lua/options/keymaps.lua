@@ -119,7 +119,7 @@ map(modes, "<C-w>", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
     -- Custom unsaved warning
-    if bufmodif and bufwincnt == 1 then
+    if bufmodif and bufwincnt == 1 then -- TODO need check split  ~= other buf instead
         local choice = vim.fn.confirm("Unsaved changes, quit anyway? ", "&Yes\n&No\n&SaveQuit", 1)
         if choice == 2 then return       end -- "No" do nothing
         if choice == 3 then vim.cmd("w") end
@@ -183,7 +183,7 @@ map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 map({"i","n","v"}, "<C-g>fn", fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 -- map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
-map({"i","n","v"}, "<C-g>fm", fs.file_move_cur_interac)
+map({"i","n","v"}, "<C-g>fm", fs.file_move_interac)
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
 map({"i","n","v"}, "<M-S-Del>", "<Cmd>FileDelete<CR>")
 
@@ -210,7 +210,7 @@ map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
 
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
-    local rootdir = fs.utils.get_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.find_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
 
     require("neo-tree.command").execute({
         action = "show",
@@ -363,9 +363,33 @@ map("t",               ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
 
 -- ### Create
--- Open hor/ver split
+-- split hor/ver
 map(modes, ldwin.."v", function() win.open_split_ephem("vert") end)
 map(modes, ldwin.."w", function() win.open_split_ephem("hor") end)
+
+-- diff split
+map(modes, ldwin.."d", function()
+    local bufid = vim.api.nvim_get_current_buf()
+
+    vim.cmd("diffthis")
+
+    win.open_split_ephem("vert")
+
+    vim.cmd("diffthis")
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldmethod   = "diff"
+    vim.opt_local.foldcolumn   = "0"
+    vim.opt_local.foldlevel    = 99 --hack to Keep folds open by default
+
+    vim.api.nvim_create_autocmd('WinEnter', {
+        group   = 'UserAutoCmds',
+        once    = true,
+        buffer  = bufid,
+        command = "diffoff",
+    })
+end)
 
 -- Open float win
 map(modes, ldwin.."n",  win.fwin_open)
@@ -386,6 +410,7 @@ map({"i","n","v","t"}, ldwin.."<S-f>", "<cmd>only<CR>")
 map(modes, ldwin.."f", win.split_maximize_toggle)
 
 -- Auto resize wins splits
+-- TODO move to win.lua
 local function resize_win(dir, amount)
     local curwin = vim.api.nvim_get_current_win()
 
@@ -402,20 +427,13 @@ map({"i","n","v","t"}, ldwin.."<Down>",  function() resize_win("",    "+2")  end
 map({"i","n","v","t"}, ldwin.."<Right>", function() resize_win("vert", "+4") end, {noremap=true})
 map({"i","n","v","t"}, ldwin.."<Left>",  function() resize_win("vert", "-4") end, {noremap=true})
 
--- Detach win
-map(modes, ldwin.."d", function()
+-- Extract win
+map(modes, ldwin.."e", function()
+    local bufid = vim.api.nvim_get_current_buf()
+    --local winid = vim.api.nvim_get_current_win()
+    win.fwin_open(bufid, false)
     --TODO
     --the idea would be to close curr win save its buff and reopen as split and carry prev settings
-
-    --local buf = vim.api.nvim_get_current_buf()
-    --local winid = vim.api.nvim_get_current_win()
-    --local wopts = vim.api.nvim_win_get_config(winid)
-
-    --wopts.relative = "editor"
-    --wopts.col = 20
-    --wopts.row = 20
-
-    --vim.api.nvim_win_set_config(winid, wopts)
 end)
 
 -- fwin toggle hide
@@ -425,7 +443,7 @@ map({"i","n","v","t"}, ldwin.."c", win.fwin_hide_toggle)
 map({"i","n","v","t"}, ldwin.."C", win.fwin_show_all)
 
 
--- Drawer
+-- Drawer open
 map({"i","n","v","t"}, "<F7>", drawer.toggle)
 
 
@@ -643,16 +661,15 @@ map("n", "%", function()
     end
 end, {noremap=true})
 
--- Jump nav mark
--- Set nav mark
-map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Jump mark set'<CR>")
--- Jump to nav mark
-map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
-
 -- To next/prev cursor jump loc
 map({"i","n","v"}, "<M-PageDown>",  "<Esc><C-o>")
 map({"i","n","v"}, "<M-PageUp>",    "<Esc><C-i>")
 
+-- Focus mark
+-- Set focus mark
+map({"i","n","v"}, "<S-M-m>", "<Cmd>norm! mJ<CR><Cmd>echo'Focus mark set'<CR>")
+-- Jump to focus mark
+map({"i","n","v"}, "<M-m>",   "<Cmd>norm! `Jzz<CR>")
 
 -- Jump seek
 map("n", "f", function()
@@ -717,7 +734,7 @@ end)
 
 -- cd curr file proj root dir
 map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = fs.utils.get_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.find_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
     vim.cmd("cd "..rootdir.." | pwd")
 end)
 
@@ -739,14 +756,23 @@ map({"i","n","v","c","t"}, "<F4>", function()
 
     if vim.fn.expand("%:t") == "plan.txt" then vim.cmd("bwipeout") return end
 
-    vim.cmd("enew")
-    vim.cmd("e /home/qm/Personal/Org/plan.txt")
+    local planv_bufid = vim.api.nvim_create_buf(true, false)
 
+    vim.cmd("buffer "..planv_bufid)
+    vim.api.nvim_buf_set_name(planv_bufid, "/home/qm/Personal/Org/Plan/plan.txt")
+    vim.cmd("e!")
+
+    -- opts
     vim.opt_local.number = false
 
     vim.wo.foldlevel=0
     vim.opt_local.foldmethod="expr"
     vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
+
+    vim.keymap.set("n", "<C-S-N>", function()
+        vim.cmd("norm! O")
+        lsnip.insert_snippet("task")
+    end, {buffer=planv_bufid})
 end)
 
 -- Project task <S-F4>
@@ -802,10 +828,10 @@ map("n", "<S-Right>", "vl",      {noremap = true})
 map("v", "<S-Right>", "<Right>", {noremap = true})
 
 map({"i","n"}, "<S-Up>",   "<Esc>vgk", {noremap=true})
-map("v",       "<S-Up>",   "gk",       {noremap=true}) --avoid fast scrolling around
+map("v",       "<S-Up>",   "gk",       {noremap=true}) --avoid fast scrolling bc of fast nav keymaps
 
 map({"i","n"}, "<S-Down>", "<Esc>vgj",  {noremap=true})
-map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling around
+map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling bc of fast nav keymaps
 
 -- Select word under cursor
 map({"i","n","v"}, "<C-S-w>", "<esc>viw")
@@ -1103,8 +1129,8 @@ map("v",       "<C-d>", '"zy"zP', {desc="dup sel"})
 
 -- ### [Undo/redo]
 -- ctrl+z to undo
-map("i",       "<C-z>",   "<C-o>u", {noremap = true})
-map({"n","v"}, "<C-z>",   "<esc>u", {noremap = true})
+map({"i","n"}, "<c-z>", "<cmd>norm! u<cr>", {noremap = true})
+map("v",       "<c-z>", "<cmd>norm! u<CR>", {noremap = true})
 
 -- Redo
 map("i",       "<C-y>",   "<C-o><C-r>")
@@ -1119,6 +1145,7 @@ map({"n","v"}, "<C-y>",   "<esc><C-r>")
 -- Remove word left
 -- <M-S-BS> <C-BS> because of wezterm
 map({"i","n"}, "<S-M-BS>", '<cmd>norm! "_db<CR>')
+-- less greedy algo
 -- map({"i","n"}, "<S-M-BS>", function()
 --     local line = vim.api.nvim_get_current_line()
 --     local col  = vim.fn.col('.') - 1
@@ -1177,7 +1204,9 @@ map("c",       "<C-Del>", "<C-Right><C-w>")
 
 -- Del to end of line
 map({"i","n","v"}, "<M-Del>", function()
+    local view = vim.fn.winsaveview()
     vim.cmd('norm! '..(vim.fn.mode() == "" and '$"_d' or 'v$h"_d') )
+    vim.fn.winrestview(view) -- restore view
 end)
 map("c", "<M-Del>", "<C-Right><C-w><C-Right><C-w><C-Right><C-w>") -- TODO very ugly
 
@@ -1186,6 +1215,7 @@ map({"i","n","v"}, "<S-Del>", function()
     vim.cmd("norm! "..(vim.fn.mode() == "V" and '"_d' or 'V"_d') )
 end)
 map("c", "<S-Del>", "<C-Left><C-w>")
+map("t", "<S-Del>", "<cmd>norm! dd<CR>")
 
 -- Del line, detect empty line without trashing reg
 map("n", "dd", function()
@@ -1408,7 +1438,7 @@ map({"n","v"}, "<C-j>", "<S-j>") -- this syntax allow to use count
 map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use count
 map("n", "<C-S-j>", "k<S-j>")
 
--- Split
+-- Split line
 map("n", "<M-j>", function()
     vim.cmd("silent! "..[[s/, /,\r/g]])
     vim.cmd("noh")
@@ -1416,19 +1446,19 @@ end)
 
 
 -- ### [Text move]
----@param dir string
+---@param dirct string
 ---@param count number
-local function move_selected(dir, count)
+local function move_selected(dirct, count)
     local mode = vim.fn.mode()
 
-    if mode == 'i' and dir:match("[hl]") then vim.cmd("stopinsert|norm! viw") return end
+    if mode == 'i' and dirct:match("[hl]") then vim.cmd("stopinsert|norm! viw") return end
 
-    if (mode == 'i' and dir:match("[jk]")) or mode == "n" then
-        if dir == "h" then vim.cmd('norm! "zxh"zP')              return end
-        if dir == "l" then vim.cmd('norm! "zxl"zP')              return end
+    if (mode == 'i' and dirct:match("[jk]")) or mode == "n" then
+        if dirct == "h" then vim.cmd('norm! "zxh"zP')              return end
+        if dirct == "l" then vim.cmd('norm! "zxl"zP')              return end
 
-        if dir == "k" then vim.cmd('m.-'..(count+1)..'|norm!==') return end
-        if dir == "j" then vim.cmd('m.'..count..'|norm!==')      return end
+        if dirct == "k" then vim.cmd('m.-'..(count+1)..'|norm!==') return end
+        if dirct == "j" then vim.cmd('m.'..count..'|norm!==')      return end
     end
 
     if mode:match("[vV\22]") then
@@ -1443,17 +1473,17 @@ local function move_selected(dir, count)
             local defsw = vim.opt.shiftwidth:get()
             local vo = vim.opt_local
 
-            if dir == "h" then vo.shiftwidth = 1; vim.cmd("norm! <gvh"); vo.shiftwidth = defsw; return end
-            if dir == "l" then vo.shiftwidth = 1; vim.cmd("norm! >gvl"); vo.shiftwidth = defsw; return end
+            if dirct == "h" then vo.shiftwidth = 1; vim.cmd("norm! <gvh"); vo.shiftwidth = defsw; return end
+            if dirct == "l" then vo.shiftwidth = 1; vim.cmd("norm! >gvl"); vo.shiftwidth = defsw; return end
 
-            if dir == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
-            if dir == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
+            if dirct == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
+            if dirct == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
         end
 
         -- Single line selection move
-        if  atsol and dir == "h" then return end
+        if  atsol and dirct == "h" then return end
 
-        local cmd = '"zygv"_x' .. count .. dir .. '"zP' -- "zy avoids polluting reg"
+        local cmd = '"zygv"_x' .. count .. dirct .. '"zP' -- "zy avoids polluting reg"
         if mode == "v"  then cmd = cmd.."`[v`]"  end
         if mode == "" then cmd = cmd.."`[`]" end
         vim.cmd("silent keepjumps norm! " .. cmd)
@@ -1601,7 +1631,7 @@ map("n", "<F12>", "gd")
 map("n", "<F24>", ":lua vim.lsp.buf.definition()<cr>")
 map("n", "<F60>", ":lua vim.lsp.buf.implementation()<cr>")
 
--- Peak win open
+-- Peek win open
 map({"i","n"}, "<C-h>", function()
     local ogbufid  = vim.api.nvim_get_current_buf()
     local ogbufpah = vim.api.nvim_buf_get_name(0)
@@ -1624,11 +1654,11 @@ map({"i","n"}, "<C-h>", function()
 
         vim.cmd("norm! zb") -- put og text at win bottom
 
-        -- Create peakwin --
+        -- Create peekwin --
         vim.cmd("split"); vim.cmd("e "..filepath)
         vim.api.nvim_win_set_height(0, math.floor(ogwinh * 0.70 ))
 
-        vim.w.wintype = "peakwin"
+        vim.w.wintype = "peekwin"
 
         if ogbufpah ~= vim.api.nvim_buf_get_name(0) then
             vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
@@ -1637,15 +1667,15 @@ map({"i","n"}, "<C-h>", function()
 
         vim.api.nvim_win_set_cursor(0, {line + 1, range.start.character})
 
-        -- scroll peak view
+        -- scroll peek view
         vim.cmd("norm! zt")
         vim.cmd("norm! zt") -- It seem to work better if called twice..
 
         -- back to og win cursorpos
         vim.api.nvim_create_autocmd('WinEnter', {
-            group = 'UserAutoCmds',
-            once = true,
-            buffer = ogbufid,
+            group   = 'UserAutoCmds',
+            once    = true,
+            buffer  = ogbufid,
             command = "normal! zz",
         })
     end)
@@ -1665,8 +1695,7 @@ map({"i","n"}, "<C-S-H>", function()
 end)
 
 -- Show signature
-map({"i","n"}, "<M-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
-
+-- map({"i","n"}, "<M-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
 
 -- Rename symbol
 -- lsp rename
@@ -1674,7 +1703,6 @@ map({"i","n"}, "<F2>", function()
     -- live-rename is a plugin for fancy in buffer rename preview
     require("live-rename").rename({ insert = true })
 end)
-
 
 
 -- ### Diff
@@ -1782,7 +1810,6 @@ map("n", ldvc.."hf", function()
      require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
 end, {desc = "Neogit Log curr file"})
 
-
 -- Open LazyGit
 map(modes, ldvc.."z", "<Cmd>LazyGit<cr>")
 
@@ -1862,9 +1889,9 @@ end)
 -- ## [Command line]
 ----------------------------------------------------------------------
 -- Open command line
-map("i",       "œ", "<esc>:")
-map({"n","v"}, "œ", ":")
-map("t",       "œ", "<Esc><C-\\><C-n>:")
+map("i",       "²", "<esc>:")
+map({"n","v"}, "²", ":")
+map("t",       "²", "<Esc><C-\\><C-n>:")
 
 -- cmd completion menu
 -- map("c", "<C-d>", "<C-d>")
@@ -1880,7 +1907,7 @@ map("c", "<S-BS>", '<C-u>')
 
 -- Close cmd
 map("c", "<esc>", "<C-c>", {noremap=true})
-map("c", "œ", "<C-c><C-l>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
+map("c", "²", "<C-c><C-l>")  --needs <C-c> and not <Esc> because Neovim behaves as if <Esc> was mapped to <CR> in cmd
 
 -- Clear cmd in insert
 map("i", "<C-l>", "<C-o><C-l>")
@@ -1891,22 +1918,22 @@ map("i", "<C-l>", "<C-o><C-l>")
 vim.cmd('set cedit=') -- avoids interferences
 
 map("n", "q:", 'q:')
-map({"i","n","v","c"}, "<M-`>", '<esc>q:')
-map("t", "<M-`>", '<Esc><C-\\><C-n>q:')
+map({"i","n","v","c"}, "<M-²>", '<esc>q:')
+map("t", "<M-²>", '<Esc><C-\\><C-n>q:')
 
 -- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     group = "UserAutoCmds",
     callback = function()
         vim.cmd("startinsert")
-        vim.keymap.set({"i","n","v"}, "<M-`>", "<cmd>quit<CR>" , {buffer=true})
+        vim.keymap.set({"i","n","v"}, "<M-²>", "<cmd>quit<CR>" , {buffer=true})
     end,
 })
 
 
 -- Open command line in term mode
-map({"i","c"}, "<S-Œ>", "<esc>:!")
-map({"n","v"}, "<S-Œ>", ":!")
+map({"i","c"}, "~", "<esc>:!")
+map({"n","v"}, "~", ":!")
 
 
 -- cmd messages <S-F10>
@@ -1919,6 +1946,7 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
 -- Open term tab
 map({"i","n","v","t"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
 
+
 -- Term toggle vert
 map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 
@@ -1926,15 +1954,12 @@ map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
 map({"i","n","v","t"}, "<F6>",   term.toggle_hor)
 
--- Float term
+-- Term float
 map({"i","n","v","t"}, "<M-t>",  term.open_fwin)
 map({"i","n","v","t"}, "<M-t>f", term.open_fwin)
 map({"i","n","v","t"}, "<F18>",  term.open_fwin)
 
 -- Exit term mode
-map("t", "<M-Esc>", [[<Esc> <C-\><C-n>]], {noremap=true})
-
-
-
+map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
 
 

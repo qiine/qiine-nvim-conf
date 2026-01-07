@@ -1,9 +1,9 @@
-return 
+return
 {
     "mfussenegger/nvim-lint",
     event = { "BufReadPre", "BufNewFile" },
-    enabled = true,
-      
+    enabled = false,
+
     config = function()
         local lint = require("lint")
 
@@ -11,7 +11,7 @@ return
             javascript = { "eslint_d" },
             typescript = { "eslint_d" },
             python = { "pylint" },
-            lua = { "luacheck", }, --"selene" 
+            lua = { "luacheck", }, --"selene"
         }
 
         --local linter = lint.linters.luacheck

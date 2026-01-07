@@ -53,16 +53,13 @@ return
                 blocked_retrigger_characters = {},
             },
             window = {
-                min_width = 1,
+                min_width = 10,
                 max_width = 100,
                 max_height = 7,
                 border = nil, -- Defaults to `vim.o.winborder` on nvim 0.11+ or 'padded' when not defined/<=0.10
                 winblend = 0,
                 winhighlight = 'Normal:BlinkCmpSignatureHelp,FloatBorder:BlinkCmpSignatureHelpBorder',
                 scrollbar = false, -- Note that the gutter will be disabled when border ~= 'none'
-                -- Which directions to show the window,
-                -- falling back to the next direction when there's not enough space,
-                -- or another window is in the way
                 direction_priority = { 's' },
                 show_documentation = false, --show signature but not the doc
             },
@@ -121,7 +118,7 @@ return
         -- elsewhere in your config, without redefining it, due to `opts_extend`
         sources = {
             min_keyword_length = 2,
-            default = { 'lsp', 'path', 'snippets', 'buffer', },
+            default = { 'lsp', 'path', 'snippets', 'buffer' },
             providers = {
                 -- lsp ={
                 --     name = "lsp",
@@ -142,8 +139,12 @@ return
                     opts = {
                         show_hidden_files_by_default = true,
                     }
-                }
+                },
             },
+            per_filetype = {
+                codecompanion = { "codecompanion" },
+            }
+
         },
 
         keymap = {
@@ -167,18 +168,20 @@ return
 
             ["<Esc>"] = {"cancel", 'fallback'},
 
-            ['<C-d>'] = { 'show_documentation', 'hide_documentation', "fallback" },
-            ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
+            -- ['<C-d>'] = { 'show_documentation', 'hide_documentation', "fallback" },
+            -- ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
+            ['<M-h>'] = { 'show_signature', 'hide_signature'},
 
             ['<Up>'] = { 'select_prev', 'fallback' },
             ['<Down>'] = { 'select_next', 'fallback' },
             ['<C-p>'] = { 'select_prev', 'fallback_to_mappings' },
             ['<C-n>'] = { 'select_next', 'fallback_to_mappings' },
 
-            ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
-            ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+            -- ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
+            -- ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
         },
 
     },--opts
 
-}--return
+}
+

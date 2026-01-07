@@ -18,6 +18,7 @@ return
                 },
                 mardown = { "prettier" },
                 yaml = { "prettier" },
+                nix = { "nixfmt" },
             },
 
             format_on_save = false,

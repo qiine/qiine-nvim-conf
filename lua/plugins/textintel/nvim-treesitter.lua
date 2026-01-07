@@ -1,12 +1,13 @@
-return
-{
-    'nvim-treesitter/nvim-treesitter',
+return {
+    'nvim-treesier/nvim-treesitter',
     enabled = true,
-    version = false,
+    -- version = false,
+    -- branch = "master",
     build = ':TSUpdate',
 
     dependencies = {
-        "nvim-treesitter/nvim-treesitter-textobjects",
+        -- TODO update to main
+        -- "nvim-treesittes/nvim-treesitter-textobjects",
         "OXY2DEV/markview.nvim", --markview need to be loaded before nvim-treesitter!
     },
 
@@ -47,7 +48,9 @@ return
             'vim',
             'vimdoc',
         },
+
         highlight = { enable = true },
+
         incremental_selection = {
             enable = false,
             keymaps = {
@@ -57,6 +60,7 @@ return
                 node_decremental = '<bs>',
             },
         },
+
         indent = {
             enable = false,
             -- Treesitter unindents Yaml lists for some reason.
@@ -87,7 +91,8 @@ return
     },
 
     config = function(_, opts)
-        require('nvim-treesitter.configs').setup(opts)
-    end
+        -- require('nvim-treesitter.configs').setup(opts)
+        require('nvim-treesitter').setup(opts)
+    end,
 
 }

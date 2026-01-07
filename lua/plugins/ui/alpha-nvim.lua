@@ -164,11 +164,16 @@ local function dashlayout()
         local function get_distro_info()
             if vim.fn.has("unix") == 0 then return nil end
 
-            local res = vim.system({"grep", "ID", "/etc/os-release"}, {text=true}):wait()
-            local distroinfo = vim.trim(tostring(res.stdout))
-            distroinfo = string.gsub(distroinfo, "ID=", "")
+            local resdistr = vim.system({"grep", "VENDOR_NAME", "/etc/os-release"}, {text=true}):wait()
+            local resdistr_ver = vim.system({"grep", "VERSION_ID", "/etc/os-release"}, {text=true}):wait()
 
-            return "("..distroinfo..")"
+            local distroinfo = vim.trim(tostring(resdistr.stdout)).." "..vim.trim(tostring(resdistr_ver.stdout))
+
+            distroinfo = string.gsub(distroinfo, 'VENDOR_NAME=', "")
+            distroinfo = string.gsub(distroinfo, 'VERSION_ID=', "")
+            distroinfo = string.gsub(distroinfo, '"', "")
+
+            return distroinfo
         end
 
         local vv = vim.version()
@@ -193,7 +198,7 @@ local function dashlayout()
             button("f", "☆ Fav files", "<Cmd>FzfLua favorites<CR>"),
             button("r", "󰈢 Recent files", function() set_wipe_dashboard() vim.cmd("enew | FzfLua oldfiles") end),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
-            button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
+            -- button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
             button("s", " Load session", function() set_wipe_dashboard() vim.cmd("LoadGlobalSession") end),
         }
     end

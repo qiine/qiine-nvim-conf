@@ -27,7 +27,7 @@ require("lazy").setup({
         --import/override with your plugins
         --sadly no recursive search in "plugins"
        { import = "plugins" },
-       { import = "plugins.parsers" },
+       { import = "plugins.textintel" },
        { import = "plugins.editing" },
        { import = "plugins.ui" },
        { import = "plugins.ui.editor" },
@@ -60,7 +60,7 @@ require("lazy").setup({
         rtp = {
         -- disable some rtp plugins
         disabled_plugins = {
-            "gzip",
+            -- "gzip",
             -- "matchit",
             -- "matchparen",
             -- "netrwPlugin",

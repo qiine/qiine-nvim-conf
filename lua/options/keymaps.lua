@@ -15,7 +15,6 @@ local term     = require("term")
 
 local git      = require("git.git")
 
-local ts_utils = require("nvim-treesitter.ts_utils")
 local lsnip    = require("luasnip")
 
 
@@ -613,7 +612,8 @@ end)
 map("n", "%", function()
     -- vim.cmd("norm v%")
 
-    local node = ts_utils.get_node_at_cursor()
+    local node = vim.treesitter.get_node()
+
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
     if node:type() == "function_definition" or node:type() == "function_declaration" then
@@ -1322,19 +1322,19 @@ map({"i","n"}, "<S-ª>",
 
 
 -- TODO Smart swap word around
-map("n", "<M-s>", function()
-    vim.fn.search("\\k*\\<", "b")
-    vim.cmd('norm! mz')
-    vim.cmd('norm! "zdiw')
-    local wordl = vim.fn.getreg("z")
+-- map("n", "<M-s>", function()
+--     vim.fn.search("\\k*\\<", "b")
+--     vim.cmd('norm! mz')
+--     vim.cmd('norm! "zdiw')
+--     local wordl = vim.fn.getreg("z")
 
-    vim.fn.search("\\k*\\<", "")
-    vim.cmd('norm! "zdiw')
-    vim.cmd('norm! i'..wordl)
+--     vim.fn.search("\\k*\\<", "")
+--     vim.cmd('norm! "zdiw')
+--     vim.cmd('norm! i'..wordl)
 
-    vim.cmd('norm! `z')
-    vim.cmd('norm! "zP')
-end)
+--     vim.cmd('norm! `z')
+--     vim.cmd('norm! "zP')
+-- end)
 
 
 -- ### Incrementing
@@ -1589,7 +1589,8 @@ map({"i","n","v"}, ldwrd.."d", function()
     vim.opt_local.number       = false
     vim.opt_local.foldcolumn   = "0"
 
-    local res = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", word}, {text=true}):wait()
+    -- local res = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", word}, {text=true}):wait()
+    local res = vim.system({"dict", "-C", "-s", "exact", word}, {text=true}):wait()
     if res.code ~= 0 then vim.notify("dict error \n" .. res.stderr, vim.log.levels.ERROR) end
 
     -- TODO thesaurus hack
@@ -1687,14 +1688,19 @@ map({"i","n"}, "<C-S-H>", function()
     vim.lsp.buf.hover()
     vim.lsp.buf.hover() -- weird but needed to enter hover win
 
-    -- vim.wo[winid].wrap       = false
-    -- vim.wo[winid].spell      = false
-    -- vim.wo[winid].signcolumn = "no"
-    -- vim.wo[winid].number     = false
-    -- vim.wo[winid].foldcolumn = "0"
+    vim.defer_fn(function()
+        if vim.api.nvim_win_get_config(0).relative ~= "" then
+            vim.opt_local.signcolumn = "no"
+            vim.opt_local.number     = false
+            vim.opt_local.foldcolumn = "0"
+            vim.opt_local.wrap       = false
+            vim.opt_local.spell      = false
+        end
+    end, 0)
 end)
 
 -- Show signature
+-- Handled by blink
 -- map({"i","n"}, "<M-h>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>")
 
 -- Rename symbol
@@ -1961,5 +1967,10 @@ map({"i","n","v","t"}, "<F18>",  term.open_fwin)
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
+
+
+
+
+
 
 

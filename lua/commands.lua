@@ -22,7 +22,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
     local word = vim.fn.expand("<cword>")
     local WORD = vim.fn.expand("<cWORD>")
 
-    local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+    local node = vim.treesitter.get_node()
     local is_node_func = false
     if node then
         is_node_func = node:type() == "function_definition" or node:type() == "function_declaration"
@@ -280,6 +280,7 @@ vim.api.nvim_create_user_command("FileInfo", function()
     end
 
     local permres = vim.system({"stat", "-c", "%A", fpath}, {text=true}):wait()
+    local permhexres = vim.system({"stat", "-c", "%a", fpath}, {text=true}):wait()
 
     print(table.concat({
         "[File info]",
@@ -290,10 +291,12 @@ vim.api.nvim_create_user_command("FileInfo", function()
         -- "bin:      "..isbin,
         "Size:     "..fsize_hreadable(fsize_b),
         "Mode:     "..vim.fn.trim(permres.stdout),
+        "Modehex:  "..vim.fn.trim(permhexres.stdout),
         "Modified: "..fmt_time(stt.mtime.sec),
         "Created:  "..fmt_time(stt.birthtime.sec),
     }, "\n"))
 end, {})
+
 
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
@@ -435,6 +438,8 @@ end, {})
 vim.api.nvim_create_user_command('SudoWrite', function()
     local fpath       = vim.fn.shellescape(vim.fn.expand("%:p"))
     local startbuf_id = vim.api.nvim_get_current_buf()
+    local mode        = vim.fn.mode()
+
     local tmp         = vim.fn.tempname()
 
     vim.cmd('write! '..tmp) -- write curr buf to tmpf
@@ -471,12 +476,25 @@ vim.api.nvim_create_user_command('SudoWrite', function()
         on_exit = function(_, code, _)
             if code == 0 or code == 130 then
                 vim.api.nvim_create_autocmd('WinEnter', {
-                    group   = 'UserAutoCmds',
-                    once    = true,
-                    buffer  = startbuf_id,
-                    command = "e!", -- refresh original buf
+                    group = 'UserAutoCmds',
+                    once = true,
+                    buffer = startbuf_id,
+                    callback = function()
+                        local view = vim.fn.winsaveview()
+                        vim.cmd("e!")
+                        vim.fn.winrestview(view) -- restore view
+
+                        if mode == "i" then
+                            vim.cmd("startinsert")
+                        elseif mode == "v" then
+                            vim.cmd("v")
+                        end
+
+                        print("sudo write sucess")
+                    end,
                 })
-                vim.cmd("bwipeout")
+
+                vim.cmd("silent! bd! "..permbuf_id)
             else
                 print("failed, exit code:", code)
             end
@@ -1474,7 +1492,7 @@ end, {})
 
 
 vim.api.nvim_create_user_command("TestCmd", function(opts)
-    print(opts.fargs[1]..", "..opts.fargs[2])
+    print(os.getenv("OPENAI_API_KEY"))
 end, {nargs="*"})
 
 

@@ -129,6 +129,8 @@ vim.opt.makeprg = "make"
 -- ## [LSP]
 ----------------------------------------------------------------------
 vim.lsp.enable({
+    "bashls",
+
     "lua_ls",
 
     "jsonls",

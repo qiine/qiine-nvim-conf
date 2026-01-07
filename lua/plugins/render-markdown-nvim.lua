@@ -28,6 +28,7 @@ return
                     --rendered = "nvic"
                 }
             },
+
             anti_conceal = {
                 -- This enables hiding any added text on the line the cursor is on.
                 enabled = false,
@@ -51,6 +52,7 @@ return
                 width = "block",
                 right_pad = 5,
             },
+
             bullet = {
                 enabled = true,
                 --icons = { '●', '○', '◆', '◇' },
@@ -58,6 +60,7 @@ return
                 left_pad = 0,
                 right_pad = 0,
             },
+
             checkbox = {
                 enabled = true,
                 render_modes = false,
@@ -81,6 +84,7 @@ return
                     checked_v = { raw = '[v]', rendered = '󰱒 ', highlight = 'RenderMarkdownCheckedV', scope_highlight = nil },
                 },
             },
+
             quote = {
                 --highlight = {
                 --    'RenderMarkdownQuote1',
@@ -178,7 +182,7 @@ return
                 enabled = true,
                 render_modes = false,
                 per_level = 2,
-                skip_level = 1,
+                skip_level = 2,
                 skip_heading = false,
                 icon = '▎',
                 highlight = 'RenderMarkdownIndent',

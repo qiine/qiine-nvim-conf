@@ -983,7 +983,7 @@ vim.api.nvim_create_user_command("BigfileMode", function()
     vim.cmd("silent! DiagnosticVirtualTextToggle")
 
     vim.b.is_bigfile = true
-    vim.notify("Bigfile mode: true")
+    -- vim.notify("Bigfile mode: true")
 end, {})
 
 vim.api.nvim_create_user_command("BigfileModeToggle", function()

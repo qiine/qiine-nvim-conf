@@ -796,25 +796,11 @@ end, {})
 -- ## [Windows]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("OpenScratchpad", function()
-    local bufid = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufid })
+    local bufid = vim.api.nvim_create_buf(false, false)
 
-    local edw_w = vim.o.columns
-    local edw_h = vim.o.lines
+    win.fwin_open(bufid, nil, {title="Scratchpad"})
 
-    local wsize = {w = 65, h = 20}
-
-    local wopts = {
-        title = "Scratchpad",
-        title_pos = "center",
-        relative = "pwdeditor",
-        border = "single",
-        width  = wsize.w,
-        height = wsize.h,
-        col = math.floor((edw_w - wsize.w) / 2),
-        row = math.floor((edw_h - wsize.h) / 2),
-    }
-    vim.api.nvim_open_win(bufid, true, wopts)
+    vim.cmd("startinsert")
 end, {})
 
 vim.api.nvim_create_user_command("WinInfo", function()

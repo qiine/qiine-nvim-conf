@@ -120,7 +120,7 @@ return
                 -- live_grep and then run a filter on the filenames.
                 -- Ex: Find all occurrences of "enable" but only in the "plugins" directory.
                 -- ex: > enable --*/plugins/*
-                rg_glob = true, -- enable glob parsing
+                rg_glob = false, -- enable glob parsing
                 glob_flag = "--iglob", -- case insensitive globs
                 glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
 
@@ -347,9 +347,9 @@ return
         end, {silent = true, desc = "search and set filetypes" })
 
 
-        vim.keymap.set({"i","n","v","c"}, "<M-f>m", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>m", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").manpages({})
+            require("fzf-lua").manpages()
         end, {silent = true, desc = "search manpages" })
 
 
@@ -359,7 +359,7 @@ return
         fzfl.fuzzy_cd = function()
             local cwd = vim.fn.getcwd()
 
-            fzfl.fzf_exec("fdfind . --type d", {     --or fd
+            fzfl.fzf_exec("fd . --type d", {     --or fd
                 winopts = {title = "Find dir cwd"},
                 prompt = "cd ",
                 cwd = cwd,
@@ -384,7 +384,7 @@ return
 
         -- Find dir from root
         fzfl.fuzzy_cd_fromroot = function()
-            fzfl.fzf_exec("fdfind . --type d", {     --or fd
+            fzfl.fzf_exec("fd . --type d", {     --or fd
                 winopts = { title = "Find dir root", },
                 prompt = "cd /",
                 cwd = "/",
@@ -435,7 +435,7 @@ return
         -- TODO find project using .git
         -- https://www.reddit.com/r/neovim/comments/1hhiidm/a_few_nice_fzflua_configurations_now_that_lazyvim/
         fzfl.projects = function()
-            fzfl.fzf_exec("fdfind '.git$' -t d -d 20 -a -HI | xargs -I{} dirname {}", {
+            fzfl.fzf_exec("fd '.git$' -t d -d 20 -a -HI | xargs -I{} dirname {}", {
                 winopts = { title = "find projects", },
                 prompt = "Project> ",
                 cwd = "~/Personal/",
@@ -506,6 +506,7 @@ return
         -- Dictionary browser
         fzfl.dictionary = function()
             fzfl.fzf_exec("cat /etc/dictionaries-common/words", {
+            -- fzfl.fzf_exec("hunspell -d en_US -D -L", {
                 prompt = "Word> ",
                 previewer = function()
                     return make_preview(function(entry)

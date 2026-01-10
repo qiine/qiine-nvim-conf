@@ -5,7 +5,7 @@ return
     -- event = "UIEnter",
 
     dependencies = {
-        "refractalize/oil-git-status.nvim",
+        -- "refractalize/oil-git-status.nvim",
     },
 
     config = function()
@@ -47,22 +47,24 @@ return
                 concealcursor = "nvic",
                 cursorcolumn  = false,
             },
+
             preview_win = {
                 update_on_cursor_moved = true,
-                preview_method = "fast_scratch",    --load"|"scratch"|"fast_scratch"
+                preview_method = "scratch",  -- load,scratch,fast_scratch
                 disable_preview = function(filename)
                     return false
                 end,
                 win_options = {},
             },
+
             float = {
                 padding = 5,
             },
 
             git = {
                 -- Return true to automatically git add/mv/rm files
-                add = function(path) return true end,
-                mv = function(src_path, dest_path) return true end,
+                -- add = function(path) return true end,
+                -- mv = function(src_path, dest_path) return true end,
                 rm = function(path) return true end,
             },
 
@@ -193,8 +195,8 @@ return
                 ["<C-x>"] = { function() vim.cmd('norm! dd') end, mode = {"i","n"} },
                 ["<C-v>"] = { function() vim.cmd('norm! p') end, mode = {"i","n"} },
                 -- rename
-                ["<F2>"] = { function() vim.cmd('stopinsert | norm! viw') end, mode = {"i","n"} },
-                ["<Del>"] = { function() vim.cmd('norm! "_dd') end, mode = "n" },
+                ["<F2>"] = { mode = {"i","n"}, "\27<cmd>norm! viw<CR>" },
+                ["<Del>"] = { mode="n", function() vim.cmd('norm! "_dd') end},
 
                 -- save
                 ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
@@ -214,21 +216,39 @@ return
                 ["?"] = { "actions.show_help", mode={"i","n","v"} },
 
                 -- Exit oil
-                ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
+                -- ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
+                ["<C-e>"] = { "actions.close", mode = {"i","n","v"}, },
+                ["<C-w>"] = { "actions.close", mode = {"i","n","v"}, },
             },
         })
 
         vim.api.nvim_create_autocmd('User', {
             group = "UserAutoCmds",
             pattern = 'OilEnter',
-            callback = function(params)
+            callback = function(args)
                 vim.cmd("stopinsert")
-                vim.keymap.set("n", "dd", function() return "dd" end, {expr=true, buffer=params.buf}) -- ensure orig dd is unmapped
-                vim.keymap.set("n", "yy", function() return "yy" end, {expr=true, buffer=params.buf}) -- ensure orig dd is unmapped
+
+                -- auto open prev
+                -- local oil = require("oil")
+                -- local util = require("oil.util")
+                -- -- oil.open()
+                -- util.run_after_load(0, function()
+                --     oil.open_preview()
+                -- end)
+
+                -- set oil prev size
+                -- local win = args.data.win_id
+
+                -- local cols = vim.o.columns
+                -- vim.api.nvim_win_set_width(win, math.floor(cols * 0.1))
+
+                vim.keymap.set("n", "dd", function() return "dd" end, {expr=true, buffer=args.buf}) -- ensure orig dd is unmapped
+                vim.keymap.set("n", "yy", function() return "yy" end, {expr=true, buffer=args.buf}) -- ensure orig dd is unmapped
             end,
         })
 
-        -- Allow to accept with <CR>
+
+        -- Allow accept with <CR>
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "oil_preview",
             callback = function(params)

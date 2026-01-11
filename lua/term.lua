@@ -2,14 +2,36 @@
 -- terminal --
 
 local win = require("ui.win")
-local drawer = require("ui.drawer")
+-- local drawer = require("ui.drawer")
 
-local M = {}
 local U = {}
+local M = {}
 
-function M.toggle_hor()
-    drawer.toggle(true, {buftype="term"})
+--## quickterm
+M.quickterm_bufid = nil
+
+---@return number
+function M.quickterm_create()
+    if M.quickterm_bufid and vim.api.nvim_buf_is_valid(M.quickterm_bufid) then
+        vim.api.nvim_set_current_buf(M.quickterm_bufid)
+        vim.cmd("startinsert")
+    else -- create it
+        vim.cmd("term")
+        M.quickterm_bufid = vim.api.nvim_get_current_buf()
+        vim.bo[M.quickterm_bufid].buflisted = false
+    end
+
+    return M.quickterm_bufid
 end
+
+function M.open()
+    vim.cmd("term")
+end
+
+-- maybe quickterm ?
+-- function M.toggle_hor()
+--     vim.cmd("term")
+-- end
 
 function M.toggle_vert()
     if vim.bo.buftype == "terminal" then return vim.cmd("bd!") end
@@ -22,6 +44,7 @@ end
 
 ---@param enter boolean?
 ---@param wopts table?
+---@param shell string?
 ---@return number
 function M.open_fwin(enter, wopts, shell)
     enter = enter and enter or true
@@ -40,6 +63,9 @@ function M.open_fwin(enter, wopts, shell)
 
     return winid
 end
+
+
+
 
 --------
 M.utils = U

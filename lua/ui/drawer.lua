@@ -1,9 +1,10 @@
 
 -- drawer --
 
-local M = {}
+local term = require("term")
+local msglog = require("ui.msglog")
 
-local defheight = 11
+local M = {}
 
 ---@return number|nil
 function M.find()
@@ -17,18 +18,21 @@ function M.find()
     return nil
 end
 
+---@class opts
+---@field height? number default: 12
+---@field buftype? string
+
 ---@param focus? boolean
 ---@param opts? table
 ---@return number
 function M.open(focus, opts)
     if focus == nil then focus = true end
     local defopts = {
-        height = defheight,
-        showbuftype = "qf",
+        height = 12,
     }
-    opts = vim.tbl_deep_extend("force", defopts,  opts or {})
+    opts = vim.tbl_deep_extend("force", opts or {},  defopts)
 
-    -- Check existing
+    -- Check existing drawer
     local drawer_winid = M.find()
     if drawer_winid then
         if focus then
@@ -40,11 +44,11 @@ function M.open(focus, opts)
     end
 
     -- def drawer buf
-    local bufid = vim.api.nvim_create_buf(false, false)
-    vim.bo[bufid].bufhidden = "wipe"
+    local drawer_bufid = vim.api.nvim_create_buf(false, false)
+    vim.bo[drawer_bufid].bufhidden = "wipe"
 
     -- open drawer
-    local winid = vim.api.nvim_open_win(bufid, focus, {
+    local winid = vim.api.nvim_open_win(drawer_bufid, focus, {
         win = -1, -- ensure to the very bot
         split = 'below',
         height = opts.height
@@ -52,29 +56,30 @@ function M.open(focus, opts)
     -- set custom wintype "drawer"
     vim.w[winid].type = "drawer"
 
-    if opts and opts.buftype then
+    -- open special buf in drawer
+    if opts.buftype then
         if opts.buftype == "term" then
-            vim.cmd("cclose")
-            vim.cmd("terminal")
+            drawer_bufid = term.quickterm_create()
         elseif opts.buftype == "qf" then
-            -- vim.cmd("bw")
-            -- vim.cmd("copen")
+            vim.cmd("copen")
+        elseif opts.buftype == "msglog" then
+            msglog.open()
         end
     end
 
     vim.bo[0].buflisted = false
-    vim.bo[0].bufhidden = "wipe"
+    -- vim.bo[0].bufhidden = "wipe"
 
-    vim.api.nvim_create_autocmd({"WinNew", "WinEnter"}, {
+    vim.api.nvim_create_autocmd({"WinEnter"}, {
         group = vim.api.nvim_create_augroup('DrawerAutocmdGroup', {clear=true}),
-        callback = function(param)
-            -- TODO not great
-            if vim.w[0].type == "drawer" then
-                -- print("Hello")
+        callback = function(args)
+            if args.buf == drawer_bufid then
                 -- Next <cmd>bp<cr>
-                vim.keymap.set({ "i", "n", "v", "t" }, "<C-Tab>", "<Nop>", {buffer=true})
+                vim.keymap.set({"i","n","v","t"}, "<C-Tab>", "<Nop>", {buffer=args.buf})
                 -- Prev <cmd>bp<cr>
-                vim.keymap.set({ "i", "n", "v", "t" }, "<C-S-Tab>", "<Nop>", {buffer=true})
+                vim.keymap.set({"i","n","v","t"}, "<C-S-Tab>", "<Nop>", {buffer=args.buf})
+
+                vim.keymap.set({"i","n","v","t"}, "<C-w>", function() M.close() end, {buffer=args.buf})
             end
         end
     })

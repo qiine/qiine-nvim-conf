@@ -782,6 +782,10 @@ map({"i","n","v","c","t"}, "<F16>", function()
     vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
 end)
 
+-- Open journal <C-F4>
+map({"i","n","v","t"}, "<F28>", function()
+    vim.cmd("Oil ~/Personal/Org/Journal/")
+end)
 
 -- open curr proj doc
 -- map({"i","n","v","c","t"}, "<F3>", function()
@@ -1296,6 +1300,7 @@ map({"i","n","v"}, "<C-g>v", function() toggle_visualreplace() end)
 -- ### Substitute mode
 map("n", "s", "<Nop>")
 
+-- Enter substitute mode
 map({"i","n"}, "<M-S-s>",
 [[<Esc>:%s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitute mode"})
@@ -1322,19 +1327,19 @@ map({"i","n"}, "<S-ª>",
 
 
 -- TODO Smart swap word around
--- map("n", "<M-s>", function()
---     vim.fn.search("\\k*\\<", "b")
---     vim.cmd('norm! mz')
---     vim.cmd('norm! "zdiw')
---     local wordl = vim.fn.getreg("z")
+map("n", "<M-s>", function()
+    vim.fn.search("\\k*\\<", "b")
+    vim.cmd('norm! mz')
+    vim.cmd('norm! "zdiw')
+    local wordl = vim.fn.getreg("z")
 
---     vim.fn.search("\\k*\\<", "")
---     vim.cmd('norm! "zdiw')
---     vim.cmd('norm! i'..wordl)
+    vim.fn.search("\\k*\\<", "")
+    vim.cmd('norm! "zdiw')
+    vim.cmd('norm! i'..wordl)
 
---     vim.cmd('norm! `z')
---     vim.cmd('norm! "zP')
--- end)
+    vim.cmd('norm! `z')
+    vim.cmd('norm! "zP')
+end)
 
 
 -- ### Incrementing
@@ -1943,7 +1948,7 @@ map({"n","v"}, "~", ":!")
 
 
 -- cmd messages <S-F10>
-map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>ToggleMsgLog<CR>")
+map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>MsglogToggle<CR>")
 
 
 
@@ -1957,8 +1962,10 @@ map({"i","n","v","t"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
 map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 
 -- Term toggle hor
-map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
-map({"i","n","v","t"}, "<F6>",   term.toggle_hor)
+-- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
+-- map({"i","n","v","t"}, "<F6>",   term.toggle_hor)
+map({"i","n","v","t"}, "<F6>", function() drawer.toggle(nil, {buftype="term"}) end)
+-- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
 
 -- Term float
 map({"i","n","v","t"}, "<M-t>",  term.open_fwin)

@@ -34,7 +34,20 @@ return
             },
 
             ghost_text = {enabled = false},
-            documentation = { auto_show = false, },
+
+            documentation = {
+                auto_show = false,
+                treesitter_highlighting = false,
+                window = {
+                    min_width = 10,
+                    max_width = 100,
+                    max_height = 22,
+                    direction_priority = {
+                        menu_north = {'n', 's', 'e', 'w'},
+                        menu_south = {'n', 's', 'e', 'w'},
+                    },
+                },
+            },
         },
 
         signature = {
@@ -168,7 +181,7 @@ return
 
             ["<Esc>"] = {"cancel", 'fallback'},
 
-            -- ['<C-d>'] = { 'show_documentation', 'hide_documentation', "fallback" },
+            ['<M-k>'] = { 'show_documentation', 'hide_documentation', "fallback" },
             -- ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
             ['<M-h>'] = { 'show_signature', 'hide_signature'},
 

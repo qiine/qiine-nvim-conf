@@ -359,7 +359,7 @@ return
         fzfl.fuzzy_cd = function()
             local cwd = vim.fn.getcwd()
 
-            fzfl.fzf_exec("fd . --type d", {     --or fd
+            fzfl.fzf_exec("fd . --type d", {
                 winopts = {title = "Find dir cwd"},
                 prompt = "cd ",
                 cwd = cwd,
@@ -384,9 +384,9 @@ return
 
         -- Find dir from root
         fzfl.fuzzy_cd_fromroot = function()
-            fzfl.fzf_exec("fd . --type d", {     --or fd
+            fzfl.fzf_exec("fd . --type d", {
                 winopts = { title = "Find dir root", },
-                prompt = "cd /",
+                prompt = "cd ",
                 cwd = "/",
                 actions = {
                     ["default"] = function(selected)

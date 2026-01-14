@@ -7,12 +7,10 @@ return
     dependencies = {
         'nvim-treesitter/nvim-treesitter',
         'nvim-tree/nvim-web-devicons'
-        -- if you prefer nvim-web-devicons
     },
 
     config = function()
         require('render-markdown').setup({
-
             file_types = {"markdown", "org", "norg", "codecompanion", "quarto", "rmd"},
 
             sign = {
@@ -47,7 +45,9 @@ return
 
             heading = {
                 --icons = { '󰲡 ', '󰲣 ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
-                icons = { '|', '|## ', '|### ', '|#### ', '|##### ', '|###### ' }, --|#|
+                -- icons = { '|', '|## ', '|### ', '|#### ', '|##### ', '|###### ' },
+                -- icons = { '|', '|▰▰ ', '|▰▰▰ ', '|#### ', '|##### ', '|###### ' },
+                icons = { '|', '|■■ ', '|■■■ ', '|■■■■ ', '|■■■■■ ', '|■■■■■■ ' },
                 sign = false,
                 width = "block",
                 right_pad = 5,
@@ -95,6 +95,7 @@ return
                 --    'RenderMarkdownQuote6',
                 --},
             },
+
             code = {
                 sign = false,
                 width = "block", -- full
@@ -103,6 +104,7 @@ return
                 right_pad = 2,
                 border = 'thin',  -- none hide thin thick
             },
+
             pipe_table = {
                 -- Pre configured settings largely for setting table border easier.
                 -- | heavy  | use thicker border characters     |
@@ -124,6 +126,7 @@ return
                 padding = 0,
                 border_virtual = true,
             },
+
             link = {
                 enabled = true,
                 -- Additional modes to render links.
@@ -178,6 +181,7 @@ return
                     youtube = { pattern = 'youtube%.com', icon = '󰗃 ' },
                 },
             },
+
             indent = {
                 enabled = true,
                 render_modes = false,

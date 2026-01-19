@@ -1,6 +1,8 @@
 
 -- quickfix list --
 
+local win = require("ui.win")
+local drawer = require("ui.drawer")
 
 -- ## [Keymaps]
 ----------------------------------------------------------------------
@@ -8,7 +10,7 @@
 vim.keymap.set({"i","n","v","c","t"}, "<F9>", "<Cmd>QuickfixToggle<CR>")
 
 -- Add text to qf
-    vim.keymap.set({"i","n","v"}, "<M-q>a", function()
+vim.keymap.set({"i","n","v"}, "<M-q>a", function()
     vim.fn.setqflist({}, "a", {
         items = {
             {
@@ -77,26 +79,33 @@ end, {desc="Clear qf"})
 -- ## [cmds]
 ----------------------------------------------------------------------
 vim.api.nvim_create_user_command("QuickfixToggle", function()
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end -- esc cmd
+
     if vim.bo.buftype == "quickfix" then vim.cmd("cclose") return end
 
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end -- esc cmd
+    drawer.close()
 
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickfixSendSearch", function()
+vim.api.nvim_create_user_command("QuickfixSearchResults", function()
     vim.cmd('vimgrep /'..vim.fn.getreg("/")..'/ %')
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickfixSendProjTODOs", function()
+vim.api.nvim_create_user_command("QuickfixProjTODO", function()
     vim.cmd("cd ".. vim.lsp.buf.list_workspace_folders()[1])
 
     vim.cmd("vimgrep /".."TODO".."/ `git ls-files`")
     vim.cmd("copen")
 end, {})
 
-vim.api.nvim_create_user_command("QuickfixSendDiags", function(opts)
+vim.api.nvim_create_user_command("QuickfixRef", function()
+    vim.lsp.buf.references(nil, {on_list = vim.lsp.util.set_qflist})
+    vim.cmd('copen')
+end, {})
+
+vim.api.nvim_create_user_command("QuickfixDiags", function(opts)
     local args = opts.args
 
     vim.diagnostic.setqflist({})
@@ -107,8 +116,8 @@ end, {
     desc = "Send diagnostics to quickfix list",
 })
 
-vim.api.nvim_create_user_command("QuickfixSendDiagsErr", function()
-    vim.diagnostic.setqflist({open = true, nil, severity=vim.diagnostic.severity.ERROR})
+vim.api.nvim_create_user_command("QuickfixDiagsErr", function()
+        vim.diagnostic.setqflist({open = true, nil, severity=vim.diagnostic.severity.ERROR})
     vim.cmd('copen')
 end, {})
 
@@ -160,6 +169,8 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.api.nvim_win_set_height(0, 9)
             vim.opt_local.signcolumn = "no"
 
+            vim.cmd("wincmd J") -- always open at win bot
+
             vim.cmd("stopinsert")
 
             -- Nav
@@ -196,7 +207,7 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.keymap.set({"i","n"}, "<C-CR>", function()
                 local ok = pcall(vim.cmd, "norm! \13zz")
                 if ok then vim.cmd("cclose") end
-            end)
+            end, {buffer=true})
 
             -- Del entry
             vim.keymap.set("n", "d", function()
@@ -218,6 +229,19 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
             vim.keymap.set("n", "c", function()
                 vim.cmd("QuickfixClear")
             end, { buffer = true })
+
+            -- Substiutute all items
+            vim.keymap.set("n", "<M-S-s>", ":cdo s///g | update | bwipeout <C-b><Right><Right><Right><Right><Right><Right>", {buffer=true})
+            -- vim.keymap.set("n", "<M-S-s>", function()
+                -- vim.ui.input({prompt="Target ", default="", completion="dir"},
+                -- function(input)
+                --     vim.api.nvim_command("redraw") --Hide prompt
+
+                --     if input == nil then vim.notify("Cancelled.", vim.log.levels.INFO) return end
+
+                --     vim.cmd("cdo s/target/input/g")
+                -- end
+            -- end)
         end
     end,
 })

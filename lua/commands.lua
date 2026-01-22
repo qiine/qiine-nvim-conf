@@ -111,7 +111,7 @@ vim.api.nvim_create_user_command("RestartSafeMode", function()
     vim.cmd("qa!")
 end, {})
 
-vim.api.nvim_create_user_command("ToggleMsgLog", function()
+vim.api.nvim_create_user_command("MsglogToggle", function()
     msglog.toggle()
 end, {})
 
@@ -615,14 +615,14 @@ vim.api.nvim_create_user_command("FileDelete", function()
     local choice = vim.fn.confirm('Delete "'..fname..'" ?', "&Yes\n&No", 1)
     if choice ~= 1 then vim.notify("Delete canceled.", vim.log.levels.INFO) return end
 
-    local ok, err = vim.uv.fs_unlink(fpath)
-    if ok then
-        vim.schedule(function()
-            vim.cmd('bdelete!')
-            vim.notify("Deleted: "..fpath, vim.log.levels.INFO)
-        end)
+    vim.api.nvim_command("redraw") --Hide prompt
+
+    local trash_res = vim.system({"trash-put", fpath}, {}):wait()
+    if trash_res.code == 0 then
+        vim.cmd('bdelete!')
+        vim.notify("Deleted: "..fpath, vim.log.levels.INFO)
     else
-        vim.notify("Delete failed: "..err, vim.log.levels.ERROR)
+        vim.notify("Delete failed: "..trash_res.stderr, vim.log.levels.ERROR)
     end
 end, {})
 
@@ -1278,7 +1278,7 @@ vim.api.nvim_create_user_command("GitDashboard", function()
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git status\n")
 end, {})
 
-vim.api.nvim_create_user_command("GitRemoteBrowse", function(opts)
+vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
     local path = opts.args
 
     local cachepath = vim.fn.stdpath("cache").."/git_remote_browse/"

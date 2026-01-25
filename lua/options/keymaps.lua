@@ -184,7 +184,7 @@ map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 -- map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
 map({"i","n","v"}, "<C-g>fm", fs.file_move_interac)
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
-map({"i","n","v"}, "<M-S-Del>", "<Cmd>FileDelete<CR>")
+map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
 
 -- ### Write
 -- Save current
@@ -223,13 +223,16 @@ end)
 map({"i","n","v","t"}, "<C-e>", function()
     local pbuf       = vim.api.nvim_get_current_buf()
     local pbufpath   = vim.api.nvim_buf_get_name(pbuf)
+    local pbufdir    = (vim.fn.filereadable(pbufpath) == 1 and vim.fn.expand("%:p:h")) or vim.fn.getcwd()
     local pbufname   = vim.fn.fnamemodify(pbufpath, ":t")
 
     local pbufwincnt = #(vim.fn.win_findbuf(pbuf))
     local pbufhide   = vim.bo[pbuf].bufhidden ~= ""
 
+    vim.cmd("cd "..pbufdir)
+
     require("oil").open(
-        vim.fn.getcwd(),
+        pbufdir,
         nil,
         function()
             if pbufhide then return end
@@ -751,7 +754,7 @@ map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
 
 -- Task planner
 -- General task
-map({"i","n","v","c","t"}, "<F4>", function()
+map({"i","n","v","c","t"}, "<F6>", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
     if vim.fn.expand("%:t") == "plan.txt" then vim.cmd("bwipeout") return end
@@ -775,15 +778,15 @@ map({"i","n","v","c","t"}, "<F4>", function()
     end, {buffer=planv_bufid})
 end)
 
--- Project task <S-F4>
-map({"i","n","v","c","t"}, "<F16>", function()
+-- Project task <S-F6>
+map({"i","n","v","c","t"}, "<F18>", function()
     if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
 
     vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
 end)
 
--- Open journal <C-F4>
-map({"i","n","v","t"}, "<F28>", function()
+-- Open journal <C-F6>
+map({"i","n","v","t"}, "<F30>", function()
     vim.cmd("Oil ~/Personal/Org/Journal/")
 end)
 
@@ -1963,14 +1966,14 @@ map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 
 -- Term toggle hor
 -- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
--- map({"i","n","v","t"}, "<F6>",   term.toggle_hor)
-map({"i","n","v","t"}, "<F6>", function() drawer.toggle(nil, {buftype="term"}) end)
+-- map({"i","n","v","t"}, "<F4>",   term.toggle_hor)
+map({"i","n","v","t"}, "<F4>", function() drawer.toggle(nil, {buftype="term"}) end)
 -- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
 
 -- Term float
 map({"i","n","v","t"}, "<M-t>",  term.open_fwin)
 map({"i","n","v","t"}, "<M-t>f", term.open_fwin)
-map({"i","n","v","t"}, "<F18>",  term.open_fwin)
+map({"i","n","v","t"}, "<F16>",  term.open_fwin)
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})

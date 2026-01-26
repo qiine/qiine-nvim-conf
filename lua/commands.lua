@@ -610,12 +610,10 @@ vim.api.nvim_create_user_command("FileRename", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileDelete", function()
-    local fpath, fname = vim.fn.expand("%:p"), vim.fn.expand("%:t")
+    local fpath = vim.fn.expand("%:p")
+    local fname = vim.fn.expand("%:t")
 
-    local choice = vim.fn.confirm('Delete "'..fname..'" ?', "&Yes\n&No", 1)
-    if choice ~= 1 then vim.notify("Delete canceled.", vim.log.levels.INFO) return end
-
-    vim.api.nvim_command("redraw") --Hide prompt
+    if vim.fn.filereadable(fpath) == 0 then return vim.notify("No file to delete", vim.log.levels.INFO) end
 
     local trash_res = vim.system({"trash-put", fpath}, {}):wait()
     if trash_res.code == 0 then

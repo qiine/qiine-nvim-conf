@@ -4,12 +4,16 @@
 -- fs utils
 local U = {}
 
-function U.is_dir(path)
-    return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
-end
-
 function U.has_trailslash(path)
     return path:sub(-1) == "/"
+end
+
+---@param path string
+function U.is_dir(path)
+    if not path then return false end
+
+    path = vim.fs.normalize(path)
+    return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
 end
 
 function U.is_home_rel(path)
@@ -60,14 +64,13 @@ function U.path_compress(path, opts)
     if not path then return nil end
     if path == "" or path == "/" or path == "~/" or path == "~" then return path end
 
-    path = vim.fs.normalize(path)
+    -- Sanitize path
+    path = vim.fs.normalize(vim.fn.expand(vim.trim(path)))
 
-    -- Try Convert to home rel
     if opts.make_homerel then path = vim.fn.fnamemodify(path, ":~") end
 
-    local is_abs      = U.is_abs(path)
-    local is_home_rel = U.is_home_rel(path)
-
+    local is_abs         = U.is_abs(path)
+    local is_home_rel    = U.is_home_rel(path)
     local is_longpath    = #path > opts.longpathlen
     local has_trailslash = U.has_trailslash(path)
 
@@ -75,7 +78,7 @@ function U.path_compress(path, opts)
     if     is_abs      then path = path:sub(2)
     elseif is_home_rel then path = path:sub(3) end
 
-    if has_trailslash  then path = path:sub(1, #path-1) end
+    if has_trailslash  then path = path:sub(1, #path-1) end -- Avoids empty last item
 
     local subpaths = vim.split(path, "/", {plain=true})
 
@@ -88,7 +91,6 @@ function U.path_compress(path, opts)
     end
 
     local shortsubpaths = {}
-
     for i, subpath in ipairs(subpaths) do
         if opts.keepstart and i == 1 then -- Keep first, makes path easier to read
             table.insert(shortsubpaths, subpath)
@@ -106,13 +108,11 @@ function U.path_compress(path, opts)
             table.insert(shortsubpaths, subpath)
         end
     end
-
     local out = table.concat(shortsubpaths, "/")
 
     -- Post process
     if is_abs         then out = "/"..out  end
     if is_home_rel    then out = "~/"..out end
-
     if has_trailslash then out = out.."/"  end
 
     return out
@@ -152,10 +152,10 @@ function U.find_proj_rootdir(path)
     ) or vim.fn.getcwd()
 end
 
----@param fpath string
----@return string
-function U.get_file_proj_rootdir(fpath)
-    if not fpath or fpath == "" then return vim.fn.getcwd() end
+---@param fpath? string
+---@return string|nil
+function U.find_file_proj_rootdir(fpath)
+    fpath = fpath or vim.fn.expand("%:p")
 
     local froot = vim.fs.root(fpath,
         { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }
@@ -172,6 +172,24 @@ function U.get_file_proj_rootdir(fpath)
         return fdir
     end
 end
+
+---@param path string
+---@return boolean|nil
+function U.is_bin(path)
+    if vim.fn.filereadable(path) ~= 1 then return nil end
+
+    local res = vim.system(
+        { "file", "-b", "--mime", path },
+        { text = true }
+    ):wait()
+
+    if res.code ~= 0 or not res.stdout then return nil end
+
+    local restrim = vim.fn.trim(res.stdout)
+
+    return restrim:find("charset=binary") ~= nil
+end
+
 
 
 -- fs
@@ -223,7 +241,7 @@ function M.rename(oldpath, newpath, force)
 end
 
 ---@param target string
-function M.file_move_cur_interac(target)
+function M.file_move_interac(target)
     local fpath = vim.api.nvim_buf_get_name(0)
     local fdir  = vim.fn.fnamemodify(fpath, ":h")
     local fname = vim.fn.fnamemodify(fpath, ":t")
@@ -232,7 +250,7 @@ function M.file_move_cur_interac(target)
         vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
         function(input)
             vim.api.nvim_command("redraw") -- ensure prompt hidden
-            if input == nil then vim.notify("Rename canceled.", vim.log.levels.INFO) return end
+            if input == nil then vim.notify("Move canceled.", vim.log.levels.INFO) return end
 
             local newfpath = vim.fs.joinpath(input, fname)
 
@@ -381,7 +399,7 @@ function M.file_open_next(reverse)
             end
             vim.cmd("e "..nextf); --vim.cmd("e!")
         else -- rem curr buf or let it del itself if it can
-            vim.cmd("e " .. nextf); --vim.cmd("e!")
+            vim.cmd("e "..nextf); --vim.cmd("e!")
             if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
         end
     end
@@ -399,6 +417,52 @@ function M.file_open_next(reverse)
     print(table.concat(cwdls, ""))
 end
 
+function M.explorer_open_inplace(dir)
+    dir = dir and vim.fs.normalize(dir) or nil
+
+    local buf       = vim.api.nvim_get_current_buf()
+
+    local bufpath   = vim.api.nvim_buf_get_name(buf)
+    local bufname   = vim.fn.fnamemodify(bufpath, ":t")
+    local bufdir    = vim.fn.expand("%:p:h")
+
+    local bufhasfile = vim.fn.filereadable(bufpath) == 1
+
+    local bufwincnt = #(vim.fn.win_findbuf(buf))
+    local bufhidden = vim.bo[buf].bufhidden ~= ""
+
+    local targetdir
+    if dir and vim.uv.fs_stat(dir) ~= nil then
+        targetdir = dir
+    elseif bufhasfile and bufdir then
+        targetdir = bufdir
+    else
+        targetdir = vim.fn.getcwd()
+    end
+
+    vim.cmd("cd "..targetdir)
+
+    require("oil").open(
+        targetdir,
+        nil,
+        function()
+            if bufhidden then return end
+
+            if vim.fn.winlayout()[1] ~= "leaf" then -- detect if curr tab has splits
+                if bufwincnt > 1 then return end   -- avoids destroying buf we want to keep
+
+                vim.bo[0].buflisted = false
+            end
+
+            vim.cmd("silent! bd "..buf)
+
+            -- Place cursor on curr fname if applicable
+            vim.cmd("normal! gg")
+            vim.cmd([[silent! /\<]]..bufname..[[\>]])
+            vim.cmd("noh")
+        end
+    )
+end
 
 --------
 M.utils = U

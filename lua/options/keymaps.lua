@@ -220,35 +220,18 @@ map({"i","n","v","t"}, "<C-b>", function()
 end)
 
 -- Open file explorer
-map({"i","n","v","t"}, "<C-e>", function()
-    local pbuf       = vim.api.nvim_get_current_buf()
-    local pbufpath   = vim.api.nvim_buf_get_name(pbuf)
-    local pbufdir    = (vim.fn.filereadable(pbufpath) == 1 and vim.fn.expand("%:p:h")) or vim.fn.getcwd()
-    local pbufname   = vim.fn.fnamemodify(pbufpath, ":t")
+map({"i","n","v","t"}, "<C-e>", function() fs.explorer_open_inplace() end)
 
-    local pbufwincnt = #(vim.fn.win_findbuf(pbuf))
-    local pbufhide   = vim.bo[pbuf].bufhidden ~= ""
+map({"i","n","v","t"}, "<C-S-e>", function()
+    local vs = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
+    vs = vim.fs.normalize(vim.fn.expand(vim.trim(vs)))
 
-    vim.cmd("cd "..pbufdir)
+    local dir = fs.utils.is_dir(vs) and vs or vim.fn.getcwd()
 
     require("oil").open(
-        pbufdir,
+        dir,
         nil,
         function()
-            if pbufhide then return end
-
-            if vim.fn.winlayout()[1] ~= "leaf" then -- detect if curr tab has splits
-                if pbufwincnt > 1 then return end -- avoids destroying buf we want to keep
-
-                vim.bo[0].buflisted = false
-            end
-
-            vim.cmd("silent! bd "..pbuf)
-
-            -- Place cursor on curr fname if applicable
-            vim.cmd("normal! gg")
-            vim.cmd([[silent! /\<]]..pbufname..[[\>]])
-            vim.cmd("noh")
         end
     )
 end)
@@ -264,23 +247,6 @@ map({"i","n","v","t"}, "<C-S-e>s", function()
     )
 end)
 
--- Browse project files
-map({"i","n","v","t"}, "<C-S-e>", function()
-    local rootdir = vim.fs.dirname(vim.fs.find({".git", "Makefile", "package.json" }, {upward = true })[1])
-
-    require("oil").open(vim.fn.getcwd())
-
-    vim.cmd("silent! bwipeout #")
-
-    require("neo-tree.command").execute({
-        action = "show",
-        dir    = rootdir,
-        focus  = false,
-    },
-    {
-        bind_to_cwd = false
-    })
-end)
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")

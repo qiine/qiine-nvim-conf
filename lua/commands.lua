@@ -38,16 +38,23 @@ vim.api.nvim_create_user_command("HyperAct", function()
 
     if char == "" or char == " " then return end
 
+    -- goto url
     if WORD:match("^https?://") then
         vim.cmd("silent! !" .. "xdg-open " .. WORD) return
     end
 
+    -- Open file explorer at path
+    if fs.utils.is_dir(WORD) then
+        fs.explorer_open_inplace(WORD)
+    end
+
+    -- goto file
     local ok, path = pcall(vim.fn.expand, WORD)
     if ok and type(path) == "string" then
         if vim.fn.filereadable(path) == 1 then vim.cmd("norm! gf") return end
     end
 
-    -- Nav pair
+    -- goto pair
     if char:match("[(){}%[%]'\"`<>|]") or is_node_func then
         if is_vs then
             vim.cmd("norm! mz")
@@ -59,6 +66,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
         vim.cmd("norm %") return --no bang ! to use custom keymap
     end
 
+    -- goto definition
     -- TODO maybe not optimal
     local clients = vim.lsp.get_clients({bufnr=0})
     local supported = false
@@ -71,14 +79,15 @@ vim.api.nvim_create_user_command("HyperAct", function()
     end
     if supported then return vim.lsp.buf.definition() end
 
-    -- try go to tag C-]
+    -- goto tag C-]
     local restag = pcall(function() vim.cmd("norm! \29") end)
     if restag then return end
 
-    -- try vim open file
+    -- goto file
     local resgf = pcall(function() vim.cmd("norm! gf") end)
     if resgf then return end
 
+    -- goto definition
     local resgd = pcall(function() vim.cmd("norm! gd") end)
     if resgd then return end
 end, {})
@@ -260,7 +269,7 @@ vim.api.nvim_create_user_command("FileInfo", function()
         { "file", "-b", "--mime", fpath },
         { text = true }
     ):wait()
-    local ftype = fres.code == 0 and vim.fn.trim(fres.stdout) or "unknown"
+    local ftype = fres.code == 0 and vim.trim(fres.stdout) or "unknown"
 
     ---@return string|osdate
     local function fmt_time(sec)

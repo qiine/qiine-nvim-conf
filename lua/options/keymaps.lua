@@ -226,14 +226,22 @@ map({"i","n","v","t"}, "<C-S-e>", function()
     local vs = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     vs = vim.fs.normalize(vim.fn.expand(vim.trim(vs)))
 
-    local dir = fs.utils.is_dir(vs) and vs or vim.fn.getcwd()
+    local stt = vim.uv.fs_stat(vs)
+    local path = nil
 
-    require("oil").open(
-        dir,
-        nil,
-        function()
+    if stt and stt.type == "directory" then
+        path = vs
+    elseif stt and stt.type == "file" then
+        path = vim.fn.fnamemodify(vs, ":h")
+    else
+        if vim.fn.mode():match("[vV\22]") then
+            vim.notify("Invalid path!", vim.log.levels.WARN) return
         end
-    )
+        path = vim.fn.getcwd()
+    end
+
+    vim.cmd("cd "..path)
+    require("oil").open(path)
 end)
 
 -- Open file explorer in hor split

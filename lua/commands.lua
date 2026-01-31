@@ -233,6 +233,10 @@ vim.api.nvim_create_user_command("ClearBuf", function()
     vim.cmd("%d_")
 end, {})
 
+vim.api.nvim_create_user_command("BufSetModifiable", function()
+    vim.cmd("set modifiable")
+end, {})
+
 vim.api.nvim_create_user_command("WipeHiddenBuffers", function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if not vim.api.nvim_buf_is_loaded(buf) then
@@ -491,7 +495,7 @@ vim.api.nvim_create_user_command('SudoWrite', function()
                     callback = function()
                         local view = vim.fn.winsaveview()
                         vim.cmd("e!")
-                        vim.fn.winrestview(view) -- restore view
+                        vim.fn.winrestview(view) -- restore scroll pos
 
                         if mode == "i" then
                             vim.cmd("startinsert")
@@ -622,16 +626,21 @@ vim.api.nvim_create_user_command("FileDelete", function()
     local fpath = vim.fn.expand("%:p")
     local fname = vim.fn.expand("%:t")
 
-    if vim.fn.filereadable(fpath) == 0 then return vim.notify("No file to delete", vim.log.levels.INFO) end
+    if vim.fn.filereadable(fpath) == 0 then
+        vim.cmd('bdelete!')
+        vim.notify("No file to delete", vim.log.levels.INFO)
+        return
+    end
 
     local trash_res = vim.system({"trash-put", fpath}, {}):wait()
     if trash_res.code == 0 then
         vim.cmd('bdelete!')
         vim.notify("Deleted: "..fpath, vim.log.levels.INFO)
     else
-        vim.notify("Delete failed: "..trash_res.stderr, vim.log.levels.ERROR)
+        vim.notify("File deletion failed: "..trash_res.stderr, vim.log.levels.ERROR)
     end
 end, {})
+
 
 vim.api.nvim_create_user_command("SymlinkFile", function()
     local fpath = vim.api.nvim_buf_get_name(0)
@@ -645,7 +654,7 @@ vim.api.nvim_create_user_command("SymlinkFile", function()
 
         local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
         if res.code ~= 0 then
-            return vim.notify("Linking failed!"..res.stderr, vim.log.levels.ERROR)
+            vim.notify("Linking failed!"..res.stderr, vim.log.levels.ERROR) return
         end
 
         vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
@@ -663,6 +672,21 @@ vim.api.nvim_create_user_command("SymlinkFileToCwd", function()
 
     vim.notify("Symlink created in: "..cwd, vim.log.levels.INFO)
 end, {})
+
+vim.api.nvim_create_user_command("PasteSymlink", function()
+    local fpath  = vim.trim(vim.fn.getreg('+'))
+    local fname  = vim.fn.fnamemodify(fpath, ":t")
+    local target = vim.fn.getcwd().."/"..fname
+
+    if not vim.uv.fs_stat(fpath) then
+        vim.notify("Source does not exist: "..fpath, vim.log.levels.ERROR) return
+    end
+
+    local res = vim.system({"ln", "-sfn", fpath, target}, {text=true}):wait()
+    if res.code ~= 0 then
+        vim.notify("Linking failed! "..res.stderr, vim.log.levels.ERROR) return
+    end
+end, {desc="Create symlink from clipboard into cwd"})
 
 
 -- #### File perms

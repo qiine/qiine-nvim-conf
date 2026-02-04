@@ -49,10 +49,11 @@ nav dir using keymaps without file browser
 **Tools**:
 - Treesitter highlighting  
 - LSP  
-- Custom snippets  
 - **nvim-lint**, 
 - **conform.nvim**  
 * sniprun  
+
+- Custom snippets  
 
 ### 📂 Version control
 ---
@@ -63,9 +64,9 @@ custom git thin wrapper
 ### 📂 File Management
 ---
 - **neo-tree**  
-- **oil.nvim**  
-- custom user commands and keymaps:
-  - delete current file, 
+- **oil**  
+- custom file system actions, cmds, keymaps:
+  - delete current file with a shortcut, 
   - set readonly,
   - move dir
   - etc...
@@ -75,7 +76,7 @@ custom git thin wrapper
 ---
 - **lualine** with **many** custom components  
 - **barbar.nvim** for tabs  
-- custom winbar, displaying curr file path
+- custom winbar, displaying current file path
 * customized statuscolumn thanks to gitsign, statuscol-nvim and some 
   tweaking  
 - **trouble.nvim**  
@@ -94,7 +95,7 @@ Currently only supports **one global session**
 
 ### 🎨 Theme
 ---
-- Based on **Nightfox**  
+- Based on **Lightfox**  
 - Custom highlight groups  
 - Tweaked for a **black & white eInk monitor** -- no proper colors for now
 
@@ -106,24 +107,26 @@ Currently only supports **one global session**
 
 ## 🚀 Installation
 ---
-Install the latest version of neovim with your package manager of choice.  
-Backup existing config files if applicable.  
-```sh
-mv ~/.config/nvim ~/.config/nvim_bak
-```    
-Go to config files location
-```sh
-cd ~/.config/nvim/
-```
-Clone the repo:  
-```sh
-git clone git@github.com:qiine/qiine-nvim-conf.git
-```
-Open Neovim.  
-```sh
-nvim  
-```
-Plugins will install automatically thanks to lazy.nvim  
+### 🐧Linux 
+* Install neovim (at least 0.11) with your package manager of choice.  
+
+* Backup existing config files if applicable.  
+    ```sh
+    mv ~/.config/nvim ~/.config/nvim_bak
+    ```    
+* cd to config files location
+  ```sh
+  cd ~/.config/nvim/
+  ```
+* Clone the repo:  
+  ```sh
+  git clone git@github.com:qiine/qiine-nvim-conf.git
+  ```
+* Open Neovim  
+  ```sh
+  nvim  
+  ```
+* Plugins will install automatically thanks to lazy.nvim  
 
 
 ### 🧪 Requirements
@@ -131,9 +134,8 @@ Plugins will install automatically thanks to lazy.nvim
   I choose wezterm, 
   config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
 
-  As neovim is a terminal centered application and I use a very complex sets 
-  of keybinds, a terminal supporting kitty keyboard reporting protocol or 
-  similar is a must.
+  As neovim is a terminal centered application and I use a very complex sets of keybinds. 
+  A terminal supporting kitty keyboard reporting protocol or similar is a must.
 
   I have not spent any time making my nvim config usable 
   with other terminals and don't plan to. (I know Konsole struggles)
@@ -154,4 +156,5 @@ optional
 ## 📜 License
 ---
 This project is licensed under the MIT License.
+
 

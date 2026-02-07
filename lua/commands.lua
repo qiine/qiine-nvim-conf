@@ -683,7 +683,14 @@ vim.api.nvim_create_user_command("PasteSymlink", function()
     end
 
     local res = vim.system({"ln", "-sfn", fpath, target}, {text=true}):wait()
-    if res.code ~= 0 then
+    if res.code == 0 then
+        vim.notify(
+            "Link created \n"..
+            "src: "..fpath.."\n"..
+            "dest: "..target,
+        vim.log.levels.INFO)
+        return
+    else
         vim.notify("Linking failed! "..res.stderr, vim.log.levels.ERROR) return
     end
 end, {desc="Create symlink from clipboard into cwd"})
@@ -794,28 +801,23 @@ end, {})
 
 -- cd vim stdpaths
 vim.api.nvim_create_user_command("CdNvimStdpathConfig", function()
-    vim.cmd("cd "..vim.fn.stdpath("config"))
-    vim.cmd("pwd")
+    vim.cmd("cd "..vim.fn.stdpath("config")); vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("CdNvimStdpathData", function()
-    vim.cmd("cd "..vim.fn.stdpath("data"))
-    vim.cmd("pwd")
+    vim.cmd("cd "..vim.fn.stdpath("data")); vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("CdNvimStdpathLog", function()
-    vim.cmd("cd "..vim.fn.stdpath("log"))
-    vim.cmd("pwd")
+    vim.cmd("cd "..vim.fn.stdpath("log")); vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("CdNvimStdpathCache", function()
-    vim.cmd("cd "..vim.fn.stdpath("cache"))
-    vim.cmd("pwd")
+    vim.cmd("cd "..vim.fn.stdpath("cache")); vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("CdNvimStdpathRun", function()
-    vim.cmd("cd "..vim.fn.stdpath("run"))
-    vim.cmd("pwd")
+    vim.cmd("cd "..vim.fn.stdpath("run")); vim.cmd("pwd")
 end, {})
 
 vim.api.nvim_create_user_command("CdNvimStdpathState", function()
@@ -1321,7 +1323,7 @@ vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
         return
     end
 
-    local function make_reponame(text)
+    local function gen_reponame(text)
         -- trim url
         text = text:gsub("https?://", "")
         text = text:gsub("github", "")
@@ -1334,9 +1336,9 @@ vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
 
         return text.."_"..hash
     end
-    local reponame = make_reponame(path)
+    local reponame = gen_reponame(path)
 
-    -- make repo dir
+    -- Make repo dir
     local repodir = cachepath..reponame
     repodir = vim.fs.normalize(repodir)
 
@@ -1474,9 +1476,9 @@ vim.api.nvim_create_user_command("FacingPages", function()
     vim.cmd("vsplit")
     local win_right = vim.api.nvim_get_current_win()
 
-    --vim.cmd("norm! "..target_row.."G"); vim.cmd("norm! zt")
+    -- vim.cmd("norm! "..target_row.."G"); vim.cmd("norm! zt")
 
-    --back to og win
+    -- Back to og win
     vim.api.nvim_set_current_win(win_left)
 
     local group = vim.api.nvim_create_augroup("ScrollSync", { clear = true })
@@ -1505,6 +1507,48 @@ vim.api.nvim_create_user_command("FacingPages", function()
             syncing = false
         end,
     })
+end, {})
+
+
+-- ## [Org]
+----------------------------------------------------------------------
+vim.api.nvim_create_user_command("NoteCreate", function(opts)
+    local cwd = vim.fn.getcwd()
+
+    vim.ui.input({prompt="Note name: ", default="Newnote", completion="file"},
+    function(input)
+        vim.api.nvim_command("redraw") -- Hide prompt
+
+        if input == nil then vim.notify("Creating canceled ", vim.log.levels.INFO) return end
+
+        local fpath = cwd.."/"..input..".md"
+
+        if vim.uv.fs_stat(fpath) then
+            vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
+        end
+
+        local content =
+        {
+            "",
+            "# "..input,
+            "",
+            "",
+            "## About",
+            "---",
+            "",
+            "",
+            "",
+            "## Ressources",
+            "---",
+            "",
+            "",
+            "",
+        }
+
+        vim.fn.writefile(content, fpath) -- create note
+
+        print("Note created: "..fpath)
+    end)
 end, {})
 
 

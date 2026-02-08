@@ -13,6 +13,18 @@ function U.is_dir(path)
     if not path then return false end
 
     path = vim.fs.normalize(path)
+
+    return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
+    -- local ok, stat = pcall(vim.uv.fs_stat, path)
+    -- return ok and stat and stat.type == "directory"
+end
+
+---@param path string
+function U.is_dir_valid(path)
+    if not path or vim.fn.filereadable(path) then return false end
+
+    path = vim.fs.normalize(path)
+
     return vim.fn.isdirectory(path) == 1 or U.has_trailslash(path)
 end
 
@@ -195,6 +207,67 @@ end
 -- fs
 local M = {}
 
+---@param fdir? string
+---@param focus? boolean
+function M.file_create(fname, fdir, focus)
+    fname = (fname ~= nil or fname == "") or "newfile"
+    fdir = fdir or vim.fn.getcwd()
+    if focus == nil then focus = true end
+
+    local fpath = ""
+
+    fpath = fdir.."/"..fname
+
+    -- auto name
+    local cwdfpaths = U.get_files_path_in_dir(fdir)
+    local count = 0
+    for _, f in ipairs(cwdfpaths) do
+        if vim.startswith(f, fpath) then
+            count = count + 1
+        end
+    end
+    local cntstr = count > 0 and tostring("("..count..")") or ""
+
+    fpath = fpath..cntstr
+
+    vim.fn.writefile({}, fpath)
+
+    print("File created: "..fpath)
+
+    if focus then vim.cmd.edit(fpath) end
+end
+
+---@param fpath? string
+---@param focus? boolean
+function M.file_dup(fpath, focus)
+    fpath = fpath or vim.fn.expand("%:p")
+    if focus == nil then focus = true end
+
+    local fdir       = vim.fn.fnamemodify(fpath, ":h")
+    local fpathnoext = vim.fn.fnamemodify(fpath, ":r")
+    local fext       = vim.fn.fnamemodify(fpath, ":e")
+
+    -- Check existing
+    local dupfpath = ""
+
+    local fpaths = U.get_files_path_in_dir(fdir)
+    local count = 0
+    for _, f in ipairs(fpaths) do
+        if vim.startswith(vim.fn.fnamemodify(f, ":r"), fpathnoext) then
+            count = count + 1
+        end
+    end
+
+    dupfpath = fpathnoext.."("..tostring(count)..")".."."..fext
+
+    -- write
+    vim.fn.writefile(vim.fn.readfile(fpath), dupfpath)
+
+    print("Dup created: "..dupfpath)
+
+    if focus then vim.cmd.edit(dupfpath) end
+end
+
 ---@param oldpath string
 ---@param newpath string
 function M.rename(oldpath, newpath, force)
@@ -262,66 +335,6 @@ function M.file_move_interac(target)
         end)
     end
     prompt_user()
-end
-
----@param fpath? string
----@param focus? boolean
-function M.file_dup(fpath, focus)
-    fpath = fpath or vim.fn.expand("%:p")
-    if focus == nil then focus = true end
-
-    local fdir       = vim.fn.fnamemodify(fpath, ":h")
-    local fpathnoext = vim.fn.fnamemodify(fpath, ":r")
-    local fext       = vim.fn.fnamemodify(fpath, ":e")
-
-    -- Check existing
-    local dupfpath = ""
-
-    local fpaths = U.get_files_path_in_dir(fdir)
-    local count = 0
-    for _, f in ipairs(fpaths) do
-        if vim.startswith(vim.fn.fnamemodify(f, ":r"), fpathnoext) then
-            count = count + 1
-        end
-    end
-
-    dupfpath = fpathnoext.."("..tostring(count)..")".."."..fext
-
-    -- write
-    vim.fn.writefile(vim.fn.readfile(fpath), dupfpath)
-
-    print("Dup created: "..dupfpath)
-
-    if focus then vim.cmd.edit(dupfpath) end
-end
-
----@param dir? string
----@param focus? boolean
-function M.file_create(dir, focus)
-    dir = dir or vim.fn.getcwd()
-    if focus == nil then focus = true end
-
-    -- auto name
-    local nfpath = ""
-
-    nfpath = dir.."/".."newfile"
-
-    local cwdfpaths = U.get_files_path_in_dir(dir)
-    local count = 0
-    for _, f in ipairs(cwdfpaths) do
-        if vim.startswith(f, nfpath) then
-            count = count + 1
-        end
-    end
-    local cntstr = count > 0 and tostring("("..count..")") or ""
-
-    nfpath = nfpath..cntstr
-
-    vim.fn.writefile({}, nfpath)
-
-    print("File created: "..nfpath)
-
-    if focus then vim.cmd.edit(nfpath) end
 end
 
 function M.append_select_to_file()
@@ -458,7 +471,8 @@ function M.explorer_open_inplace(dir)
 
             -- Place cursor on curr fname if applicable
             vim.cmd("normal! gg")
-            vim.cmd([[silent! /\<]]..bufname..[[\>]])
+            vim.cmd([[silent! /\V\<]]..bufname..[[\>]])
+            vim.cmd([[silent! /\V\<]]..bufname..[[\>]])
             vim.cmd("noh")
         end
     )

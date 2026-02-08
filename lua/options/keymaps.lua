@@ -180,6 +180,7 @@ map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 
 -- File action
 map({"i","n","v"}, "<C-g>fn", fs.file_create)
+map({"i","n","v"}, "<M-n>f", fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 -- map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
 map({"i","n","v"}, "<C-g>fm", fs.file_move_interac)
@@ -496,7 +497,6 @@ map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
 
 
-
 -- ### [Fast and furious cursor move]
 -- Fast left/right move in normal mode
 map({"n","v"}, "<C-Right>", "<Cmd>norm! 7l<CR>")
@@ -722,52 +722,6 @@ map({"i","n","v"}, "<M-S-Home>", function() vim.cmd("cd | pwd") end)
 map({"i","n","v"}, "<M-C-S-Home>", function() vim.cmd("cd / | pwd") end)
 
 
--- Hyper act
-map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
-
-
--- Task planner
--- General task
-map({"i","n","v","c","t"}, "<F6>", function()
-    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-
-    if vim.fn.expand("%:t") == "plan.txt" then vim.cmd("bwipeout") return end
-
-    local planv_bufid = vim.api.nvim_create_buf(true, false)
-
-    vim.cmd("buffer "..planv_bufid)
-    vim.api.nvim_buf_set_name(planv_bufid, "/home/qm/Personal/Org/Plan/plan.txt")
-    vim.cmd("e!")
-
-    -- opts
-    vim.opt_local.number = false
-
-    vim.wo.foldlevel=0
-    vim.opt_local.foldmethod="expr"
-    vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
-
-    vim.keymap.set("n", "<C-S-N>", function()
-        vim.cmd("norm! O")
-        lsnip.insert_snippet("task")
-    end, {buffer=planv_bufid})
-end)
-
--- Project task <S-F6>
-map({"i","n","v","c","t"}, "<F18>", function()
-    if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
-
-    vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
-end)
-
--- Open journal <C-F6>
-map({"i","n","v","t"}, "<F30>", function()
-    vim.cmd("Oil ~/Personal/Org/Journal/")
-end)
-
--- open curr proj doc
--- map({"i","n","v","c","t"}, "<F3>", function()
-
-
 -- ### Search
 map({"i","n","v","c","t"}, "<C-f>", function()
     vim.fn.setreg("/", "") --clear last search and hl
@@ -791,6 +745,9 @@ map("v", "<F1>", 'y:h <C-r>"<CR>')
 
 -- map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
 
+
+-- ### Hyper act
+map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
 
 
 -- ## [Selections]
@@ -827,10 +784,10 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 -- To Visual Line selection
 -- TODO a bit hacky we would want proper <M-C-Right><M-C-Left>
-map({"i","n","v"}, "<M-C-Right>", function()
+map({"i","n","v"}, "<C-M-Right>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
-map({"i","n","v"}, "<M-C-Left>", function()
+map({"i","n","v"}, "<C-M-Left>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
 
@@ -1171,6 +1128,7 @@ map({"n","v"}, "<BS>", 'r ')
 map({"i","n","v"}, "<S-BS>", function()
     vim.cmd('norm! '..(vim.fn.mode() == "V" and 'r ' or 'Vr ') )
 end)
+
 
 -- #### Delete
 -- Del char
@@ -1932,9 +1890,9 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>MsglogToggle<CR>")
 -- ## [Terminal]
 ----------------------------------------------------------------------
 -- Open term tab
-map({"i","n","v","t"}, "<M-t>t", "<cmd>term<CR>", {noremap=true})
+map({"i","n","v","t"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 
-
+map(modes, ldwin.."vt", function() win.open_split_ephem("vert") vim.cmd("term") end)
 -- Term toggle vert
 map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 
@@ -1945,7 +1903,6 @@ map({"i","n","v","t"}, "<F4>", function() drawer.toggle(nil, {buftype="term"}) e
 -- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
 
 -- Term float
-map({"i","n","v","t"}, "<M-t>",  term.open_fwin)
 map({"i","n","v","t"}, "<M-t>f", term.open_fwin)
 map({"i","n","v","t"}, "<F16>",  term.open_fwin)
 
@@ -1954,6 +1911,51 @@ map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
 
 
 
+-- ## Org
+----------------------------------------------------------------------
+-- ### Notes
+vim.keymap.set({"i","n","v","t"}, "<M-n>n", "<Cmd>NoteCreateCWD<CR>")
+
+-- ### ask planner
+-- General task
+map({"i","n","v","c","t"}, "<F6>", function()
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+
+    if vim.fn.expand("%:t") == "plan.txt" then vim.cmd("bwipeout") return end
+
+    local planv_bufid = vim.api.nvim_create_buf(true, false)
+
+    vim.cmd("buffer "..planv_bufid)
+    vim.api.nvim_buf_set_name(planv_bufid, "/home/qm/Personal/Org/Plan/plan.txt")
+    vim.cmd("e!")
+
+    -- opts
+    vim.opt_local.number = false
+
+    vim.wo.foldlevel=0
+    vim.opt_local.foldmethod="expr"
+    vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
+
+    vim.keymap.set("n", "<C-S-N>", function()
+        vim.cmd("norm! O")
+        lsnip.insert_snippet("task")
+    end, {buffer=planv_bufid})
+end)
+
+-- Project task <S-F6>
+map({"i","n","v","c","t"}, "<F18>", function()
+    if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
+
+    vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
+end)
+
+-- Open journal <C-F6>
+map({"i","n","v","t"}, "<F30>", function()
+    vim.cmd("Oil ~/Personal/Org/Journal/")
+end)
+
+-- open curr proj doc
+-- map({"i","n","v","c","t"}, "<F3>", function()
 
 
 

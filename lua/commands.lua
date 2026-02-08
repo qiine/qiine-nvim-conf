@@ -1510,16 +1510,22 @@ vim.api.nvim_create_user_command("FacingPages", function()
 end, {})
 
 
+vim.api.nvim_create_user_command("TestCmd", function(opts)
+    print(os.getenv("OPENAI_API_KEY"))
+end, {nargs="*"})
+
+
 -- ## [Org]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("NoteCreate", function(opts)
+-- ## Notes
+vim.api.nvim_create_user_command("NoteCreateCWD", function(opts)
     local cwd = vim.fn.getcwd()
 
     vim.ui.input({prompt="Note name: ", default="Newnote", completion="file"},
     function(input)
         vim.api.nvim_command("redraw") -- Hide prompt
 
-        if input == nil then vim.notify("Creating canceled ", vim.log.levels.INFO) return end
+        if input == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
 
         local fpath = cwd.."/"..input..".md"
 
@@ -1547,14 +1553,13 @@ vim.api.nvim_create_user_command("NoteCreate", function(opts)
 
         vim.fn.writefile(content, fpath) -- create note
 
-        print("Note created: "..fpath)
+        print("Note created: "..input)
+
+        vim.cmd("e "..fpath); vim.cmd("startinsert | norm! 6j") -- open it
     end)
 end, {})
 
 
-vim.api.nvim_create_user_command("TestCmd", function(opts)
-    print(os.getenv("OPENAI_API_KEY"))
-end, {nargs="*"})
 
 
 

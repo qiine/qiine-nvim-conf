@@ -588,6 +588,42 @@ vim.api.nvim_create_user_command("FileMoveToCWD", function()
     vim.notify("Moved to: "..target_dir, vim.log.levels.INFO)
 end, {})
 
+vim.api.nvim_create_user_command("FileMoveProj", function()
+    local fpath    = vim.api.nvim_buf_get_name(0)
+    local fname    = vim.fn.expand("%:t")
+    local fprojdir = fs.utils.find_file_proj_rootdir(fpath)
+    if not fprojdir then
+        vim.notify("File not in a project! "..fpath, vim.log.levels.ERROR) return
+    end
+
+    local itrdirs = vim.fs.dir(fprojdir,
+        {
+            depth = math.huge,
+            skip = function(dir)
+                return dir ~= ".git"
+            end,
+        }
+    )
+
+    local dirs = {}
+    for dir, type in itrdirs do
+        if type == "directory" then table.insert(dirs, dir) end
+    end
+
+    vim.ui.select(dirs, {prompt = "Target> "},
+    function(choice)
+        if choice == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end
+
+        local destpath = fprojdir.."/"..choice.."/"..fname
+
+        fs.rename(fpath, destpath, false)
+
+        vim.api.nvim_buf_set_name(0, destpath); vim.cmd("e!") --refresh buf to new path
+        vim.notify("Moved to: "..destpath, vim.log.levels.INFO)
+    end)
+end, {})
+
+
 vim.api.nvim_create_user_command("FileRename", function()
     local old_fpath = vim.api.nvim_buf_get_name(0)
     local old_dir   = vim.fn.fnamemodify(old_fpath, ":h")
@@ -1518,44 +1554,73 @@ end, {nargs="*"})
 -- ## [Org]
 ----------------------------------------------------------------------
 -- ## Notes
+vim.api.nvim_create_user_command("NoteCreate", function(opts)
+    local notespath = vim.fn.expand("~/Personal/Org/Notes")
+
+    local cwd = vim.fn.getcwd()
+    vim.cmd("lcd "..notespath)
+
+    vim.ui.input({prompt="New note name: ", default="Newnote", completion="file"},
+    function(notename)
+        vim.api.nvim_command("redraw")
+        if notename == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
+
+        vim.ui.input({prompt="Category: ", default="", completion="dir"},
+        function(category)
+            vim.cmd("lcd "..cwd)
+            if category == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
+
+            local notepath = notespath.."/"..category.."/"..notename..".md"
+            notepath = vim.fs.normalize(notepath)
+
+            if vim.uv.fs_stat(notepath) then
+                vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
+            end
+
+            local lines = vim.fn.readfile(vim.fn.stdpath("config").."/snippets/markdown.json")
+            local snippets = vim.fn.json_decode(table.concat(lines, "\n"))
+            local snippet = snippets["note template"]
+            local body = vim.deepcopy(snippet.body)
+            for i, line in ipairs(body) do
+                body[i] = line:gsub("%${1:.-}", notename)
+            end
+
+            vim.fn.writefile(body, notepath) -- create note
+
+            vim.cmd("e "..notepath); vim.cmd("startinsert | norm! 6j") -- open it
+
+            vim.notify("Note created: "..notepath, vim.log.levels.INFO)
+        end)
+    end)
+end, {})
+
 vim.api.nvim_create_user_command("NoteCreateCWD", function(opts)
     local cwd = vim.fn.getcwd()
 
-    vim.ui.input({prompt="Note name: ", default="Newnote", completion="file"},
+    vim.ui.input({prompt="New note name: ", default="Newnote", completion="file"},
     function(input)
         vim.api.nvim_command("redraw") -- Hide prompt
-
         if input == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
 
-        local fpath = cwd.."/"..input..".md"
+        local notepath = cwd.."/"..input..".md"
 
-        if vim.uv.fs_stat(fpath) then
+        if vim.uv.fs_stat(notepath) then
             vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
         end
 
-        local content =
-        {
-            "",
-            "# "..input,
-            "",
-            "",
-            "## About",
-            "---",
-            "",
-            "",
-            "",
-            "## Ressources",
-            "---",
-            "",
-            "",
-            "",
-        }
+        local lines = vim.fn.readfile(vim.fn.stdpath("config").."/snippets/markdown.json")
+        local snippets = vim.fn.json_decode(table.concat(lines, "\n"))
+        local snippet = snippets["note template"]
+        local body = vim.deepcopy(snippet.body)
+        for i, line in ipairs(body) do
+            body[i] = line:gsub("%${1:.-}", input)
+        end
 
-        vim.fn.writefile(content, fpath) -- create note
+        vim.fn.writefile(body, notepath) -- create note
 
-        print("Note created: "..input)
+        vim.cmd("e "..notepath); vim.cmd("startinsert | norm! 6j") -- open it
 
-        vim.cmd("e "..fpath); vim.cmd("startinsert | norm! 6j") -- open it
+        print("Note created: "..notepath)
     end)
 end, {})
 

@@ -3,6 +3,7 @@
 ----------------------------------------------------------------------
 
 local utils  = require("utils")
+local fs     = require("fs")
 
 
 -- Define word delim
@@ -23,7 +24,7 @@ vim.o.iskeyword = "@,48-57,192-255,-,_"
 
 --         if vim.bo.ft ~= "" then return false end
 
---         if utils.is_bin(path) then
+--         if fs.utils.is_bin(path) then
 --             vim.cmd("HexMode")
 --             vim.cmd("bd "..bufid)
 --         end
@@ -126,9 +127,12 @@ end, {})
 vim.opt.makeprg = "make"
 
 
+
 -- ## [LSP]
 ----------------------------------------------------------------------
 vim.lsp.enable({
+    "clangd",
+
     "bashls",
 
     "lua_ls",

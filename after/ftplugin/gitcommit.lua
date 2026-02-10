@@ -68,15 +68,13 @@ vim.keymap.set({"i","n","x"}, "<C-S-n>ft", function()
     lsnip.insert_snippet("fix typo")
 end, {buffer = true})
 
--- abbrev
+
+-- ### abbrev
 vim.keymap.set("ia", "fe",  "feat:",  {buffer=true})
 vim.keymap.set("ia", "ch",  "chore:", {buffer=true})
 
 vim.keymap.set("ia", "upd", "update", {buffer=true})
 
-vim.keymap.set({"i","n","v"}, "<C-S-n>h", function()
-    lsnip.insert_snippet("heading")
-end, {buffer = true})
 
 
 

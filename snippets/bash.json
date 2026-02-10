@@ -25,6 +25,11 @@
     "print": {
         "prefix": "print",
         "body": [ "echo \"${1:hello!}\"" ]
+    },
+
+    "shebang": {
+        "prefix": "shebang",
+        "body": [ "#!/usr/bin/env bash" ]
     }
 }
 

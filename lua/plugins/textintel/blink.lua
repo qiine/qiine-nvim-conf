@@ -88,7 +88,8 @@ return
             keymap = {
                 preset = 'inherit',  --inherit
                 ['<Tab>'] = { 'show', 'select_and_accept', 'fallback' },
-                ['<CR>'] = { 'select_accept_and_enter', 'fallback' }, --only fo cmd use tab for regualr comp (pretty neat!)
+                ['<CR>'] = { 'select_accept_and_enter', 'fallback' },
+                ["<C-S-CR>"] = { 'fallback' }, -- ignore completion and just 'enter'
                 -- ["<ESC>"] = {
                 --     --https://github.com/Saghen/blink.cmp/issues/547
                 --     --Neovim behaves as if <Esc> was mapped to <CR>

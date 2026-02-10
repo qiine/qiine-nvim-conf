@@ -91,7 +91,9 @@ end)
 map({"i","n","v"}, "<C-n>", function()
     local buff_count  = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
+
     v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
+    v.cmd("startinsert")
 end)
 
 -- Reopen prev
@@ -180,10 +182,12 @@ map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 
 -- File action
 map({"i","n","v"}, "<C-g>fn", fs.file_create)
+map({"i","n","v"}, "<M-n>", "<Nop>")
 map({"i","n","v"}, "<M-n>f", fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 -- map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
 map({"i","n","v"}, "<C-g>fm", fs.file_move_interac)
+map({"i","n","v"}, "<C-g>fmp", "<Cmd>FileMoveProj<CR>")
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
 map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
 
@@ -194,8 +198,8 @@ map({"i","n","v","c"}, "<C-s>", "<Cmd>FileSaveInteractive<CR>")
 -- Save as
 map({"i","n","v","c"}, "<C-M-s>", "<Cmd>FileSaveAsInteractive<CR>")
 
-map("v", "<C-g>fa", function() fs.append_select_to_file() end)
-map("v", "<C-g>fc", function() fs.move_select_to_file() end)
+map("v", "<C-g>fa", function() fs.append_selection_to_file() end)
+map("v", "<C-g>fc", function() fs.move_selection_to_file() end)
 
 -- Ressource curr file
 map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
@@ -210,7 +214,7 @@ map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
 
 -- Open filetree
 map({"i","n","v","t"}, "<C-b>", function()
-    local rootdir = fs.utils.find_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.find_proj_rootdir_for_file(vim.api.nvim_buf_get_name(0))
 
     require("neo-tree.command").execute({
         action = "show",
@@ -711,7 +715,7 @@ end)
 
 -- cd curr file proj root dir
 map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = fs.utils.find_file_proj_rootdir(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.find_proj_rootdir_for_file(vim.api.nvim_buf_get_name(0))
     vim.cmd("cd "..rootdir.." | pwd")
 end)
 
@@ -1839,7 +1843,15 @@ map("i",       "²", "<esc>:")
 map({"n","v"}, "²", ":")
 map("t",       "²", "<Esc><C-\\><C-n>:")
 
--- cmd completion menu
+-- Prevent <BS> from leaving cmdline
+map("c", "<BS>", function()
+    if vim.fn.getcmdline() ~= "" then return "<BS>" end
+end, {expr=true})
+
+-- clear all text
+map("c", "<S-BS>", '<C-u>')
+
+-- ### cmd completion menu
 -- map("c", "<C-d>", "<C-d>")
 
 -- Cmd menu nav
@@ -1848,8 +1860,6 @@ map("c", "<Down>", "<C-n>")
 
 map("c", "<S-Tab>", "<C-n>")
 
--- clear all text
-map("c", "<S-BS>", '<C-u>')
 
 -- Close cmd
 map("c", "<esc>", "<C-c>", {noremap=true})
@@ -1914,10 +1924,12 @@ map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
 -- ## Org
 ----------------------------------------------------------------------
 -- ### Notes
-vim.keymap.set({"i","n","v","t"}, "<M-n>n", "<Cmd>NoteCreateCWD<CR>")
+vim.keymap.set({"i","n","v","t"}, "<M-n>n", "<Cmd>NoteCreate<CR>")
+vim.keymap.set({"i","n","v","t"}, "<M-n>nc", "<Cmd>NoteCreateCWD<CR>")
 
--- ### ask planner
--- General task
+
+-- ### Task planner
+-- General task pannel
 map({"i","n","v","c","t"}, "<F6>", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
@@ -1949,6 +1961,8 @@ map({"i","n","v","c","t"}, "<F18>", function()
     vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
 end)
 
+
+-- ### Journal
 -- Open journal <C-F6>
 map({"i","n","v","t"}, "<F30>", function()
     vim.cmd("Oil ~/Personal/Org/Journal/")

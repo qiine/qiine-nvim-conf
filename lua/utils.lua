@@ -13,11 +13,6 @@ function M.is_tty()
     local b = vim.fn.has("unix") == 1 and vim.fn.getenv("DISPLAY") == nil and vim.fn.getenv("WAYLAND_DISPLAY") == nil
     return b
 end
---if is_tty() then
---    print("Running in TTY")
---else
---    print("Not in TTY")
---end
 
 
 
@@ -122,9 +117,6 @@ end
 
 
 
-
-
-
 -- ## [cursor]
 ----------------------------------------------------------------------
 function M.get_cursor_pos()
@@ -164,28 +156,6 @@ function M.send_keystroke(key, mode, immediate)
 
     return keystroke
 end
-
-
--- ## [Filesystem]
-----------------------------------------------------------------------
----@return boolean|nil
-function M.is_bin(path)
-    if vim.fn.filereadable(path) ~= 1 then
-        return nil
-    end
-
-    local res = vim.system(
-        { "file", "-b", "--mime", path },
-        { text = true }
-    ):wait()
-
-    if res.code ~= 0 or not res.stdout then return nil end
-    local restrim = vim.fn.trim(res.stdout)
-
-    return restrim:find("charset=binary") ~= nil
-end
-
-
 
 
 

@@ -313,7 +313,7 @@ end, {})
 
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
-    print(fs.utils.find_file_proj_rootdir(vim.api.nvim_buf_get_name(0)))
+    print(fs.utils.find_proj_rootdir_for_file(vim.api.nvim_buf_get_name(0)))
 end, {})
 
 -- Send file info to clipboard
@@ -334,7 +334,7 @@ end, {})
 
 vim.api.nvim_create_user_command("CopyFileProjRootDirRel", function()
     local fpath     = vim.fn.expand("%:p")
-    local prdir     = fs.utils.find_file_proj_rootdir(fpath)
+    local prdir     = fs.utils.find_proj_rootdir_for_file(fpath)
     local fpath_prr = fs.utils.make_path_projroot_rel(fpath, prdir)
     vim.fn.setreg("+", fpath_prr)
     print("Copied file dir path root rel: " ..'"'..vim.fn.getreg("+")..'"')
@@ -591,7 +591,7 @@ end, {})
 vim.api.nvim_create_user_command("FileMoveProj", function()
     local fpath    = vim.api.nvim_buf_get_name(0)
     local fname    = vim.fn.expand("%:t")
-    local fprojdir = fs.utils.find_file_proj_rootdir(fpath)
+    local fprojdir = fs.utils.find_proj_rootdir_for_file(fpath)
     if not fprojdir then
         vim.notify("File not in a project! "..fpath, vim.log.levels.ERROR) return
     end
@@ -830,8 +830,8 @@ end, {})
 
 
 -- ### Dirs
-vim.api.nvim_create_user_command("FSPrintProjRootDir", function()
-    print(fs.utils.find_proj_rootdir() )
+vim.api.nvim_create_user_command("PrintProjRootDirCWD", function()
+    print(fs.utils.find_proj_rootdir_for_path(vim.fn.getcwd()) )
 end, {})
 
 
@@ -1570,8 +1570,7 @@ vim.api.nvim_create_user_command("NoteCreate", function(opts)
             vim.cmd("lcd "..cwd)
             if category == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
 
-            local notepath = notespath.."/"..category.."/"..notename..".md"
-            notepath = vim.fs.normalize(notepath)
+            local notepath = vim.fs.normalize(notespath.."/"..category.."/"..notename..".md")
 
             if vim.uv.fs_stat(notepath) then
                 vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
@@ -1579,7 +1578,7 @@ vim.api.nvim_create_user_command("NoteCreate", function(opts)
 
             local lines = vim.fn.readfile(vim.fn.stdpath("config").."/snippets/markdown.json")
             local snippets = vim.fn.json_decode(table.concat(lines, "\n"))
-            local snippet = snippets["note template"]
+            local snippet  = snippets["note template"]
             local body = vim.deepcopy(snippet.body)
             for i, line in ipairs(body) do
                 body[i] = line:gsub("%${1:.-}", notename)
@@ -1595,7 +1594,12 @@ vim.api.nvim_create_user_command("NoteCreate", function(opts)
 end, {})
 
 vim.api.nvim_create_user_command("NoteCreateCWD", function(opts)
+    local notespath = vim.fn.expand("~/Personal/Org/Notes")
     local cwd = vim.fn.getcwd()
+
+    if notespath ~= fs.utils.find_proj_rootdir_for_path(cwd) then
+        vim.notify("CWD not in notes dir! ", vim.log.levels.ERROR) return
+    end
 
     vim.ui.input({prompt="New note name: ", default="Newnote", completion="file"},
     function(input)

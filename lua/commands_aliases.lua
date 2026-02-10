@@ -4,7 +4,6 @@
 
 local aliases =
 {
-    cwd2f = "WorkDirToCurrent",
     lsw = "Lsw",
 }
 

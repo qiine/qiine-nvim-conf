@@ -130,10 +130,6 @@ function U.path_compress(path, opts)
     return out
 end
 
-function U.make_path_projroot_rel(path, rootpath)
-    return path:sub(#rootpath+2)
-end
-
 ---@param dirpath string
 ---@param ignore? table
 ---@return table
@@ -155,34 +151,41 @@ function U.get_files_path_in_dir(dirpath, ignore)
     return files
 end
 
----@param path? string
----@return string
-function U.find_proj_rootdir(path)
+---@param path string
+---@return string|nil
+function U.find_proj_rootdir_for_path(path)
+    if not path then return nil end
+
     return vim.fs.root(
-        path or vim.fn.getcwd(),
+        path,
         {"Makefile", ".git", "Cargo.toml", "package.json"}
-    ) or vim.fn.getcwd()
+    )
+    or nil
 end
 
----@param fpath? string
+---@param path? string
 ---@return string|nil
-function U.find_file_proj_rootdir(fpath)
-    fpath = fpath or vim.fn.expand("%:p")
+function U.find_proj_rootdir_for_file(path)
+    if not path then return nil end
 
-    local froot = vim.fs.root(fpath,
+    local froot = vim.fs.root(path,
         { "README.md", "Makefile", ".git", "Cargo.toml", "package.json" }
     )
 
     if froot then
         return froot
     else
-        local fdir = vim.fn.fnamemodify(fpath, ':h')
+        local fdir = vim.fn.fnamemodify(path, ':h')
         local stat = vim.uv.fs_stat(fdir)
 
         if not stat or not stat.type == "directory" then return vim.fn.getcwd() end
 
         return fdir
     end
+end
+
+function U.make_path_projroot_rel(path, rootpath)
+  return path:sub(#rootpath+2)
 end
 
 ---@param path string
@@ -207,19 +210,19 @@ end
 -- fs
 local M = {}
 
----@param fdir? string
+---@param dir? string
 ---@param focus? boolean
-function M.file_create(fname, fdir, focus)
-    fname = (fname ~= nil or fname == "") or "newfile"
-    fdir = fdir or vim.fn.getcwd()
+function M.file_create(name, dir, focus)
+    name = (name ~= nil or name == "") or "newfile"
+    dir = dir or vim.fn.getcwd()
     if focus == nil then focus = true end
 
     local fpath = ""
 
-    fpath = fdir.."/"..fname
+    fpath = dir.."/"..name
 
     -- auto name
-    local cwdfpaths = U.get_files_path_in_dir(fdir)
+    local cwdfpaths = U.get_files_path_in_dir(dir)
     local count = 0
     for _, f in ipairs(cwdfpaths) do
         if vim.startswith(f, fpath) then
@@ -268,15 +271,15 @@ function M.file_dup(fpath, focus)
     if focus then vim.cmd.edit(dupfpath) end
 end
 
----@param oldpath string
----@param newpath string
-function M.rename(oldpath, newpath, force)
+---@param name string
+---@param newname string
+function M.rename(name, newname, force)
     if force == nil then force = false end
 
-    if vim.fn.filereadable(newpath) == 1 and not force then return end
+    if vim.fn.filereadable(newname) == 1 and not force then return end
 
     -- Now rename
-    local ret, err = vim.uv.fs_rename(oldpath, newpath)
+    local ret, err = vim.uv.fs_rename(name, newname)
     if not ret then vim.notify("Rename failed: "..err, vim.log.levels.ERROR) return end
 
     -- will use oil for now
@@ -290,8 +293,8 @@ function M.rename(oldpath, newpath, force)
 
     -- lsp
     local changes = { files = { {
-        oldUri = vim.uri_from_fname(oldpath),
-        newUri = vim.uri_from_fname(newpath),
+        oldUri = vim.uri_from_fname(name),
+        newUri = vim.uri_from_fname(newname),
     } } }
 
     local clients = vim.lsp.get_clients()
@@ -313,7 +316,13 @@ function M.rename(oldpath, newpath, force)
     end
 end
 
----@param target string
+---@param src string
+---@param dest string
+---@param force boolean
+function M.move(src, dest, force)
+    M.rename(src, dest, force)
+end
+
 function M.file_move_interac(target)
     local fpath = vim.api.nvim_buf_get_name(0)
     local fdir  = vim.fn.fnamemodify(fpath, ":h")
@@ -337,7 +346,7 @@ function M.file_move_interac(target)
     prompt_user()
 end
 
-function M.append_select_to_file()
+function M.append_selection_to_file()
     vim.ui.input({prompt="Append selected to: ", default=vim.fn.getcwd(), completion="file"},
     function(input)
         if input == nil then vim.notify("Append canceled. ", vim.log.levels.INFO) return end
@@ -348,7 +357,7 @@ function M.append_select_to_file()
     end)
 end
 
-function M.move_select_to_file()
+function M.move_selection_to_file()
     vim.ui.input({prompt="Move selected to: ", default=vim.fn.getcwd(), completion="file"},
     function(input)
         if input == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end

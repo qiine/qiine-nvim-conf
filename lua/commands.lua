@@ -596,8 +596,7 @@ vim.api.nvim_create_user_command("FileMoveProj", function()
         vim.notify("File not in a project! "..fpath, vim.log.levels.ERROR) return
     end
 
-    local itrdirs = vim.fs.dir(fprojdir,
-        {
+    local itrdirs = vim.fs.dir(fprojdir, {
             depth = math.huge,
             skip = function(dir)
                 return dir ~= ".git"
@@ -609,6 +608,8 @@ vim.api.nvim_create_user_command("FileMoveProj", function()
     for dir, type in itrdirs do
         if type == "directory" then table.insert(dirs, dir) end
     end
+
+    dirs = dirs and table.sort(dirs) or dirs
 
     vim.ui.select(dirs, {prompt = "Target> "},
     function(choice)
@@ -1349,7 +1350,6 @@ end, {})
 
 vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
     local path = opts.args
-
     local cachepath = vim.fn.stdpath("cache").."/git_remote_browse/"
 
     -- check existing
@@ -1375,8 +1375,7 @@ vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
     local reponame = gen_reponame(path)
 
     -- Make repo dir
-    local repodir = cachepath..reponame
-    repodir = vim.fs.normalize(repodir)
+    local repodir = vim.fs.normalize(cachepath..reponame)
 
     local mkdir_ok = vim.fn.mkdir(repodir, "p")
 
@@ -1387,8 +1386,7 @@ vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
         function(res)
             vim.schedule(function()
                 if res.code ~= 0 then
-                    vim.notify("Clone failed\n"..res.stderr, vim.log.levels.ERROR)
-                    return
+                    vim.notify("Clone failed\n"..res.stderr, vim.log.levels.ERROR) return
                 end
 
                 vim.cmd("cd "..repodir)

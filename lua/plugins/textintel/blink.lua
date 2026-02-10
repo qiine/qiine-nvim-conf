@@ -168,8 +168,16 @@ return
             preset = 'none', --or default
 
             ['<C-space>'] = { 'show', "fallback" },
-            ['<CR>'] = { 'accept', 'fallback' },
-
+            -- ['<CR>'] = { 'accept', 'fallback' },
+            ['<C-S-CR>'] = {
+                function(cmp)
+                    if cmp.is_visible() then
+                        cmp.cancel()
+                        -- vim.api.nvim_feedkeys("\13", "n", false)
+                    end
+                end,
+                'fallback'
+            },
             ['<Tab>'] = {
                 function(cmp)
                     if cmp.snippet_active() then return cmp.accept()

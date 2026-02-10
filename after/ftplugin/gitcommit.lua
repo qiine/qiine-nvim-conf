@@ -72,7 +72,7 @@ end, {buffer = true})
 -- ### abbrev
 vim.keymap.set("ia", "fe",  "feat:",  {buffer=true})
 vim.keymap.set("ia", "ch",  "chore:", {buffer=true})
-
+vim.keymap.set("ia", "ad",  "add", {buffer=true})
 vim.keymap.set("ia", "upd", "update", {buffer=true})
 
 

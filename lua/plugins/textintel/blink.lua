@@ -171,12 +171,16 @@ return
             ['<CR>'] = { 'accept', 'fallback' },
             ['<C-S-CR>'] = {
                 function(cmp)
-                    if cmp.is_visible() then cmp.cancel(); end
+                    if cmp.is_visible() then cmp.cancel() end
                     vim.schedule(function()
+                        if vim.bo.filetype == "gitcommit" then
+                            vim.api.nvim_feedkeys("ZZ", "i", false) return
+                        end
                         vim.api.nvim_feedkeys("\13", "i", false)
                     end)
                 end,
             },
+
             ['<Tab>'] = {
                 function(cmp)
                     if cmp.snippet_active() then return cmp.accept()

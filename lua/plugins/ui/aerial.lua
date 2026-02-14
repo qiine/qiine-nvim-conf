@@ -144,8 +144,17 @@ return
         -- it will use the mapping at require("aerial.actions").<name>
         -- Set to `false` to remove a keymap
         keymaps = {
-            ["<CR>"] = "actions.select",
-            ["<C-CR>"] = "actions.jump",
+            ["<CR>"] = {
+                callback = function()
+                    require("aerial").select({jump = false})
+                end
+            },
+            ["<C-CR>"] = {
+                callback = function()
+                    require("aerial").select()
+                    require("aerial").close()
+                end
+            },
             ["<2-LeftMouse>"] = "actions.jump",
             ["<C-PageUp>"] = "actions.prev",
             ["<C-PageDown>"] = "actions.next",

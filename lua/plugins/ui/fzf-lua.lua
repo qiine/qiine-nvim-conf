@@ -9,14 +9,34 @@ return
         local fzfl = require("fzf-lua")
         fzfl.register_ui_select()
         fzfl.setup({
+            fzf = {
+                -- ["ctrl-d"] = "",
+            },
+
+            fzf_opts = {
+                ["--layout"] = "default",  -- default, reverse (search bar pos)
+                -- ["--marker"] = '>',
+                -- ["--with-nth"] = "1..",
+                -- ["--info"]     = "inline-right",
+                -- ["--prompt"] = "", --hide >
+                -- ["--highlight-line"] = false,
+
+            },
+
             defaults = {
                 actions = {
                     ["esc"] = "",  --restore esc to normal mode (now quit with C-w)
                 },
             },
+
             keymap = {
                 builtin = { },
-                fzf = { },
+                fzf = {
+                    ["ctrl-backspace"] = "backward-kill-word",
+                    ["ctrl-left"] = "backward-word",
+                    ["ctrl-right"] = "forward-word",
+                }
+
             },
 
             winopts = {
@@ -66,15 +86,7 @@ return
               }
             },
 
-            fzf_opts = {
-                ["--layout"] = "default",  -- default, reverse (search bar pos)
-                -- ["--marker"] = '>',
-                -- ["--with-nth"] = "1..",
-                -- ["--info"]     = "inline-right",
-                -- ["--prompt"] = "", --hide >
-                -- ["--highlight-line"] = false,
-            },
-
+            -- Pickers opts
             files = {
                 cmd = [[
                     rg --files --hidden \
@@ -503,15 +515,21 @@ return
         vim.keymap.set({"i","n","v","t"}, "<M-f>a", function() fzfl.api() end,
         {silent=true, desc="Fuzzy find "})
 
+
         -- Dictionary browser
         fzfl.dictionary = function()
-            fzfl.fzf_exec("cat /etc/dictionaries-common/words", {
-            -- fzfl.fzf_exec("hunspell -d en_US -D -L", {
+            local hunspellpath = vim.fn.system({
+                "nix", "eval", "--raw",
+                "nixpkgs#hunspellDicts.en_US"
+            }):gsub("%s+$", "")
+            local words = hunspellpath.."/share/hunspell/en_US.dic"
+
+            fzfl.fzf_exec("cat "..words, {
                 prompt = "Word> ",
                 previewer = function()
                     return make_preview(function(entry)
                         -- local res = vim.system({"dict", "-C", "-s", "exact", "-d", "gcide", entry}, { text = true }):wait()
-                        local res = vim.system({"dict", "-C", "-s", "exact", "-d", "wn", entry}, { text = true }):wait()
+                        local res = vim.system({"dict", "-C", "-s", "exact", entry}, {text=true}):wait()
                         return vim.split(res.stdout, "\n")
                     end)
                 end,

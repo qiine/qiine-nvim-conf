@@ -11,3 +11,9 @@ vim.filetype.add {
     },
 }
 
+vim.filetype.add({
+    pattern = {
+        ["/tmp/bash%-fc.*"] = "cmdeditor",
+    },
+})
+

@@ -7,7 +7,7 @@ local opt = {
                 model = "Qwen3.5-35B-A3B-UD-IQ4_NL",
             },
             opts = {
-                -- completion_provider = "blink", -- blink|cmp|coc|default
+                completion_provider = "blink", -- blink|cmp|coc|default
                 -- system_prompt = "",
             },
             roles = {
@@ -28,19 +28,53 @@ local opt = {
                     callback = "keymaps.send",
                     opts = { noremap = true, silent = true },
                 },
+                -- next = {
+                --     modes = {i="<C-PageDown>", n="<C-PageDown>"},
+                -- },
+                -- previous = {
+                --     modes = {i="<C-PageUp>", n="<C-PageUp>"},
+                -- },
+                -- cancel_request = {}
+                clear = {
+                    modes = {i="<C-S-L>", n="<C-S-L>", v="<C-S-L>"},
+                    -- callback = "keymaps.close",
+                },
+                close = { -- this disconect from llama.cpp and the ACP
+                    modes = {i="<C-S-q>", n="<C-S-q>", v="<C-S-q>"},
+                    callback = "keymaps.close",
+                },
                 change_adapter = {
-                    modes = { i = "<S-Space>aa", n = "<S-Space>aa" },
+                    modes = { i = "<S-Space>a", n = "<S-Space>aa" },
                     -- callback = "keymaps.change_adapter",
                     description = "[Adapter] Change adapter and model",
                     opts = { noremap = true, silent = true },
                 },
-                close = { -- this disconect from llama.cpp and the ACP
-                    modes = {
-                        i = "<C-S-q>",
-                        n = "<C-S-q>",
-                        v = "<C-S-q>",
-                    },
-                    callback = "keymaps.close",
+                change_adapter_opencode = {
+                    modes = { i="<S-Space>aa", n="<S-Space>aa" }, -- or any key combination you prefer
+                    callback = function(chat)
+                        chat:change_adapter("opencode")
+                        -- print("changed adapter to OpenCode")
+                    end,
+                    description = "Change adapter to OpenCode",
+                },
+                change_adapter_llamacpp = {
+                    modes = { i="<S-Space>ac", n="<S-Space>ac" },
+                    callback = function(chat)
+                        chat:change_adapter("llama.cpp")
+                        -- print("changed adapter to llama.cpp")
+                    end,
+                    description = "Change adapter to llama",
+                },
+                toggle_settings = {
+                    modes = { n = "gs" }, -- or any key combination you prefer
+                    callback = function(chat)
+                        local config = require("codecompanion.config")
+                        config.display.chat.show_settings = not config.display.chat.show_settings
+
+                        chat.ui:render(chat.context, chat.messages, {})
+                        -- chat.ui:refresh() -- Re-render the chat buffer to apply the change
+                    end,
+                    description = "Toggle settings display",
                 },
             },
         },
@@ -113,7 +147,7 @@ local opt = {
 
                 layout = "vertical", -- float|vertical|horizontal|tab|buffer
                 full_height = false, -- for vertical layout
-                position = right, -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
+                position = "right", -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
 
                 width = 0.5, ---@return number|fun(): number
                 height = 0.8, ---@return number|fun(): number
@@ -143,6 +177,7 @@ return {
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
+        'saghen/blink.cmp',
     },
 
     config = function()
@@ -150,14 +185,3 @@ return {
     end,
 }
 
--- keymaps = {
---     ["<C-s>"] = "keymaps.save", -- Save the chat buffer and trigger the LLM
---     ["<C-w>"] = "keymaps.close", -- Close the chat buffer
--- ["q"] = "keymaps.cancel_request", -- Cancel the currently streaming request
---     ["gc"] = "keymaps.clear", -- Clear the contents of the chat
---     ["ga"] = "keymaps.codeblock", -- Insert a codeblock into the chat
---     ["gs"] = "keymaps.save_chat", -- Save the current chat
---     ["gt"] = "keymaps.add_tool", -- Add a tool to the current chat buffer
---     ["]"] = "keymaps.next", -- Move to the next header in the chat
---     ["["] = "keymaps.previous", -- Move to the previous header in the chat
--- },

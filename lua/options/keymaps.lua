@@ -490,15 +490,20 @@ end)
 -- ## [Navigation]
 ----------------------------------------------------------------------
 -- Threat wrapped lines as distinct lines for up/down nav
--- map("i",       "<Up>", "<cmd>norm! g<Up><CR>") -- use norm to avoid visual glitch
--- map({"n","v"}, "<Up>", "g<up>")
+map("i", "<Up>", function()
+    return vim.wo.wrap and "<cmd>norm! gk<CR>" or "<Up>"
+end, {expr=true})
+map({"n","v"}, "<Up>", function()
+    return vim.wo.wrap and "gk" or "<Up>"
+end, {expr=true})
 
--- map("i",       "<Down>", "<cmd>norm! g<Down><CR>")
--- map({"n","v"}, "<Down>", "g<Down>")
+map("i", "<Down>", function()
+    return vim.wo.wrap and "<cmd>norm! gj<CR>" or "<Down>"
+end, {expr=true})
+map({"n","v"}, "<Down>", function()
+    return vim.wo.wrap and "gj" or "<Down>"
+end, {expr=true})
 
---maybe?
--- vim.keymap.set('n', 'j', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'j']], { expr = true })
--- vim.keymap.set('n', 'k', [[(v:count > 1 ? 'm`' . v:count : 'g') . 'k']], { expr = true })
 
 
 -- ### [Scrolling]
@@ -2003,16 +2008,39 @@ end)
 
 -- ## AI
 ----------------------------------------------------------------------
-map({"i","n","v","t"}, "<S-Space>ac", "<cmd>CodeCompanionChat<CR>")
-map({"i","n","v","t"}, "<M-w>va", "<cmd>CodeCompanionChat<CR>")
+map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat toggle<CR>")
+map({"i","n","v","t"}, "<M-w>va", "<cmd>CodeCompanionChat toggle<CR>")
 
 -- open chat with agent and opencode
-map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat adapter=opencode<cr>", {})
+-- map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat adapter=opencode<cr>", {})
+-- map({"i","n","v","t"}, "<S-Space>A", function()
+--     local chat = require("codecompanion").last_chat()
+--     if chat then
+--         chat:change_adapter("opencode")
+--     end
+-- end)
 
 map({"i","n","v","t"}, "<S-Space>ax", "<cmd>CodeCompanionActions<CR>")
-map({"i","n","v","t"}, "<S-Space>ae", "<cmd>CodeCompanionActions Chat<CR>")
 
+map("v", "<S-Space>ae", function() require("codecompanion").prompt("explain") end)
+map("v", "<S-Space>af", function() require("codecompanion").prompt("fix") end)
 
+-- Change model
+map({"i","n","v"}, "<leader>am", function()
+    local chat = require("codecompanion").last_chat()
+    if chat then
+        chat:change_model({ model = "Qwen3.5-35B-A3B-UD-IQ4_NL" })
+    end
+end)
+
+-- map({"i","n","v"}, "<leader>as", function()
+--     local config = require("codecompanion.config")
+--     local current = config.display.chat.show_settings
+--     config.display.chat.show_settings = not current
+
+--     local chat = require("codecompanion").last_chat()
+--     if chat then chat.ui:refresh() end
+-- end)
 
 
 

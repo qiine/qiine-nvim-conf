@@ -96,6 +96,13 @@ map({"i","n","v"}, "<C-n>", function()
     v.cmd("startinsert")
 end)
 
+-- Set filetype
+map({"i","n","v","c"}, "<C-g>ft", function()
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+    require("fzf-lua").filetypes({})
+end, {silent = true, desc = "search and set filetypes" })
+
+
 -- Reopen prev
 map(modes, "<C-S-t>", "<cmd>OpenLastClosedBuf<cr>")
 
@@ -191,6 +198,7 @@ map({"i","n","v"}, "<C-g>fmp", "<Cmd>FileMoveProj<CR>")
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
 map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
 
+
 -- ### Write
 -- Save current
 map({"i","n","v","c"}, "<C-s>", "<Cmd>FileSaveInteractive<CR>")
@@ -210,20 +218,6 @@ end)
 
 
 -- ### File explorer
-map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
-
--- Open filetree
-map({"i","n","v","t"}, "<C-b>", function()
-    local rootdir = fs.utils.find_proj_rootdir_for_file(vim.api.nvim_buf_get_name(0))
-
-    require("neo-tree.command").execute({
-        action = "show",
-        toggle = true,
-        focus  = false,
-        dir    = rootdir,
-    },{})
-end)
-
 -- Open file explorer
 map({"i","n","v","t"}, "<C-e>", function() fs.explorer_open_inplace() end)
 
@@ -260,12 +254,25 @@ map({"i","n","v","t"}, "<C-S-e>s", function()
     )
 end)
 
+-- Open filetree
+map({"i","n","v","t"}, "<C-b>", function()
+    local rootdir = fs.utils.find_proj_root_for_file(vim.api.nvim_buf_get_name(0))
+
+    require("neo-tree.command").execute({
+        action = "show",
+        toggle = true,
+        focus  = false,
+        dir    = rootdir,
+    },{})
+end)
 
 -- Open file picker
 map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
 
 map({"i","n","v"}, "<C-S-O>", "<cmd>Open %<CR>")
 
+-- ls
+map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
 
 -- ### Outliner
 map({"i","n","v"}, "<C-S-B>", "<cmd>AerialToggle<CR>")
@@ -715,7 +722,7 @@ end)
 
 -- cd curr file proj root dir
 map({"i","n","v"}, "<M-Home>", function()
-    local rootdir = fs.utils.find_proj_rootdir_for_file(vim.api.nvim_buf_get_name(0))
+    local rootdir = fs.utils.find_proj_root_for_file(vim.api.nvim_buf_get_name(0))
     vim.cmd("cd "..rootdir.." | pwd")
 end)
 
@@ -868,7 +875,7 @@ map("t", "<Ins>", "<Esc> <C-\\><C-n>")
 map("v", "<M-i>", "I")
 
 -- Insert at end of each lines
-map("v", "î", function()
+map("v", "æ", function()
     if vim.fn.mode() == '\22' then
         vim.api.nvim_feedkeys("$A", "n", false)
     else
@@ -1000,7 +1007,7 @@ map("v", "<C-v>", '"_d"+P')
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 
--- Smart paste
+-- Paste Smart
 map("n", "<C-v>", function()
     local curso_pos = vim.fn.getpos(".")
     local char   = vim.fn.getregion(curso_pos, curso_pos)[1]
@@ -1020,7 +1027,7 @@ map("n", "<C-v>", function()
     if ft == "" then
         -- no formating for unknown ft
     elseif ft == "markdown" or ft == "text" then
-        vim.cmd("norm! `[v`]gq")
+        -- vim.cmd("norm! `[v`]gq")
     else
         vim.cmd("norm! `[v`]=")
     end
@@ -1860,6 +1867,8 @@ map("c", "<Down>", "<C-n>")
 
 map("c", "<S-Tab>", "<C-n>")
 
+-- Use save as another run instead
+map("c", "<C-s>", "<CR>")
 
 -- Close cmd
 map("c", "<esc>", "<C-c>", {noremap=true})
@@ -1883,6 +1892,7 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
     callback = function()
         vim.cmd("startinsert")
         vim.keymap.set({"i","n","v"}, "<M-²>", "<cmd>quit<CR>" , {buffer=true})
+        vim.keymap.set({"i","n","v"}, "<C-w>", "<cmd>quit<CR>" , {buffer=true})
     end,
 })
 
@@ -1902,15 +1912,22 @@ map({"i","n","v","c","t"}, "<F22>", "<Esc><Cmd>MsglogToggle<CR>")
 -- Open term tab
 map({"i","n","v","t"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 
+
 map(modes, ldwin.."vt", function() win.open_split_ephem("vert") vim.cmd("term") end)
 -- Term toggle vert
 map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
+map({"i","n","v","t"}, "<M-t>v", term.toggle_vert)
 
 -- Term toggle hor
--- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
--- map({"i","n","v","t"}, "<F4>",   term.toggle_hor)
 map({"i","n","v","t"}, "<F4>", function() drawer.toggle(nil, {buftype="term"}) end)
 -- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
+-- map({"i","n","v","t"}, "<F4>",   term.toggle_hor)
+map({"i","n","v"}, "<M-w>wt", function()
+    vim.cmd("split")
+    term.open()
+    vim.bo[0].buflisted=false
+    vim.bo[0].bufhidden="wipe"
+end)
 
 -- Term float
 map({"i","n","v","t"}, "<M-t>f", term.open_fwin)
@@ -1963,13 +1980,39 @@ end)
 
 
 -- ### Journal
+-- Create new entry
+map({"i","n","v","t"}, "<M-n>j", function()
+
+end)
+
+-- Open last entry
+map({"i","n","v","t"}, "<M-F6>", function()
+
+end)
+
 -- Open journal <C-F6>
 map({"i","n","v","t"}, "<F30>", function()
     vim.cmd("Oil ~/Personal/Org/Journal/")
 end)
 
+
+
 -- open curr proj doc
 -- map({"i","n","v","c","t"}, "<F3>", function()
+
+
+-- ## AI
+----------------------------------------------------------------------
+map({"i","n","v","t"}, "<S-Space>ac", "<cmd>CodeCompanionChat<CR>")
+map({"i","n","v","t"}, "<M-w>va", "<cmd>CodeCompanionChat<CR>")
+
+-- open chat with agent and opencode
+map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat adapter=opencode<cr>", {})
+
+map({"i","n","v","t"}, "<S-Space>ax", "<cmd>CodeCompanionActions<CR>")
+map({"i","n","v","t"}, "<S-Space>ae", "<cmd>CodeCompanionActions Chat<CR>")
+
+
 
 
 

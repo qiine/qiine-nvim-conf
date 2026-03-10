@@ -93,7 +93,6 @@ map({"i","n","v"}, "<C-n>", function()
     local newbuff_num = #buff_count
 
     v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
-    v.cmd("startinsert")
 end)
 
 -- Set filetype
@@ -353,7 +352,9 @@ map("t",               ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 -- ### Create
 -- split hor/ver
 map(modes, ldwin.."v", function() win.open_split_ephem("vert") end)
+map(modes, ldwin.."V", function() win.open_split_ephem("vert") vim.cmd("enew") end)
 map(modes, ldwin.."w", function() win.open_split_ephem("hor") end)
+map(modes, ldwin.."W", function() win.open_split_ephem("vert") vim.cmd("enew") end)
 
 -- diff split
 map(modes, ldwin.."d", function()

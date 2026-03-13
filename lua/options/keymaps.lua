@@ -25,9 +25,9 @@ local map = vim.keymap.set
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
 
 
-----------------------------------------
 
 -- ## [key Options]
+----------------------------------------------------------------------
 vim.o.timeoutlen = 400 --delay between key press to register shortcuts
 
 -- Define % motion /matching/
@@ -520,11 +520,25 @@ map({"n","v"}, "<C-Right>", "<Cmd>norm! 7l<CR>")
 map({"n","v"}, "<C-Left>",  "<Cmd>norm! 7h<CR>")
 
 -- ctrl+up/down to move fast
-map("i",       "<C-Up>", "<esc>m'3ki")
-map({"n","v"}, "<C-Up>", "m'3k")
+map("i",       "<C-Up>", "<esc>m'4ki")
+map({"n","v"}, "<C-Up>", function()
+    local startline, curline = vim.fn.line("w0"), vim.fn.line(".")
 
-map("i",       "<C-Down>", "<esc>m'3ji")
-map({"n","v"}, "<C-Down>", "m'3j")
+    -- Scroll more at edge
+    local move_scale = curline == startline and "6" or "4"
+
+    vim.cmd("norm! m'"..move_scale.."k")
+end)
+
+map("i",       "<C-Down>", "<esc>m'4ji")
+map({"n","v"}, "<C-Down>", function()
+    local endline, curline = vim.fn.line("w$"), vim.fn.line(".")
+
+    -- Scroll more at edge
+    local move_scale = curline == endline and "6" or "4"
+
+    vim.cmd("norm! m'"..move_scale.."j")
+end)
 
 
 -- ### [Jump]
@@ -800,7 +814,7 @@ map({"i","n","v"}, "<S-Home>", "<esc>vgg0")
 map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 -- To Visual Line selection
--- TODO a bit hacky we would want proper <M-C-Right><M-C-Left>
+-- TODO a bit hacky we would want proper <C-M-Right><C-M-Left>
 map({"i","n","v"}, "<C-M-Right>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
@@ -1262,7 +1276,7 @@ map("v", "<M-S-s>",
 [[<esc>:'<,'>s/\V//g<Left><Left><Left>]],
 {desc = "Enter substitute mode in selection"})
 
--- Sub word (exclusive)
+-- Substitute word (exclusive)
 map({"i","n"}, "<F50>", -- <M-F2>
 [[<esc>yiw:%s/\V\<<C-r>"\>//g<Left><Left>]],
 {desc = "Substitute word under cursor" })
@@ -1700,7 +1714,7 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 
 
 
--- ## [git]
+-- ## [Version control]
 ----------------------------------------------------------------------
 local ldvc = "<S-Space>g"
 
@@ -2007,7 +2021,7 @@ end)
 -- map({"i","n","v","c","t"}, "<F3>", function()
 
 
--- ## AI
+-- ## [AI]
 ----------------------------------------------------------------------
 map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat toggle<CR>")
 map({"i","n","v","t"}, "<M-w>va", "<cmd>CodeCompanionChat toggle<CR>")

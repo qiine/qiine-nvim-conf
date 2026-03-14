@@ -11,21 +11,25 @@ local M = {}
 -- cycle tables
 M.toggle_table = {
     -- truth
-    ["yes"]  = "no",    ["no"]    = "yes",
-    ["true"] = "false", ["false"] = "true",
+    ["yes"]     = "no",    ["no"]    = "yes",
+    ["true"]    = "false", ["false"] = "true",
+    ["correct"] = "wrong", ["wrong"] = "correct",
 
     -- action
     ["on"]       = "off",        ["off"]        = "on",
     ["activate"] = "deactivate", ["deactivate"] = "activate",
     ["enable"]   = "disable",    ["disable"]    = "enable",
     ["enabled"]  = "disabled",   ["disabled"]   = "enabled",
+    ["move"]     = "stop",       ["stop"]       = "move",
 
     ["always"] = "never", ["never"] = "always",
-    ["all"] = "none", ["none"] = "all",
+    ["all"]    = "none",  ["none"]  = "all",
+    ["allow"]  = "deny",  ["deny"]  = "allow",
 
     -- direction
-    ["left"] = "right", ["right"] = "left",
-    ["up"] = "down", ["down"] = "up",
+    ["left"] = "right",  ["right"]  = "left",
+    ["up"]   = "down",   ["down"]   = "up",
+    ["top"]  = "bottom", ["bottom"] = "top",
     ["ascending"] = "descending", ["descending"] = "ascending",
     [">"] = "<", ["<"] = ">",
 

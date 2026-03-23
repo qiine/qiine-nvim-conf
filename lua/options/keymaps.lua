@@ -195,6 +195,7 @@ map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 map({"i","n","v"}, "<C-g>fm", fs.file_move_interac)
 map({"i","n","v"}, "<C-g>fmp", "<Cmd>FileMoveProj<CR>")
 map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
+map({"i","n","v"}, "<F26>", "<Cmd>FileRename<CR>") -- <C-F2>
 map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
 
 
@@ -1141,6 +1142,7 @@ map({"i","n"}, "<S-M-BS>", '<cmd>norm! "_db<CR>')
 --     if curso_prvrow > vim.api.nvim_win_get_cursor(0)[1] then vim.cmd("norm! j0") end
 -- end)
 map("c", "<S-M-BS>", '<C-w>')
+-- map("t", "<S-M-BS>", '<C-h>') unrealiable in nested nvim
 
 -- Remove to start of line
 map({"i","n","v"}, "<M-BS>", function()
@@ -1410,9 +1412,10 @@ map("i", "<C-S-j>", "<esc>k<S-j>i") --this syntax allow to use count
 map("n", "<C-S-j>", "k<S-j>")
 
 -- Split line
-map("n", "<M-j>", function()
+map({"i","n"}, "<M-j>", function()
     vim.cmd("silent! "..[[s/, /,\r/g]])
     vim.cmd("noh")
+    vim.cmd("norm! v``=")
 end)
 
 
@@ -1939,9 +1942,9 @@ map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 map({"i","n","v","t"}, "<M-t>v", term.toggle_vert)
 
 -- Term toggle hor
-map({"i","n","v","t"}, "<F4>", function() drawer.toggle(nil, {buftype="term"}) end)
+-- map({"i","n","v","t"}, "<F4>", function() drawer.toggle(nil, {buftype="term"}) end)
 -- map({"i","n","v","t"}, "<M-t>h", term.toggle_hor)
--- map({"i","n","v","t"}, "<F4>",   term.toggle_hor)
+map({"i","n","v","t"}, "<F4>", term.toggle_hor)
 map({"i","n","v"}, "<M-w>wt", function()
     vim.cmd("split")
     term.open()
@@ -2023,7 +2026,15 @@ end)
 
 -- ## [AI]
 ----------------------------------------------------------------------
-map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat toggle<CR>")
+map({"i","n","v"}, "<S-Space>a", function()
+    -- win.open_split_ephem("vert")
+    vim.cmd("vsp")
+    vim.cmd("term opencode")
+    vim.bo[0].buflisted = false
+    vim.cmd("startinsert")
+end)
+
+-- map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat toggle<CR>")
 map({"i","n","v","t"}, "<M-w>va", "<cmd>CodeCompanionChat toggle<CR>")
 
 -- open chat with agent and opencode

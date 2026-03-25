@@ -69,8 +69,26 @@ vim.api.nvim_set_hl(0, "Folded", { link = "Normal" })
 
 -- ### [Format]
 -- vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
-vim.opt_local.formatoptions:append("t") -- auto-wrap text at textwidth
+vim.opt_local.formatoptions:append("t") -- auto hard wrap text at textwidth
 -- vim.opt_local.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
+
+vim.o.wrap = false
+
+-- Detect soft wrap
+local readmes = {
+    "readme",
+    "license",
+    "agent", "agents",
+    "skills", "skill",
+    "contributing",
+    "changelog",
+    "architecture",
+}
+
+local fname = vim.fn.expand("%:t:r"):lower()
+if vim.tbl_contains(readmes, fname) then
+    vim.o.wrap = true
+end
 
 -- Indentation
 vim.opt_local.shiftwidth  = 2 --Number of spaces to use for indentation

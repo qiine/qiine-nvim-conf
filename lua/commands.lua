@@ -313,7 +313,7 @@ end, {})
 
 -- ### [Files]
 vim.api.nvim_create_user_command("PrintFileProjRootDir", function()
-    print(fs.utils.find_proj_rootdir_for_file(vim.api.nvim_buf_get_name(0)))
+    print(fs.utils.find_proj_root_for_file(vim.api.nvim_buf_get_name(0)))
 end, {})
 
 -- Send file info to clipboard
@@ -332,9 +332,15 @@ vim.api.nvim_create_user_command("CopyFileDir", function()
     print("Copied file dir path: " ..'"'..vim.fn.getreg("+")..'"')
 end, {})
 
+vim.api.nvim_create_user_command("CopyFileProjRoot", function()
+    local path = fs.utils.find_proj_root_for_file(vim.api.nvim_buf_get_name(0))
+    vim.fn.setreg("+", path)
+    print("Copied file proj root: " ..'"'..vim.fn.getreg("+")..'"')
+end, {})
+
 vim.api.nvim_create_user_command("CopyFileProjRootDirRel", function()
     local fpath     = vim.fn.expand("%:p")
-    local prdir     = fs.utils.find_proj_rootdir_for_file(fpath)
+    local prdir     = fs.utils.find_proj_root_for_file(fpath)
     local fpath_prr = fs.utils.make_path_projroot_rel(fpath, prdir)
     vim.fn.setreg("+", fpath_prr)
     print("Copied file dir path root rel: " ..'"'..vim.fn.getreg("+")..'"')
@@ -517,47 +523,32 @@ end, {})
 
 vim.api.nvim_create_user_command("FileMove", function()
     local fpath = vim.api.nvim_buf_get_name(0)
-    local fdir  = vim.fn.fnamemodify(fpath, ":h")
-    local fname = vim.fn.fnamemodify(fpath, ":t")
+    local fdir  = vim.fn.expand("%:p:h")
+    local fname = vim.fn.expand("%:p:t")
 
     local function prompt_user()
-        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
-        function(input)
+        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"}, function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
             if input == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end
 
-            -- Check target dir
-            if not vim.uv.fs_stat(input) then
-                local choice = vim.fn.confirm("Directory doesn't exist. Create it?", "&Yes\n&No", 1)
-                if choice == 1 then
-                    local ret, err = vim.uv.fs_mkdir(input, tonumber("755", 8)) -- drwxr-xr-x
-                    if not ret then
-                        vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
-                    end
-                else
-                    vim.notify("Directory creation cancelled.", vim.log.levels.INFO)
-                    return prompt_user()
-                end
-            end
+            local dest = vim.fs.joinpath(input, fname)
 
-            local target_path = vim.fs.joinpath(input, fname)
-
-            -- Check target path for existing file
-            if vim.uv.fs_stat(target_path) then
+            -- Check existing file
+            if vim.uv.fs_stat(dest) then
                 local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
                 if choice ~= 1 then
-                    vim.notify("Overwriting cancelled.", vim.log.levels.INFO)
+                    vim.notify("Overwrite cancelled.", vim.log.levels.INFO)
                     return prompt_user()
                 end
             end
 
-            local ret, err = vim.uv.fs_rename(fpath, target_path)
-            if not ret then vim.notify("Move failed: " .. err, vim.log.levels.ERROR) return end
+            local res = vim.system({ "mv", "-f", fpath, dest }):wait()
+            if res.code ~= 0 then vim.notify("Move failed: "..res.stderr, vim.log.levels.ERROR) return end
 
-            -- Update buffer
-            vim.cmd("file "..target_path.." | e!") -- need refresh buf
-            vim.notify("Moved to: " .. input, vim.log.levels.INFO)
+            -- Update buf
+            vim.cmd("file "..dest.." | e!") -- need refresh buf
+            vim.notify("Moved to: "..input, vim.log.levels.INFO)
         end)
     end
     prompt_user()
@@ -567,12 +558,11 @@ vim.api.nvim_create_user_command("FileMoveToCWD", function()
     local fpath  = vim.api.nvim_buf_get_name(0)
     local fname  = vim.fn.expand("%:t")
 
-    local target_dir = vim.fn.getcwd()
-
-    local target_fpath = vim.fs.joinpath(target_dir, fname)
+    local dest_dir = vim.fn.getcwd()
+    local dest_fpath = vim.fs.joinpath(dest_dir, fname)
 
     -- check target path for existing file
-    if vim.uv.fs_stat(target_fpath) then
+    if vim.uv.fs_stat(dest_fpath) then
         local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
         if choice ~= 1 then
             vim.notify("Overwriting cancelled.", vim.log.levels.INFO) return
@@ -580,18 +570,17 @@ vim.api.nvim_create_user_command("FileMoveToCWD", function()
     end
 
     -- Now move
-    local ok, err = vim.uv.fs_rename(fpath, target_fpath)
+    local ok, err = vim.uv.fs_rename(fpath, dest_fpath)
     if not ok then vim.notify("Move failed: "..err, vim.log.levels.ERROR) return end
 
-    -- Update buf
-    vim.api.nvim_buf_set_name(0, target_fpath); vim.cmd("e!") --refresh buf to new path
-    vim.notify("Moved to: "..target_dir, vim.log.levels.INFO)
+    vim.api.nvim_buf_set_name(0, dest_fpath); vim.cmd("e!")
+    vim.notify("Moved to: "..dest_dir, vim.log.levels.INFO)
 end, {})
 
 vim.api.nvim_create_user_command("FileMoveProj", function()
     local fpath    = vim.api.nvim_buf_get_name(0)
     local fname    = vim.fn.expand("%:t")
-    local fprojdir = fs.utils.find_proj_rootdir_for_file(fpath)
+    local fprojdir = fs.utils.find_proj_root_for_file(fpath)
     if not fprojdir then
         vim.notify("File not in a project! "..fpath, vim.log.levels.ERROR) return
     end
@@ -686,7 +675,6 @@ vim.api.nvim_create_user_command("SymlinkFile", function()
     vim.ui.input({ prompt = "Symlink path: ", default = cwd, completion = "dir" },
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
-
         if input == nil then vim.notify("linking cancelled.", vim.log.levels.INFO) return end
 
         local res = vim.system({"ln", "-s", fpath, input}, {text=true}):wait()
@@ -739,6 +727,7 @@ vim.api.nvim_create_user_command("SetFileReadonly", function()
 
     if fpath == "" then vim.notify("No file!", vim.log.levels.WARN) return end
 
+    --TODO use vim.system
     local ok = os.execute("chmod -w "..vim.fn.shellescape(fpath))
     if ok == 0 then
         vim.bo.readonly = true  -- Optional refresh lualine
@@ -911,7 +900,7 @@ end, {})
 
 
 
--- ## [Editing]
+-- ## Editing
 --------------------------------------------------
 -- Trim select, include tab and break lines
 vim.api.nvim_create_user_command("TrimWhitespaces", function(opts)

@@ -149,7 +149,18 @@ end, {})
 
 
 -- autocmds
-vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
+vim.api.nvim_create_autocmd(
+  {
+    "WinEnter",
+    "BufWinEnter",
+    "BufEnter",
+    "BufFilePost",
+    "BufWritePost",
+    "BufModifiedSet",
+    "DirChanged",
+    "VimResized",
+  },
+  {
     group    = "UserAutoCmds",
     callback = function(args)
         vim.defer_fn(function()

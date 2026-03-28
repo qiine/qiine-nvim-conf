@@ -58,7 +58,7 @@ end
 ---@field replacestring string
 ---
 ---@param path string
----@param opts? pathcompress_opts compression settings
+---@param opts pathcompress_opts @compression settings
 ---@return string|nil
 function U.path_compress(path, opts)
     local defopts = {
@@ -71,7 +71,7 @@ function U.path_compress(path, opts)
         compressratio = 0.4,
         replacestring = "…",
     }
-    opts = vim.tbl_deep_extend("force", opts or {}, defopts)
+    opts = vim.tbl_deep_extend("force", defopts, opts or {})
 
     if not path then return nil end
     if path == "" or path == "/" or path == "~/" or path == "~" then return path end
@@ -165,7 +165,7 @@ end
 
 ---@param path? string
 ---@return string|nil
-function U.find_proj_rootdir_for_file(path)
+function U.find_proj_root_for_file(path)
     if not path then return nil end
 
     local froot = vim.fs.root(path,
@@ -185,7 +185,7 @@ function U.find_proj_rootdir_for_file(path)
 end
 
 function U.make_path_projroot_rel(path, rootpath)
-  return path:sub(#rootpath+2)
+    return path:sub(#rootpath+2)
 end
 
 ---@param path string
@@ -273,14 +273,23 @@ end
 
 ---@param name string
 ---@param newname string
-function M.rename(name, newname, force)
+---@param force boolean? @Default false
+---@param verbose boolean? @Default true
+function M.rename(name, newname, force, verbose)
     if force == nil then force = false end
+    if verbose == nil then verbose = true end
 
-    if vim.fn.filereadable(newname) == 1 and not force then return end
+    if vim.fn.filereadable(newname) == 1 and not force then
+        if verbose then vim.notify("Rename failed file with same name", vim.log.levels.ERROR) end
+        return false
+    end
 
     -- Now rename
-    local ret, err = vim.uv.fs_rename(name, newname)
-    if not ret then vim.notify("Rename failed: "..err, vim.log.levels.ERROR) return end
+    local res = vim.system({ "mv", "-f", name, newname }):wait()
+    if res.code ~= 0 then
+        vim.notify("Rename failed: "..res.stderr, vim.log.levels.ERROR)
+        return false
+    end
 
     -- will use oil for now
     -- require("oil.fs").recursive_move("file", oldpath, newpath, vim.schedule_wrap(function(err)
@@ -314,36 +323,24 @@ function M.rename(name, newname, force)
             client:notify("workspace/didRenameFiles", changes)
         end
     end
+
+    if verbose then vim.notify("Rename success.", vim.log.levels.INFO) end
+    return true
 end
 
 ---@param src string
 ---@param dest string
----@param force boolean
-function M.move(src, dest, force)
-    M.rename(src, dest, force)
-end
+---@param force boolean? @Default false
+---@param verbose boolean? @Default true
+function M.move(src, dest, force, verbose)
+    if force == nil then force = false end
+    if verbose == nil then verbose = true end
 
-function M.file_move_interac(target)
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local fdir  = vim.fn.fnamemodify(fpath, ":h")
-    local fname = vim.fn.fnamemodify(fpath, ":t")
+    local res = M.rename(src, dest, force, false)
 
-    local function prompt_user()
-        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"},
-        function(input)
-            vim.api.nvim_command("redraw") -- ensure prompt hidden
-            if input == nil then vim.notify("Move canceled.", vim.log.levels.INFO) return end
-
-            local newfpath = vim.fs.joinpath(input, fname)
-
-            M.rename(fpath, newfpath)
-
-            vim.cmd("e "..newfpath); vim.cmd("e!")
-            if vim.bo[0].bufhidden == "" then vim.cmd("silent! bd #") end
-            vim.notify('Moved to: "'..input..'"', vim.log.levels.INFO)
-        end)
+    if verbose then
+        vim.notify("Moved to: "..dest, vim.log.levels.INFO)
     end
-    prompt_user()
 end
 
 function M.append_selection_to_file()
@@ -372,7 +369,7 @@ end
 
 -- ### Nav
 function M.file_open_next(reverse)
-    reverse = reverse ~= nil and reverse or false
+    if reverse == nil then reverse = false end
 
     local cwd = vim.fn.getcwd()
     local cfpath, cfdir = vim.fn.expand("%:p"), vim.fn.expand("%:p:h")
@@ -442,11 +439,10 @@ end
 function M.explorer_open_inplace(dir)
     dir = dir and vim.fs.normalize(dir) or nil
 
-    local buf       = vim.api.nvim_get_current_buf()
-
-    local bufpath   = vim.api.nvim_buf_get_name(buf)
-    local bufname   = vim.fn.fnamemodify(bufpath, ":t")
-    local bufdir    = vim.fn.expand("%:p:h")
+    local buf     = vim.api.nvim_get_current_buf()
+    local bufpath = vim.api.nvim_buf_get_name(buf)
+    local bufname = vim.fn.fnamemodify(bufpath, ":t")
+    local bufdir  = vim.fn.expand("%:p:h")
 
     local bufhasfile = vim.fn.filereadable(bufpath) == 1
 
@@ -456,7 +452,7 @@ function M.explorer_open_inplace(dir)
     local targetdir
     if dir and vim.uv.fs_stat(dir) ~= nil then
         targetdir = dir
-    elseif bufhasfile and bufdir then
+    elseif bufhasfile and bufdir then -- try fallback to buf file dir
         targetdir = bufdir
     else
         targetdir = vim.fn.getcwd()
@@ -486,6 +482,7 @@ function M.explorer_open_inplace(dir)
         end
     )
 end
+
 
 --------
 M.utils = U

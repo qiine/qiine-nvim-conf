@@ -9,6 +9,7 @@
 
 local utils    = require("utils")
 local fs       = require("fs")
+local bufrs    = require("bufrs")
 local win      = require("ui.win")
 local drawer   = require("ui.drawer")
 local term     = require("term")
@@ -191,11 +192,10 @@ map({"i","n","v"}, "<C-g>fn", fs.file_create)
 map({"i","n","v"}, "<M-n>", "<Nop>")
 map({"i","n","v"}, "<M-n>f", fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
--- map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMove<CR>")
-map({"i","n","v"}, "<C-g>fm", fs.file_move_interac)
+map({"i","n","v"}, "<C-g>fm", bufrs.file_mv_interac)
 map({"i","n","v"}, "<C-g>fmp", "<Cmd>FileMoveProj<CR>")
-map({"i","n","v"}, "<C-g>fr", "<Cmd>FileRename<CR>")
-map({"i","n","v"}, "<F26>", "<Cmd>FileRename<CR>") -- <C-F2>
+map({"i","n","v"}, "<C-g>fr", bufrs.file_rename_interac)
+map({"i","n","v"}, "<F26>", bufrs.file_rename_interac) -- <C-F2>
 map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
 
 
@@ -625,7 +625,7 @@ map("n", "%", function()
 
     local char = vim.fn.getregion(vim.fn.getpos('.'), vim.fn.getpos('.'))[1]
 
-    if node:type() == "function_definition" or node:type() == "function_declaration" then
+    if node ~= nil and (node:type() == "function_definition" or node:type() == "function_declaration") then
         local curso_spos = vim.api.nvim_win_get_cursor(0)
 
         vim.cmd("norm vaf")
@@ -1906,8 +1906,9 @@ map("i", "<C-l>", "<C-o><C-l>")
 vim.cmd('set cedit=') -- avoids interferences
 
 map("n", "q:", 'q:')
-map({"i","n","v","c"}, "<M-²>", '<esc>q:')
-map("t", "<M-²>", '<Esc><C-\\><C-n>q:')
+map({"i","n","v"}, "<M-²>", '<Esc>q:')
+map("c", "<M-²>", '<C-c>q:')
+map("t", "<M-²>", '<C-c><C-\\><C-n>q:')
 
 -- Easy exit command line window
 vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
@@ -2027,11 +2028,9 @@ end)
 -- ## [AI]
 ----------------------------------------------------------------------
 map({"i","n","v"}, "<S-Space>a", function()
-    -- win.open_split_ephem("vert")
-    vim.cmd("vsp")
-    vim.cmd("term opencode")
-    vim.bo[0].buflisted = false
+    vim.cmd("vsp | term pi")
     vim.cmd("startinsert")
+    vim.bo[0].buflisted = false
 end)
 
 -- map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat toggle<CR>")

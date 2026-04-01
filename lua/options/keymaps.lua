@@ -1755,19 +1755,8 @@ map({"i","n","v"}, ldvc.."c", function()
 end)
 
 -- Commit curr file
-map({"i","n","v"}, ldvc.."cc", function()
-    local fp   = vim.fn.expand("%:p")
-    local fdir = vim.fn.expand("%:p:h")
-
-    term.open_fwin(nil, {
-        title = "Commit file",
-        wratio = 0.85, hratio = 0.75,
-    }, "bash --norc")
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "cd "..fdir.."\n")
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add "..fp.."\n")
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -ov "..fp.."\n")
-end)
+map({"i","n","v"}, ldvc.."cc", git.commit_curr)
+map({"i","n","v"}, "<M-C-S-S>", git.commit_curr)
 
 -- git push
 map({"i","n","v"}, ldvc.."<S-p>", function()
@@ -1783,7 +1772,10 @@ end)
 map({"i","n","v"}, ldvc.."d", "<Cmd>GitDiffFileRevision<CR>")
 
 
-map({"i","n","v"}, ldvc.."h", git.log_pretty)
+-- Commit graph
+-- map({"i","n","v"}, ldvc.."h", git.log_pretty)
+
+map({"i","n","v"}, ldvc.."h", "<Cmd>CodeDiff history --inline<CR>")
 
 -- git log curr file
 map("n", ldvc.."hf", function()
@@ -1921,9 +1913,11 @@ vim.api.nvim_create_autocmd({ "CmdwinEnter" }, {
 })
 
 
--- Open command line in term mode
-map({"i","c"}, "~", "<esc>:!")
+-- Open command line in non-interactive shell mode
+map("i",       "~", "<esc>:!")
 map({"n","v"}, "~", ":!")
+map("c",       "~", "<C-c>:!")
+-- map("t",       "~", "<C-\\><C-n>:!")
 
 
 -- cmd messages <S-F10>
@@ -2066,6 +2060,8 @@ end)
 --     local chat = require("codecompanion").last_chat()
 --     if chat then chat.ui:refresh() end
 -- end)
+
+
 
 
 

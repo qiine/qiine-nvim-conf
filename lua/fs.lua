@@ -4,6 +4,7 @@
 -- fs utils
 local U = {}
 
+-- ## Path
 function U.has_trailslash(path)
     return path:sub(-1) == "/"
 end
@@ -130,27 +131,6 @@ function U.path_compress(path, opts)
     return out
 end
 
----@param dirpath string
----@param ignore? table
----@return table
-function U.get_files_path_in_dir(dirpath, ignore)
-    ignore = ignore and ignore or {}
-
-    local files = {}
-    for name, type in vim.fs.dir(dirpath) do
-        if type == "file" then
-            local fpath = dirpath.."/"..name
-            local ft    = vim.filetype.match({ filename = fpath })
-
-            if not vim.tbl_contains(ignore, ft) then
-                table.insert(files, fpath)
-            end
-        end
-    end
-
-    return files
-end
-
 ---@param path string
 ---@return string|nil
 function U.find_proj_rootdir_for_path(path)
@@ -186,6 +166,29 @@ end
 
 function U.make_path_projroot_rel(path, rootpath)
     return path:sub(#rootpath+2)
+end
+
+
+-- ## Files
+---@param dirpath string
+---@param ignore? table
+---@return table
+function U.get_files_path_in_dir(dirpath, ignore)
+    ignore = ignore and ignore or {}
+
+    local files = {}
+    for name, type in vim.fs.dir(dirpath) do
+        if type == "file" then
+            local fpath = dirpath.."/"..name
+            local ft    = vim.filetype.match({ filename = fpath })
+
+            if not vim.tbl_contains(ignore, ft) then
+                table.insert(files, fpath)
+            end
+        end
+    end
+
+    return files
 end
 
 ---@param path string
@@ -324,7 +327,7 @@ function M.rename(name, newname, force, verbose)
         end
     end
 
-    if verbose then vim.notify("Rename success.", vim.log.levels.INFO) end
+    if verbose then vim.notify("New name: "..vim.fn.fnamemodify(newname, ':t'), vim.log.levels.INFO) end
     return true
 end
 

@@ -51,6 +51,8 @@ pcall_require("modules.arbores")
 pcall_require("modules.planv")
 pcall_require("modules.lsv")
 
+pcall_require("ai")
+
 -- ## Commands
 pcall_require("commands")
 pcall_require("commands_aliases")
@@ -58,6 +60,8 @@ pcall_require("autocmds")
 
 -- ## Plugins
 pcall_require("options.lazy")
+vim.cmd('packadd nvim.undotree')
+vim.cmd('packadd nvim.difftool')
 
 pcall_require("options.keymaps")
 pcall_require("options.abbreviations")
@@ -72,6 +76,7 @@ pcall_require("options.ui.conceal")
 pcall_require("options.ui.view")
 pcall_require("options.ui.menus")
 pcall_require("options.ui.statusline")
+pcall_require("options.ui.tabs")
 
 -- ## ui
 pcall_require("ui.winbar")

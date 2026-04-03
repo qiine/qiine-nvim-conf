@@ -6,6 +6,7 @@ local v = vim
 local utils  = require("utils")
 local fs     = require("fs")
 local win    = require("ui.win")
+local bufrs    = require("bufrs")
 local msglog = require("ui.msglog")
 local term   = require("term")
 
@@ -103,16 +104,17 @@ vim.api.nvim_create_user_command("Restart", function()
     local curdir  = vim.fn.fnamemodify(curfile, ':h')
 
     vim.cmd("SaveGlobalSession")
+    vim.cmd("Restart")
 
-    local sess = GLOBAL_SESSION
-    vim.uv.spawn("wezterm", {
-        --args = { "-e", "nvim", "+cd " .. curdir, curfile },
+    -- local sess = GLOBAL_SESSION
+    -- vim.uv.spawn("wezterm", {
+    --     --args = { "-e", "nvim", "+cd " .. curdir, curfile },
 
-        --cwd = curdir,
+    --     --cwd = curdir,
 
-        args = { "-e", "nvim", "-S", GLOBAL_SESSION },
-    })
-    vim.cmd("qa!")
+    --     args = { "-e", "nvim", "-S", GLOBAL_SESSION },
+    -- })
+    -- vim.cmd("qa!")
 end, {})
 
 vim.api.nvim_create_user_command("RestartSafeMode", function()
@@ -206,7 +208,7 @@ vim.api.nvim_create_user_command("BufInfo", function(opts)
 
     if type(buf) ~= "number" or not vim.api.nvim_buf_is_valid(buf) then buf = 0 end
 
-    local prev = vim.fn.bufnr("#")
+    local previd = vim.fn.bufnr("#")
 
     local infos = {
         "[Buffer info]",
@@ -221,8 +223,8 @@ vim.api.nvim_create_user_command("BufInfo", function(opts)
         "Filetype:   "..vim.api.nvim_get_option_value("filetype", { buf = buf }),
         "FileOnDisk: "..tostring(vim.fn.filereadable(vim.api.nvim_buf_get_name(buf)) == 1),
         "LineCount:  "..vim.api.nvim_buf_line_count(buf),
-        "PrevBuf:    "..(prev > 0 and vim.api.nvim_buf_get_name(prev) or ""),
-        "PrevBufId:  "..(prev > 0 and prev or ""),
+        "PrevBuf:    "..(previd > 0 and vim.api.nvim_buf_get_name(previd) or ""),
+        "PrevBufId:  "..(previd > 0 and previd or ""),
         "WindowsIds: "..table.concat(vim.tbl_map(tostring, vim.fn.win_findbuf(buf)), ", "),
     }
 
@@ -421,9 +423,7 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
         function(input)
             vim.api.nvim_command("redraw") --Hide prompt
 
-            if input == nil then
-                vim.notify("Save cancelled.", vim.log.levels.INFO) return
-            end
+            if input == nil then vim.notify("Save cancelled.", vim.log.levels.INFO) return end
 
             local dir = vim.fs.dirname(input) -- check target dir
             if not vim.uv.fs_stat(dir) then
@@ -521,60 +521,24 @@ vim.api.nvim_create_user_command('SudoWrite', function()
     })
 end, {})
 
-vim.api.nvim_create_user_command("FileMove", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local fdir  = vim.fn.expand("%:p:h")
-    local fname = vim.fn.expand("%:p:t")
+vim.api.nvim_create_user_command("BufFileMove", function() bufrs.file_mv_interac() end, {})
 
-    local function prompt_user()
-        vim.ui.input({prompt="Move to: ", default=fdir, completion="dir"}, function(input)
-            vim.api.nvim_command("redraw") --Hide prompt
-
-            if input == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end
-
-            local dest = vim.fs.joinpath(input, fname)
-
-            -- Check existing file
-            if vim.uv.fs_stat(dest) then
-                local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
-                if choice ~= 1 then
-                    vim.notify("Overwrite cancelled.", vim.log.levels.INFO)
-                    return prompt_user()
-                end
-            end
-
-            local res = vim.system({ "mv", "-f", fpath, dest }):wait()
-            if res.code ~= 0 then vim.notify("Move failed: "..res.stderr, vim.log.levels.ERROR) return end
-
-            -- Update buf
-            vim.cmd("file "..dest.." | e!") -- need refresh buf
-            vim.notify("Moved to: "..input, vim.log.levels.INFO)
-        end)
-    end
-    prompt_user()
-end, {})
-
-vim.api.nvim_create_user_command("FileMoveToCWD", function()
+vim.api.nvim_create_user_command("BufFileMoveToCWD", function()
     local fpath  = vim.api.nvim_buf_get_name(0)
     local fname  = vim.fn.expand("%:t")
 
-    local dest_dir = vim.fn.getcwd()
-    local dest_fpath = vim.fs.joinpath(dest_dir, fname)
+    local dest = vim.fs.joinpath(vim.fn.getcwd(), fname)
 
     -- check target path for existing file
-    if vim.uv.fs_stat(dest_fpath) then
+    if vim.uv.fs_stat(dest) then
         local choice = vim.fn.confirm("File with same name at path, Overwrite?", "&Yes\n&No", 1)
         if choice ~= 1 then
             vim.notify("Overwriting cancelled.", vim.log.levels.INFO) return
         end
     end
 
-    -- Now move
-    local ok, err = vim.uv.fs_rename(fpath, dest_fpath)
-    if not ok then vim.notify("Move failed: "..err, vim.log.levels.ERROR) return end
-
-    vim.api.nvim_buf_set_name(0, dest_fpath); vim.cmd("e!")
-    vim.notify("Moved to: "..dest_dir, vim.log.levels.INFO)
+    fs.move(fpath, dest, true, true)
+    vim.cmd("keepalt file "..dest) -- update bufname
 end, {})
 
 vim.api.nvim_create_user_command("FileMoveProj", function()
@@ -614,39 +578,7 @@ vim.api.nvim_create_user_command("FileMoveProj", function()
 end, {})
 
 
-vim.api.nvim_create_user_command("FileRename", function()
-    local old_fpath = vim.api.nvim_buf_get_name(0)
-    local old_dir   = vim.fn.fnamemodify(old_fpath, ":h")
-    local old_name  = vim.fn.fnamemodify(old_fpath, ":t")
-
-    local function prompt_user()
-        vim.ui.input({prompt="New name = ", default=old_name, completion="file"},
-        function(input)
-            vim.api.nvim_command("redraw") --Hide init prompt
-
-            if input == nil then vim.notify("Rename canceled.", vim.log.levels.INFO) return end
-
-            local new_fpath = vim.fs.joinpath(old_dir,input)
-
-            -- Check target for existing file
-            if vim.uv.fs_stat(new_fpath) then
-                local choice = vim.fn.confirm("Already a file with same name. Overwrite?", "&Yes\n&No", 1)
-                if choice ~= 1 then
-                    vim.notify("Overwriting cancelled.", vim.log.levels.INFO)
-                    return prompt_user()
-                end
-            end
-
-            -- Now rename
-            local ret, err = vim.uv.fs_rename(old_fpath, new_fpath)
-            if not ret then vim.notify("Rename failed: " .. err, vim.log.levels.ERROR) return end
-
-            vim.cmd("file "..new_fpath.." | e!") -- need refresh buf
-            vim.notify('Renamed to: "'..input..'"', vim.log.levels.INFO)
-        end)
-    end
-    prompt_user()
-end, {})
+vim.api.nvim_create_user_command("BufFileRename", function() bufrs.file_rename_interac() end, {})
 
 vim.api.nvim_create_user_command("FileDelete", function()
     local fpath = vim.fn.expand("%:p")
@@ -1533,9 +1465,11 @@ vim.api.nvim_create_user_command("FacingPages", function()
 end, {})
 
 
-vim.api.nvim_create_user_command("TestCmd", function(opts)
-    print(os.getenv("OPENAI_API_KEY"))
-end, {nargs="*"})
+
+-- ## [Text intel]
+----------------------------------------------------------------------
+vim.api.nvim_create_user_command("LspInfo", "checkhealth vim.lsp", { desc="Show LSP Info" })
+
 
 
 -- ## [Org]
@@ -1618,4 +1552,6 @@ end, {})
 
 
 
+vim.api.nvim_create_user_command("TestCmd", function(opts)
+end, {nargs="*"})
 

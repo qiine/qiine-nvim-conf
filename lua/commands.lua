@@ -100,21 +100,9 @@ end, {})
 
 -- Restart nvim
 vim.api.nvim_create_user_command("Restart", function()
-    local curfile = vim.fn.expand("%:p") --Get curr file location
-    local curdir  = vim.fn.fnamemodify(curfile, ':h')
-
+    print("Restarting..")
     vim.cmd("SaveGlobalSession")
-    vim.cmd("Restart")
-
-    -- local sess = GLOBAL_SESSION
-    -- vim.uv.spawn("wezterm", {
-    --     --args = { "-e", "nvim", "+cd " .. curdir, curfile },
-
-    --     --cwd = curdir,
-
-    --     args = { "-e", "nvim", "-S", GLOBAL_SESSION },
-    -- })
-    -- vim.cmd("qa!")
+    vim.cmd("restart LoadGlobalSession")
 end, {})
 
 vim.api.nvim_create_user_command("RestartSafeMode", function()
@@ -1419,6 +1407,8 @@ vim.api.nvim_create_user_command("DiagnosticVirtualTextToggle", function()
 
     vim.notify("Diagnostic virtual text: " .. tostring(not enabled))
 end, { desc = "Toggle diagnostic virtual text" })
+
+vim.api.nvim_create_user_command("DiffSplits", function() vim.cmd("windo diffthis") end, { desc="Diff Splits" })
 
 
 vim.api.nvim_create_user_command("FacingPages", function()

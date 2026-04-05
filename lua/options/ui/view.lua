@@ -23,41 +23,41 @@ vim.o.sidescrolloff = 5
 
 -- Shortmess
 vim.o.shortmess = "astFTIcC"
---l	use "999L, 888B" instead of "999 lines, 888 bytes"
---m	use "[+]" instead of "[Modified]"
---r	use "[RO]" instead of "[readonly]"
---w	use "[w]" instead of "written" for file write message
+--l  use "999L, 888B" instead of "999 lines, 888 bytes"
+--m  use "[+]" instead of "[Modified]"
+--r  use "[RO]" instead of "[readonly]"
+--w  use "[w]" instead of "written" for file write message
 --  and "[a]" instead of "appended" for ':w >> file' command
---a	all of the above abbreviations
+--a  all of the above abbreviations
 
---o	overwrite message for writing a file with subsequent
+--o  overwrite message for writing a file with subsequent
 --  message for reading a file (useful for ":wn" or when
 -- 'autowrite' on)
---O	message for reading a file overwrites any previous
+--O  message for reading a file overwrites any previous
 --  message;  also for quickfix message (e.g., ":cn")
---t	truncate file message at the start if it is too long
+--t  truncate file message at the start if it is too long
 --  to fit on the command-line, "<" will appear in the left most
 --  column; ignored in Ex mode
---T	truncate other messages in the middle if they are too
+--T  truncate other messages in the middle if they are too
 --  long to fit on the command line; "..." will appear in the
 --  middle; ignored in Ex mode
---W	don't give "written" or "[w]" when writing a file
---A	don't give the "ATTENTION" message when an existing swap file is found
---I	don't give the intro message when starting Vim
---c	don't give |ins-completion-menu| messages; for
+--W  don't give "written" or "[w]" when writing a file
+--A  don't give the "ATTENTION" message when an existing swap file is found
+--I  don't give the intro message when starting Vim
+--c  don't give |ins-completion-menu| messages; for
 --  example, "-- XXX completion (YYY)", "match 1 of 2", "The only
 --  match", "Pattern not found", "Back at original", etc.
---C	don't give messages while scanning for ins-completion	*shm-C*
+--C  don't give messages while scanning for ins-completion  *shm-C*
 --  items, for instance "scanning tags"
---q	do not show "recording @a" when recording a macro	*shm-q*
---F	don't give the file info when editing a file, like
+--q  do not show "recording @a" when recording a macro  *shm-q*
+--F  don't give the file info when editing a file, like
 --  `:silent` was <used for the command; note that this also
 --  affects messages from 'autoread' reloading
 
---s	don't give "search hit BOTTOM, continuing at TOP" or
+--s  don't give "search hit BOTTOM, continuing at TOP" or
 --  "search hit TOP, continuing at BOTTOM" messages; when using
 --  the search count do not show "W" before the count message
---S	do not show search count message when searching, e.g.
+--S  do not show search count message when searching, e.g.
 --  "[1/5]". When the "S" flag is not present (e.g. search count
 --  is shown), the "search hit BOTTOM, continuing at TOP" and
 --  "search hit TOP, continuing at BOTTOM" messages are only
@@ -246,6 +246,8 @@ vim.opt.fillchars:append({
     foldclose = ">", -- > ▸
     foldsep   = " ", -- │  --separate folds (for open folds)
     -- foldinner = '', -- TODO soon vim 0.12
+    -- Where the fold column is too narrow to display all nested folds, digits are
+    -- shown to indicate the nesting level.  To override this behavior you can use
 
     diff      = "╱",
 
@@ -276,9 +278,6 @@ if vim.g.show_eol == true then
 else
     vim.opt.listchars:remove({"eol"})
 end
-
--- line wrap symbol
-vim.o.showbreak = "↳"
 
 --Show/hide whitespace symbols when selecting
 vim.api.nvim_create_autocmd("ModeChanged", {
@@ -341,7 +340,7 @@ vim.diagnostic.config({
     virtual_text = {
         enabled = true,
         current_line = false,
-        severity = { min = "INFO" },
+        severity = { min = vim.diagnostic.severity.INFO },
         prefix   = "●",
         suffix   = "",
         --format = function(diagnostic)
@@ -370,9 +369,11 @@ vim.diagnostic.config({
             [vim.diagnostic.severity.INFO]  = "",
             [vim.diagnostic.severity.HINT]  = ""
         },
-        severity = { min = "WARN" },
+        severity = { min = vim.diagnostic.severity.WARN },
     },
+
     severity_sort = true,
+
     float = {
         focusable = false,
         style     = "normal",
@@ -431,34 +432,18 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 --    end,
 --})
 
+-- TODO nvim 0.12
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--     callback = function(args)
+--         local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+--         if client then
+--             vim.lsp.document_color.enable(false, { bufnr = args.buf })
+--         end
+--     end,
+-- })
 
 
--- ## [Tabline]
-----------------------------------------------------------------------
--- vim.opt.showtabline = 2  -- always show tabline
-
--- simple tabline function
--- function _G.PillTabline()
---     local s = ""
---     local tabs = vim.api.nvim_list_tabpages()
---     local current = vim.api.nvim_get_current_tabpage()
-
---     for i, tab in ipairs(tabs) do
---         local is_active = (tab == current)
-
---         local hl_left  = is_active and "%#TabLinePillActiveLeft#"   or "%#TabLinePillInactiveLeft#"
---         local hl_text  = is_active and "%#TabLinePillActiveText#"   or "%#TabLinePillInactiveText#"
---         local hl_right = is_active and "%#TabLinePillActiveRight#"  or "%#TabLinePillInactiveRight#"
-
---         s = s .. hl_left .. ""
---         s = s .. hl_text .. " " .. i .. " "
---         s = s .. hl_right .. ""
---         s = s .. "%#TabLine# "
---     end
-
---     return s
--- end
--- vim.opt.tabline = "%!v:lua.PillTabline()"
 
 
 
@@ -509,6 +494,68 @@ vim.opt.wildoptions = "pum"
 
 vim.o.messagesopt = "hit-enter,history:500"  -- wait:3000,
 -- vim.o.messagesopt = "wait:3000,history:500"  -- wait:3000,
+
+require('vim._core.ui2').enable({
+    enable = true,
+    msg = {
+        targets = {
+            -- There are four special windows/buffers
+            -- 'cmd'    -- usual cmd line, Also used for 'showcmd', 'showmode', 'ruler', and messages by default.
+            -- 'msg'    -- side notif-like msg, Message window, shows ephemeral messages useful for 'cmdheight' == 0.
+            -- 'pager'  -- browsable Autofocused buffer
+            -- "dialog" -- shows modal prompts that expect user input.
+
+            -- The buffer 'filetype' is set to the above-listed id ("cmd", "msg", …).
+            -- Handle the FileType event to configure any local options for these windows and their respective buffers.
+
+            -- [""] = "cmd",            -- Unknown (consider a --feature-request)
+
+            ["empty"]        = "cmd",       -- Empty message (`:echo ""`), with empty `content`. Should clear messages sharing the 'cmdheight' area if it is the only message in a batch.
+            ["bufwrite"]     = "cmd",    -- write message
+            ["confirm"]      = "cmd",    -- Message preceding a prompt (:confirm, confirm(), inputlist(), z=, …)
+
+            ["echomsg"]      = "cmd",    -- :echomsg message
+            ["echo"]         = "cmd",    -- :echo message
+            ["emsg"]         = "cmd",    -- Error (--errors, internal error, :throw, …)
+            ["echoerr"]      = "cmd",  -- :echoerr message
+            ["lua_error"]    = "cmd",  -- Error in :lua code
+            ["lua_print"]    = "cmd",    -- print() from :lua code
+            ["wmsg"]         = "cmd",    --  Warning ("search hit BOTTOM", --W10, …)
+            ["rpc_error"]    = "cmd",  -- Error response from --rpcrequest()
+
+            ["list_cmd"]     = "cmd",   -- List output for various commands (--:ls, :set, …)
+            ["completion"]   = "cmd",  -- ins-completion-menu message
+            ["progress"]     = "cmd",    -- Progress message emitted by --nvim_echo()
+
+            ["search_cmd"]   = "cmd",    -- Entered search command
+            ["search_count"] = "cmd",    -- Search count message (["S"] flag of "shortmess")
+
+            ["shell_cmd"]    = "cmd",  -- :!cmd executed command
+            ["shell_err"]    = "cmd",  -- :!cmd shell stderr output
+            ["shell_out"]    = "cmd",  -- :!cmd shell stdout output
+            ["shell_ret"]    = "cmd",    -- :!cmd shell return code
+
+            ["undo"]         = "cmd",         -- :undo and :redo message
+            ["verbose"]      = "cmd",    -- "verbose" message
+
+            ["quickfix"]     = "cmd",     -- Quickfix navigation message
+        },
+
+        cmd = {
+            height = 1,
+        },
+        dialog = {
+            height = 0.5,
+        },
+        msg = {
+            height = 0.3,
+            timeout = 5000,
+        },
+        pager = {
+            height = 0.5,
+        },
+    },
+})
 
 
 

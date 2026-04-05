@@ -340,6 +340,12 @@ map({"i","n","v"}, "<M-S-z>", function()
 end)
 
 
+-- ### Render
+map({"i","n","v"}, "<C-g>fs", "<Cmd>ViewSource<CR>")
+map({"i","n","v"}, "<F17>", "<Cmd>ViewSource<CR>") -- S-F5
+map({"i","n","v"}, "<F29>", "<Cmd>Render<CR>") -- C-F5
+
+
 
 -- ## [Windows]
 ----------------------------------------------------------------------

@@ -453,6 +453,9 @@ map(modes, ldwin.."<C-Right>", "<Cmd>wincmd l<CR>")
 map(modes, ldwin.."<C-Up>",    "<Cmd>wincmd k<CR>")
 map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
 
+-- Send to tab
+map({"i","n","v","t"}, "<M-w>t", "<cmd>:wincmd T<CR>")
+
 
 
 -- ## [Tabs]

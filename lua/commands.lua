@@ -136,6 +136,19 @@ vim.api.nvim_create_user_command("WebSearch", function()
 end, {range=true})
 
 
+vim.api.nvim_create_user_command("ViewSource", function()
+    if vim.b.viewsrcfunc then vim.b.viewsrcfunc() else print("Can't show source!") return end
+    print("Show source")
+end, {})
+
+vim.api.nvim_create_user_command("Render", function()
+    if vim.b.renderfunc then vim.b.renderfunc() else print("Can't render") return end
+end, {})
+
+
+vim.api.nvim_create_user_command("News", function() vim.cmd("tab h news") end, {})
+
+
 
 -- ## [Registers]
 ----------------------------------------------------------------------
@@ -1128,7 +1141,7 @@ vim.api.nvim_create_user_command("GitHunksHighlight", function()
     end
 end, {})
 
---diff curr file with given rev
+-- Diff curr file with given rev
 vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     -- TODO use just a number as arg
     local argrev = opts.args ~= "" and opts.args or "HEAD~0"

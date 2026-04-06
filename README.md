@@ -3,16 +3,16 @@
 ---
 Probably **overcomplicated**   
 Certainly   **not finished**    
-Definitively  **heretical** ;p  
+Definitively  **heretical** 
 
 This config revolve around nvim as both an omni editor and a tool orchestrator. 
-It is also very much a test bed for new ideas!  
+It is also very much a learning platform and test bed for my endless ideas!  
 
 Why nvim?
 My text editor journey went as follow:  
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
-I was aware of vim/nvim for years but didn't think much of it, 
-Then I switching to Linux and figured It was finally time to try it out!  
+I was aware of vim/nvim but it always felt intimidating. 
+Then I switched to Linux and figured It was finally time to try it out!  
 I hesitated a bit between nvim and emacs, but lua and the motions intrigued me...  
 
 

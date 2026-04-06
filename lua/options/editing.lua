@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
--- [Edit] --
+-- # Edit
 ----------------------------------------------------------------------
 
 local utils = require("utils")
@@ -28,13 +28,12 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 -- Avoid insert when relevant
 vim.api.nvim_create_autocmd('BufEnter', {
-    group   = 'UserAutoCmds',
+    group = 'UserAutoCmds',
     callback = function()
-        vim.defer_fn(function()
-            if vim.bo.filetype == "alpha" then
-                if not vim.o.modifiable then vim.cmd('stopinsert') end
-            end
-        end, 1)
+        local ignored_ft = { 'codecompanion', 'terminal', 'gitcommit' }
+        if vim.tbl_contains(ignored_ft, vim.bo.filetype) then return end
+
+        vim.cmd('stopinsert')
     end,
 })
 
@@ -83,7 +82,7 @@ if vim.g.autosave_enabled then
                         and vim.bo[buf].modifiable
                         and not vim.bo[buf].readonly
                         and vim.fn.filereadable(bname) == 1
-                        and vim.uv.fs_access(bname, "W")
+                        and vim.uv.fs_access(bname, "w")
                     then
                         vim.cmd("silent update")
                         -- print("autosaved: "..bname)
@@ -117,6 +116,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 })
 
 
+vim.g.viewsrcfunc = function() end
+
 
 
 -- ## [Undo]
@@ -126,23 +127,30 @@ vim.o.undolevels = 2000
 -- Persistent undo
 vim.o.undofile = true
 
-local undodir = vim.fn.stdpath("data") .. "/undo"
+-- local undodir = vim.fn.stdpath("data") .. "/undo"
 
-if vim.fn.isdirectory(undodir) == 0 then
-    vim.fn.mkdir(undodir, "p")
-end
+-- if vim.fn.isdirectory(undodir) == 0 then
+--     vim.fn.mkdir(undodir, "p")
+-- end
 
-vim.o.undodir = undodir
+-- vim.o.undodir = undodir
 
---autoclean undofiles for deleted files
---for name, _ in vim.fs.dir(undodir) do
---    local undo_path = undodir .. "/" .. name
---    local real_path = name:gsub("%%", "/")
+--TODO autoclean undofiles for deleted files
+-- vim.api.nvim_create_autocmd('VimEnter', {
+--     group = 'UserAutoCmds',
+--     callback = function()
+--         vim.fn.stdpath("state")
+--         --for name, _ in vim.fs.dir(undodir) do
+--         --    local undo_path = undodir .. "/" .. name
+--         --    local real_path = name:gsub("%%", "/")
 
---    if not vim.fn.filereadable(real_path) or vim.fn.isdirectory(real_path) == 1 then
---        os.remove(undo_path)
---    end
---end
+--         --    if not vim.fn.filereadable(real_path) or vim.fn.isdirectory(real_path) == 1 then
+--         --        os.remove(undo_path)
+--         --    end
+--         --end
+
+--     end,
+-- })
 
 
 
@@ -152,9 +160,8 @@ vim.o.textwidth = 80
 
 -- Visual only wraping
 vim.o.wrap        = false --word wrap off by default
+vim.o.linebreak   = true
 vim.o.breakindent = true --wrapped lines conserve whole block identation
-
--- vim.o.commentstring = "-- %s"
 
 
 -- ### Indentation
@@ -173,6 +180,8 @@ vim.o.smartindent = true -- simple syntax-aware indent on top of autoindent for 
 -- A list of keys that, when typed in Insert mode, cause reindenting of
 -- the current line. Only happens if 'indentexpr' isn't empty.
 
+-- vim.opt.indentexpr = ""
+
 
 -- Will hold all users formats opts
 -- View current formatoptions with:
@@ -181,7 +190,7 @@ local formopts =
 {
     -- Text Wrapping
     -- "t", Auto-wrap text using textwidth (for non-comments).
-    -- "w", Auto-wrap lines in insert mode, even without spaces.
+    -- "w", Auto hard wrap lines in insert mode, even without spaces.
     -- "v", Don't auto-wrap lines in visual mode.
 
     -- Paragraph & Line Formatting
@@ -199,6 +208,10 @@ local formopts =
     "b", -- No automatic formatting in block comments.
 }
 vim.o.formatoptions = table.concat(formopts)
+
+-- line soft wrap
+vim.o.wrap = false
+vim.o.showbreak = "" -- ↳
 
 -- hack bypass ftplugin/lua.vim settings
 vim.api.nvim_create_autocmd("FileType", {

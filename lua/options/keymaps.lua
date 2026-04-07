@@ -7,6 +7,7 @@
 --           __/ |               | |
 --          |___/                |_|
 
+
 local utils    = require("utils")
 local fs       = require("fs")
 local bufrs    = require("bufrs")
@@ -14,7 +15,7 @@ local win      = require("ui.win")
 local drawer   = require("ui.drawer")
 local term     = require("term")
 
-local git      = require("git.git")
+local git      = require("git.init")
 
 local lsnip    = require("luasnip")
 
@@ -283,7 +284,10 @@ map({"i","n","v"}, "<C-S-B>", "<cmd>AerialToggle<CR>")
 -- ## [View]
 ----------------------------------------------------------------------
 -- Toggle line soft wrap
-map({"i","n","v"}, "<C-g>z", function() vim.opt.wrap = not vim.opt.wrap:get() end)
+map({"i","n","v"}, "<C-g>z", function()
+    vim.opt.wrap = not vim.opt.wrap:get()
+    print("Line wrap: "..tostring(vim.opt.wrap:get()))
+end)
 
 -- Toggle auto hard wrap lines
 map({"i","n","v"}, "<C-g>Z", function()
@@ -467,11 +471,12 @@ end)
 
 -- Tabs nav
 -- next
--- map(modes, "<C-Tab>",   "<cmd>bnext<CR>")
-map(modes, "<C-Tab>",   "<cmd>BufferNext<CR>")
+map(modes, "<C-Tab>", "<cmd>bnext<CR>")
+map(modes, "<C-Tab>",  "<cmd>BufferNext<CR>")
 -- Prev
 -- map(modes, "<C-S-Tab>", "<cmd>bp<CR>")
 map(modes, "<C-S-Tab>", "<cmd>BufferPrevious<CR>")
+
 
 
 
@@ -520,8 +525,8 @@ end, {expr=true})
 -- ### [Scrolling]
 map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
 map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 4<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 4<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 5<CR>")
+map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 5<CR>")
 
 
 -- ### [Fast and furious cursor move]
@@ -1481,7 +1486,7 @@ map({"i","n","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) en
 
 
 -- ### [Comments]
-map({"i","n"}, "<C-S-a>", "<cmd>norm gcc<cr>", {noremap=true})
+map({"i","n"}, "<C-S-a>", "<cmd>norm mzgcc`z<cr>", {noremap=true})
 map("v",       "<C-S-a>", "gcgv", {remap=true})
 
 
@@ -1724,6 +1729,7 @@ map("v",       "<S-Space>dp", ":diffput<cr>")
 map({"i","n"}, "<S-Space>dg", "<cmd>.diffget<cr>")
 map("v",       "<S-Space>dg", ":diffget<cr>")
 
+map({"i","n","v"}, "<S-Space>ds", "<cmd>DiffSplits<CR>")
 
 
 -- ## [Version control]
@@ -1731,10 +1737,10 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 local ldvc = "<S-Space>g"
 
 -- Staging
-map({"i","n","v"}, ldvc.."s", git.add_file)
+map({"i","n"}, ldvc.."s", git.add_file)
 
 -- Stage hunk under cursor
-map({"i","n","v"}, ldvc.."ss", "<Cmd>Gitsigns stage_hunk<CR>")
+map("v", ldvc.."s", "<Cmd>Gitsigns stage_hunk<CR><cmd>echo 'Hunk staged.'<CR>")
 
 -- Stage edit patch file
 map({"i","n","v"}, ldvc.."se", function()
@@ -1765,7 +1771,7 @@ end)
 
 -- Commit curr file
 map({"i","n","v"}, ldvc.."cc", git.commit_curr)
-map({"i","n","v"}, "<M-C-S-S>", git.commit_curr)
+map({"i","n","v"}, "<M-C-S-S>", git.commit_curr) -- TODO chain save and on succes commit
 
 -- git push
 map({"i","n","v"}, ldvc.."<S-p>", function()
@@ -1982,7 +1988,7 @@ map({"i","n","v","c","t"}, "<F6>", function()
     local planv_bufid = vim.api.nvim_create_buf(true, false)
 
     vim.cmd("buffer "..planv_bufid)
-    vim.api.nvim_buf_set_name(planv_bufid, "/home/qm/Personal/Org/Plan/plan.txt")
+    vim.api.nvim_buf_set_name(planv_bufid, "~/Personal/Org/Plan/plan.txt")
     vim.cmd("e!")
 
     -- opts
@@ -2002,7 +2008,7 @@ end)
 map({"i","n","v","c","t"}, "<F18>", function()
     if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
 
-    vim.cmd("e /home/qm/Personal/dotfiles/User/nvim/todo.md")
+    vim.cmd("e ~/Personal/dotfiles/User/nvim/todo.md")
 end)
 
 
@@ -2022,7 +2028,10 @@ map({"i","n","v","t"}, "<F30>", function()
     vim.cmd("Oil ~/Personal/Org/Journal/")
 end)
 
-
+-- idea capture M-F6
+map({"i","n","v","t"}, "<F54>", function()
+    vim.cmd("e ~/Personal/Org/Notes/idea.md")
+end)
 
 -- open curr proj doc
 -- map({"i","n","v","c","t"}, "<F3>", function()

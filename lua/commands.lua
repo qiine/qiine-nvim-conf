@@ -6,11 +6,11 @@ local v = vim
 local utils  = require("utils")
 local fs     = require("fs")
 local win    = require("ui.win")
-local bufrs    = require("bufrs")
+local bufrs  = require("bufrs")
 local msglog = require("ui.msglog")
 local term   = require("term")
 
-local git    = require("git.git")
+local git    = require("git")
 
 
 -- ## [Common]
@@ -116,9 +116,8 @@ end, {})
 
 -- Insert today
 vim.api.nvim_create_user_command("Today", function()
-    local date  = os.date("*t")
-    local today = string.format("%04d/%02d/%02d %02d:%02d", date.year, date.month, date.day, date.hour, date.min)
-    vim.api.nvim_put({ today }, "c", true, true)
+    local date = tostring(os.date("%Y/%m/%d %H:%M"))
+    vim.api.nvim_put({ date }, "c", false, false)
 end, {})
 
 vim.api.nvim_create_user_command("OpenCmdlineWin", function()

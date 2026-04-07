@@ -1987,9 +1987,10 @@ map({"i","n","v","c","t"}, "<F6>", function()
 
     local planv_bufid = vim.api.nvim_create_buf(true, false)
 
-    vim.cmd("buffer "..planv_bufid)
-    vim.api.nvim_buf_set_name(planv_bufid, "~/Personal/Org/Plan/plan.txt")
-    vim.cmd("e!")
+    -- vim.cmd("buffer "..planv_bufid)
+    -- vim.api.nvim_buf_set_name(planv_bufid, "~/Personal/Org/Plan/plan.txt")
+    -- vim.cmd("e!")
+    vim.cmd("tabnew ~/Personal/Org/Plan/plan.txt")
 
     -- opts
     vim.opt_local.number = false
@@ -2008,7 +2009,7 @@ end)
 map({"i","n","v","c","t"}, "<F18>", function()
     if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
 
-    vim.cmd("e ~/Personal/dotfiles/User/nvim/todo.md")
+    vim.cmd("tabnew ~/Personal/dotfiles/User/nvim/todo.md")
 end)
 
 
@@ -2025,12 +2026,13 @@ end)
 
 -- Open journal <C-F6>
 map({"i","n","v","t"}, "<F30>", function()
-    vim.cmd("Oil ~/Personal/Org/Journal/")
+    vim.cmd("tabnew | Oil ~/Personal/Org/Journal/")
 end)
 
 -- idea capture M-F6
 map({"i","n","v","t"}, "<F54>", function()
-    vim.cmd("e ~/Personal/Org/Notes/idea.md")
+    vim.cmd("tabnew ~/Personal/Org/Notes/idea.md")
+    vim.cmd("norm! G0i")
 end)
 
 -- open curr proj doc

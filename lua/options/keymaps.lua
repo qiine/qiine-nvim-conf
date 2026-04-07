@@ -15,7 +15,7 @@ local win      = require("ui.win")
 local drawer   = require("ui.drawer")
 local term     = require("term")
 
-local git      = require("git.init")
+local git      = require("git")
 
 local lsnip    = require("luasnip")
 
@@ -1985,12 +1985,13 @@ map({"i","n","v","c","t"}, "<F6>", function()
 
     if vim.fn.expand("%:t") == "plan.txt" then vim.cmd("bwipeout") return end
 
-    local planv_bufid = vim.api.nvim_create_buf(true, false)
+    -- local planv_bufid = vim.api.nvim_create_buf(true, false)
 
     -- vim.cmd("buffer "..planv_bufid)
     -- vim.api.nvim_buf_set_name(planv_bufid, "~/Personal/Org/Plan/plan.txt")
     -- vim.cmd("e!")
     vim.cmd("tabnew ~/Personal/Org/Plan/plan.txt")
+    local planv_bufid = vim.api.nvim_get_current_buf()
 
     -- opts
     vim.opt_local.number = false
@@ -2000,13 +2001,13 @@ map({"i","n","v","c","t"}, "<F6>", function()
     vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
 
     vim.keymap.set("n", "<C-S-N>", function()
-        vim.cmd("norm! O")
+        vim.cmd("norm! 3Go")
         lsnip.insert_snippet("task")
     end, {buffer=planv_bufid})
 end)
 
--- Project task <S-F6>
-map({"i","n","v","c","t"}, "<F18>", function()
+-- Project task <M-F6>
+map({"i","n","v","c","t"}, "<F54>", function()
     if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
 
     vim.cmd("tabnew ~/Personal/dotfiles/User/nvim/todo.md")
@@ -2014,29 +2015,63 @@ end)
 
 
 -- ### Journal
--- Create new entry
-map({"i","n","v","t"}, "<M-n>j", function()
-
-end)
-
--- Open last entry
-map({"i","n","v","t"}, "<M-F6>", function()
-
-end)
-
--- Open journal <C-F6>
-map({"i","n","v","t"}, "<F30>", function()
+-- Open journal
+map({"i","n","v","t"}, "<M-S-F6>", function()
     vim.cmd("tabnew | Oil ~/Personal/Org/Journal/")
 end)
 
--- idea capture M-F6
-map({"i","n","v","t"}, "<F54>", function()
+-- Create new entry C-F6   -- or <M-n>j
+map({"i","n","v","t"}, "<F30>", function()
+    local jdir = vim.fn.expand("~/Personal/Org/Journal/")
+
+    local date = os.date("%Y-%m-%d")
+    local fname = date..".md"
+    local fpath = jdir..fname
+
+    local entryexist = vim.fn.filereadable(fpath) == 1
+
+    if not entryexist then
+        vim.fn.writefile({}, fpath) -- create entry
+    end
+
+    vim.cmd("tabnew "..fpath)
+    vim.bo.bufhidden = "wipe"
+
+    print(
+        entryexist and
+        "Opening: "..fname
+        or
+        "Creating journal entry: "..fname
+    )
+end)
+
+-- Open last journal entry
+map({"i","n","v","t"}, "<M-C-S-F6>", function()
+    local journal_dir = vim.fn.expand("~/Personal/Org/Journal/")
+    local files = vim.fn.readdir(journal_dir)
+
+    if #files == 0 then print("No journal entries found") return end
+
+    table.sort(files, function(a, b) return a > b end) -- sort descending (latest first)
+
+    local latest = files[1]
+    local path = journal_dir..latest
+
+    vim.cmd("tabnew "..vim.fn.fnameescape(path))
+    vim.bo.bufhidden = "wipe"
+end)
+
+
+
+-- idea capture S-F6
+map({"i","n","v","t"}, "<F18>", function()
     vim.cmd("tabnew ~/Personal/Org/Notes/idea.md")
     vim.cmd("norm! G0i")
 end)
 
 -- open curr proj doc
 -- map({"i","n","v","c","t"}, "<F3>", function()
+
 
 
 -- ## [AI]

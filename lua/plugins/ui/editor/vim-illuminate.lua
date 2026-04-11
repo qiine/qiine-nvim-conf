@@ -1,15 +1,13 @@
-return
-{
+return {
     "RRethy/vim-illuminate",
     enabled = true,
-    event = "BufEnter",
     desc = "Highlight similar words",
 
     config = function()
         require('illuminate').configure({
             providers = {
-                --'lsp',
-                'treesitter',
+                'lsp',
+                -- 'treesitter',
                 --'regex',
             },
 

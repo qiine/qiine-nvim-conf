@@ -10,6 +10,7 @@
 
 local utils    = require("utils")
 local fs       = require("fs")
+local ed       = require("ed")
 local bufrs    = require("bufrs")
 local win      = require("ui.win")
 local drawer   = require("ui.drawer")
@@ -41,7 +42,7 @@ vim.o.virtualedit = "none" -- Snap cursor to closest char at eol
 -- "onemore" -- Allows the cursor to move one character past the end of a line.
 -- "block"   -- Allows cursor to move where there is no actual text in visual block mode.
 -- "insert"  -- Allows inserting in positions where there is no actual text.
--- "all"     -- Enables virtual editing in all modes.
+-- "all"     -- Enables virtual editing
 
 vim.api.nvim_create_autocmd({"BufEnter", "ModeChanged"}, {
 group = "UserAutoCmds",
@@ -1084,7 +1085,7 @@ map("v", "<C-S-v>", function()
         {text}
     )
 end,
-{desc="first copy origin text, then select target text and paste swap"})
+{desc="Define swap candidate by copying its text, then select target text and paste swap"})
 
 -- Paste swap word
 vim.keymap.set({"i","n"}, "<C-S-v>", function()
@@ -1754,10 +1755,10 @@ map({"i","n","v"}, ldvc.."se", function()
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add -e "..fp.."\n")
 end)
 
-map({"i","n","v"}, ldvc.."sa", git.add_all_repo)
+map({"i","n","v"}, ldvc.."sa", git.add_all)
 
 map({"i","n","v"}, ldvc.."u", git.unstage_file)
-map({"i","n","v"}, ldvc.."uu", git.unstage_all_repo)
+map({"i","n","v"}, ldvc.."uu", git.unstage_all)
 
 -- git commit
 map({"i","n","v"}, ldvc.."c", function()
@@ -1806,24 +1807,26 @@ map({"i","n","v"}, ldvc.."g", "<Cmd>Neogit<CR>")
 
 
 
-
--- ## [Task]
+-- ## [Jobs]
 ----------------------------------------------------------------------
--- Exec sel
+-- Print sel
 vim.keymap.set("v", "<M-S-p>", function()
-    local sel = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
-    vim.fn.setreg("z", "lua print("..sel..")")
-    vim.cmd("@z")
+    local sel = ed.get_selection_text()
+    local code = table.concat(sel, "\n")
+    vim.cmd("lua print("..code..")")
 end)
 
--- run curr line only and insert res below (<C-F8>)
-map({"i","n"}, "<F32>","<cmd>SnipRunLineInsertResult<CR>")
+-- Inspect sel
+vim.keymap.set("v", "<M-C-S-P>", function()
+    local sel = vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."))
+    local code = table.concat(sel, " ")
+    vim.cmd("lua print(vim.inspect("..code.."))")
+end)
 
--- Run selected code, insert res, <F20> equivalent to <S-F8>
-map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
+-- Run selected code, insert res, <S-F8>
+-- map("v", "<F20>", "<cmd>SnipRunSelectedInsertResult<CR>")
+map("v", "<F20>", "<cmd>RunInsert<CR>")
 
--- Run whole file until curr line and insert res
-map({"i","n"}, "<F20>", "<cmd>SnipRunToLineInsertResult<CR>")
 
 -- run current buf (<M-F8>)
 map({"i","n","v"}, "<F56>", function()
@@ -2035,7 +2038,7 @@ map({"i","n","v","t"}, "<F30>", function()
     end
 
     vim.cmd("tabnew "..fpath)
-    vim.bo.bufhidden = "wipe"
+    -- vim.bo.bufhidden = "wipe"
 
     print(
         entryexist and

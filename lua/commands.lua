@@ -5,10 +5,12 @@ local v = vim
 
 local utils  = require("utils")
 local fs     = require("fs")
+local ed     = require("ed")
 local win    = require("ui.win")
 local bufrs  = require("bufrs")
 local msglog = require("ui.msglog")
 local term   = require("term")
+local sess   = require("session")
 
 local git    = require("git")
 
@@ -100,9 +102,11 @@ end, {})
 
 -- Restart nvim
 vim.api.nvim_create_user_command("Restart", function()
+    sess.save()
     print("Restarting..")
-    vim.cmd("SaveGlobalSession")
-    vim.cmd("restart LoadGlobalSession")
+    -- local ok, res = pcall(function() vim.cmd("restart SessionLoad") end)
+    local ok, res = pcall(function() vim.cmd("restart SessionLoad") end)
+    if not ok then print(res) return end
 end, {})
 
 vim.api.nvim_create_user_command("RestartSafeMode", function()
@@ -147,6 +151,50 @@ end, {})
 
 vim.api.nvim_create_user_command("News", function() vim.cmd("tab h news") end, {})
 
+vim.api.nvim_create_user_command("Commands", function()
+    local cmds = vim.api.nvim_get_commands({})
+
+    local lines = {}
+    for name, def in pairs(cmds) do
+        table.insert(lines, name)
+    end
+
+    table.sort(lines)
+
+    vim.cmd("tabnew Commands")
+    vim.bo[0].buftype = "nofile"
+    vim.bo[0].filetype = "commands"
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+end, {})
+
+vim.api.nvim_create_user_command("RunInsert", function(opts)
+    local ft = vim.bo.filetype
+    local cursopos = vim.fn.getpos(".")
+
+    -- local start_line = opts.line1
+    -- local end_line = opts.line2
+
+    local runcmd = {
+        lua = { "lua" },
+        bash = { "bash" },
+        python = { "python" },
+    }
+    local cmd = runcmd[ft]
+    if not cmd then vim.notify("Can't run: "..ft) return end
+
+    if not vim.fn.mode():match("[Vv\22]") then vim.cmd("norm! gv") end
+    local code = table.concat(ed.get_selection_text(), "\n")
+
+    local res = vim.system(cmd, {stdin=code, text=true, cwd=vim.fn.getcwd()}):wait()
+    local out = res.stdout or res.stderr or "nil"
+    local lines = vim.split(out, "\n", {plain=true})
+
+    vim.api.nvim_buf_set_lines(0, cursopos[2], cursopos[2], false, lines)
+end, {range=true})
 
 
 -- ## [Registers]
@@ -1087,12 +1135,6 @@ end, {})
 
 
 -- ### [Repo admin]
-vim.api.nvim_create_user_command("GitPrintRoot", function()
-    print(vim.fn.systemlist("git rev-parse --show-toplevel")[1])
-end, {})
-
-vim.api.nvim_create_user_command("GitLog", git.log_pretty, {})
-
 vim.api.nvim_create_user_command("GitLogFile", function()
     require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
 end, {})
@@ -1397,7 +1439,7 @@ vim.api.nvim_create_user_command("ShowMark", function()
     })
 end, {})
 
-vim.api.nvim_create_user_command("FoldPrintLineLvl", function()
+vim.api.nvim_create_user_command("FoldPrintCurrLineLvl", function()
     local line_foldlvl = vim.fn.foldlevel(vim.fn.line("."))
     print(line_foldlvl)
 end, {})

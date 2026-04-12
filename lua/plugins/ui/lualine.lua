@@ -169,15 +169,16 @@ return
                         end,
                         padding={left=0,right=1},
                     },
-                    {'location', padding=0},
-                    {--line count
+                    {-- col/lines
                         function()
+                            local cursopos = vim.fn.getpos(".")
                             local lines = vim.api.nvim_buf_line_count(0)
-                            return lines..'L'
+                            -- return lines..'≡' -- 󱡠  L
+                            return cursopos[3]..":"..cursopos[2].."/"..lines..'≡'
                         end,
-                        padding={left=1,right=1},
+                        padding={left=0,right=1},
                     },
-                    {--filesize
+                    {-- filesize
                         function()
                             local file_size_bytes = vim.fn.getfsize(vim.fn.expand("%:p"))
 
@@ -204,9 +205,9 @@ return
                             local bt = {
                                 [""]         = "",
                                 ["acwrite"]  = "acw",
-                                ["help"]     = "?",
-                                ["nofile"]   = "!",
-                                ["nowrite"]  = "!󰃉",
+                                ["help"]     = "help?",
+                                ["nofile"]   = "nofile",
+                                ["nowrite"]  = "󰃉",
                                 ["quickfix"] = "qf",
                                 ["terminal"] = "",
                                 ["prompt"]   = "",
@@ -230,7 +231,7 @@ return
                 {
                     {   --filename
                         function()
-                            local fpath       = vim.fn.expand("%:")
+                            local fpath       = vim.fn.expand("%:p")
                             local fname       = vim.fn.expand("%:t")
                             local fstat       = vim.uv.fs_stat(fpath)
                             local freadonly   = fstat and (not vim.uv.fs_access(fpath, "w"))

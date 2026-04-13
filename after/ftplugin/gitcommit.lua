@@ -22,7 +22,7 @@ function _G.foldexpr_gitcommit()
     if line:match("^# Changes not staged for commit:") then return ">2" end
     if line:match("^# Untracked files:") then return ">2" end
 
-    if line:match("^@@ ") then return ">2" end
+    if line:match("^@@ ") then return ">1" end
     -- elseif line:match("^%+") or line:match("^%-") or line:match("^ ") then
 
     return "="

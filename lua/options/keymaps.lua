@@ -150,7 +150,7 @@ map(modes, "<C-w>", function()
     if vim.fn.winlayout()[1] ~= "leaf" or isfloatwin then -- detect if curr tab has splits
         if bufwincnt == 1 then -- avoids destroying buf we want to keep if in 2+ splits
             if tabwincnt == 2 then
-                -- Try close aerial/neo-tree when killing curr buf bc :close is buggy on it
+                -- Try close aerial/neo-tree when killing curr buf bc `:close` is buggy on it
                 vim.cmd("AerialCloseAll")
 
                 -- Try close neo-tree
@@ -265,6 +265,7 @@ map({"i","n","v","t"}, "<C-b>", function()
         toggle = true,
         focus  = false,
         dir    = rootdir,
+        -- dir    = vim.fn.getcwd(),
     },{})
 end)
 
@@ -524,10 +525,10 @@ end, {expr=true})
 
 
 -- ### [Scrolling]
-map({"i","n","v","c","t"}, "<M-C-S-Right>", "<Cmd>silent! norm! 7zl<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Left>",  "<Cmd>silent! norm! 7zh<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Down>",  "<Cmd>silent! norm! 5<CR>")
-map({"i","n","v","c","t"}, "<M-C-S-Up>",    "<Cmd>silent! norm! 5<CR>")
+map({"i","n","v","c","t"}, "<M-C-Left>",  "<Cmd>silent! norm! 7zh<CR>")
+map({"i","n","v","c","t"}, "<M-C-Right>", "<Cmd>silent! norm! 7zl<CR>")
+map({"i","n","v","c","t"}, "<M-C-Up>",    "<Cmd>silent! norm! 5<CR>")
+map({"i","n","v","c","t"}, "<M-C-Down>",  "<Cmd>silent! norm! 5<CR>")
 
 
 -- ### [Fast and furious cursor move]
@@ -831,10 +832,10 @@ map({"i","n","v"}, "<S-End>",  "<Esc>vG$")
 
 -- To Visual Line selection
 -- TODO a bit hacky we would want proper <C-M-Right><C-M-Left>
-map({"i","n","v"}, "<C-M-Right>", function()
+map({"i","n","v"}, "<M-C-S-Right>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
-map({"i","n","v"}, "<C-M-Left>", function()
+    map({"i","n","v"}, "<M-C-S-Left>", function()
     if vim.fn.mode() ~= "V" then vim.cmd("norm! V") end
 end)
 
@@ -899,6 +900,8 @@ map({"i","n","x"}, "<S-M-Down>",  function() arrow_blockselect("j") end)
 -- ## [Editing]
 ----------------------------------------------------------------------
 -- ### Insert
+map("n", "a", "i")
+
 -- Toggle insert/normal with insert key
 map("i", "<Ins>", "<Esc>")
 map("n", "<Ins>", "i")
@@ -1387,7 +1390,7 @@ end, {expr=true})
 
 -- Line break above
 map("i",       "<S-CR>", "<C-o>O")
-map({"n","o"}, "<S-CR>", "O<esc>")
+map({"n","o"}, "<S-CR>", "O<esc>") -- Maybe preserve view?(break when scrolled right a lot)
 map("v",       "<S-CR>", function()
     vim.cmd('norm! ') -- hack to refresh vis pos
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
@@ -1435,55 +1438,10 @@ end)
 
 
 -- ### [Text move]
----@param dirct string
----@param count number
-local function move_selected(dirct, count)
-    local mode = vim.fn.mode()
-
-    if mode == 'i' and dirct:match("[hl]") then vim.cmd("stopinsert|norm! viw") return end
-
-    if (mode == 'i' and dirct:match("[jk]")) or mode == "n" then
-        if dirct == "h" then vim.cmd('norm! "zxh"zP')              return end
-        if dirct == "l" then vim.cmd('norm! "zxl"zP')              return end
-
-        if dirct == "k" then vim.cmd('m.-'..(count+1)..'|norm!==') return end
-        if dirct == "j" then vim.cmd('m.'..count..'|norm!==')      return end
-    end
-
-    if mode:match("[vV\22]") then
-        vim.cmd('norm! ') -- hack to refresh vis pos
-        local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
-        vim.cmd('norm! gv')
-
-        -- TODO detect sof and eof
-        local atsol = (math.min((vst[2]), (vsh[2])) < 1)
-
-        if (math.abs(vst[1] - vsh[1]) > 0 or mode == "V") and mode ~= "" then -- multilines move
-            local defsw = vim.opt.shiftwidth:get()
-            local vo = vim.opt_local
-
-            if dirct == "h" then vo.shiftwidth = 1; vim.cmd("norm! <gvh"); vo.shiftwidth = defsw; return end
-            if dirct == "l" then vo.shiftwidth = 1; vim.cmd("norm! >gvl"); vo.shiftwidth = defsw; return end
-
-            if dirct == "k" then vim.cmd("'<,'>m '<-"..(count+1).."|norm!gv=gv") return end
-            if dirct == "j" then vim.cmd("'<,'>m '>+"..count.."|norm!gv=gv")     return end
-        end
-
-        -- Single line selection move
-        if  atsol and dirct == "h" then return end
-
-        local cmd = '"zygv"_x' .. count .. dirct .. '"zP' -- "zy avoids polluting reg"
-        if mode == "v"  then cmd = cmd.."`[v`]"  end
-        if mode == "" then cmd = cmd.."`[`]" end
-        vim.cmd("silent keepjumps norm! " .. cmd)
-    end
-end
-
--- Move selected text
-map({"i","n","x"}, "<C-S-Left>",  function() move_selected("h", vim.v.count1) end)
-map({"i","n","x"}, "<C-S-Right>", function() move_selected("l", vim.v.count1) end)
-map({"i","n","x"}, "<C-S-Up>",    function() move_selected("k", vim.v.count1) end)
-map({"i","n","x"}, "<C-S-Down>",  function() move_selected("j", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Left>",  function() ed.move_sel("h", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Right>", function() ed.move_sel("l", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Up>",    function() ed.move_sel("k", vim.v.count1) end)
+map({"i","n","x"}, "<C-S-Down>",  function() ed.move_sel("j", vim.v.count1) end)
 
 
 -- ### [Comments]
@@ -1681,8 +1639,9 @@ map({"i","n"}, "<C-S-H>", function()
         if vim.api.nvim_win_get_config(0).relative ~= "" then
             vim.opt_local.signcolumn = "no"
             vim.opt_local.number     = false
+            vim.opt_local.foldenable = false
             vim.opt_local.foldcolumn = "0"
-            vim.opt_local.wrap       = false
+            vim.opt_local.wrap       = true
             vim.opt_local.spell      = false
         end
     end, 0)

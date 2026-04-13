@@ -155,12 +155,15 @@ vim.api.nvim_create_user_command("Commands", function()
     local cmds = vim.api.nvim_get_commands({})
 
     local lines = {}
-    for name, def in pairs(cmds) do
-        table.insert(lines, name)
+        -- local out = vim.api.nvim_exec2("verbose command cmd", {output=true})
+    for cmd, val in pairs(cmds) do
+        table.insert(lines, cmd.." : "..'['..val.definition..']')
+        -- table.insert(lines, cmd:match("^(%a+)")) -- guess category table.insert(lines, "  "..cmd.." : "..val.definition)
     end
 
     table.sort(lines)
 
+    -- buff
     vim.cmd("tabnew Commands")
     vim.bo[0].buftype = "nofile"
     vim.bo[0].filetype = "commands"
@@ -188,6 +191,16 @@ vim.api.nvim_create_user_command("RunInsert", function(opts)
 
     if not vim.fn.mode():match("[Vv\22]") then vim.cmd("norm! gv") end
     local code = table.concat(ed.get_selection_text(), "\n")
+
+    -- local f = load("return " .. code)
+    -- if not f then
+    --     f = load(code)
+    -- end
+    --
+    -- local results = { f() }
+    -- if #results > 0 then
+    --     print(table.unpack(results))
+    -- end
 
     local res = vim.system(cmd, {stdin=code, text=true, cwd=vim.fn.getcwd()}):wait()
     local out = res.stdout or res.stderr or "nil"
@@ -279,7 +292,7 @@ vim.api.nvim_create_user_command("BufInfo", function(opts)
     vim.notify(table.concat(infos, "\n"), vim.log.levels.INFO)
 end, {nargs="?"})
 
-vim.api.nvim_create_user_command("ClearBuf", function()
+vim.api.nvim_create_user_command("BufClear", function()
     vim.cmd("%d_")
 end, {})
 
@@ -287,25 +300,20 @@ vim.api.nvim_create_user_command("BufSetModifiable", function()
     vim.cmd("set modifiable")
 end, {})
 
-vim.api.nvim_create_user_command("WipeHiddenBuffers", function()
+vim.api.nvim_create_user_command("BufWipeHidden", function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if not vim.api.nvim_buf_is_loaded(buf) then
+            local bufname = vim.api.nvim_buf_get_name(buf)
             vim.api.nvim_buf_delete(buf, {force=true})
-            print("wipeing buffer")
+            print("Wipeing buffer: "..'"'..bufname..'"')
         end
    end
 end, {})
 
-vim.api.nvim_create_user_command("DeleteAllBuffers", function()
+vim.api.nvim_create_user_command("BufDeleteAll", function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         vim.api.nvim_buf_delete(buf, {force=true})
     end
-end, {})
-
-vim.api.nvim_create_user_command("CopyBuf", function()
-    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-    vim.fn.setreg("+", table.concat(lines, "\n"))
-    print("Buffer copied")
 end, {})
 
 
@@ -929,15 +937,18 @@ vim.api.nvim_create_user_command("TrimEmptyLines", function(opts)
     vim.cmd(range .. "g/^$/d")
 end, {range = true})
 
+-- Marks
 vim.api.nvim_create_user_command("ClearAllMarks", function()
     vim.cmd([[delmarks a-zA-Z0-9"<>'[].]])
     print("[All marks cleared]")
 end, {desc = "Delete all marks in the current buffer"})
 
+
 -- Open code action floating win
 vim.api.nvim_create_user_command("CodeAction", function()
     vim.cmd("lua vim.lsp.buf.code_action()")
 end, {})
+
 
 vim.api.nvim_create_user_command("PrintCharInfo", function()
     vim.cmd('norm!"zyl')
@@ -1121,17 +1132,6 @@ vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
     end
 end, {nargs="?"})
 
-
-vim.api.nvim_create_user_command("GitLogFileSplit", function()
-    local fp =  vim.fn.expand("%:p")
-
-    vim.cmd("vs | term dash")
-
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
-    vim.api.nvim_set_option_value("buflisted", false,  { buf = 0 })
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git log HEAD "..fp.."\n")
-end, {})
 
 
 -- ### [Repo admin]

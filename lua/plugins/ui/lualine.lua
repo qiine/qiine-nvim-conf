@@ -162,7 +162,7 @@ return
 
                             if m == "v" or m == "V" or m == "\22" then
                                 icon = '󰅴'
-                                return icon  .. selectioncount()
+                                return selectioncount()..icon
                             else
                                 return icon
                             end
@@ -172,11 +172,15 @@ return
                     {-- col/lines
                         function()
                             local cursopos = vim.fn.getpos(".")
-                            local lines = vim.api.nvim_buf_line_count(0)
-                            -- return lines..'≡' -- 󱡠  L
-                            return cursopos[3]..":"..cursopos[2].."/"..lines..'≡'
+                            local line_ct = vim.api.nvim_buf_line_count(0)
+                            local line = vim.api.nvim_get_current_line()
+                            local col_cnt = #line
+
+                            -- local out = cursopos[3].."/"..col_cnt..":"..cursopos[2].."/"..line_ct..'L' -- 󱡠  ≡
+                            local out = cursopos[3]..":"..cursopos[2].."/"..line_ct..'L' -- 󱡠  ≡
+                            return out
                         end,
-                        padding={left=0,right=1},
+                        padding={left=1,right=1},
                     },
                     {-- filesize
                         function()

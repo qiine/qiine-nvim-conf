@@ -355,9 +355,10 @@ map({"i","n","v"}, "<F29>", "<Cmd>Render<CR>") -- C-F5
 
 -- ## [Windows]
 ----------------------------------------------------------------------
+-- Windows actions leader key
 local ldwin = "<M-w>"
 
--- Rebind win prefix
+-- Rebind builtin win prefix
 map({"i","n","v","c"}, ldwin, "<esc><C-w>", {noremap=true})
 map("t",               ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 
@@ -368,30 +369,6 @@ map(modes, ldwin.."v", function() win.open_split_ephem("vert") end)
 map(modes, ldwin.."V", function() win.open_split_ephem("vert") vim.cmd("enew") end)
 map(modes, ldwin.."w", function() win.open_split_ephem("hor") end)
 map(modes, ldwin.."W", function() win.open_split_ephem("vert") vim.cmd("enew") end)
-
--- diff split
-map(modes, ldwin.."d", function()
-    local bufid = vim.api.nvim_get_current_buf()
-
-    vim.cmd("diffthis")
-
-    win.open_split_ephem("vert")
-
-    vim.cmd("diffthis")
-    vim.opt_local.statuscolumn = ""
-    vim.opt_local.signcolumn   = "no"
-    vim.opt_local.number       = false
-    vim.opt_local.foldmethod   = "diff"
-    vim.opt_local.foldcolumn   = "0"
-    vim.opt_local.foldlevel    = 99 --hack to Keep folds open by default
-
-    vim.api.nvim_create_autocmd('WinEnter', {
-        group   = 'UserAutoCmds',
-        once    = true,
-        buffer  = bufid,
-        command = "diffoff",
-    })
-end)
 
 -- Open float win
 map(modes, ldwin.."n",  win.fwin_open)
@@ -408,13 +385,13 @@ map({"i","n","v","t"}, ldwin.."<S-f>", "<cmd>only<CR>")
 
 
 -- ### Size
--- minimize split
+-- minimize/maximize cur split
 map(modes, ldwin.."m", "<cmd>res 0<CR>")
+map(modes, ldwin.."M", "<cmd>res<CR>")
 
 -- Maximize split toggle
 map(modes, ldwin.."f", win.split_maximize_toggle)
 
--- Auto resize wins splits
 -- TODO move to win.lua
 local function resize_win(dir, amount)
     local curwin = vim.api.nvim_get_current_win()
@@ -1663,6 +1640,30 @@ end)
 
 
 -- ### Diff
+-- diff cur splits
+map(modes, ldwin.."d", function()
+    local bufid = vim.api.nvim_get_current_buf()
+
+    vim.cmd("diffthis")
+
+    win.open_split_ephem("vert")
+
+    vim.cmd("diffthis")
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+    vim.opt_local.foldmethod   = "diff"
+    vim.opt_local.foldcolumn   = "0"
+    vim.opt_local.foldlevel    = 99 --hack to Keep folds open by default
+
+    vim.api.nvim_create_autocmd('WinEnter', {
+        group   = 'UserAutoCmds',
+        once    = true,
+        buffer  = bufid,
+        command = "diffoff",
+    })
+end)
+
 -- next/prev diff or local modification
 map({"i","n","v","c"}, "<M-S-PageUp>", function()
     if vim.wo.diff then

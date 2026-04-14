@@ -4,6 +4,7 @@
 local M =
 {
     -- personal
+    -- Action
     run = "󰑮",
 
     session = "󱂬",
@@ -15,32 +16,24 @@ local M =
     terminal = "",
     ui = "",
     test = "󰙨",
+
+    -- file formats
     docs = "",
 
-
-    arrowleftcircle = "",
-    arrowrightcircle = "",
     crosscircle = "󰅙",
     bufferclose = "󰅖",
 
-    play = "",
-    stop = "",
 
-    compilerredo = "",
-    tree = "",
     box = "" ,
     zenmode = "󰰶",
     bufwrite = "",
     bufwriteall = "",
 
-    --text
+    -- ## text
+    -- ### Ponctuation
     ellipsis = "…",
     ellipsis_mid = "⋯",
 
-    -- folds
-    foldclosed = "",
-    foldopened = "",
-    foldseparator = " ",
 
     environment = "",
     diagnosticerror = "",
@@ -60,7 +53,6 @@ local M =
     paste = "󰅌",
 
     -- directory
-    pathseparator = "",
     folderclosed = "",
     folderopen = "",
     folderempty = "",
@@ -79,9 +71,10 @@ local M =
     gitdelete = "",
     gitconflict = "",
 
-    -- bar
-    barver = "▎",
-    separator = "│",
+    -- Bars
+    bar_thin = "│",
+    bar_thick = "|",
+    barleft_thick = "▎",
 
 
     questiomark = "",
@@ -90,14 +83,29 @@ local M =
 
     dapbreakpoint = "",
 
+    signal = "󰀂",
+    signal2 = "󰀃",
+
     -- arrows
-    daplogpoint = ".>",
+    foldclosed = "",
+    foldopened = "",
     arrowright = "󰁕",
     arrowrightsmall = "➜",
     promptprefix = "❯",
-    breadcrumbseparator = "",
+    chevron_large = "",
     arrowup = "󰞕",
     enter = "󰌑",
+    -- Up = " ",
+    -- Down = " ",
+    -- Left = " ",
+    -- Right = " ",
+    -- C = "󰘴 ",
+    arrow_leftcircle = "",
+    arrow_rightcircle = "",
+    arrow_fat = "󰘶 ",
+
+    arrow_circling = "",
+
 
     -- math
     Numbers       = "󰎠",
@@ -112,8 +120,12 @@ local M =
     circle   = "◌",
     squares4 = "",
     cube     = "",
+    rectangle2 = "󰀁",
     star     = "★",
     star2    = "✦",
+    triangle_full = "",
+    rectangle_full = "",
+
 
     -- code
     func      = "ƒ",
@@ -136,7 +148,7 @@ local M =
     tag    = "",
     cog     = "",
     cogdual = "",
-    Key  = "󰌋",
+    Key     = "󰌋",
     camera = "",
     suitcase = "💼",
     crayon = "󰃉",
@@ -145,8 +157,19 @@ local M =
     floppy1 = "🖬",
     floppy2 = "💾",
     pin = "",
+    trophee = "",
+
+    -- Computers
+    laptop = "💻",
+    desktop = "🖳",
+    shell = "",
     keyboard = "⌨",
-    starts   =  "✨",
+    controller = "🎮",
+    scrollwheel_down = "󱕐 ",
+    scrollwheel_up = "󱕑 ",
+
+
+    stars3   =  "✨",
     crown = "🜲",
 
     -- time
@@ -159,8 +182,12 @@ local M =
     notepad   = "🗒️",
 
     -- ui
-    Boolean   = "󰨙",
-    Array     = "󱡠",
+    switch    = "󰨙",
+    tree      = "",
+    lines     = "󱡠",
+    lines2    = "≡",
+    lines3    = "☰",
+
     checkmark = "✓",
     cross     = "✗",
     reload    = "⟳",
@@ -182,8 +209,9 @@ local M =
 
     -- animals
     duck = "🦆",
+    penguin = "🐧",
+    penguin_nerd = "",
     bug  = "",
-
 
 
     -- letters
@@ -192,12 +220,33 @@ local M =
     stylisedn1    = "𝑵",
     null          = "󰟢",
     escape        = "󱊷",
+    escape2       = "󱊷 ",
+
+    F1 = "󱊫",
+    F2 = "󱊬",
+    F3 = "󱊭",
+    F4 = "󱊮",
+    F5 = "󱊯",
+    F6 = "󱊰",
+    F7 = "󱊱",
+    F8 = "󱊲",
+    F9 = "󱊳",
+    F10 = "󱊴",
+    F11 = "󱊵",
+    F12 = "󱊶",
 
     lightning     = "⚡️",
     lightningnerd = "",
+
+    -- Input
+    CR = "󰌑 ",
+    Tab = "󰌒 ",
+    BS = "󰁮",
+    Space = "󱁐 ",
+    M = "󰘵 ",
+    D = "󰘳 ",
 }
 
 return M
-
 
 

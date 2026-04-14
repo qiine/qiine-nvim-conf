@@ -408,6 +408,9 @@ map({"i","n","v","t"}, ldwin.."<S-f>", "<cmd>only<CR>")
 
 
 -- ### Size
+-- minimize split
+map(modes, ldwin.."m", "<cmd>res 0<CR>")
+
 -- Maximize split toggle
 map(modes, ldwin.."f", win.split_maximize_toggle)
 
@@ -1807,18 +1810,15 @@ end)
 
 -- run project
 map({"i","n","v","t"}, "<F8>", function()
+    local ft = vim.bo.filetype
+
+    if ft == "OverseerOutput" then vim.cmd("bwipeout!") return end
+
     require("overseer").run_task({name = "run project"}, function(task)
         if task then
-            for _, prevtask in ipairs(require('overseer').list_tasks()) do
-                if prevtask.status == "RUNNING" then
-                    require('overseer').run_action(prevtask, "stop")
-                end
-            end
-
-            require('overseer').open({ enter = false })
-            -- require('overseer').run_action(task, 'open hsplit')
-            -- vim.cmd("startinsert")
-            -- vim.api.nvim_win_set_height(0, 11)
+            -- require('overseer').open({ enter = false })
+            task:open_output("horizontal")  -- or "float", "vertical", "tab"
+            vim.cmd("res 11")
         end
     end)
 end)
@@ -1953,7 +1953,8 @@ map({"i","n","v","c","t"}, "<F6>", function()
     -- vim.api.nvim_buf_set_name(planv_bufid, "~/Personal/Org/Plan/plan.txt")
     -- vim.cmd("e!")
     vim.cmd("tabnew ~/Personal/Org/Plan/plan.txt")
-    local planv_bufid = vim.api.nvim_get_current_buf()
+    vim.cmd("norm! gg3j")
+    local plan_bufid = vim.api.nvim_get_current_buf()
 
     -- opts
     vim.opt_local.number = false
@@ -1965,7 +1966,7 @@ map({"i","n","v","c","t"}, "<F6>", function()
     vim.keymap.set("n", "<C-S-N>", function()
         vim.cmd("norm! 3Go")
         lsnip.insert_snippet("task")
-    end, {buffer=planv_bufid})
+    end, {buffer=plan_bufid})
 end)
 
 -- Project task <M-F6>

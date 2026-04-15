@@ -1,4 +1,8 @@
 
+-- # Cyclyst
+
+local utils = require("utils")
+
 -- flick
 -- dial
 -- cyclist
@@ -21,6 +25,7 @@ M.toggle_table = {
     ["enable"]   = "disable",    ["disable"]    = "enable",
     ["enabled"]  = "disabled",   ["disabled"]   = "enabled",
     ["move"]     = "stop",       ["stop"]       = "move",
+    ["todo"]     = "done",       ["done"]       = "todo",
 
     ["always"] = "never", ["never"] = "always",
     ["all"]    = "none",  ["none"]  = "all",
@@ -149,27 +154,42 @@ end
 ---@param reverse boolean
 ---@return boolean
 function M.cycle_omni_text(text, reverse)
-    local res
+    local out
+    local str_lower = string.lower(text)
 
-    if M.is_quote(text) then
-        res = reverse and M.get_prev_quote(text) or M.get_next_quote(text)
+    local is_upper = utils.is_upper(text)
+    local is_lower = utils.is_lower(text)
+    local start_upper = string.sub(text, 1)
+
+    if M.is_quote(str_lower) then
+        out = reverse and M.get_prev_quote(str_lower) or M.get_next_quote(str_lower)
     end
 
-    if M.is_paren(text) then
-        res = reverse and M.get_prev_paren(text) or M.get_next_paren(text)
+    if M.is_paren(str_lower) then
+        out = reverse and M.get_prev_paren(str_lower) or M.get_next_paren(str_lower)
     end
 
-    if M.is_toggleable(text) then
-        res = M.get_toggle(text)
+    if M.is_toggleable(str_lower) then
+        out = M.get_toggle(str_lower)
     end
 
-    if M.is_checkbox(text) then
-        res = M.get_checkbox_state(text)
+    if M.is_checkbox(str_lower) then
+        out = M.get_checkbox_state(str_lower)
     end
 
-    if not res then return false end
-    print(text) -- [ ]
-    vim.cmd('norm! "_c'..res); return true
+    if not out then return false end
+
+    -- Set back case
+    if is_upper then
+        out = string.upper(out)
+    elseif is_lower then
+        out = string.lower(out)
+    -- elseif start_upper then
+        --
+    end
+
+    -- print(text) -- [ ]
+    vim.cmd('norm! "_c'..out); return true
 end
 
 ---@param reverse boolean

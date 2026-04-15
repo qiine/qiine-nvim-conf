@@ -26,10 +26,6 @@ vim.opt_local.formatoptions:append("t") -- auto-wrap text at textwidth
 
 
 -- [keymaps]
--- Insert task
-vim.keymap.set({"i","n","x"}, "<C-S-n>t", function()
-  lsnip.insert_snippet("task")
-end, {buffer = true})
 
 
 

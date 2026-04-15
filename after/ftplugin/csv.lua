@@ -22,7 +22,8 @@ vim.keymap.set({"i","n","v"}, "<S-BS>", function()
 end, {buffer=true})
 
 
--- View
+-- ## [View]
+----------------------------------------------------------------------
 local ns = vim.api.nvim_create_namespace("underline_all")
 
 vim.api.nvim_set_hl(0, "UnderlineAll", { underline = true })

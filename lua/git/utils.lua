@@ -32,10 +32,13 @@ function M.get_path_porcelainstatus(path, repodir)
 
     local cmd = {"git", "status", "--porcelain", "--", path}
     local res_status = vim.system(cmd, {cwd=repodir, text=true}):wait()
-    local err = res_status.stderr
+    local err = nil
+    if res_status.stderr then err = "get_path_porcelainstatus err: "..res_status.stderr end
 
-    local out = string.sub(res_status.stdout, 1, 2)
-    out = string.gsub(out, " ", "•")
+    local out = res_status.stderr
+    out = string.sub(res_status.stdout, 1, 2)
+    if out == "" then out = "  " end
+    out = string.gsub(out, " ", " ") -- •
 
     return out, err
 end
@@ -44,3 +47,5 @@ end
 
 --------
 return M
+
+

@@ -12,16 +12,43 @@ local M = {}
 
 -- ## [Staging]
 ----------------------------------------------------------------------
----@param fpath? string
-function M.add_file(fpath)
-    fpath = fpath and fpath or vim.fn.expand("%:p")
+---@param path string
+---@param cwd string?
+---@return boolean, nil|string
+function M.track(path, cwd)
+    cwd = cwd or vim.fn.getcwd()
 
-    if vim.fn.filereadable(fpath) == 0 then
+    local cmd = {"git", "add", "-N", path}
+
+    local res_git = vim.system(cmd, {cwd=cwd, text=true}):wait()
+
+    if res_git.code ~= 0 then return false, res_git.stderr end
+    return true, nil
+end
+
+function M.track_curfile()
+    local f = vim.fn.expand("%:p")
+    local fcwd = vim.fn.expand("%:p:h")
+
+    local ok, err = M.track(f, fcwd)
+
+    if ok then
+        vim.notify("git track: "..f, vim.log.levels.INFO) return
+    else
+        vim.notify("git track failed "..err, vim.log.levels.ERROR) return
+    end
+end
+
+---@param path? string
+function M.add(path)
+    path = path and path or vim.fn.expand("%:p")
+
+    if vim.fn.filereadable(path) == 0 then
         return vim.notify("git add failed, file invalid!", vim.log.levels.ERROR)
     end
 
-    vim.cmd("silent !git add "..fpath)
-    vim.notify("git add "..fpath, vim.log.levels.INFO)
+    vim.cmd("silent !git add "..path)
+    vim.notify("git add "..path, vim.log.levels.INFO)
 end
 
 function M.add_all()

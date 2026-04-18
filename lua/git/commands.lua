@@ -9,6 +9,8 @@ local term = require("term")
 
 -- ## [Actions]
 ----------------------------------------------------------------------
+vim.api.nvim_create_user_command("GitTrackFile", api.track_curfile, {})
+
 vim.api.nvim_create_user_command("GitUnstageAll", api.unstage_all, {})
 
 

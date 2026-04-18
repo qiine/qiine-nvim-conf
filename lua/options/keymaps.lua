@@ -505,10 +505,10 @@ end, {expr=true})
 
 
 -- ### [Scrolling]
-map({"i","n","v","c","t"}, "<M-C-Left>",  "<Cmd>silent! norm! 7zh<CR>")
-map({"i","n","v","c","t"}, "<M-C-Right>", "<Cmd>silent! norm! 7zl<CR>")
-map({"i","n","v","c","t"}, "<M-C-Up>",    "<Cmd>silent! norm! 5<CR>")
-map({"i","n","v","c","t"}, "<M-C-Down>",  "<Cmd>silent! norm! 5<CR>")
+map({"i","n","v","c","t"}, "<C-M-Left>",  "<Cmd>silent! norm! 10zh<CR>")
+map({"i","n","v","c","t"}, "<C-M-Right>", "<Cmd>silent! norm! 10zl<CR>")
+map({"i","n","v","c","t"}, "<C-M-Up>",    "<Cmd>silent! norm! 7<CR>")
+map({"i","n","v","c","t"}, "<C-M-Down>",  "<Cmd>silent! norm! 7<CR>")
 
 
 -- ### [Fast and furious cursor move]
@@ -880,7 +880,7 @@ map({"i","n","x"}, "<S-M-Down>",  function() arrow_blockselect("j") end)
 -- ## [Editing]
 ----------------------------------------------------------------------
 -- ### Insert
-map("n", "a", "i")
+-- map("n", "a", "i")
 
 -- Toggle insert/normal with insert key
 map("i", "<Ins>", "<Esc>")
@@ -1377,8 +1377,7 @@ map("v",       "<S-CR>", function()
 
     if vsh[1] > vst[1] then vim.api.nvim_win_set_cursor(0, vst) end
 
-    vim.cmd("norm! O")
-    vim.cmd("norm! gv")
+    vim.cmd("norm! Ogv")
 end)
 
 -- Line break below
@@ -1387,17 +1386,14 @@ map({"n","o"}, "<M-CR>", "o<esc>")
 map("v",       "<M-CR>", function()
     vim.cmd('norm! ') -- hack to refresh vis pos
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
-
     if vsh[1] > vst[1] then vim.api.nvim_win_set_cursor(0, vsh) end
 
-    vim.cmd("norm! o")
-    vim.cmd("norm! gv")
+    vim.cmd("norm! ogv")
 end)
 
 -- Line break above and below
 map({"i","n"}, "<S-M-CR>", function() vim.cmd("norm! okOj") end)
-map("v",       "<S-M-CR>", function() vim.cmd("norm! `<O`>ogv") end)
-
+map("v",       "<S-M-CR>", "`<O`>ogv")
 
 
 -- ### [Line join/split]
@@ -1817,9 +1813,35 @@ map({"i","n","v","t"}, "<F8>", function()
 
     require("overseer").run_task({name = "run project"}, function(task)
         if task then
-            -- require('overseer').open({ enter = false })
-            task:open_output("horizontal")  -- or "float", "vertical", "tab"
-            vim.cmd("res 11")
+            -- Check exisitng overseer win
+            local existing_win = nil
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local buf = vim.api.nvim_win_get_buf(win)
+                if vim.bo[buf].filetype == "OverseerOutput" then
+                    existing_win = win
+                    break
+                end
+            end
+
+            if existing_win then -- Reuse existing window
+                vim.api.nvim_set_current_win(existing_win)
+                local task_buf = task:get_bufnr()
+                if task_buf then
+                    vim.api.nvim_win_set_buf(existing_win, task_buf)
+                    vim.cmd("startinsert")
+                end
+            else
+                -- require('overseer').open({ enter = false })
+                local current_win = vim.api.nvim_get_current_win()
+
+                task:open_output("horizontal")
+                vim.opt_local.signcolumn = "no"
+                vim.opt_local.foldcolumn = "0"
+                vim.cmd("res 11")
+
+                vim.api.nvim_set_current_win(current_win)  -- Restore focus
+            end
+
         end
     end)
 end)
@@ -1979,17 +2001,12 @@ end)
 
 
 -- ### Journal
--- Open journal
-map({"i","n","v","t"}, "<M-S-F6>", function()
-    vim.cmd("tabnew | Oil ~/Personal/Org/Journal/")
-end)
-
 -- Create new entry C-F6   -- or <M-n>j
 map({"i","n","v","t"}, "<F30>", function()
     local jdir = vim.fn.expand("~/Personal/Org/Journal/")
 
     local date = os.date("%Y-%m-%d")
-    local fname = date..".md"
+    local fname = "Entry_"..date..".md"
     local fpath = jdir..fname
 
     local entryexist = vim.fn.filereadable(fpath) == 1

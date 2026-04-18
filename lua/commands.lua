@@ -104,7 +104,6 @@ end, {})
 vim.api.nvim_create_user_command("Restart", function()
     sess.save()
     print("Restarting..")
-    -- local ok, res = pcall(function() vim.cmd("restart SessionLoad") end)
     local ok, res = pcall(function() vim.cmd("restart SessionLoad") end)
     if not ok then print(res) return end
 end, {})
@@ -141,17 +140,18 @@ end, {range=true})
 
 vim.api.nvim_create_user_command("ViewSource", function()
     if vim.b.viewsrcfunc then vim.b.viewsrcfunc() else print("Can't show source!") return end
-    print("Show source")
+    print("Showing source.")
 end, {})
 
 vim.api.nvim_create_user_command("Render", function()
     if vim.b.renderfunc then vim.b.renderfunc() else print("Can't render") return end
+    print("Render.")
 end, {})
 
 
 vim.api.nvim_create_user_command("News", function() vim.cmd("tab h news") end, {})
 
-vim.api.nvim_create_user_command("Commands", function()
+vim.api.nvim_create_user_command("CommandsControl", function()
     local cmds = vim.api.nvim_get_commands({})
 
     local lines = {}
@@ -1299,16 +1299,6 @@ vim.api.nvim_create_user_command("GitHunkToggleHighlight", function()
     end
 
     vim.cmd("GitHunksHighlight")
-end, {})
-
-vim.api.nvim_create_user_command("GitDashboard", function()
-    term.open_fwin(nil, {
-        title = "Push",
-        wratio = 0.75,
-        hratio = 0.65,
-    })
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git status\n")
 end, {})
 
 vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)

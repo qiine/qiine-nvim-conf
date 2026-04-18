@@ -39,7 +39,9 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
     end,
 })
 
+
 -- ## [Edits]
+----------------------------------------------------------------------
 -- Auto insert
 vim.cmd("startinsert")
 

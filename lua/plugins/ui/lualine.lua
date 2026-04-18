@@ -2,12 +2,13 @@ return
 {
     'nvim-lualine/lualine.nvim',
     enabled = true,
-    event = {"VimEnter", "BufReadPost", "BufNewFile"},
 
     dependencies = { 'nvim-tree/nvim-web-devicons' },
 
     config = function()
         --local utils = require("utils.utils")
+        local git = require("git")
+
         require("lualine").setup({
             options = {
                 theme = 'auto',
@@ -71,7 +72,19 @@ return
                         padding={left=1, right=1},
                         color = { bg = 'NONE'},
                     },
-                    {function() return "|" end, padding=0, color={fg='#a8a7a7', bg="NONE"}},
+                    {   -- file git status
+                        function()
+                            local crr_fpath = vim.fn.expand("%:p")
+                            local crr_fdir = vim.fn.expand("%:p:h")
+                            local file_gitst = git.utl.get_path_porcelainstatus(crr_fpath, crr_fdir)
+                            local out = file_gitst and file_gitst or ""
+                            return out
+                        end,
+                        padding={left=0,right=1}, color={fg='#777777', bg="NONE"},
+                    },
+                    {
+                        function() return "|" end, padding=0, color={fg='#a8a7a7', bg="NONE"},
+                    },
                 },
 
                 lualine_c = {
@@ -172,11 +185,13 @@ return
                     {-- col/lines
                         function()
                             local cursopos = vim.fn.getpos(".")
+
                             local line_ct = vim.api.nvim_buf_line_count(0)
+
                             local line = vim.api.nvim_get_current_line()
                             local col_cnt = #line
 
-                            -- local out = cursopos[3].."/"..col_cnt..":"..cursopos[2].."/"..line_ct..'L' -- 󱡠  ≡
+                            -- local out = cursopos[3].."/"..col_cnt.."c "..cursopos[2].."/"..line_ct..'L' -- 󱡠  ≡
                             local out = cursopos[3]..":"..cursopos[2].."/"..line_ct..'L' -- 󱡠  ≡
                             return out
                         end,
@@ -309,7 +324,7 @@ return
 
                             print(table.concat(infos, "\n"))
                         end,
-                        padding = 0,
+                        padding={left=0,right=1},
                     },
 
                     -- {

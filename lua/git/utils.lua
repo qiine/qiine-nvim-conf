@@ -1,4 +1,7 @@
 
+-- # Utils
+
+
 local M = {}
 
 ---@param searchdir string
@@ -19,6 +22,25 @@ end
 function M.make_path_gitroot_rel(path, gitroot)
     return path:sub(#gitroot + 2)
 end
+
+---@param path string?
+---@param repodir string?
+---@return string|nil status, string|nil err
+function M.get_path_porcelainstatus(path, repodir)
+    if not path or path == "" then return nil, "get_path_porcelainstatus err: No path" end
+    if not repodir then repodir = vim.fn.getcwd() end
+
+    local cmd = {"git", "status", "--porcelain", "--", path}
+    local res_status = vim.system(cmd, {cwd=repodir, text=true}):wait()
+    local err = res_status.stderr
+
+    local out = string.sub(res_status.stdout, 1, 2)
+    out = string.gsub(out, " ", "•")
+
+    return out, err
+end
+
+
 
 --------
 return M

@@ -5,7 +5,7 @@ return
     cmd = "Neogit",
     dependencies = {
         "nvim-lua/plenary.nvim",         -- required
-        "sindrets/diffview.nvim",        -- optional - Diff integration
+        -- "sindrets/diffview.nvim",        -- optional - Diff integration
 
         -- Only one of these is needed.
         "ibhagwan/fzf-lua",              -- optional
@@ -61,7 +61,7 @@ return
 
             graph_style = "unicode", -- ascii
 
-            integrations = { diffview = true }, -- adds integration with diffview.nvim
+            -- integrations = { diffview = true }, -- adds integration with diffview.nvim
 
             -- Automatically show console if a command takes more than console_timeout milliseconds
             auto_show_console = false,

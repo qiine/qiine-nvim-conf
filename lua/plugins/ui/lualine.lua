@@ -69,21 +69,25 @@ return
                     {
                         "branch", -- git ""
                         on_click = function() vim.cmd(":term lazygit") end,
-                        padding={left=1, right=1},
+                        padding={left=1, right=0},
                         color = { bg = 'NONE'},
                     },
                     {   -- file git status
                         function()
                             local crr_fpath = vim.fn.expand("%:p")
                             local crr_fdir = vim.fn.expand("%:p:h")
-                            local file_gitst = git.utl.get_path_porcelainstatus(crr_fpath, crr_fdir)
-                            local out = file_gitst and file_gitst or ""
+
+                            local file_gitst, err = git.utl.get_porcelainstatus(crr_fpath, crr_fdir)
+                            local out = file_gitst
+                            if not file_gitst then out = "" end
+
                             return out
                         end,
-                        padding={left=0,right=1}, color={fg='#777777', bg="NONE"},
+                        padding={left=1,right=0}, color={fg='#777777', bg="NONE"},
                     },
                     {
-                        function() return "|" end, padding=0, color={fg='#a8a7a7', bg="NONE"},
+                        function() return "|" end,
+                        padding={left=1,right=0}, color={fg='#a8a7a7', bg="NONE"},
                     },
                 },
 

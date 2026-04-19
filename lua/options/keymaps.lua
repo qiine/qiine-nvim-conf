@@ -1182,12 +1182,23 @@ map("c", "<M-Del>", "<C-Right><C-w><C-Right><C-w><C-Right><C-w>") -- TODO very u
 
 -- Delete line
 map({"i","n","v"}, "<S-Del>", function()
-    vim.cmd("norm! "..(vim.fn.mode() == "V" and '"_d' or 'V"_d') )
+    local mode = vim.fn.mode()
+    local cursopos = vim.api.nvim_win_get_cursor(0)
+    vim.cmd("norm! ") -- refresh vis pos
+    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+    if cursopos[1] == vsh[1] then vim.cmd("norm! gvo") end -- reset cursorpos to sel "tail", I find it nicer
+
+    if mode:match("[vV\22]") then
+        vim.api.nvim_buf_set_lines(0, vst[1]-1, vsh[1], false, {})
+    else
+        vim.api.nvim_buf_set_lines(0, cursopos[1]-1, cursopos[1], false, {})
+    end
 end)
 map("c", "<S-Del>", "<C-Left><C-w>")
 map("t", "<S-Del>", "<cmd>norm! dd<CR>")
 
--- Del line, detect empty line without trashing reg
+-- Del line, detect empty to avoid trashing reg
 map("n", "dd", function()
     return vim.fn.getline(".") == "" and '"_dd' or '0d$"_dd' -- avoids yanking \n
 end, {expr=true})
@@ -1372,14 +1383,14 @@ end, {expr=true})
 map("i", "<S-CR>", "<C-o>O")
 map("n", "<S-CR>", function()
     local vcnt = vim.v.count1
-    local cursorpos = vim.api.nvim_win_get_cursor(0)
+    local cursopos = vim.api.nvim_win_get_cursor(0)
 
     local lines = {}
     for i = 1, vcnt do
         table.insert(lines, "")
     end
 
-    vim.api.nvim_buf_set_lines(0, cursorpos[1]-1, cursorpos[1]-1, false, lines)
+    vim.api.nvim_buf_set_lines(0, cursopos[1]-1, cursopos[1]-1, false, lines)
     vim.cmd("norm! "..vcnt.."k")
 end)
 map("v", "<S-CR>", function()
@@ -1395,14 +1406,14 @@ end)
 map("i",       "<M-CR>", "<C-o>o")
 map("n", "<M-CR>", function()
     local vcnt = vim.v.count1
-    local cursorpos = vim.api.nvim_win_get_cursor(0)
+    local cursopos = vim.api.nvim_win_get_cursor(0)
 
     local lines = {}
     for i = 1, vcnt do
         table.insert(lines, "")
     end
 
-    vim.api.nvim_buf_set_lines(0, cursorpos[1], cursorpos[1], false, lines)
+    vim.api.nvim_buf_set_lines(0, cursopos[1], cursopos[1], false, lines)
     vim.cmd("norm! "..vcnt.."j")
 end)
 map("v",       "<M-CR>", function()

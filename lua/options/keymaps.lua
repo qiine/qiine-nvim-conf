@@ -505,10 +505,10 @@ end, {expr=true})
 
 
 -- ### [Scrolling]
-map({"i","n","v","c","t"}, "<C-M-Left>",  "<Cmd>silent! norm! 10zh<CR>")
-map({"i","n","v","c","t"}, "<C-M-Right>", "<Cmd>silent! norm! 10zl<CR>")
-map({"i","n","v","c","t"}, "<C-M-Up>",    "<Cmd>silent! norm! 7<CR>")
-map({"i","n","v","c","t"}, "<C-M-Down>",  "<Cmd>silent! norm! 7<CR>")
+map({"i","n","v"}, "<C-M-Left>",  "<Cmd>silent! norm! 10zh<CR>")
+map({"i","n","v"}, "<C-M-Right>", "<Cmd>silent! norm! 10zl<CR>")
+map({"i","n","v"}, "<C-M-Up>",    "<Cmd>silent! norm! 6<CR>")
+map({"i","n","v"}, "<C-M-Down>",  "<Cmd>silent! norm! 6<CR>")
 
 
 -- ### [Fast and furious cursor move]
@@ -1369,9 +1369,20 @@ map("n", "<CR>", function()
 end, {expr=true})
 
 -- Line break above
-map("i",       "<S-CR>", "<C-o>O")
-map({"n","o"}, "<S-CR>", "O<esc>") -- Maybe preserve view?(break when scrolled right a lot)
-map("v",       "<S-CR>", function()
+map("i", "<S-CR>", "<C-o>O")
+map("n", "<S-CR>", function()
+    local vcnt = vim.v.count1
+    local cursorpos = vim.api.nvim_win_get_cursor(0)
+
+    local lines = {}
+    for i = 1, vcnt do
+        table.insert(lines, "")
+    end
+
+    vim.api.nvim_buf_set_lines(0, cursorpos[1]-1, cursorpos[1]-1, false, lines)
+    vim.cmd("norm! "..vcnt.."k")
+end)
+map("v", "<S-CR>", function()
     vim.cmd('norm! ') -- hack to refresh vis pos
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
 
@@ -1382,7 +1393,18 @@ end)
 
 -- Line break below
 map("i",       "<M-CR>", "<C-o>o")
-map({"n","o"}, "<M-CR>", "o<esc>")
+map("n", "<M-CR>", function()
+    local vcnt = vim.v.count1
+    local cursorpos = vim.api.nvim_win_get_cursor(0)
+
+    local lines = {}
+    for i = 1, vcnt do
+        table.insert(lines, "")
+    end
+
+    vim.api.nvim_buf_set_lines(0, cursorpos[1], cursorpos[1], false, lines)
+    vim.cmd("norm! "..vcnt.."j")
+end)
 map("v",       "<M-CR>", function()
     vim.cmd('norm! ') -- hack to refresh vis pos
     local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
@@ -1697,7 +1719,7 @@ map({"i","n","v"}, "<S-Space>ds", "<cmd>DiffSplits<CR>")
 local ldvc = "<S-Space>g"
 
 -- Staging
-map({"i","n"}, ldvc.."s", git.add_file)
+map({"i","n"}, ldvc.."s", git.add)
 
 -- Stage hunk under cursor
 map("v", ldvc.."s", "<Cmd>Gitsigns stage_hunk<CR><cmd>echo 'Hunk staged.'<CR>")

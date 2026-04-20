@@ -51,6 +51,7 @@ vim.opt_local.formatoptions:append("t") -- auto wrap
 
 
 -- [Keymaps]
+-------------------------------------------------------------------------------------------------------------------------------------------
 -- Submit
 vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
 
@@ -65,6 +66,10 @@ end, {buffer = true})
 
 vim.keymap.set({"i","n","x"}, "<C-S-n>ft", function()
     lsnip.insert_snippet("fix typo")
+end, {buffer = true})
+
+vim.keymap.set({"i","n","x"}, "<C-S-n>i", function()
+    lsnip.insert_snippet("improv")
 end, {buffer = true})
 
 

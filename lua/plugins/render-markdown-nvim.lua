@@ -70,18 +70,18 @@ return
                 -- position = "inline",
 
                 unchecked = {
-                    icon = '󰄱 ',
+                    icon = '□ ',
                     highlight = 'RenderMarkdownUnchecked',
                     scope_highlight = nil,
                 },
                 checked = {
-                    icon = '󰱒 ',
+                    icon = '☑ ',
                     highlight = 'RenderMarkdownChecked',
                     scope_highlight = nil,
                 },
                 custom = {
                     todo = { raw = '[-]', rendered = '󰥔 ', highlight = 'RenderMarkdownTodo', scope_highlight = nil },
-                    checked_v = { raw = '[v]', rendered = '󰱒 ', highlight = 'RenderMarkdownCheckedV', scope_highlight = nil },
+                    checked_v = { raw = '[v]', rendered = '☑ ', highlight = 'RenderMarkdownCheckedV', scope_highlight = nil },
                 },
             },
 
@@ -183,7 +183,7 @@ return
             },
 
             indent = {
-                enabled = true,
+                enabled = false,
                 render_modes = false,
                 per_level = 2,
                 skip_level = 2,

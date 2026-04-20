@@ -15,12 +15,12 @@ vim.keymap.set({"i","n","v"}, "<S-Space>opa", function()
 end)
 
 vim.keymap.set({"i","n","v"}, "<S-Space>ope", function()
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-    vim.cmd("term dstask edit "..cursopos[1]-3)
+    vim.cmd("tabnew | Oil "..plan.plandir)
 end)
 
 vim.keymap.set({"i","n","v"}, "<S-Space>opr", function()
-    local id = vim.api.nvim_win_get_cursor(0)[1]-3
+    vim.api.nvim_echo({{"rm task id: "}}, false, {})
+    local id = vim.fn.getcharstr()
     plan.task_rm(id)
     print("Task rm "..id)
 end)

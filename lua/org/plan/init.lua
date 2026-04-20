@@ -17,7 +17,7 @@
 local M = {}
 
 
-M.plandir = "~/Personal/Org/Plan/"
+M.plandir = vim.fn.expand("~/Personal/Org/Plan/")
 
 
 function M.task_add(tittle)
@@ -44,20 +44,114 @@ function M.task_rm(id)
     local dstsk = vim.system(cmd, {text=true}):wait()
 end
 
+---@return table|nil data, string|nil raw
+function M.gather_tasks_data()
+    local cmd = {"dstask", "show-open"}
+    local dstsk = vim.system(cmd, {text=true}):wait()
+    local data = vim.json.decode(dstsk.stdout)
+    local raw = dstsk.stdout
+
+    return data, raw
+end
+
+function M.debug_db()
+    -- debug buf
+    vim.cmd("tabnew")
+    vim.api.nvim_buf_set_name(0, "Plan debug")
+
+    local planbuf = vim.api.nvim_get_current_buf()
+
+    -- vim.opt_local.number = true
+
+    vim.bo[planbuf].buftype = "nofile"
+
+
+    -- data
+    local dat, raw = M.gather_tasks_data()
+
+    if not raw then print("db err") return end
+
+    local out = vim.split(raw, "\n")
+
+    vim.bo[planbuf].modifiable = true
+    vim.api.nvim_buf_set_lines(0, 0, 0, false, out)
+    vim.bo[planbuf].modifiable = false
+end
+
+function M.overview_render()
+    -- Header
+    local heading = {
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "■ Tasks",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    }
+
+    -- Tasks
+    local tasksdat = M.gather_tasks_data()
+    tasksdat = tasksdat and tasksdat or {}
+
+    local function insert_uniq(t, val)
+        for _, v in ipairs(t) do
+            if v == val then return end
+        end
+        table.insert(t, val)
+    end
+
+    local groups = {}
+    local seen = {}
+
+    -- for _, td in ipairs(tasksdat) do
+    --     if td.project and td.project ~= "" then
+    --         insert_uniq(groups, td.project)
+    --     end
+    -- end
+    -- table.insert(groups, "ungrouped")
+
+    for _, td in ipairs(tasksdat) do
+        local proj = (td.project and td.project ~= "") and td.project or "ungrouped"
+        if not seen[proj] then
+            seen[proj] = true
+            table.insert(groups, proj)
+        end
+    end
+
+    local out = {}
+    -- Head
+    for _, line in ipairs(heading) do
+        table.insert(out, line)
+    end
+
+    -- Tasks
+    for _, group in ipairs(groups) do
+        table.insert(out, "## "..group)
+
+        for _, td in ipairs(tasksdat) do
+            local proj = (td.project and td.project ~= "") and td.project or "ungrouped"
+
+            if group == proj then
+                local tinfo = table.concat({
+                    "□ ",
+                    td.summary,
+                    " | ",
+                    -- td.priority,
+                    " ",
+                    -- "[" .. table.concat(td.tags, " ") .. "]",
+                    " ",
+                    "(" .. td.id .. ")",
+                }, "")
+
+                table.insert(out, tinfo)
+            end
+        end
+        table.insert(out, "")
+    end
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, out)
+end
+
 function M.overview_show()
     vim.cmd("tabnew")
     vim.api.nvim_buf_set_name(0, "Plan")
-
-    local cmd = {"dstask", "show-open"}
-    local dstsk = vim.system(cmd, {text=true}):wait()
-    local tasks = vim.json.decode(dstsk.stdout)
-
-    local summaries = {}
-    for _, t in ipairs(tasks) do
-        summaries[#summaries + 1] = "□ "..t.summary.." ".."("..t.id..")"
-    end
-    -- local out = vim.split(dstsk.stdout, "\n", {plain=true})
-    local out = summaries
 
     vim.opt_local.number = false
     local planbuf = vim.api.nvim_get_current_buf()
@@ -70,14 +164,13 @@ function M.overview_show()
     -- vim.bo[planbuf].filetype = "markdown"
     vim.bo[planbuf].modifiable = true
 
-    local heading = {
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-        "■ Tasks",
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-    }
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, heading)
-    vim.api.nvim_buf_set_lines(0, -1, -1, false, out)
+    M.overview_render()
+
+    vim.keymap.set({"i","n","v"}, "<F5>", function()
+        M.overview_render()
+    end, {buffer=true})
 end
+
 
 
 -- ## Setup

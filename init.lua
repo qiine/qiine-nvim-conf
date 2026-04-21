@@ -48,13 +48,13 @@ local function safe_setup(name, mod, opts)
     end
 
     if type(mod.setup) ~= "function" then
-        vim.notify(name.." No setup()!", vim.log.levels.WARN)
+        vim.notify(name.." no setup()!", vim.log.levels.WARN)
         return false
     end
 
     local ok, err = pcall(function() mod.setup(opts or {}) end)
     if not ok then
-        vim.notify(name.." Setup failed\n"..err, vim.log.levels.ERROR)
+        vim.notify(name.." setup failed:\n"..err, vim.log.levels.ERROR)
         return false
     end
 

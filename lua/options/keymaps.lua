@@ -20,9 +20,8 @@ local git      = require("git")
 
 local lsnip    = require("luasnip")
 
-
-local v   = vim
 local map = vim.keymap.set
+
 
 -- Modes helpers
 local modes = { "i", "n", "v", "o", "s", "t", "c" }
@@ -95,7 +94,7 @@ map({"i","n","v"}, "<C-n>", function()
     local buff_count  = vim.api.nvim_list_bufs()
     local newbuff_num = #buff_count
 
-    v.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
+    vim.cmd("enew"); vim.cmd("e untitled_"..newbuff_num)
 end)
 
 -- Set filetype
@@ -204,6 +203,7 @@ map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
 -- ### Write
 -- Save current
 map({"i","n","v","c"}, "<C-s>", "<Cmd>FileSaveInteractive<CR>")
+map({"i","n","v"}, "<C-ß>", "<Cmd>wall<CR>")
 
 -- Save as
 map({"i","n","v","c"}, "<C-M-s>", "<Cmd>FileSaveAsInteractive<CR>")
@@ -1184,12 +1184,13 @@ map("c", "<M-Del>", "<C-Right><C-w><C-Right><C-w><C-Right><C-w>") -- TODO very u
 map({"i","n","v"}, "<S-Del>", function()
     local mode = vim.fn.mode()
     local cursopos = vim.api.nvim_win_get_cursor(0)
-    vim.cmd("norm! ") -- refresh vis pos
-    local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
-
-    if cursopos[1] == vsh[1] then vim.cmd("norm! gvo") end -- reset cursorpos to sel "tail", I find it nicer
 
     if mode:match("[vV\22]") then
+        vim.cmd("norm! ") -- refresh vis pos
+        local vst, vsh = vim.api.nvim_buf_get_mark(0, "<"), vim.api.nvim_buf_get_mark(0, ">")
+
+        if cursopos[1] == vsh[1] then vim.cmd("norm! gvo") end -- reset cursorpos to sel "tail", I find it nicer
+
         vim.api.nvim_buf_set_lines(0, vst[1]-1, vsh[1], false, {})
     else
         vim.api.nvim_buf_set_lines(0, cursopos[1]-1, cursopos[1], false, {})
@@ -1385,13 +1386,16 @@ map("n", "<S-CR>", function()
     local vcnt = vim.v.count1
     local cursopos = vim.api.nvim_win_get_cursor(0)
 
-    local lines = {}
-    for i = 1, vcnt do
-        table.insert(lines, "")
-    end
+    local indent_prv = vim.fn.indent(cursopos[1] - 1)
+    local indent_cur = vim.fn.indent(cursopos[1])
+    local indent_new = indent_cur > indent_prv and indent_cur or indent_prv
 
-    vim.api.nvim_buf_set_lines(0, cursopos[1]-1, cursopos[1]-1, false, lines)
-    vim.cmd("norm! "..vcnt.."k")
+    vim.cmd("norm! "..vcnt.."O")  -- line break
+
+    -- Set indent
+    if indent_new > 0 then
+        vim.cmd("norm! "..indent_new.."I ")
+    end
 end)
 map("v", "<S-CR>", function()
     vim.cmd('norm! ') -- hack to refresh vis pos
@@ -1408,13 +1412,16 @@ map("n", "<M-CR>", function()
     local vcnt = vim.v.count1
     local cursopos = vim.api.nvim_win_get_cursor(0)
 
-    local lines = {}
-    for i = 1, vcnt do
-        table.insert(lines, "")
-    end
+    local indent_nxt = vim.fn.indent(cursopos[1] + 1)
+    local indent_cur = vim.fn.indent(cursopos[1])
+    local indent_new = indent_cur > indent_nxt and indent_cur or indent_nxt
 
-    vim.api.nvim_buf_set_lines(0, cursopos[1], cursopos[1], false, lines)
-    vim.cmd("norm! "..vcnt.."j")
+    vim.cmd("norm! "..vcnt.."o") -- line break
+
+    -- Set indent
+    if indent_new > 0 then
+        vim.cmd("norm! "..indent_new.."I ")
+    end
 end)
 map("v",       "<M-CR>", function()
     vim.cmd('norm! ') -- hack to refresh vis pos
@@ -1764,14 +1771,14 @@ end)
 
 -- Commit curr file
 map({"i","n","v"}, ldvc.."cc", git.commit_curr)
-map({"i","n","v"}, "<M-C-S-S>", git.commit_curr) -- TODO chain save and on succes commit
+map({"i","n","v"}, "<M-C-S-S>", git.commit_curr) -- TODO chain save and on succes, commit
 
 -- git push
 map({"i","n","v"}, ldvc.."<S-p>", function()
     term.open_fwin(nil, {
         title = "Push",
         wratio = 0.75, hratio = 0.65,
-    })
+    }, "bash --norc")
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git push\n")
 end)
@@ -2034,31 +2041,6 @@ end)
 
 
 -- ### Journal
--- Create new entry C-F6   -- or <M-n>j
-map({"i","n","v","t"}, "<F30>", function()
-    local jdir = vim.fn.expand("~/Personal/Org/Journal/")
-
-    local date = os.date("%Y-%m-%d")
-    local fname = "Entry_"..date..".md"
-    local fpath = jdir..fname
-
-    local entryexist = vim.fn.filereadable(fpath) == 1
-
-    if not entryexist then
-        vim.fn.writefile({}, fpath) -- create entry
-    end
-
-    vim.cmd("tabnew "..fpath)
-    -- vim.bo.bufhidden = "wipe"
-
-    print(
-        entryexist and
-        "Opening: "..fname
-        or
-        "Creating journal entry: "..fname
-    )
-end)
-
 -- Open last journal entry
 map({"i","n","v","t"}, "<M-C-S-F6>", function()
     local journal_dir = vim.fn.expand("~/Personal/Org/Journal/")

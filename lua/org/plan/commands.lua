@@ -1,5 +1,5 @@
 
--- # Plan cmds
+-- # org plan cmds
 
 
 local plan = require("org.plan.api")
@@ -17,9 +17,7 @@ vim.api.nvim_create_user_command("PlanExplorer", function()
 end, {})
 
 
-vim.api.nvim_create_user_command("PlanDebugDB", function()
-    plan.debug_tasks_db()
-end, {})
+vim.api.nvim_create_user_command("PlanDebugDB", plan.debug_tasks_db, {})
 
 
 -- ## Overview
@@ -28,11 +26,11 @@ vim.api.nvim_create_user_command("PlanOverviewOpen", function()
 end, {})
 
 vim.api.nvim_create_user_command("PlanOverviewDebugTasksData", function()
-    print(vim.inspect(overview._tasksdat))
+    print(vim.inspect(overview.tasksdata))
 end, {})
 
 vim.api.nvim_create_user_command("PlanOverviewDebugInspectTask", function()
-    overview.inspect_task_at_cursor()
+    overview.task_inspect_at_cursor()
 end, {})
 
 

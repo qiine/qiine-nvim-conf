@@ -1,10 +1,10 @@
 
--- api
+-- org plan api
 
 local M = {}
 
 
-M.plandir = vim.fn.expand("~/Personal/Org/Plan/")
+M.plandir = vim.fn.expand("~/Personal/Org/Plan/.dstask/")
 
 ---@return boolean status, string err
 function M.task_add(tittle)
@@ -30,9 +30,15 @@ function M.task_add_intr()
     end)
 end
 
+---@return boolean ok, string out, string err
 function M.task_rm(id)
     local cmd = {"dstask", "remove", id}
     local dstsk = vim.system(cmd, {text=true}):wait()
+    if dstsk.code ~= 0 then
+        return false, "Failed to rm "..id, dstsk.stdout
+    end
+
+    return true, "Task rm "..id, ""
 end
 
 ---@return table|nil data, string|nil raw

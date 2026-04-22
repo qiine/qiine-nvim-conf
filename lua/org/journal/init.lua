@@ -20,6 +20,7 @@ function M.add_entry()
     end
 
     vim.cmd("tabnew "..fpath)
+    vim.cmd("norm! i")
     -- vim.bo.bufhidden = "wipe"
 
     print(

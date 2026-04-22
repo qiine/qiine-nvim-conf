@@ -1,13 +1,15 @@
 
--- Overview
+-- # org plan overview
+
 
 local plan = require("org.plan.api")
 
 
 local M = {}
 
-M._tasksdat = {}
-M._uistate = {}
+
+M.tasksdata = {}
+M.uistate = {}
 
 
 ---@return table out, table
@@ -84,30 +86,40 @@ function M.build()
     return out, tasksdat
 end
 
----@param content table
-function M.render(content)
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, content)
+---@return table| nil
+function M.get_task_data(id)
+    return M.tasksdata[id] or nil
 end
 
 ---@return table| nil
-function M.get_taskdat(pos)
-    return M._tasksdat[pos] or nil
+function M.get_task_data_at_cursor(id)
+    local cursopos = vim.api.nvim_win_get_cursor(0)
+    return M.tasksdata[cursopos[1]] or nil
 end
 
-function M.ed_taskdat(pos)
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-    local tid = M._tasksdat[cursopos[1]].id
-    vim.cmd("vs | term dstask edit "..tid)
+function M.task_ed_at_cursor()
+    -- local cursopos = vim.api.nvim_win_get_cursor(0)
+    -- local tid = M.tasksdata[cursopos[1]].id
+    local tid = M.get_task_data_at_cursor().id
+
+    if not tid then return end
+
+    vim.cmd("vs")
+    vim.cmd("vert resize +15")
+    vim.cmd("term dstask edit "..tid)
+
+    vim.bo[0].buflisted = false
+    vim.b.wintype = "overview_task"
 end
 
-function M.inspect_task_at_cursor()
+function M.task_inspect_at_cursor()
     local cursopos = vim.api.nvim_win_get_cursor(0)
-    local task = {}
-    for k, v in pairs(M._tasksdat[cursopos[1]]) do
-        table.insert(task, tostring(k)..": "..tostring(v))
-    end
-    local out = table.concat(task, "\n")
-    print(out)
+    print(vim.inspect(M.tasksdata[cursopos[1]]))
+end
+
+---@param content table
+function M.render(content)
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, content)
 end
 
 function M.open()
@@ -145,28 +157,42 @@ function M.open()
 
 
     -- Display
-    M._uistate, M._tasksdat = M.build()
-    M.render(M._uistate)
+    M.uistate, M.tasksdata = M.build()
+    M.render(M.uistate)
 
 
     -- Keymaps
-    vim.keymap.set({"i","n","v"}, "<F5>", function()
-        M._uistate, M._tasksdat = M.build()
-        M.render(M._uistate)
+
+    vim.keymap.set({"i","n","v"}, "<C-S-n>", function()
+        plan.task_add_intr()
+        M.uistate, M.tasksdata = M.build()
+        M.render(M.uistate)
     end, {buffer=true})
 
-    vim.keymap.set({"i","n","v"}, "<C-S-N>", function()
-        plan.task_add_intr()
-        M._uistate, M._tasksdat = M.build()
-        M.render(M._uistate)
+    vim.keymap.set({"i","n","v"}, "<S-Del>", function()
+        local ok, out, err = plan.task_rm(M.get_task_data_at_cursor().id)
+        if ok then
+            vim.notify(out, vim.log.levels.INFO)
+        else
+            vim.notify(err, vim.log.levels.ERROR)
+        end
+
+        M.uistate, M.tasksdata = M.build()
+        M.render(M.uistate)
     end, {buffer=true})
 
     vim.keymap.set({"i","n","v"}, "<C-CR>", function()
-        M.ed_taskdat()
+        M.task_ed_at_cursor()
+    end, {buffer=true})
+
+
+    vim.keymap.set({"i","n","v"}, "<F5>", function()
+        M.uistate, M.tasksdata = M.build()
+        M.render(M.uistate)
     end, {buffer=true})
 
     vim.keymap.set({"i","n","v"}, "<C-S-H>", function()
-        M.inspect_task_at_cursor()
+        M.task_inspect_at_cursor()
     end, {buffer=true})
 end
 

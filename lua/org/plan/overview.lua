@@ -7,11 +7,13 @@ local plan = require("org.plan.api")
 local M = {}
 
 M._tasksdat = {}
+M._uistate = {}
 
 
----@return table out, table taskdat
+---@return table out, table
 function M.build()
     local out = {}
+    local tasksdat = {}
 
     -- Header
     local heading = {
@@ -21,7 +23,7 @@ function M.build()
     }
     for _, line in ipairs(heading) do
         table.insert(out, line)
-        table.insert(M._tasksdat, {})
+        table.insert(tasksdat, {})
     end
 
     -- Tasks
@@ -44,7 +46,7 @@ function M.build()
     -- Group tasks visually
     for _, group in ipairs(groups) do
         table.insert(out, "## "..group)
-        table.insert(M._tasksdat, {})
+        table.insert(tasksdat, {})
 
         for _, td in ipairs(tasksdb) do
             local proj = (td.project and td.project ~= "") and td.project or "ungrouped"
@@ -55,14 +57,16 @@ function M.build()
                     td.summary,
                     " | ",
                     -- td.priority,
-                    " ",
+                    -- " ",
                     -- "[" .. table.concat(td.tags, " ") .. "]",
-                    " ",
-                    "(" .. td.id .. ")",
+                    -- " ",
+                    -- "(" .. td.id .. ")",
+                    -- " ",
+                    -- td.due,
                 }, "")
 
                 table.insert(out, tinfo)
-                table.insert(M._tasksdat, {
+                table.insert(tasksdat, {
                     id       = td.id,
                     summary  = td.summary,
                     priority = td.priority,
@@ -74,35 +78,59 @@ function M.build()
         end
 
         table.insert(out, "") -- space at the end of each group
-        table.insert(M._tasksdat, {})
+        table.insert(tasksdat, {})
     end
 
-    return out, M._tasksdat
+    return out, tasksdat
 end
 
-function M.render()
-    local out, taskdat = M.build()
-
-    M._tasksdat = taskdat
-
-    -- Insert result to buffer
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, out)
+---@param content table
+function M.render(content)
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, content)
 end
 
 ---@return table| nil
-function M.get_taskdat_at_cursor()
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-    -- local tasks, tasksdats = M.build()
-    --  print(tostring(cursopos[1]))
-    local out = M._tasksdat[cursopos[1]] or nil
-    return out
+function M.get_taskdat(pos)
+    return M._tasksdat[pos] or nil
+end
 
-    -- return tasksdats
+function M.ed_taskdat(pos)
+    local cursopos = vim.api.nvim_win_get_cursor(0)
+    local tid = M._tasksdat[cursopos[1]].id
+    vim.cmd("vs | term dstask edit "..tid)
+end
+
+function M.inspect_task_at_cursor()
+    local cursopos = vim.api.nvim_win_get_cursor(0)
+    local task = {}
+    for k, v in pairs(M._tasksdat[cursopos[1]]) do
+        table.insert(task, tostring(k)..": "..tostring(v))
+    end
+    local out = table.concat(task, "\n")
+    print(out)
 end
 
 function M.open()
-    vim.cmd("tabnew")
-    vim.api.nvim_buf_set_name(0, "Plan"); vim.cmd("e!")
+    -- Create buf
+    local isbufoverview = false
+
+    if vim.fn.expand("%:p:t") == "Plan overview" then
+        isbufoverview = true
+    else
+        for _, bufid in ipairs(vim.api.nvim_list_bufs()) do
+            local bufname = vim.api.nvim_buf_get_name(bufid)
+            if vim.fn.fnamemodify(bufname, ":t") == "Plan overview" then
+                vim.api.nvim_set_current_buf(bufid)
+                isbufoverview = true
+                break
+            end
+        end
+    end
+
+    if not isbufoverview then
+        vim.cmd("tabnew")
+        vim.api.nvim_buf_set_name(0, "Plan overview"); vim.cmd("e!")
+    end
 
     vim.opt_local.number = false
     local planbuf = vim.api.nvim_get_current_buf()
@@ -115,31 +143,33 @@ function M.open()
     -- vim.bo[planbuf].filetype = "markdown"
     vim.bo[planbuf].modifiable = true
 
-    M.render()
+
+    -- Display
+    M._uistate, M._tasksdat = M.build()
+    M.render(M._uistate)
 
 
     -- Keymaps
     vim.keymap.set({"i","n","v"}, "<F5>", function()
-        M.render()
+        M.render(M._uistate)
     end, {buffer=true})
 
     vim.keymap.set({"i","n","v"}, "<C-S-N>", function()
         plan.task_add_intr()
-        M.render()
+        M._uistate, M._tasksdat = M.build()
+        M.render(M._uistate)
     end, {buffer=true})
 
-    vim.keymap.set({"i","n","v"}, "<C-S-CR>", function()
-        local t = M.get_taskdat_at_cursor()
-        if t then
-            print(t.id, t.summary)
-        end
+    vim.keymap.set({"i","n","v"}, "<C-CR>", function()
+        M.ed_taskdat()
+    end, {buffer=true})
+
+    vim.keymap.set({"i","n","v"}, "<C-S-H>", function()
+        M.inspect_task_at_cursor()
     end, {buffer=true})
 end
 
 
-vim.api.nvim_create_user_command("PlanDebugtasksDat", function()
-    print(vim.inspect(M._tasksdat))
-end, {})
 --------
 return M
 

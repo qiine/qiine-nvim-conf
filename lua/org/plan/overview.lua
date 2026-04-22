@@ -151,6 +151,7 @@ function M.open()
 
     -- Keymaps
     vim.keymap.set({"i","n","v"}, "<F5>", function()
+        M._uistate, M._tasksdat = M.build()
         M.render(M._uistate)
     end, {buffer=true})
 

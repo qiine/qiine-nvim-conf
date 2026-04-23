@@ -64,8 +64,8 @@ map(modes, "<C-q>", "<cmd>qa!<CR>", {noremap=true, desc="Force quit nvim"})
 -- Quick restart nvim
 map(modes, "<C-M-r>", "<cmd>Restart<cr>")
 
--- F5 reload buffer
-map({"i","n","v"}, "<F5>", "<cmd>e!<CR><cmd>echo'Buffer reloaded'<CR>")
+-- F5 Refresh buffer
+map({"i","n","v"}, "<F5>", "<cmd>e!<CR><cmd>echo'Buffer refreshed.'<CR>")
 
 -- Omni esc
 map({'i','n','x'}, '<esc>', function() -- need "x", mess with s mode otherwise
@@ -1595,7 +1595,7 @@ map("n", "<F12>", "gd")
 map("n", "<F24>", ":lua vim.lsp.buf.definition()<cr>")
 map("n", "<F60>", ":lua vim.lsp.buf.implementation()<cr>")
 
--- Peek win open
+-- Peak win open
 map({"i","n"}, "<C-h>", function()
     local ogbufid  = vim.api.nvim_get_current_buf()
     local ogbufpah = vim.api.nvim_buf_get_name(0)
@@ -1998,11 +1998,6 @@ map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
 
 -- ## Org
 ----------------------------------------------------------------------
--- ### Notes
-vim.keymap.set({"i","n","v","t"}, "<M-n>n", "<Cmd>NoteCreate<CR>")
-vim.keymap.set({"i","n","v","t"}, "<M-n>nc", "<Cmd>NoteCreateCWD<CR>")
-
-
 -- ### Task planner
 -- General task pannel
 map({"i","n","v","c","t"}, "<F6>", function()
@@ -2037,24 +2032,6 @@ map({"i","n","v","c","t"}, "<F54>", function()
     if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
 
     vim.cmd("tabnew ~/Personal/dotfiles/User/nvim/todo.md")
-end)
-
-
--- ### Journal
--- Open last journal entry
-map({"i","n","v","t"}, "<M-C-S-F6>", function()
-    local journal_dir = vim.fn.expand("~/Personal/Org/Journal/")
-    local files = vim.fn.readdir(journal_dir)
-
-    if #files == 0 then print("No journal entries found") return end
-
-    table.sort(files, function(a, b) return a > b end) -- sort descending (latest first)
-
-    local latest = files[1]
-    local path = journal_dir..latest
-
-    vim.cmd("tabnew "..vim.fn.fnameescape(path))
-    vim.bo.bufhidden = "wipe"
 end)
 
 
@@ -2111,6 +2088,7 @@ end)
 --     local chat = require("codecompanion").last_chat()
 --     if chat then chat.ui:refresh() end
 -- end)
+
 
 
 

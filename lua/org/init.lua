@@ -15,7 +15,8 @@ local M = {}
 
 -- Setup
 function M.setup()
-    require("org.plan").setup() -- need setup?
+    require("org.notes").setup()
+    require("org.plan").setup()
     require("org.journal").setup()
 end
 

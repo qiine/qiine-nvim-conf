@@ -10,7 +10,24 @@ M.plandir = vim.fn.expand("~/Personal/Org/Plan/.dstask/")
 function M.task_add(tittle)
     if not tittle then return false, "err, no task tittle" end
 
-    local cmd = {"dstask", "add", tittle}
+    local cmd = {"dstask", "start", tittle}
+    local dstsk = vim.system(cmd, {text=true}):wait()
+    if dstsk.code ~= 0 then return false, dstsk.stderr end
+
+    return true, ""
+end
+
+---@param status string
+function M.task_set_state(status, id)
+    if not id then return false, "err, no task id" end
+
+    local statuses = {
+        ["active"] = "start",
+        ["pending"] = "stop",
+        ["resolved"] = "done"
+    }
+
+    local cmd = {"dstask", statuses[status], id}
     local dstsk = vim.system(cmd, {text=true}):wait()
     if dstsk.code ~= 0 then return false, dstsk.stderr end
 
@@ -64,6 +81,7 @@ function M.debug_tasks_db()
     local dat, raw = M.gather_tasks_db()
     if not raw then print("db err") return end
 
+    -- Render
     local out = vim.split(raw, "\n")
 
     vim.api.nvim_buf_set_lines(0, 0, 0, false, out)

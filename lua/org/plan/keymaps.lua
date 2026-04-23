@@ -26,3 +26,17 @@ vim.keymap.set({"i","n","v"}, "<S-Space>opr", function()
     -- print("Task rm "..id)
 end)
 
+
+-- Project task <M-F6>
+vim.keymap.set({"i","n","v","c","t"}, "<F54>", function()
+    if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end
+
+    vim.cmd("tabnew ~/Personal/dotfiles/User/nvim/todo.md")
+end)
+
+
+-- open curr proj doc
+-- map({"i","n","v","c","t"}, "<F3>", function()
+
+
+

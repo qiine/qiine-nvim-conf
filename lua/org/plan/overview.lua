@@ -18,18 +18,31 @@ M.backlog = {}
 ---@param data table
 ---@return string text
 function M.taskcard(data)
-    local visuals = table.concat({
-        "□ ",
-        data.summary,
-        " | ",
-        -- data.priority,
-        -- " ",
-        -- "[" .. table.concat(data.tags, " ") .. "]",
-        -- " ",
-        -- "(" .. data.id .. ")",
+    local visuals = ""
+
+    local tasktitle = "□ "..data.summary
+
+    local tmetadat = table.concat({
+        data.priority,
+        " ",
+        "["..table.concat(data.tags, " ").."]",
+        " ",
+        "("..data.id..")",
         -- " ",
         -- data.due,
     }, "")
+
+    local target = 60
+    local width = vim.fn.strdisplaywidth(tasktitle)
+
+    if width > target then
+        tasktitle = vim.fn.strcharpart(tasktitle, 0, target - 4) .. "  ⋯ "
+    else
+        tasktitle = tasktitle .. string.rep(" ", target - width)
+    end
+
+    visuals = tasktitle.." | "..tmetadat
+
     return visuals
 end
 
@@ -105,17 +118,18 @@ function M.get_task_data_at_cursor()
     return M.tasksdata[cursopos[1]] or nil
 end
 
----@return boolean status
 function M.task_set_status_at_cursor(status)
-    local ok, msg = plan.task_set_status(status, M.get_task_data_at_cursor())
+    local tdat = M.get_task_data_at_cursor()
+    if not tdat or not tdat.id then return end
+
+    local ok, msg = plan.task_set_status(status, tdat.id)
     vim.notify(msg, vim.log.levels.INFO)
     return ok
 end
 
----@return boolean status
 function M.task_toggle_status_at_cursor()
     local tdat = M.get_task_data_at_cursor()
-    if not tdat then return false end
+    if not tdat or not tdat.id then return end
 
     local newstat = tdat.status == "active" and "paused" or "active"
     local ok, msg = plan.task_set_status(newstat, tdat.id)
@@ -125,21 +139,21 @@ end
 
 function M.task_set_prio_at_cursor(p)
     local tdat = M.get_task_data_at_cursor()
-    if not tdat then return false end
+    if not tdat or not tdat.id then return end
 
     plan.task_set_prio(p, tdat.tdat.id)
 end
 
 function M.task_bump_prio_at_cursor(decrem, amnt)
     local tdat = M.get_task_data_at_cursor()
-    if not tdat then return false end
+    if not tdat or not tdat.id then return end
 
     plan.task_bump_prio(decrem, amnt, tdat.id)
 end
 
 function M.task_ed_at_cursor()
     local tdat = M.get_task_data_at_cursor()
-    if not tdat then return end
+    if not tdat or not tdat.id then return end
 
     local tpath = vim.fs.normalize(plan.plandir..tdat.status.."/"..tdat.uuid..".yml")
 

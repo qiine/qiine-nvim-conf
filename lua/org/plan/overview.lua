@@ -96,33 +96,33 @@ function M.get_task_data_at_cursor()
     return M.tasksdata[cursopos[1]] or nil
 end
 
----@param status string
+---@return boolean status
 function M.task_set_status_at_cursor(status)
-    local tid = M.get_task_data_at_cursor().id
-    if not tid then return end
-
-    plan.task_set_state(status, tid)
+    local ok, msg = plan.task_set_status(status, M.get_task_data_at_cursor())
+    vim.notify(msg, vim.log.levels.INFO)
+    return ok
 end
 
+---@return boolean status
 function M.task_toggle_status_at_cursor()
+    local tdat = M.get_task_data_at_cursor()
+    if not tdat then return false end
 
-    local taskda = M.get_task_data_at_cursor()
-    if not taskda then return end
-    local curstatus = taskda.status
-
-    local newstatus = ""
-    if curstatus == "active" then newstatus = "pending" else  newstatus = "active" end
-    print(curstatus.." "..taskda.summary)
-    plan.task_set_state(newstatus, taskda.id)
+    local newstat = tdat.status == "active" and "paused" or "active"
+    local ok, msg = plan.task_set_status(newstat, tdat.id)
+    vim.notify(msg, vim.log.levels.INFO)
+    return ok
 end
 
 function M.task_ed_at_cursor()
-    local tid = M.get_task_data_at_cursor().id
-    if not tid then return end
+    local tdat = M.get_task_data_at_cursor()
+    if not tdat then return end
+
+    local tpath = vim.fs.normalize(plan.plandir..tdat.status.."/"..tdat.uuid..".yml")
 
     vim.cmd("vs")
     vim.cmd("vert resize +15")
-    vim.cmd("term dstask edit "..tid)
+    vim.cmd("e "..tpath)
 
     vim.bo[0].buflisted = false
     vim.b.wintype = "overview_task"
@@ -178,41 +178,46 @@ function M.open()
 
 
     -- Keymaps
+    -- t add
     vim.keymap.set({"i","n","v"}, "<C-S-n>", function()
         plan.task_add_intr()
         M.render()
     end, {buffer=true})
 
+    -- t rm
     vim.keymap.set({"i","n","v"}, "<S-Del>", function()
-        local ok, out, err = plan.task_rm(M.get_task_data_at_cursor().id)
-        if ok then
-            vim.notify(out, vim.log.levels.INFO)
-        else
-            vim.notify(err, vim.log.levels.ERROR)
-        end
-
+        local ok, out = plan.task_rm(M.get_task_data_at_cursor().id)
+        vim.notify(out, vim.log.levels.INFO)
         M.render()
     end, {buffer=true})
 
+    -- t toggle
     vim.keymap.set({"i","n","v"}, "<C-Space>", function()
         M.task_toggle_status_at_cursor()
         M.render()
     end, {buffer=true})
 
+    -- t done
     vim.keymap.set({"i","n","v"}, "<C-S-D>", function()
-        M.task_set_status_at_cursor("done")
+        M.task_set_status_at_cursor("resolved")
         M.render()
     end, {buffer=true})
 
+    -- t ed
     vim.keymap.set({"i","n","v"}, "<C-CR>", function()
         M.task_ed_at_cursor()
     end, {buffer=true})
 
+    -- Search
+    vim.keymap.set({"i","n","v"}, "<C-S-F>", plan.task_picker, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.plan_grep, {buffer=true})
 
+    -- refrersh
     vim.keymap.set({"i","n","v"}, "<F5>", function()
         M.render()
     end, {buffer=true})
 
+    -- debug
     vim.keymap.set({"i","n","v"}, "<C-S-H>", function()
         M.task_inspect_at_cursor()
     end, {buffer=true})

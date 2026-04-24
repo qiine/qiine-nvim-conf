@@ -53,31 +53,40 @@ function M.build()
     local tasksdb = plan.gather_tasks_db()
     tasksdb = tasksdb and tasksdb or {}
 
+    local active = {}
+    local backlog = {}
 
-    -- Group tasks visually
-    table.insert(visuals, "■■ Active")
-    table.insert(data, {})
-    for k, td in pairs(tasksdb) do
+    for _, td in pairs(tasksdb) do
         if td.status == "active" then
-            table.insert(visuals, M.taskcard(td))
-            table.insert(data, td)
+            table.insert(active, td)
+        elseif td.status == "paused" then
+            table.insert(backlog, td)
         end
     end
-    table.insert(visuals, "") -- space at the end of each group
-    table.insert(data, {})
 
+    local function sort_priority(tasks)
+        table.sort(tasks, function(a, b)
+            return (a.priority or 0) < (b.priority or 0)
+        end)
+    end
+    sort_priority(active)
+    sort_priority(backlog)
+
+    table.insert(visuals, "■■ Active")
+    table.insert(data, {})
+    for _, td in ipairs(active) do
+        table.insert(visuals, M.taskcard(td))
+        table.insert(data, td)
+    end
+    table.insert(visuals, ""); table.insert(data, {})
 
     table.insert(visuals, "■■ Backlog")
     table.insert(data, {})
-    for k, td in pairs(tasksdb) do
-        if td.status == "paused" then
-            table.insert(visuals, M.taskcard(td))
-            table.insert(data, td)
-        end
+    for _, td in ipairs(backlog) do
+        table.insert(visuals, M.taskcard(td))
+        table.insert(data, td)
     end
-    table.insert(visuals, "") -- space at the end of each group
-    table.insert(data, {})
-
+    table.insert(visuals, ""); table.insert(data, {})
 
     M.uistate = visuals
     M.tasksdata = data
@@ -114,6 +123,20 @@ function M.task_toggle_status_at_cursor()
     return ok
 end
 
+function M.task_set_prio_at_cursor(p)
+    local tdat = M.get_task_data_at_cursor()
+    if not tdat then return false end
+
+    plan.task_set_prio(p, tdat.tdat.id)
+end
+
+function M.task_bump_prio_at_cursor(decrem, amnt)
+    local tdat = M.get_task_data_at_cursor()
+    if not tdat then return false end
+
+    plan.task_bump_prio(decrem, amnt, tdat.id)
+end
+
 function M.task_ed_at_cursor()
     local tdat = M.get_task_data_at_cursor()
     if not tdat then return end
@@ -121,7 +144,7 @@ function M.task_ed_at_cursor()
     local tpath = vim.fs.normalize(plan.plandir..tdat.status.."/"..tdat.uuid..".yml")
 
     vim.cmd("vs")
-    vim.cmd("vert resize +15")
+    vim.cmd("vert resize +10")
     vim.cmd("e "..tpath)
 
     vim.bo[0].buflisted = false
@@ -203,6 +226,15 @@ function M.open()
         M.render()
     end, {buffer=true})
 
+    vim.keymap.set({"i","n","v"}, "<C-S-Up>", function()
+        M.task_bump_prio_at_cursor()
+        M.render()
+    end, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-Down>", function()
+        M.task_bump_prio_at_cursor(true)
+        M.render()
+    end, {buffer=true})
+
     -- t ed
     vim.keymap.set({"i","n","v"}, "<C-CR>", function()
         M.task_ed_at_cursor()
@@ -210,7 +242,7 @@ function M.open()
 
     -- Search
     vim.keymap.set({"i","n","v"}, "<C-S-F>", plan.task_picker, {buffer=true})
-    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.plan_grep, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.task_grep, {buffer=true})
 
     -- refrersh
     vim.keymap.set({"i","n","v"}, "<F5>", function()

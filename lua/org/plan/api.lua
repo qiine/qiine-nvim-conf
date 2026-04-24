@@ -19,7 +19,7 @@ function M.task_add(tittle)
 end
 
 function M.task_add_intr()
-    vim.ui.input({prompt="Task: ", default="Newtask"},
+    vim.ui.input({prompt="Task: ", default=""},
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
         if input == nil then vim.notify("Task creation canceled.", vim.log.levels.INFO) return end
@@ -59,6 +59,34 @@ function M.task_set_status(status, id)
     return true, "Set "..status.." id:"..id
 end
 
+function M.task_set_prio(p, id)
+    p = p or 1
+    if not id then return end
+
+    local cmd = {"dstask", id, "modify", "P"..tostring(p)}
+    local dstsk = vim.system(cmd, {text=true}):wait()
+end
+
+---@param decrem? boolean
+function M.task_bump_prio(decrem, amnt, id)
+    if not decrem then decrem = false end
+    amnt = amnt or 1
+    if not id then return end
+
+    local tdat = M.gather_tasks_db()
+    if not tdat then return end
+
+    local tprio = 1
+    for _, t in ipairs(tdat) do
+        if type(t) == "table" and t.id == id then
+            tprio = tonumber(t.priority) or 1; break
+        end
+    end
+
+    local newprio = decrem and tprio + amnt or tprio - amnt
+    newprio = math.max(newprio, 0)
+    M.task_set_prio(newprio, id)
+end
 
 ---@return table|nil data, string|nil raw
 function M.gather_tasks_db()
@@ -119,7 +147,7 @@ function M.task_picker()
     require("fzf-lua").task()
 end
 
-function M.plan_grep()
+function M.task_grep()
     require("fzf-lua").live_grep({
         winopts = { title = "Grep Tasks" },
         -- rg_opts = "--hidden --glob '!.git/*'",

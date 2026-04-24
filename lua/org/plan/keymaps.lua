@@ -16,7 +16,7 @@ vim.keymap.set({"i","n","v"}, "<S-Space>ope", function()
 end)
 
 vim.keymap.set({"i","n","v"}, "<S-Space>opf", plan.task_picker)
-vim.keymap.set({"i","n","v"}, "<S-Space>opg", plan.plan_grep)
+vim.keymap.set({"i","n","v"}, "<S-Space>opg", plan.task_grep)
 
 
 -- Project task <M-F6>

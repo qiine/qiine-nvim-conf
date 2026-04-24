@@ -51,10 +51,10 @@ function M.get_porcelainstatus(path, repodir)
         return nil, err
     end
 
-    local out = "  "
+    local out = ""
     out = string.sub(res_status.stdout, 1, 2) -- XY  -- strip fpath
     out = string.gsub(out, " ", " ")  -- •  -- replace empty-string with smthng for clarity
-    if res_status.stdout == "" then out = "  " end
+    -- if res_status.stdout == "" then out = "" end
 
     return out, nil
 end

@@ -182,7 +182,7 @@ local function dashlayout()
         local plugloadtime = math.floor(pluginfos.startuptime * 100 + 0.5) / 100
 
         local parts = {
-            "", " ", vv.major .. "." .. vv.minor .. "." .. vv.patch,
+            "", " ", vv.major.."."..vv.minor.."."..vv.patch,
             " | ",
             "󰏗 ", pluginfos.loaded, "/", pluginfos.count, " ", plugloadtime, "ms",
             " | ",
@@ -199,7 +199,7 @@ local function dashlayout()
             button("r", "󰈢 Recent files", function() set_wipe_dashboard() vim.cmd("enew | FzfLua oldfiles") end),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
             -- button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
-            button("s", " Load session", function() set_wipe_dashboard() vim.cmd("LoadGlobalSession") end),
+            button("s", " Load session", function() set_wipe_dashboard() vim.cmd("SessionLoad") end),
         }
     end
 
@@ -247,7 +247,7 @@ local function dashlayout()
         {type = "padding", val = 1 }, --
         {   --options
             val  = {
-                button("c", " Config", function() set_wipe_dashboard(); vim.cmd("OpenNvimConfig") end),
+                button("c", " Config", function() set_wipe_dashboard(); vim.cmd("CdNvimStdpathConfig") vim.cmd("e ./init.lua") end),
                 button("e", "󰏗 Plugins", "<Cmd>Lazy<CR>"), -- 󰂖 🧩 󱁤
             },
             type = "group",

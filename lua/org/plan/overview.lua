@@ -15,8 +15,13 @@ local M = {}
 ---@type PlanUIState[]
 M.uistate = {}
 
-M.boards = {}
-M.current_board = "default"
+M.boards = {
+    ["default"] = {},
+    ["health"] = {},
+    ["tech"] = {},
+}
+
+M.curr_board = "default"
 
 
 ---@param data table
@@ -54,19 +59,27 @@ end
 ---@param data? table
 function M.push_uistate(visuals, data)
     visuals = visuals or ""
-    data = data or {}
+    -- data = data or {}
+    data = data or nil
 
     table.insert(M.uistate, { ["visuals"] = visuals, ["data"] = data })
 end
 
 ---@param tasks table
 function M.group_by_board(tasks)
-    M.boards = {}  -- reset
+    -- reset boards
+    for name, _ in pairs(M.boards) do
+        M.boards[name] = {}
+    end
 
     for _, td in pairs(tasks) do
         local name = td.project or "default"
-        M.boards[name] = M.boards[name] or {}
-        table.insert(M.boards[name], td)
+
+        if M.boards[name] then
+            table.insert(M.boards[name], td)
+        else
+            table.insert(M.boards["default"], td)
+        end
     end
 end
 
@@ -78,13 +91,13 @@ function M.build()
     tasksdb = tasksdb and tasksdb or {}
 
     M.group_by_board(tasksdb)
-    local curboard = M.boards[M.current_board] or {}
-
+    local curboard = M.boards[M.curr_board]
+    if not curboard then return end
 
     -- Header
     local heading = {
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-        "■ "..M.current_board.." Tasks",
+        "■ "..M.curr_board.." Tasks",
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
     }
     for _, line in ipairs(heading) do
@@ -170,7 +183,7 @@ function M.task_set_prio_at_cursor(p)
     local tdat = M.task_get_data_at_cursor()
     if not tdat or not tdat.uuid then return end
 
-    plan.task_set_prio(tdat.id, p)
+    plan.task_set_prio(tdat.uuid, p)
 end
 
 function M.task_bump_prio_at_cursor(decrem, amnt)
@@ -201,33 +214,37 @@ end
 
 function M.set_board(name)
     name = name and name or "default"
-    M.current_board = name
+    M.curr_board = name
+
     M.render()
 end
 
 function M.board_cycle(reverse)
     reverse = reverse or false
 
-    local keys = {}
-
+    local bnames = {}
     for name, _ in pairs(M.boards) do
-        table.insert(keys, name)
+        table.insert(bnames, name)
     end
 
-    if #keys == 0 then return end
+    if #bnames == 0 then return end
 
-    table.sort(keys) -- deterministic order
+    table.sort(bnames) -- deterministic order
 
-    local idx = 1
-    for i, name in ipairs(keys) do
-        if name == M.current_board then
-            idx = i
-            break
+    local curidx = 1
+    for i, name in ipairs(bnames) do
+        if name == M.curr_board then
+            curidx = i; break
         end
     end
 
-    idx = idx % #keys + 1
-    M.current_board = keys[idx]
+    if reverse then
+        curidx = (curidx - 2) % #bnames + 1
+    else
+        curidx = curidx % #bnames + 1
+    end
+
+    M.curr_board = bnames[curidx]
 
     M.render()
 end
@@ -312,6 +329,9 @@ function M.open()
     -- board
     vim.keymap.set({"i","n","v"}, "<M-S-Tab>", function()
         M.board_cycle()
+    end, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<M-C-S-Tab>", function()
+        M.board_cycle(true)
     end, {buffer=true})
 
     -- Search

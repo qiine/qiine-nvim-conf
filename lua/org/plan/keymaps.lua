@@ -19,7 +19,6 @@ vim.keymap.set({"i","n","v"}, "<S-M-o>pf", plan.task_picker)
 vim.keymap.set({"i","n","v"}, "<S-M-o>pg", plan.task_grep)
 
 
-
 -- Project task <M-F6>
 vim.keymap.set({"i","n","v","c","t"}, "<F54>", function()
     if vim.fn.expand("%:t") == "todo.md" then vim.cmd("bwipeout") return end

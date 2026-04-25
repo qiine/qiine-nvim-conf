@@ -8,21 +8,28 @@ local plan = require("org.plan.api")
 local M = {}
 
 
-M.tasksdata = {}
+---@class PlanUIState
+---@field visuals string|nil
+---@field data table|nil
+
+---@type PlanUIState[]
 M.uistate = {}
+
+M.boards = {}
+M.current_board = "default"
 
 M.activelist = {}
 M.backlog = {}
 
 
 ---@param data table
----@return string text
+---@return string
 function M.taskcard(data)
-    local visuals = ""
+    local card = {}
 
-    local tasktitle = "□ "..data.summary
+    local tittle = "□ "..data.summary
 
-    local tmetadat = table.concat({
+    local metadat = table.concat({
         data.priority,
         " ",
         "["..table.concat(data.tags, " ").."]",
@@ -33,43 +40,65 @@ function M.taskcard(data)
     }, "")
 
     local target = 60
-    local width = vim.fn.strdisplaywidth(tasktitle)
+    local tittle_width = vim.fn.strdisplaywidth(tittle)
 
-    if width > target then
-        tasktitle = vim.fn.strcharpart(tasktitle, 0, target - 4) .. "  ⋯ "
+    if tittle_width > target then
+        tittle = vim.fn.strcharpart(tittle, 0, target - 4) .. "  ⋯ "
     else
-        tasktitle = tasktitle .. string.rep(" ", target - width)
+        tittle = tittle..string.rep(" ", target - tittle_width)
     end
 
-    visuals = tasktitle.." | "..tmetadat
+    local card_text = tittle.." | "..metadat
 
-    return visuals
+    return card_text
 end
 
----@return table out, table
-function M.build()
-    local visuals = {}
-    local data = {}
+---@param visuals? string
+---@param data? table
+function M.push_uistate(visuals, data)
+    visuals = visuals or ""
+    data = data or {}
 
-    -- Header
-    local heading = {
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-        "■ Tasks",
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-    }
-    for _, line in ipairs(heading) do
-        table.insert(visuals, line)
-        table.insert(data, {})
+    table.insert(M.uistate, { ["visuals"] = visuals, ["data"] = data })
+end
+
+---@param tasks table
+function M.group_by_board(tasks)
+    M.boards = {}  -- reset
+
+    for _, td in pairs(tasks) do
+        local name = td.project or "default"
+        M.boards[name] = M.boards[name] or {}
+        table.insert(M.boards[name], td)
     end
+end
 
-    -- Tasks
+function M.build()
+    M.uistate = {}  -- reset
+
+    -- Tasks dat
     local tasksdb = plan.gather_tasks_db()
     tasksdb = tasksdb and tasksdb or {}
 
+    M.group_by_board(tasksdb)
+    local curboard = M.boards[M.current_board] or {}
+
+    -- Header
+    local heading = {
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "■ "..M.current_board.." Tasks",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    }
+
+    for _, line in ipairs(heading) do
+        M.push_uistate(line)
+    end
+
+    -- sort
     local active = {}
     local backlog = {}
 
-    for _, td in pairs(tasksdb) do
+    for _, td in pairs(curboard) do
         if td.status == "active" then
             table.insert(active, td)
         elseif td.status == "paused" then
@@ -85,41 +114,43 @@ function M.build()
     sort_priority(active)
     sort_priority(backlog)
 
-    table.insert(visuals, "■■ Active")
-    table.insert(data, {})
+
+    -- build
+    M.push_uistate("■■ Active")
     for _, td in ipairs(active) do
-        table.insert(visuals, M.taskcard(td))
-        table.insert(data, td)
+        M.push_uistate(M.taskcard(td), td)
     end
-    table.insert(visuals, ""); table.insert(data, {})
+    M.push_uistate("", {})
 
-    table.insert(visuals, "■■ Backlog")
-    table.insert(data, {})
+    M.push_uistate("■■ Backlog")
     for _, td in ipairs(backlog) do
-        table.insert(visuals, M.taskcard(td))
-        table.insert(data, td)
+        M.push_uistate(M.taskcard(td), td)
     end
-    table.insert(visuals, ""); table.insert(data, {})
-
-    M.uistate = visuals
-    M.tasksdata = data
-
-    return visuals, data
+    M.push_uistate("", {})
 end
 
----@return table| nil
-function M.get_task_data(id)
-    return M.tasksdata[id] or nil
+function M.render()
+    M.build()
+
+    local visuals = {}
+    for i, val in ipairs(M.uistate) do
+        table.insert(visuals, val.visuals)
+    end
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, visuals)
 end
 
+
+-- Retrieval
 ---@return table| nil
-function M.get_task_data_at_cursor()
+function M.task_get_data_at_cursor()
     local cursopos = vim.api.nvim_win_get_cursor(0)
-    return M.tasksdata[cursopos[1]] or nil
+    local row = M.uistate[cursopos[1]]
+    return row and row.data or nil
 end
 
 function M.task_set_status_at_cursor(status)
-    local tdat = M.get_task_data_at_cursor()
+    local tdat = M.task_get_data_at_cursor()
     if not tdat or not tdat.id then return end
 
     local ok, msg = plan.task_set_status(status, tdat.id)
@@ -128,7 +159,7 @@ function M.task_set_status_at_cursor(status)
 end
 
 function M.task_toggle_status_at_cursor()
-    local tdat = M.get_task_data_at_cursor()
+    local tdat = M.task_get_data_at_cursor()
     if not tdat or not tdat.id then return end
 
     local newstat = tdat.status == "active" and "paused" or "active"
@@ -138,21 +169,21 @@ function M.task_toggle_status_at_cursor()
 end
 
 function M.task_set_prio_at_cursor(p)
-    local tdat = M.get_task_data_at_cursor()
+    local tdat = M.task_get_data_at_cursor()
     if not tdat or not tdat.id then return end
 
-    plan.task_set_prio(p, tdat.tdat.id)
+    plan.task_set_prio(p, tdat.id)
 end
 
 function M.task_bump_prio_at_cursor(decrem, amnt)
-    local tdat = M.get_task_data_at_cursor()
+    local tdat = M.task_get_data_at_cursor()
     if not tdat or not tdat.id then return end
 
     plan.task_bump_prio(decrem, amnt, tdat.id)
 end
 
 function M.task_ed_at_cursor()
-    local tdat = M.get_task_data_at_cursor()
+    local tdat = M.task_get_data_at_cursor()
     if not tdat or not tdat.id then return end
 
     local tpath = vim.fs.normalize(plan.plandir..tdat.status.."/"..tdat.uuid..".yml")
@@ -166,15 +197,40 @@ function M.task_ed_at_cursor()
 end
 
 function M.task_inspect_at_cursor()
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-    print(vim.inspect(M.tasksdata[cursopos[1]]))
+    local tdat = M.task_get_data_at_cursor()
+    print(vim.inspect(tdat))
 end
 
-function M.render()
-    M.build()
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, M.uistate)
+function M.set_board(name)
+    name = name and name or "default"
+    M.current_board = name
+    M.render()
 end
 
+function M.cycle_board(reverse)
+    local keys = {}
+
+    for name, _ in pairs(M.boards) do
+        table.insert(keys, name)
+    end
+
+    if #keys == 0 then return end
+
+    table.sort(keys) -- deterministic order
+
+    local idx = 1
+    for i, name in ipairs(keys) do
+        if name == M.current_board then
+            idx = i
+            break
+        end
+    end
+
+    idx = idx % #keys + 1
+    M.current_board = keys[idx]
+
+    M.render()
+end
 
 function M.open()
     -- Create buf
@@ -214,7 +270,7 @@ function M.open()
     M.render()
 
 
-    -- Keymaps
+    -- ## Keymaps
     -- t add
     vim.keymap.set({"i","n","v"}, "<C-S-n>", function()
         plan.task_add_intr()
@@ -223,7 +279,7 @@ function M.open()
 
     -- t rm
     vim.keymap.set({"i","n","v"}, "<S-Del>", function()
-        local ok, out = plan.task_rm(M.get_task_data_at_cursor().id)
+        local ok, out = plan.task_rm(M.task_get_data_at_cursor().id)
         vim.notify(out, vim.log.levels.INFO)
         M.render()
     end, {buffer=true})
@@ -240,6 +296,7 @@ function M.open()
         M.render()
     end, {buffer=true})
 
+    -- prio
     vim.keymap.set({"i","n","v"}, "<C-S-Up>", function()
         M.task_bump_prio_at_cursor()
         M.render()
@@ -250,23 +307,22 @@ function M.open()
     end, {buffer=true})
 
     -- t ed
-    vim.keymap.set({"i","n","v"}, "<C-CR>", function()
-        M.task_ed_at_cursor()
+    vim.keymap.set({"i","n","v"}, "<C-CR>", M.task_ed_at_cursor, {buffer=true})
+
+    -- board
+    vim.keymap.set({"i","n","v"}, "<M-S-Tab>", function()
+        M.cycle_board()
     end, {buffer=true})
 
     -- Search
     vim.keymap.set({"i","n","v"}, "<C-S-F>", plan.task_picker, {buffer=true})
-    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.task_grep, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.task_grep,   {buffer=true})
 
     -- refrersh
-    vim.keymap.set({"i","n","v"}, "<F5>", function()
-        M.render()
-    end, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<F5>", M.render, {buffer=true})
 
     -- debug
-    vim.keymap.set({"i","n","v"}, "<C-S-H>", function()
-        M.task_inspect_at_cursor()
-    end, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-H>", M.task_inspect_at_cursor, {buffer=true})
 end
 
 

@@ -26,7 +26,7 @@ vim.api.nvim_create_user_command("PlanOverviewOpen", function()
 end, {})
 
 vim.api.nvim_create_user_command("PlanOverviewDebugTasksData", function()
-    print(vim.inspect(overview.tasksdata))
+    print(vim.inspect(overview.uistate))
 end, {})
 
 vim.api.nvim_create_user_command("PlanOverviewDebugInspectTask", function()

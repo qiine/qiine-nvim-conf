@@ -18,9 +18,6 @@ M.uistate = {}
 M.boards = {}
 M.current_board = "default"
 
-M.activelist = {}
-M.backlog = {}
-
 
 ---@param data table
 ---@return string
@@ -74,7 +71,7 @@ function M.group_by_board(tasks)
 end
 
 function M.build()
-    M.uistate = {}  -- reset
+    M.uistate = {}  -- reset ui
 
     -- Tasks dat
     local tasksdb = plan.gather_tasks_db()
@@ -83,13 +80,13 @@ function M.build()
     M.group_by_board(tasksdb)
     local curboard = M.boards[M.current_board] or {}
 
+
     -- Header
     local heading = {
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
         "■ "..M.current_board.." Tasks",
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
     }
-
     for _, line in ipairs(heading) do
         M.push_uistate(line)
     end
@@ -120,13 +117,13 @@ function M.build()
     for _, td in ipairs(active) do
         M.push_uistate(M.taskcard(td), td)
     end
-    M.push_uistate("", {})
+    M.push_uistate("", {}) -- padding
 
     M.push_uistate("■■ Backlog")
     for _, td in ipairs(backlog) do
         M.push_uistate(M.taskcard(td), td)
     end
-    M.push_uistate("", {})
+    M.push_uistate("", {}) -- padding
 end
 
 function M.render()
@@ -144,8 +141,9 @@ end
 -- Retrieval
 ---@return table| nil
 function M.task_get_data_at_cursor()
-    local cursopos = vim.api.nvim_win_get_cursor(0)
-    local row = M.uistate[cursopos[1]]
+    local cursrpos = vim.api.nvim_win_get_cursor(0)
+    local row = M.uistate[cursrpos[1]]
+
     return row and row.data or nil
 end
 
@@ -170,16 +168,16 @@ end
 
 function M.task_set_prio_at_cursor(p)
     local tdat = M.task_get_data_at_cursor()
-    if not tdat or not tdat.id then return end
+    if not tdat or not tdat.uuid then return end
 
-    plan.task_set_prio(p, tdat.id)
+    plan.task_set_prio(tdat.id, p)
 end
 
 function M.task_bump_prio_at_cursor(decrem, amnt)
     local tdat = M.task_get_data_at_cursor()
-    if not tdat or not tdat.id then return end
+    if not tdat or not tdat.uuid then return end
 
-    plan.task_bump_prio(decrem, amnt, tdat.id)
+    plan.task_bump_prio(tdat.uuid, amnt, decrem)
 end
 
 function M.task_ed_at_cursor()
@@ -207,7 +205,9 @@ function M.set_board(name)
     M.render()
 end
 
-function M.cycle_board(reverse)
+function M.board_cycle(reverse)
+    reverse = reverse or false
+
     local keys = {}
 
     for name, _ in pairs(M.boards) do
@@ -233,7 +233,7 @@ function M.cycle_board(reverse)
 end
 
 function M.open()
-    -- Create buf
+    -- buf
     local isbufoverview = false
 
     if vim.fn.expand("%:p:t") == "Plan overview" then
@@ -311,7 +311,7 @@ function M.open()
 
     -- board
     vim.keymap.set({"i","n","v"}, "<M-S-Tab>", function()
-        M.cycle_board()
+        M.board_cycle()
     end, {buffer=true})
 
     -- Search

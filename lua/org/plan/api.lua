@@ -6,6 +6,24 @@ local M = {}
 
 M.plandir = vim.fn.expand("~/Personal/Org/Plan/.dstask/")
 
+---@return table
+function M.get_tasksfiles()
+    return vim.fs.find(
+        function(name, path)
+            return not path:match("/%.git/") and name:match("%.yml$")
+        end, { path = M.plandir, type = "file", limit = math.huge}
+    )
+end
+
+---@return string
+
+function M.task_get_fpath(uuid)
+    local path = vim.fs.find(function(name, path)
+        return not path:match("/%.git/") and name == uuid..".yml"
+    end, { path = M.plandir, type = "file", limit = math.huge })
+
+    return path[1]
+end
 
 ---@return boolean status, string msg
 function M.task_add(tittle)
@@ -31,9 +49,12 @@ function M.task_add_intr()
     end)
 end
 
+---@param id number
 ---@return boolean ok, string msg
 function M.task_rm(id)
-    local cmd = {"dstask", "remove", id}
+    if not id then return false, "err, invalid id" end
+
+    local cmd = {"dstask", "remove", tostring(id)}
     local dstsk = vim.system(cmd, {text=true}):wait()
     if dstsk.code ~= 0 then
         return false, "Failed to rm "..id.."\n"..dstsk.stderr
@@ -43,8 +64,9 @@ function M.task_rm(id)
 end
 
 ---@param status string
+---@param id number
 function M.task_set_status(status, id)
-    if not id then return false, "err, no task id" end
+    if not id then return false, "err, invalid id" end
 
     local statuses = {
         ["active"]   = "start",
@@ -52,40 +74,68 @@ function M.task_set_status(status, id)
         ["resolved"] = "done"
     }
 
-    local cmd = {"dstask", statuses[status], id}
+    local cmd = {"dstask", statuses[status], tostring(id)}
     local dstsk = vim.system(cmd, {text=true}):wait()
     if dstsk.code ~= 0 then return false, dstsk.stderr end
 
     return true, "Set "..status.." id:"..id
 end
 
-function M.task_set_prio(p, id)
-    p = p or 1
-    if not id then return end
+---@param uuid string
+---@return number|nil prio
+function M.task_get_prio(uuid)
+    if not uuid then return end
 
-    local cmd = {"dstask", id, "modify", "P"..tostring(p)}
-    local dstsk = vim.system(cmd, {text=true}):wait()
-end
+    local tpath = M.task_get_fpath(uuid)
+    local lines = vim.fn.readfile(tpath)
 
----@param decrem? boolean
-function M.task_bump_prio(decrem, amnt, id)
-    if not decrem then decrem = false end
-    amnt = amnt or 1
-    if not id then return end
-
-    local tdat = M.gather_tasks_db()
-    if not tdat then return end
-
-    local tprio = 1
-    for _, t in ipairs(tdat) do
-        if type(t) == "table" and t.id == id then
-            tprio = tonumber(t.priority) or 1; break
+    local p
+    for i, line in ipairs(lines) do
+        if line:match("^priority:%s*P%d+") then
+            p = tonumber(line:match("P(%d+)")); break  -- priority: P2
         end
     end
 
-    local newprio = decrem and tprio + amnt or tprio - amnt
+    return p or nil
+end
+
+---@param uuid string
+---@param p number
+function M.task_set_prio(uuid, p)
+    if not uuid then return end
+    p = p or 1
+
+    local tpath = M.task_get_fpath(uuid)
+    local lines = vim.fn.readfile(tpath)
+
+    local found = false
+    for i, line in ipairs(lines) do
+        if line:match("^priority:%s*P%d+") then
+            lines[i] = "priority: P"..tostring(p)
+            found = true
+            break
+        end
+    end
+
+    if not found then return end
+
+    vim.fn.writefile(lines, tpath)
+end
+
+---@param uuid string
+---@param amnt? number
+---@param decrem? boolean
+function M.task_bump_prio(uuid, amnt, decrem)
+    if not uuid then return end
+    amnt = amnt or 1
+    if not decrem then decrem = false end
+
+    local curprio = M.task_get_prio(uuid)
+    if not curprio then return end
+
+    local newprio = decrem and curprio + amnt or curprio - amnt
     newprio = math.max(newprio, 0)
-    M.task_set_prio(newprio, id)
+    M.task_set_prio(uuid, newprio)
 end
 
 ---@return table|nil data, string|nil raw
@@ -96,15 +146,6 @@ function M.gather_tasks_db()
     local raw = dstsk.stdout
 
     return data, raw
-end
-
----@return table
-function M.get_tasksfiles()
-    return vim.fs.find(
-        function(name, path)
-            return not path:match("/%.git/") and name:match("%.yml")
-        end, { path = M.plandir, type = "file", limit = math.huge}
-    )
 end
 
 function M.debug_tasks_db()
@@ -123,28 +164,23 @@ function M.debug_tasks_db()
     -- Render
     local out = vim.split(raw, "\n")
 
-    vim.api.nvim_buf_set_lines(0, 0, 0, false, out)
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, out)
     vim.bo[planbuf].modifiable = false
 end
 
 function M.task_picker()
-    require("fzf-lua").task = function()
-        if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
+    local tfiles = M.get_tasksfiles()
 
-        local tfiles = M.get_tasksfiles()
-
-        require("fzf-lua").fzf_exec(tfiles, {
-            winopts = { title = "Find Tasks", },
-            prompt = "Task> ",
-            previewer = "builtin",
-            actions = {
-                ["default"] = function(entry)
-                    vim.cmd("e "..entry[1])
-                end
-            },
-        })
-    end
-    require("fzf-lua").task()
+    require("fzf-lua").fzf_exec(tfiles, {
+        winopts = { title = "Find Tasks", },
+        prompt = "Task> ",
+        previewer = "builtin",
+        actions = {
+            ["default"] = function(entry)
+                vim.cmd("e "..entry[1])
+            end
+        },
+    })
 end
 
 function M.task_grep()

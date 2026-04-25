@@ -134,7 +134,7 @@ function M.task_bump_prio(uuid, amnt, decrem)
     if not curprio then return end
 
     local newprio = decrem and curprio + amnt or curprio - amnt
-    newprio = math.max(newprio, 0)
+    newprio = math.min(math.max(newprio, 0), 3)
     M.task_set_prio(uuid, newprio)
 end
 

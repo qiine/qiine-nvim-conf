@@ -282,14 +282,8 @@
             "    ${0:}",
             "end)"
         ]
-    },
-
-    "nvim keymap cmd": {
-        "prefix": "keymap cmd",
-        "body": [
-            "\"<cmd>${1:}<CR>\""
-        ]
     }
+
 
 }
 

@@ -18,6 +18,10 @@
                 "path": "./lua.json"
             },
             {
+                "language": "lua",
+                "path": "./nvim.json"
+            },
+            {
                 "language": "javascript",
                 "path": "./js.json"
             },
@@ -26,8 +30,8 @@
                 "path": "./markdown.json"
             },
             {
-                "language": "bash",
-                "path": "./bash.json"
+                "language": "sh",
+                "path": "./sh.json"
             },
             {
                 "language": "json",

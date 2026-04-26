@@ -92,7 +92,7 @@ function M.print_gitroot_dir()
 end
 
 function M.print_porcelainstatus(paths)
-    print(U.get_path_porcelainstatus(paths))
+    print(U.get_porcelainstatus(paths))
 end
 
 function M.log_history()

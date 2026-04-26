@@ -197,9 +197,10 @@ map({"i","n","v"}, "<M-n>f", fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 map({"i","n","v"}, "<C-g>fm", bufrs.file_mv_interac)
 map({"i","n","v"}, "<C-g>fmp", "<Cmd>FileMoveProj<CR>")
+map({"i","n","v"}, "<C-g>fM", "<Cmd>FileMoveProj<CR>")
 map({"i","n","v"}, "<C-g>fr", bufrs.file_rename_interac)
 map({"i","n","v"}, "<F26>", bufrs.file_rename_interac) -- <C-F2>
-map({"i","n","v"}, "<S-M-Del>", "<Cmd>FileDelete<CR>")
+map({"i","n","v"}, "<C-M-Del>", "<Cmd>FileDelete<CR>")
 
 
 -- ### Write
@@ -981,7 +982,7 @@ end, {noremap=true})
 -- Yank line, exclude newline char
 map("n", "yy", "0y$", {noremap=true})
 
--- Copy append selection
+-- Copy append selectio
 map("v", "<S-M-c>", function()
     local reg_prev = vim.fn.getreg("+")
 

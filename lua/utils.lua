@@ -126,19 +126,6 @@ function M.is_cursor_inside_word()
     return M.isword(char)
 end
 
---local function M.selection_anchor_side()
---    local anchor = vim.fn.getpos("v")
---    local cur = vim.fn.getcurpos()
---
---    if anchor[2] < cur[2] then
---        return true  -- anchor is on an earlier line
---    elseif anchor[2] == cur[2] and anchor[3] < cur[3] then
---        return true  -- same line, anchor is to the left
---    else
---        return false -- anchor is after or same as cursor
---    end
---end
-
 
 
 -- ## [Keys]

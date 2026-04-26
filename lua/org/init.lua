@@ -15,10 +15,10 @@ local M = {}
 
 -- Setup
 function M.setup()
-  -- require("org.time").setup()
+    require("org.time").setup()
     require("org.notes").setup()
-    require("org.plan").setup()
     require("org.journal").setup()
+    require("org.plan").setup()
     require("org.fav")
     -- require("org.mail").setup()
 end

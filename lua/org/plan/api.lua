@@ -45,7 +45,7 @@ function M.task_add_intr()
         local ok, err = M.task_add(input)
         if not ok then vim.notify(err, vim.log.levels.ERROR); return end
 
-        vim.notify("Task created: "..input, vim.log.levels.INFO)
+        vim.notify("Task created: ".."'"..input.."'", vim.log.levels.INFO)
     end)
 end
 

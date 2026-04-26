@@ -2,15 +2,16 @@
 -- # Notes
 
 local fs = require("fs")
+local api = require("org.notes")
 
 
 vim.api.nvim_create_user_command("NoteCreate", function(opts)
-    local notespath = vim.fn.expand("~/Personal/Org/Notes")
+    local notespath = api.notespath
 
     local cwd = vim.fn.getcwd()
     vim.cmd("lcd "..notespath)
 
-    vim.ui.input({prompt="New note name: ", default="Newnote", completion="file"},
+    vim.ui.input({prompt="Note name: ", default="Newnote", completion="file"},
     function(notename)
         vim.api.nvim_command("redraw")
         if notename == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end

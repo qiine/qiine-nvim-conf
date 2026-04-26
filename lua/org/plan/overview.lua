@@ -116,23 +116,23 @@ function M.build()
         end
     end
 
-    local function sort_priority(tasks)
+    local function sort_prio(tasks)
         table.sort(tasks, function(a, b)
             return (a.priority or 0) < (b.priority or 0)
         end)
     end
-    sort_priority(active)
-    sort_priority(backlog)
+    sort_prio(active)
+    sort_prio(backlog)
 
 
     -- build
-    M.push_uistate("■■ Active")
+    M.push_uistate("■■ Active".." ".."["..tostring(#active).."]")
     for _, td in ipairs(active) do
         M.push_uistate(M.taskcard(td), td)
     end
     M.push_uistate("", {}) -- padding
 
-    M.push_uistate("■■ Backlog")
+    M.push_uistate("■■ Backlog".." ".."["..tostring(#backlog).."]")
     for _, td in ipairs(backlog) do
         M.push_uistate(M.taskcard(td), td)
     end
@@ -249,12 +249,27 @@ function M.board_cycle(reverse)
     M.render()
 end
 
+function M.create_buf()
+    vim.cmd("tabnew")
+    vim.api.nvim_buf_set_name(0, "Plan overview"); vim.cmd("e!")
+
+    vim.opt_local.number = false
+    local planbuf = vim.api.nvim_get_current_buf()
+
+    -- vim.wo.foldlevel=0
+    -- vim.opt_local.foldmethod="expr"
+    -- vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
+
+    vim.bo[planbuf].buftype = "nofile"
+    -- vim.bo[planbuf].filetype = "markdown"
+    vim.bo[planbuf].modifiable = true
+end
+
 function M.open()
     -- buf
     local isbufoverview = false
 
     if vim.fn.expand("%:p:t") == "Plan overview" then
-        -- isbufoverview = true
         vim.cmd("bwipeout!")
         return
     else
@@ -269,20 +284,8 @@ function M.open()
     end
 
     if not isbufoverview then
-        vim.cmd("tabnew")
-        vim.api.nvim_buf_set_name(0, "Plan overview"); vim.cmd("e!")
+        M.create_buf()
     end
-
-    vim.opt_local.number = false
-    local planbuf = vim.api.nvim_get_current_buf()
-
-    -- vim.wo.foldlevel=0
-    -- vim.opt_local.foldmethod="expr"
-    -- vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
-
-    vim.bo[planbuf].buftype = "nofile"
-    -- vim.bo[planbuf].filetype = "markdown"
-    vim.bo[planbuf].modifiable = true
 
 
     M.curr_board = "default"
@@ -328,7 +331,8 @@ function M.open()
     end, {buffer=true})
 
     -- t ed
-    vim.keymap.set({"i","n","v"}, "<C-CR>", M.task_ed_at_cursor, {buffer=true})
+    vim.keymap.set({"i","n"}, "<C-CR>", M.task_ed_at_cursor, {buffer=true})
+    vim.keymap.set("n", "<CR>", M.task_ed_at_cursor, {buffer=true})
 
     -- board
     vim.keymap.set({"i","n","v"}, "<M-S-Tab>", function()

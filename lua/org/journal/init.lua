@@ -31,7 +31,7 @@ function M.add_entry()
     )
 end
 
-function M.open()
+function M.explore()
     vim.cmd("tabnew | Oil "..M.jdir)
 end
 

@@ -117,11 +117,6 @@ vim.api.nvim_create_user_command("MsglogToggle", function()
     msglog.toggle()
 end, {})
 
--- Insert today
-vim.api.nvim_create_user_command("Now", function()
-    local date = tostring(os.date("%Y/%m/%d %H:%M"))
-    vim.api.nvim_put({ date }, "c", false, false)
-end, {})
 
 vim.api.nvim_create_user_command("OpenCmdlineWin", function()
     vim.api.nvim_feedkeys("q:", "n", false)

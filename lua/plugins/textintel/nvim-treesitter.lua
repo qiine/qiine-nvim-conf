@@ -1,53 +1,17 @@
 return {
-    'nvim-treesier/nvim-treesitter',
+    'nvim-treesitter/nvim-treesitter',
     enabled = true,
-    -- version = false,
-    -- branch = "master",
+    lazy = false,
+    version = false,
+    branch = "main",
     build = ':TSUpdate',
 
     dependencies = {
-        -- TODO update to main
-        -- "nvim-treesittes/nvim-treesitter-textobjects",
-        "OXY2DEV/markview.nvim", --markview need to be loaded before nvim-treesitter!
+        "OXY2DEV/markview.nvim",  -- markview need to be loaded before nvim-treesitter!
     },
 
     opts = {
-        ensure_installed = {
-            'bash',
-
-            'c',
-            'cpp',
-
-            'rust',
-
-            'fish',
-            'gitcommit',
-            'graphql',
-            'html',
-            'java',
-
-            'javascript',
-            'typescript',
-            'tsx',
-
-            'json',
-            'json5',
-            'jsonc',
-
-            'lua',
-            'markdown',
-            'markdown_inline',
-
-            'python',
-            'query',
-            'yaml',
-            'regex',
-            'rasi',
-            'scss',
-            'toml',
-            'vim',
-            'vimdoc',
-        },
+        install_dir = vim.fn.stdpath('data') .. '/site',
 
         highlight = { enable = true },
 
@@ -66,33 +30,51 @@ return {
             -- Treesitter unindents Yaml lists for some reason.
             disable = { 'yaml' },
         },
-
-        textobjects = {
-            select = {
-                enable = true,
-
-                -- Automatically jump forward to textobj, similar to targets.vim
-                lookahead = true,
-
-                keymaps = {
-                    -- You can use the capture groups defined in textobjects.scm
-                    ["if"] = "@function.inner",
-                    ["af"] = "@function.outer",
-                    ["ii"] = "@conditional.outer",
-                    ["ai"] = "@conditional.inner",
-                    ["il"] = "@loop.inner",
-                    ["al"] = "@loop.outer",
-                    -- ["ic"] = "@comment.inner",
-                    -- ["ac"] = "@comment.outer",
-                },
-            },
-        },
-
     },
 
     config = function(_, opts)
-        -- require('nvim-treesitter.configs').setup(opts)
         require('nvim-treesitter').setup(opts)
+        require('nvim-treesitter').install({
+            'bash',
+            'fish',
+
+            'c',
+            'cpp',
+            'rust',
+
+            'gitcommit',
+            'graphql',
+
+            'java',
+
+            'javascript',
+            'typescript',
+            'tsx',
+
+            'json',
+            'json5',
+            -- 'jsonc', -- TODO unsuported ?
+
+            'lua',
+
+            'python',
+
+            'markdown',
+            'markdown_inline',
+            'html',
+
+            'yaml',
+            'toml',
+            'query',
+            'regex',
+            'rasi',
+            'scss',
+
+            'vim',
+            'vimdoc',
+
+            "nix",
+        })
     end,
 
 }

@@ -3,6 +3,10 @@ return {
     enabled = true,
     branch = "main",
 
+    dependencies = {
+        'nvim-treesitter/nvim-treesitter',
+    },
+
     init = function()
         -- Disable entire built-in ftplugin mappings to avoid conflicts.
         -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin for built-in ftplugins.
@@ -16,7 +20,6 @@ return {
     end,
 
     config = function()
-        -- configuration
         require("nvim-treesitter-textobjects").setup {
             select = {
                 -- Automatically jump forward to textobj, similar to targets.vim
@@ -66,12 +69,12 @@ return {
         end)
 
         -- swap
-        vim.keymap.set("n", "<M-s><Right>", function()
-            require("nvim-treesitter-textobjects.swap").swap_next "@parameter.inner"
-        end)
-        vim.keymap.set("n", "<M-s><Left>", function()
-            require("nvim-treesitter-textobjects.swap").swap_previous "@parameter.inner"
-        end)
+        -- vim.keymap.set("n", "<M-s><Right>", function()
+        --     require("nvim-treesitter-textobjects.swap").swap_next "@parameter.inner"
+        -- end)
+        -- vim.keymap.set("n", "<M-s><Left>", function()
+        --     require("nvim-treesitter-textobjects.swap").swap_previous "@parameter.inner"
+        -- end)
     end,
 
 }

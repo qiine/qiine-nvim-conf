@@ -127,6 +127,10 @@ end, {})
 vim.opt.makeprg = "make"
 
 
+-- ## [Tree-sitter]
+
+
+
 
 -- ## [LSP]
 ----------------------------------------------------------------------
@@ -137,10 +141,12 @@ vim.lsp.enable({
 
     "lua_ls",
 
-    "jsonls",
     "cssls",
     "html",
     "eslint",
+    "ts_ls",
+    "jsonls",
+    "yamlls",
 
     "rust-analyzer",
 

@@ -34,8 +34,7 @@ end
 local function safe_require(name)
     local ok, mod = pcall(require, name)
     if not ok then
-        vim.notify("Require: "..name..", failed\n"..mod, vim.log.levels.ERROR)
-        return nil
+        vim.notify("Require: "..name..", failed\n"..mod, vim.log.levels.ERROR); return nil
     end
     return mod
 end
@@ -43,19 +42,16 @@ end
 ---@return boolean status
 local function safe_setup(name, mod, opts)
     if not mod then
-        vim.notify(name.." invalid module", vim.log.levels.WARN)
-        return false
+        vim.notify(name.." invalid module", vim.log.levels.WARN); return false
     end
 
     if type(mod.setup) ~= "function" then
-        vim.notify(name.." no setup()!", vim.log.levels.WARN)
-        return false
+        vim.notify(name.." no setup()!", vim.log.levels.WARN); return false
     end
 
     local ok, err = pcall(function() mod.setup(opts or {}) end)
     if not ok then
-        vim.notify(name.." setup failed:\n"..err, vim.log.levels.ERROR)
-        return false
+        vim.notify(name.." setup failed:\n"..err, vim.log.levels.ERROR); return false
     end
 
     return true
@@ -64,7 +60,6 @@ end
 -- ## Extensions
 safe_require("modules.enveloppe")
 safe_require("modules.historybuf")
-safe_require("modules.favorizer")
 safe_require("modules.arbores")
 safe_require("modules.lsvi")
 
@@ -92,7 +87,7 @@ safe_require("options.mousemaps")
 safe_require("options.internal")
 safe_require("options.editing")
 safe_require("options.textintel")
-safe_require("session").setup()
+local session = safe_require("session"); safe_setup("session", session)
 
 safe_require("options.ui.theme")
 safe_require("options.ui.conceal")

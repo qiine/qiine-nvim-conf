@@ -2,14 +2,16 @@ return
 {
     "luukvbaal/statuscol.nvim",
     enabled = true,
-    desc = "customize gutter line",
+    desc = "Customize gutter line",
 
     config = function()
         local builtin = require('statuscol.builtin')
         require("statuscol").setup({
-            ft_ignore = { "favorizer", "aerial" },
+            ft_ignore = { "favorizer", "aerial", "codecompanion", "OverseerOutput" },
             bt_ignore = { "help" },
+
             relculright = true,
+
             segments = {
                 {
                     sign = {
@@ -28,7 +30,8 @@ return
                     click = "v:lua.ScSa"
                 },
                 {
-                    text = {builtin.lnumfunc},    --line numbers
+                    -- line numbers
+                    text = {builtin.lnumfunc},
                     click = 'v:lua.ScLa',
                 },
                 {

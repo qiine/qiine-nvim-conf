@@ -76,7 +76,7 @@ return
 
             use_default_keymaps = false,
             keymaps = {
-                ["<CR>"] = { mode = {"i","n","v"},
+                ["<CR>"] = { mode = {"n","v"},
                     desc = "Open entry, and cd if directory",
                     callback = function()
                         vim.cmd("norm! \27")
@@ -107,7 +107,8 @@ return
                     end,
                 },
                 ["<S-CR>"] = { "actions.select", opts = { tab = true } }, --open in newtab don't close curr
-                ["gx"] = "actions.open_external",
+                ["<C-CR>"] = "actions.open_external",
+                ["<C-S-o>"] = "actions.open_external",
 
                 -- nav
                 ["<Up>"] = {
@@ -201,9 +202,9 @@ return
                 -- save
                 ["<C-s>"] = { "\27<Cmd>w<cr>", mode = {"i","n","v"} },
 
-                ["gp"] = { "actions.preview", mode={"i","n","v"} },
-                ["gs"] = { "actions.change_sort", mode = {"i","n"} },
-                ["gh"] = { "actions.toggle_hidden", mode = {"i","n"} },
+                ["gp"] = { "actions.preview", mode={"n"} },
+                ["gs"] = { "actions.change_sort", mode = {"n"} },
+                ["gh"] = { "actions.toggle_hidden", mode = {"n"} },
                 ["<F5>"] = { mode = { "n", "i", "v" },
                     function()
                         oil.open(vim.fn.getcwd())
@@ -211,14 +212,15 @@ return
                     end
                 },
 
-                ["qf"] = { "actions.add_to_qflist", mode = {"i","n"} },
+                ["qf"] = { "actions.add_to_qflist", mode = {"n"} },
 
-                ["?"] = { "actions.show_help", mode={"i","n","v"} },
+                ["?"] = { "actions.show_help", mode={"n"} },
 
                 -- Exit oil
-                -- ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
-                ["<C-e>"] = { "actions.close", mode = {"i","n","v"}, },
-                ["<C-w>"] = { "actions.close", mode = {"i","n","v"}, },
+                ["<C-e>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
+                ["<C-w>"] = { "<Cmd>bwipeout<CR>", mode = {"i","n","v"}, },
+                -- ["<C-e>"] = { "actions.close", mode = {"i","n","v"}, }, -- preserve oil changes
+                -- ["<C-w>"] = { "actions.close", mode = {"i","n","v"}, },
             },
         })
 
@@ -258,6 +260,7 @@ return
 
         -- For git signs
         -- require("oil-git-status").setup()
+
     end,
 }
 

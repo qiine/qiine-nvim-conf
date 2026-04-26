@@ -13,7 +13,7 @@ My text editor journey went as follow:
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
 I was aware of vim/nvim but it always felt intimidating. 
 Then I switched to Linux and figured It was finally time to try it out!  
-I hesitated a bit between nvim and emacs, but lua and the motions intrigued me...  
+I hesitated a bit between Neovim and Emacs, but lua and the motions intrigued me...  
 
 
 ## ✨ Features

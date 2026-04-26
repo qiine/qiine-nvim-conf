@@ -43,7 +43,7 @@ return
                 modified = {button = '🖬'}, --🖬💾
                 pinned = {button = '', filenamefalse= true},
 
-                separator = {left = '▎', right = '▕'}, --│ |
+                separator = {left = '▎', right = '▕'}, --│  |
                 separator_at_end = false, --Add additional separator at the end of the buffer list
                 icon_separator_inactive = '',
 

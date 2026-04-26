@@ -35,8 +35,8 @@ function M.taskcard(data)
         data.priority,
         " ",
         "["..table.concat(data.tags, " ").."]",
-        " ",
-        "("..data.id..")",
+        -- " ", "("..data.id..")",
+        -- " ", "("..data.id..")",
         -- " ",
         -- data.due,
     }, "")
@@ -139,6 +139,7 @@ function M.build()
     M.push_uistate("", {}) -- padding
 end
 
+-- Rendering
 function M.render()
     M.build()
 
@@ -195,12 +196,11 @@ end
 
 function M.task_ed_at_cursor()
     local tdat = M.task_get_data_at_cursor()
-    if not tdat or not tdat.id then return end
+    if not tdat or not tdat.uuid then return end
 
     local tpath = vim.fs.normalize(plan.plandir..tdat.status.."/"..tdat.uuid..".yml")
 
-    vim.cmd("vs")
-    vim.cmd("vert resize +10")
+    vim.cmd("vs"); vim.cmd("vert resize +10")
     vim.cmd("e "..tpath)
 
     vim.bo[0].buflisted = false
@@ -254,7 +254,9 @@ function M.open()
     local isbufoverview = false
 
     if vim.fn.expand("%:p:t") == "Plan overview" then
-        isbufoverview = true
+        -- isbufoverview = true
+        vim.cmd("bwipeout!")
+        return
     else
         for _, bufid in ipairs(vim.api.nvim_list_bufs()) do
             local bufname = vim.api.nvim_buf_get_name(bufid)
@@ -282,6 +284,8 @@ function M.open()
     -- vim.bo[planbuf].filetype = "markdown"
     vim.bo[planbuf].modifiable = true
 
+
+    M.curr_board = "default"
 
     -- Display
     M.render()

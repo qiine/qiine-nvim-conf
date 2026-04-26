@@ -8,6 +8,7 @@ local overview = require("org.plan.overview")
 
 -- Open overview
 vim.keymap.set({"i","n","v"}, "<S-M-o>p", plan.overview.open)
+vim.keymap.set({"i","n","v"}, "<F6>", plan.overview.open)
 
 vim.keymap.set({"i","n","v"}, "<S-M-o>pa", plan.task_add_intr)
 

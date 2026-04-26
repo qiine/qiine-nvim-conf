@@ -72,6 +72,8 @@ function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
 
+function M.is_upper(s) return s == string.upper(s) end
+function M.is_lower(s) return s == string.lower(s) end
 
 
 --TODO fancy make spreadshit from string func
@@ -99,13 +101,6 @@ end
 
 -- ## [Tables]
 ----------------------------------------------------------------------
-function M.tables_append(ta, tb)
-    local res = {}
-    for _, t in ipairs(ta) do table.insert(res, t) end
-    for _, t in ipairs(tb) do table.insert(res, t) end
-    return res
-end
-
 -- Insert unique value
 ---@table
 function M.insert_unique(t, val)

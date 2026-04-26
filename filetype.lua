@@ -1,5 +1,5 @@
 
-vim.filetype.add {
+vim.filetype.add({
     pattern = {
         ['.*'] = function(path, bufnr)
             if path and vim.fn.getfsize(path) > 1024 * 1024 then
@@ -9,11 +9,4 @@ vim.filetype.add {
             return nil
         end,
     },
-}
-
-vim.filetype.add({
-    pattern = {
-        ["/tmp/bash%-fc.*"] = "cmdeditor",
-    },
 })
-

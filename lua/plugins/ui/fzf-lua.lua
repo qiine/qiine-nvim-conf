@@ -32,7 +32,6 @@ return
             keymap = {
                 builtin = { },
                 fzf = {
-                    ["ctrl-backspace"] = "backward-kill-word",
                     ["ctrl-left"] = "backward-word",
                     ["ctrl-right"] = "forward-word",
                 }
@@ -69,21 +68,21 @@ return
             },
 
             previewers = {
-              builtin = {
-                extensions = {
-                  -- neovim terminal only supports `viu` block output
-                  -- ["png"] = { "viu", "-b" },
-                  ["png"] = { "ueberzug" },
-                  ["jpg"] = { "ueberzug" },
-                },
-                -- When using 'ueberzug' we can also control the way images
-                -- fill the preview area with ueberzug's image scaler, set to:
-                --   false (no scaling), "crop", "distort", "fit_contain",
-                --   "contain", "forced_cover", "cover"
-                -- For more details see:
-                -- https://github.com/seebye/ueberzug
-                ueberzug_scaler = "fit_contain",
-              }
+                builtin = {
+                    extensions = {
+                    -- neovim terminal only supports `viu` block output
+                    -- ["png"] = { "viu", "-b" },
+                    ["png"] = { "ueberzug" },
+                    ["jpg"] = { "ueberzug" },
+                    },
+                    -- When using 'ueberzug' we can also control the way images
+                    -- fill the preview area with ueberzug's image scaler, set to:
+                    --   false (no scaling), "crop", "distort", "fit_contain",
+                    --   "contain", "forced_cover", "cover"
+                    -- For more details see:
+                    -- https://github.com/seebye/ueberzug
+                    ueberzug_scaler = "fit_contain",
+                }
             },
 
             -- Pickers opts
@@ -268,7 +267,7 @@ return
 
         -- ### grep
         -- grep curr dir
-        vim.keymap.set({"i","n","v","c","t"}, "<M-f>gc", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>g", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
                 winopts = { title = "Grep cwd", },
@@ -276,7 +275,7 @@ return
         end, { silent = true, desc = "grep curr dir" })
 
         -- grep in home
-        vim.keymap.set({"i","n","v","c","t"}, "<M-f>g", function()
+        vim.keymap.set({"i","n","v","c","t"}, "<M-f>gh", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").live_grep({
                 winopts = { title = "Grep home", },
@@ -298,7 +297,7 @@ return
                 winopts = { title = "Grep project selected", },
                 cwd = require("fzf-lua.path").git_root({})
             })
-        end, {noremap=true, silent=true, desc="live grep selected in project"})
+        end, {noremap=true, silent=true, desc="Live grep selected in project"})
 
         -- TODO FEAT grep file git rev
         -- git grep "OPTION_NAME" $(git rev-list --all) -- path/to/file
@@ -352,13 +351,6 @@ return
         end, {silent=true, desc="search helptags"})
 
 
-        -- Search ft and set it
-        vim.keymap.set({"i","n","v","c"}, "<M-f>t", function()
-            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").filetypes({})
-        end, {silent = true, desc = "search and set filetypes" })
-
-
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>m", function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
             require("fzf-lua").manpages()
@@ -397,7 +389,7 @@ return
         -- Find dir from root
         fzfl.fuzzy_cd_fromroot = function()
             fzfl.fzf_exec("fd . --type d", {
-                winopts = { title = "Find dir root", },
+                winopts = { title = "Find dir", },
                 prompt = "cd ",
                 cwd = "/",
                 actions = {
@@ -421,7 +413,7 @@ return
         fzfl.favorites = function()
             if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
-            local favz = require("modules.favorizer")
+            local favz = require("org.fav")
             local favs, favs_names = favz.get_favs(), favz.get_favs_names()
             fzfl.fzf_exec(favs_names, {
                 winopts = { title = "Favorites", },

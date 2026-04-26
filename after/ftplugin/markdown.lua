@@ -8,13 +8,15 @@ local lsnip = require("luasnip")
 vim.opt_local.spell = true
 
 
--- ## [Gutter]
+-- ## [View]
+----------------------------------------------------------------------
+-- ### Gutter
 vim.opt_local.signcolumn = "no"
 
 -- Numbers
 -- vim.opt_local.number = false
 
--- ### Folds
+-- #### Folds
 vim.opt_local.foldcolumn = "1"
 vim.opt_local.foldenable = true
 
@@ -67,7 +69,7 @@ vim.opt_local.foldexpr = "v:lua.foldexpr_md()"
 vim.api.nvim_set_hl(0, "Folded", { link = "Normal" })
 
 
--- ### [Format]
+-- ### Format
 -- vim.opt.formatoptions:append("a") -- auto reformat paragraphs while typing
 vim.opt_local.formatoptions:append("t") -- auto hard wrap text at textwidth
 -- vim.opt_local.formatoptions:append("n") -- Recognize numbered lists (1., 2., etc.) and format them properly.
@@ -75,20 +77,20 @@ vim.opt_local.formatoptions:append("t") -- auto hard wrap text at textwidth
 vim.o.wrap = false
 
 -- Detect soft wrap
-local readmes = {
-    "readme",
-    "license",
-    "agent", "agents",
-    "skills", "skill",
-    "contributing",
-    "changelog",
-    "architecture",
-}
+-- local readmes = {
+--     "readme",
+--     "license",
+--     "agent", "agents",
+--     "skills", "skill",
+--     "contributing",
+--     "changelog",
+--     "architecture",
+-- }
 
-local fname = vim.fn.expand("%:t:r"):lower()
-if vim.tbl_contains(readmes, fname) then
-    vim.o.wrap = true
-end
+-- local fname = vim.fn.expand("%:t:r"):lower()
+-- if vim.tbl_contains(readmes, fname) then
+--     vim.o.wrap = true
+-- end
 
 -- Indentation
 vim.opt_local.shiftwidth  = 2 --Number of spaces to use for indentation
@@ -96,7 +98,19 @@ vim.opt_local.tabstop     = 2
 vim.opt_local.softtabstop = 2 --Number of spaces to use for pressing TAB in insert mode
 
 
--- [Keymaps]
+-- ### [Render]
+vim.b.viewsrcfunc = function()
+    vim.cmd("RenderMarkdown disable")
+end
+
+vim.b.renderfunc = function()
+    vim.cmd("RenderMarkdown enable")
+end
+
+
+
+-- ## [Keymaps]
+----------------------------------------------------------------------
 -- quick insert snip
 vim.keymap.set({"i","n","x"}, "<C-S-n>h", function()
     lsnip.insert_snippet("heading")

@@ -118,7 +118,7 @@ vim.api.nvim_create_user_command("MsglogToggle", function()
 end, {})
 
 -- Insert today
-vim.api.nvim_create_user_command("Today", function()
+vim.api.nvim_create_user_command("Now", function()
     local date = tostring(os.date("%Y/%m/%d %H:%M"))
     vim.api.nvim_put({ date }, "c", false, false)
 end, {})
@@ -151,7 +151,7 @@ end, {})
 
 vim.api.nvim_create_user_command("News", function() vim.cmd("tab h news") end, {})
 
-vim.api.nvim_create_user_command("CommandsControl", function()
+vim.api.nvim_create_user_command("CommandConquer", function()
     local cmds = vim.api.nvim_get_commands({})
 
     local lines = {}
@@ -164,7 +164,7 @@ vim.api.nvim_create_user_command("CommandsControl", function()
     table.sort(lines)
 
     -- buff
-    vim.cmd("tabnew Commands")
+    vim.cmd("tabnew CommandConquer")
     vim.bo[0].buftype = "nofile"
     vim.bo[0].filetype = "commands"
     vim.opt_local.statuscolumn = ""
@@ -172,6 +172,29 @@ vim.api.nvim_create_user_command("CommandsControl", function()
     vim.opt_local.number       = false
 
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+end, {})
+
+vim.api.nvim_create_user_command("KeymapConquer", function()
+    local km = vim.api.nvim_get_keymap("n")
+
+    -- local content = {}
+    -- for k, val in pairs(km) do
+    --     table.insert(content, k.." "..val)
+    -- end
+
+    local kms = vim.split(vim.inspect(km), "\n")
+    -- table.sort(content)
+
+    -- buff
+    vim.cmd("tabnew KeymapConquer")
+    vim.bo[0].buftype = "nofile"
+    -- vim.bo[0].filetype = "commands"
+    vim.opt_local.statuscolumn = ""
+    vim.opt_local.signcolumn   = "no"
+    vim.opt_local.number       = false
+
+
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, kms)
 end, {})
 
 vim.api.nvim_create_user_command("RunInsert", function(opts)
@@ -428,16 +451,6 @@ vim.api.nvim_create_user_command("OpenDesktopFilePicker", function()
         end
     end
 end, {})
-
-vim.api.nvim_create_user_command("OpenNvimConfig", function()
-    local confpath = vim.fn.stdpath("config")
-
-    vim.cmd("cd "..confpath)
-    vim.cmd("e init.lua")
-
-    vim.cmd("pwd")
-end, {})
-
 
 -- File write
 vim.api.nvim_create_user_command("FileSaveInteractive", function()
@@ -1508,83 +1521,6 @@ vim.api.nvim_create_user_command("LspInfo", "checkhealth vim.lsp", { desc="Show 
 
 -- ## [Org]
 ----------------------------------------------------------------------
--- ## Notes
-vim.api.nvim_create_user_command("NoteCreate", function(opts)
-    local notespath = vim.fn.expand("~/Personal/Org/Notes")
-
-    local cwd = vim.fn.getcwd()
-    vim.cmd("lcd "..notespath)
-
-    vim.ui.input({prompt="New note name: ", default="Newnote", completion="file"},
-    function(notename)
-        vim.api.nvim_command("redraw")
-        if notename == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
-
-        vim.ui.input({prompt="Category: ", default="", completion="dir"},
-        function(category)
-            vim.cmd("lcd "..cwd)
-            if category == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
-
-            local notepath = vim.fs.normalize(notespath.."/"..category.."/"..notename..".md")
-
-            if vim.uv.fs_stat(notepath) then
-                vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
-            end
-
-            local lines = vim.fn.readfile(vim.fn.stdpath("config").."/snippets/markdown.json")
-            local snippets = vim.fn.json_decode(table.concat(lines, "\n"))
-            local snippet  = snippets["note template"]
-            local body = vim.deepcopy(snippet.body)
-            for i, line in ipairs(body) do
-                body[i] = line:gsub("%${1:.-}", notename)
-            end
-
-            vim.fn.writefile(body, notepath) -- create note
-
-            vim.cmd("e "..notepath); vim.cmd("startinsert | norm! 6j") -- open it
-
-            vim.notify("Note created: "..notepath, vim.log.levels.INFO)
-        end)
-    end)
-end, {})
-
-vim.api.nvim_create_user_command("NoteCreateCWD", function(opts)
-    local notespath = vim.fn.expand("~/Personal/Org/Notes")
-    local cwd = vim.fn.getcwd()
-
-    if notespath ~= fs.utils.find_proj_rootdir_for_path(cwd) then
-        vim.notify("CWD not in notes dir! ", vim.log.levels.ERROR) return
-    end
-
-    vim.ui.input({prompt="New note name: ", default="Newnote", completion="file"},
-    function(input)
-        vim.api.nvim_command("redraw") -- Hide prompt
-        if input == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
-
-        local notepath = cwd.."/"..input..".md"
-
-        if vim.uv.fs_stat(notepath) then
-            vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
-        end
-
-        local lines = vim.fn.readfile(vim.fn.stdpath("config").."/snippets/markdown.json")
-        local snippets = vim.fn.json_decode(table.concat(lines, "\n"))
-        local snippet = snippets["note template"]
-        local body = vim.deepcopy(snippet.body)
-        for i, line in ipairs(body) do
-            body[i] = line:gsub("%${1:.-}", input)
-        end
-
-        vim.fn.writefile(body, notepath) -- create note
-
-        vim.cmd("e "..notepath); vim.cmd("startinsert | norm! 6j") -- open it
-
-        print("Note created: "..notepath)
-    end)
-end, {})
-
-
-
 
 vim.api.nvim_create_user_command("TestCmd", function(opts)
 end, {nargs="*"})

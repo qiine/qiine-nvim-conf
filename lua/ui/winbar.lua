@@ -64,7 +64,7 @@ function M.path_bar()
 end
 
 function M.favs()
-    local favz = require("modules.favorizer")
+    local favz = require("org.fav")
 
     if favz.check_file_infavs() then
         return favz.icon_infav
@@ -98,19 +98,19 @@ function M.draw()
 
     -- return table.concat(out, "")
     return table.concat({
-    " ",
-    M.nvim_logo(),
-    " ",
-    M.toggle_filebrowser(),
-    M.path_bar(),
+        " ",
+        M.nvim_logo(),
+        " ",
+        M.toggle_filebrowser(),
+        M.path_bar(),
 
-    "%=", --middle split
+        "%=", --middle split
 
-    M.favs(),
-    " ",
-    M.burger(),
-    " ",
-}, "")
+        M.favs(),
+        " ",
+        M.burger(),
+        " ",
+    }, "")
 end
 
 function M.show()  vim.o.winbar = M.draw() end
@@ -204,7 +204,6 @@ vim.api.nvim_create_autocmd(
             if vim.tbl_contains(M.excluded_filetype, vim.bo.filetype) then
                 vim.opt_local.winbar = nil return
             end
-
 
             -- TODO Smarter way to redraw winbar taht allow to turn it off
             -- bo a given buffer

@@ -171,12 +171,14 @@ map(modes, "<C-w>", function()
         else
             vim.cmd("close")
         end
-    else -- no splits so just destroy curbuf
-        if buftype == "terminal" then
-            vim.cmd("silent! bwipeout! "..bufid)
-        else
-            vim.cmd("silent! bd! "..bufid)
-        end
+
+    -- no splits so just destroy curbuf
+    else
+        if buftype == "terminal" then vim.cmd("silent! bwipeout! "..bufid) return end
+
+        if vim.bo.filetype == "oil" then vim.cmd("silent! bd "..bufid) return end
+
+        vim.cmd("silent! bwipeout! "..bufid)
     end
 end, {noremap=true})
 

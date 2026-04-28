@@ -35,6 +35,8 @@ function M.taskcard(data)
         data.priority,
         " ",
         "["..table.concat(data.tags, " ").."]",
+        " ",
+        data.notes ~= "" and "󰈙" or "",
         -- " ", "("..data.id..")",
         -- " ", "("..data.id..")",
         -- " ",
@@ -244,14 +246,12 @@ function M.board_cycle(reverse)
         curidx = curidx % #bnames + 1
     end
 
-    M.curr_board = bnames[curidx]
-
-    M.render()
+    M.set_board(bnames[curidx])
 end
 
 function M.create_buf()
     vim.cmd("tabnew")
-    vim.api.nvim_buf_set_name(0, "Plan overview"); vim.cmd("e!")
+    vim.api.nvim_buf_set_name(0, "Plans"); vim.cmd("e!")
 
     vim.opt_local.number = false
     local planbuf = vim.api.nvim_get_current_buf()
@@ -269,13 +269,13 @@ function M.open()
     -- buf
     local isbufoverview = false
 
-    if vim.fn.expand("%:p:t") == "Plan overview" then
+    if vim.fn.expand("%:p:t") == "Plans" then
         vim.cmd("bwipeout!")
         return
     else
         for _, bufid in ipairs(vim.api.nvim_list_bufs()) do
             local bufname = vim.api.nvim_buf_get_name(bufid)
-            if vim.fn.fnamemodify(bufname, ":t") == "Plan overview" then
+            if vim.fn.fnamemodify(bufname, ":t") == "Plans" then
                 vim.api.nvim_set_current_buf(bufid)
                 isbufoverview = true
                 break
@@ -301,6 +301,11 @@ function M.open()
         M.render()
     end, {buffer=true})
 
+    vim.keymap.set({"i","n","v"}, "<F27>", function() -- C-F3
+        plan.task_add_intr()
+        M.render()
+    end, {buffer=true})
+
     -- t rm
     vim.keymap.set({"i","n","v"}, "<S-Del>", function()
         local ok, out = plan.task_rm(M.task_get_data_at_cursor().id)
@@ -316,7 +321,7 @@ function M.open()
 
     -- t done
     vim.keymap.set({"i","n","v"}, "<C-S-D>", function()
-        M.task_set_status_at_cursor("resolved")
+        M.task_set_status_at_cursor("done")
         M.render()
     end, {buffer=true})
 
@@ -340,6 +345,10 @@ function M.open()
     end, {buffer=true})
     vim.keymap.set({"i","n","v"}, "<M-C-S-Tab>", function()
         M.board_cycle(true)
+    end, {buffer=true})
+
+    vim.keymap.set({"i","n","v"}, "<C-Home>", function()
+        M.set_board("default")
     end, {buffer=true})
 
     -- Search

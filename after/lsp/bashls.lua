@@ -1,8 +1,8 @@
 return {
-    filetypes = { 'bash', 'sh' },
+    filetypes = { 'sh', 'bash', "zsh" },
     root_markers = { '.git' },
     settings = {
-        bashIde = {
+            bashIde = {
             shellcheckArguments = {
                 "-e", "SC2034", -- Hide "foo appears unused"  https://www.shellcheck.net/wiki/SC2034
                 "-e", "SC1090",

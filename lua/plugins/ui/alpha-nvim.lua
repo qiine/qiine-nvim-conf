@@ -300,6 +300,7 @@ return
             group = vim.api.nvim_create_augroup("Alpha-nvim", { clear = true }),
             pattern = "alpha",
             callback = function()
+                vim.cmd("norm! gg")
                 vim.opt_local.buflisted      = true
                 -- vim.opt_local.bufhidden      = ''
                 vim.opt_local.statuscolumn   = ""

@@ -234,29 +234,6 @@ return
                 cwd="~", })
         end, { silent=true, desc="Fuzzy find file in HOME"})
 
-        -- find files in notes
-        vim.keymap.set({"i","n","v","c","t"}, "<F49>", function()  --<M-F1>
-            if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
-            require("fzf-lua").files({
-                winopts = { title = "Find file notes", },
-                prompt = "Notes> ",
-                cwd = "~/Personal/Org/Notes/"
-            })
-        end)
-
-        -- find files for selected in notes
-        vim.keymap.set("v", "<F49>", function()   --<M-F1>
-            vim.cmd('norm! "zy')
-            require("fzf-lua").files({
-                winopts = { title = "Find file selected", },
-                prompt = "Notes> ",
-                cwd = "~/Personal/Org/Notes/",
-                fzf_opts = {
-                    ['--query'] = vim.trim(vim.fn.getreg("z"))
-                },
-            })
-        end)
-
 
         -- find recent files
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>r", function()
@@ -554,7 +531,7 @@ return
         end, {})
 
         -- env var
-        vim.keymap.set("n", "<M-f>e", function()
+        fzfl.env = function()
             local env = vim.fn.environ()
             local entries = {}
 
@@ -576,7 +553,7 @@ return
                     end,
                 },
             })
-        end, { desc = "List environment variables" })
+        end
 
 
     end --config

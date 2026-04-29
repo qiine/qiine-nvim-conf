@@ -1,17 +1,39 @@
 
 -- # org notes keymaps
 
-local api = require("org.notes")
+
+local notes = require("org.notes")
 
 
-vim.keymap.set({"i","n","v","t"}, "<M-n>n", "<Cmd>NoteCreate<CR>")
-vim.keymap.set({"i","n","v","t"}, "<M-n>nc", "<Cmd>NoteCreateCWD<CR>")
+vim.keymap.set({"i","n","v","t"}, "<S-M-o>na", notes.create_intr)
+vim.keymap.set({"i","n","v","t"}, "<F25>",     notes.create_intr) -- C-F1
+
+vim.keymap.set({"i","n","v"}, "<S-M-o>n", notes.explore)
 
 
-vim.keymap.set({"i","n","v","t"}, "<C-M-o>na", api.create_intr)
-vim.keymap.set({"i","n","v","t"}, "<F25>", api.create_intr) -- C-F1
+-- find files in notes
+vim.keymap.set({"i","n","v","c","t"}, "<F1>", function()  --<M-F1>
+    if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
-vim.keymap.set({"i","n","v"}, "<C-M-o>e", api.explore)
+    require("fzf-lua").files({
+        winopts = { title = "Find file notes", },
+        prompt = "Notes> ",
+        cwd = "~/Personal/Org/Notes/"
+    })
+end)
+
+-- find files for selected in notes
+vim.keymap.set("v", "<F49>", function()   --<M-F1>
+    vim.cmd('norm! "zy')
+    require("fzf-lua").files({
+        winopts = { title = "Find file selected", },
+        prompt = "Notes> ",
+        cwd = "~/Personal/Org/Notes/",
+        fzf_opts = {
+            ['--query'] = vim.trim(vim.fn.getreg("z"))
+        },
+    })
+end)
 
 
 -- idea capture S-F6

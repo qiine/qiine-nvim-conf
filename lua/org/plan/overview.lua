@@ -43,10 +43,10 @@ function M.taskcard(data)
         -- data.due,
     }, "")
 
-    local target = 60
+    local target = 55
     local tittle_width = vim.fn.strdisplaywidth(tittle)
 
-    if tittle_width > target then
+        if tittle_width > target then
         tittle = vim.fn.strcharpart(tittle, 0, target - 4) .. "  ⋯ "
     else
         tittle = tittle..string.rep(" ", target - tittle_width)

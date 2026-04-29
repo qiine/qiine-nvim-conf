@@ -77,12 +77,11 @@ end, {expr = true, desc = "Escape and clear hlsearch"})
 map("i",       '<C-g>', "<esc>g", {noremap=true})
 map({"n","v"}, '<C-g>', "g",      {noremap=true})
 
--- Help
-map({"i","n"}, "<F1>", function()
+-- Open help  M-F1
+map({"i","n"}, "<F49>", function()
     if vim.bo.buftype == "help" then return vim.cmd("bwipeout!") end
 
-    vim.cmd("help")
-    vim.api.nvim_win_set_height(0, 18)
+    vim.cmd("tab help")
 end)
 
 
@@ -178,7 +177,7 @@ map(modes, "<C-w>", function()
 
         if vim.bo.filetype == "oil" then vim.cmd("silent! bd "..bufid) return end
 
-        vim.cmd("silent! bwipeout! "..bufid)
+        vim.cmd("bwipeout! "..bufid)
     end
 end, {noremap=true})
 
@@ -195,9 +194,8 @@ map({"i","n","v"}, "<C-g>fn", fs.file_create)
 map({"i","n","v"}, "<M-n>", "<Nop>")
 map({"i","n","v"}, "<M-n>f", fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
-map({"i","n","v"}, "<C-g>fm", bufrs.file_mv_interac)
-map({"i","n","v"}, "<C-g>fmp", "<Cmd>FileMoveProj<CR>")
-map({"i","n","v"}, "<C-g>fM", "<Cmd>FileMoveProj<CR>")
+map({"i","n","v"}, "<C-g>fM", bufrs.file_mv_interac)
+map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMoveProj<CR>")
 map({"i","n","v"}, "<C-g>fr", bufrs.file_rename_interac)
 map({"i","n","v"}, "<F26>", bufrs.file_rename_interac) -- <C-F2>
 map({"i","n","v"}, "<C-M-Del>", "<Cmd>FileDelete<CR>")
@@ -428,10 +426,6 @@ map({"i","n","v","t"}, ldwin.."c", win.fwin_hide_toggle)
 map({"i","n","v","t"}, ldwin.."C", win.fwin_show_all)
 
 
--- Drawer open
-map({"i","n","v","t"}, "<F7>", drawer.toggle)
-
-
 -- ### Nav
 -- To next window (include splits)
 map(modes, "<M-Tab>", "<Cmd>wincmd w<Cr>")
@@ -442,8 +436,10 @@ map(modes, ldwin.."<C-Right>", "<Cmd>wincmd l<CR>")
 map(modes, ldwin.."<C-Up>",    "<Cmd>wincmd k<CR>")
 map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
 
--- Send to tab
-map({"i","n","v","t"}, "<M-w>t", "<cmd>:wincmd T<CR>")
+
+-- Drawer open
+map({"i","n","v","t"}, "<F7>", drawer.toggle)
+
 
 
 
@@ -462,6 +458,8 @@ map(modes, "<C-Tab>",  "<cmd>BufferNext<CR>")
 -- map(modes, "<C-S-Tab>", "<cmd>bp<CR>")
 map(modes, "<C-S-Tab>", "<cmd>BufferPrevious<CR>")
 
+-- Send to tab
+map({"i","n","v","t"}, "<M-w>t", "<cmd>:wincmd T<CR>")
 
 
 
@@ -771,14 +769,17 @@ map({"i","n","v","c","t"}, "<C-f>", function()
     end
 end)
 
+
+-- TODO infer which doc to search basde on proj ?
 -- Search Help for selection
-map("v", "<F1>", 'y:h <C-r>"<CR>')
+map("v", "<M-C-h>", 'y:h <C-r>"<CR>')
 
 -- map("v", "<M-f>n", '<Cmd>WebSearch<CR>')
 
 
 -- ### Hyper act
 map({"i","n","x"}, "<C-CR>", "<Cmd>HyperAct<CR>", {noremap=true})
+
 
 
 -- ## [Selections]
@@ -931,17 +932,16 @@ map({"i","n"}, "<C-S-n>vt", function() lsnip.insert_snippet("var table") end)
 
 -- Insert func
 map({"i","n"}, "<C-S-n>f",  function() lsnip.insert_snippet("func") end)
-map({"i","n"}, "<C-S-n>fl", function() lsnip.insert_snippet("func loc") end)
-map({"i","n"}, "<C-S-n>fa", function() lsnip.insert_snippet("func anon") end)
 
 -- Insert if
 map({"i","n"}, "<C-S-n>i",  function() lsnip.insert_snippet("if") end)
 
+
 -- Insert loop
-map({"i","n"}, "<C-S-n>fe", function() lsnip.insert_snippet("for each") end)
+map({"i","n"}, "<C-S-n>ln",  function() lsnip.insert_snippet("for loop") end)
+map({"i","n"}, "<C-S-n>l", function() lsnip.insert_snippet("for each") end)
 
 map({"i","n"}, "<C-S-n>r",  function() lsnip.insert_snippet("return") end)
-
 
 map({"i","n"}, "<C-S-n>p",  function() lsnip.insert_snippet("print") end)
 
@@ -1650,7 +1650,7 @@ end)
 
 
 -- Show hover window
-map({"i","n"}, "<C-S-H>", function()
+map({"i","n"}, "<C-S-h>", function()
     vim.lsp.buf.hover()
     vim.lsp.buf.hover() -- weird but needed to enter hover win
 
@@ -1996,53 +1996,6 @@ map({"i","n","v","t"}, "<F16>",  term.open_fwin)
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
-
-
-
--- ## [AI]
-----------------------------------------------------------------------
-map({"i","n","v"}, "<S-Space>a", function()
-    vim.cmd("vsp | term pi")
-    vim.cmd("startinsert")
-    vim.bo[0].buflisted = false
-end)
-
--- map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat toggle<CR>")
-map({"i","n","v","t"}, "<M-w>va", "<cmd>CodeCompanionChat toggle<CR>")
-
--- open chat with agent and opencode
--- map({"i","n","v","t"}, "<S-Space>a", "<cmd>CodeCompanionChat adapter=opencode<cr>", {})
--- map({"i","n","v","t"}, "<S-Space>A", function()
---     local chat = require("codecompanion").last_chat()
---     if chat then
---         chat:change_adapter("opencode")
---     end
--- end)
-
-map({"i","n","v","t"}, "<S-Space>ax", "<cmd>CodeCompanionActions<CR>")
-
-map("v", "<S-Space>ae", function() require("codecompanion").prompt("explain") end)
-map("v", "<S-Space>af", function() require("codecompanion").prompt("fix") end)
-
--- Change model
-map({"i","n","v"}, "<leader>am", function()
-    local chat = require("codecompanion").last_chat()
-    if chat then
-        chat:change_model({ model = "Qwen3.5-35B-A3B-UD-IQ4_NL" })
-    end
-end)
-
--- map({"i","n","v"}, "<leader>as", function()
---     local config = require("codecompanion.config")
---     local current = config.display.chat.show_settings
---     config.display.chat.show_settings = not current
-
---     local chat = require("codecompanion").last_chat()
---     if chat then chat.ui:refresh() end
--- end)
-
-
-
 
 
 

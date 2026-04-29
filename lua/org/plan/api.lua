@@ -69,16 +69,16 @@ function M.task_set_status(status, id)
     if not id then return false, "err, invalid id" end
 
     local statuses = {
-        ["active"]   = "start",
-        ["paused"]   = "stop",
-        ["resolved"] = "done"
+        ["active"] = "start",
+        ["paused"] = "stop",
+        ["done"]   = "done"
     }
 
     local cmd = {"dstask", statuses[status], tostring(id)}
     local dstsk = vim.system(cmd, {text=true}):wait()
     if dstsk.code ~= 0 then return false, dstsk.stderr end
 
-    return true, "Set "..status.." id:"..id
+    return true, "Task "..status.." id:"..id
 end
 
 ---@param uuid string
@@ -142,6 +142,7 @@ end
 function M.gather_tasks_db()
     local cmd = {"dstask", "show-open"}
     local dstsk = vim.system(cmd, {text=true}):wait()
+
     local data = vim.json.decode(dstsk.stdout)
     local raw = dstsk.stdout
 

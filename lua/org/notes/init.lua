@@ -2,16 +2,30 @@
 -- # org notes
 
 
+local fs = require("fs")
+
+
 local M = {}
+
 
 M.notespath = vim.fn.expand("~/Personal/Org/Notes")
 
-function M.create(name)
-    local notepath = vim.fs.normalize(M.notespath.."/"..name..".md")
 
-    if vim.uv.fs_stat(notepath) then
-        vim.notify("Note with same name already exist! ", vim.log.levels.ERROR) return
-    end
+---@return boolean
+function M.is_in_note_repo()
+    local repopath = fs.utils.find_proj_rootdir_for_path(vim.fn.getcwd())
+    return M.notespath == repopath
+end
+
+---@param name? string
+---@param dir? string
+---@return string|nil notepath, string msg
+function M.create(name, dir)
+    if not name or name == "" then name = "Newnote" end
+    dir = dir and dir or M.notespath
+
+    local fpath = vim.fs.normalize(dir.."/"..name..".md")
+    if vim.uv.fs_stat(fpath) then return nil, "Note with same name already exist!" end
 
     local lines = vim.fn.readfile(vim.fn.stdpath("config").."/snippets/markdown.json")
     local snippets = vim.fn.json_decode(table.concat(lines, "\n"))
@@ -21,27 +35,35 @@ function M.create(name)
         body[i] = line:gsub("%${1:.-}", name)
     end
 
-    vim.fn.writefile(body, notepath) -- create and write note
+    local ok = vim.fn.writefile(body, fpath) -- create and write note
+    if not ok then return nil, "Note creation failed" end
+
+    return fpath, "Note created: "..fpath
 end
 
 function M.create_intr()
-    vim.ui.input({prompt="Note name: ", default="Newnote", completion="file"},
+    vim.ui.input({prompt="Note name: ", default="", completion="file"},
     function(input)
         vim.api.nvim_command("redraw") -- Hide prompt
         if input == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
 
-        M.create(input)
+        -- If in note repo, create in cwd, handy
+        local notedir = M.is_in_note_repo() and vim.fn.getcwd() or nil
 
-        local notepath = vim.fs.normalize(M.notespath.."/"..input..".md")
-        vim.cmd("e "..notepath); vim.cmd("norm! 6j"); vim.cmd("startinsert")  -- open it
+        local fpath, msg = M.create(input, notedir)
+        if not fpath then vim.notify(msg, vim.log.levels.ERROR); return end
 
-        vim.notify("Note created: "..notepath, vim.log.levels.INFO)
+        vim.cmd("e "..fpath); vim.cmd("norm! 6j"); vim.cmd("startinsert")  -- open it
+
+        vim.notify(msg, vim.log.levels.INFO)
     end)
 end
+
 
 function M.explore()
     vim.cmd("Oil "..M.notespath)
 end
+
 
 -- Setup
 function M.setup()

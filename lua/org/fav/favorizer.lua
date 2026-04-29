@@ -311,19 +311,7 @@ end, {})
 
 
 
--- debug
-vim.api.nvim_create_user_command("FavOpenDB", function()
-    vim.cmd("e " .. M.db_path)
-end, {})
 
-vim.api.nvim_create_user_command("FavDumpDB", function()
-    vim.cmd("enew")
-
-    local favs = M.get_favs_names()
-
-    -- local lines = vim.split(vim.inspect(favs), "\n")
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, favs)
-end, {})
 
 
 

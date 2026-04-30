@@ -43,7 +43,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
 
     -- goto url
     if WORD:match("^https?://") then
-        vim.cmd("silent! !" .. "xdg-open " .. WORD) return
+        vim.system({"xdg-open", WORD }, {text=true}):wait()
     end
 
     -- Open file explorer at path
@@ -66,7 +66,7 @@ vim.api.nvim_create_user_command("HyperAct", function()
             return
         end
 
-        vim.cmd("norm %") return --no bang ! to use custom keymap
+        vim.cmd("norm %") return --no bang ! to use our custom keymap
     end
 
     -- goto definition
@@ -585,6 +585,7 @@ vim.api.nvim_create_user_command('SudoWrite', function()
     })
 end, {})
 
+-- TODO buggy
 vim.api.nvim_create_user_command("BufFileMove", function() bufrs.file_mv_interac() end, {})
 
 vim.api.nvim_create_user_command("BufFileMoveToCWD", function()

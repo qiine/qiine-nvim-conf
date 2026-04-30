@@ -73,28 +73,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 
--- Highlight on entering Visual mode
--- vim.api.nvim_create_autocmd("ModeChanged", {
---     group = "UserAutoCmds",
---     pattern = "*:[vV\x16]",  -- entering visual mode
---     callback = function()
---         -- local clients = vim.lsp.get_clients({ bufnr = 0 })
---         -- local supports_highlight = false
-
---         -- for _, client in ipairs(clients) do
---         --     if client.server_capabilities.documentHighlightProvider then
---         --         supports_highlight = true
---         --         break
---         --     end
---         -- end
-
---         -- if supports_highlight then
---         --     vim.lsp.buf.clear_references()
---         --     vim.lsp.buf.document_highlight()
---         -- end
---     end,
--- })
-
 -- -- -- clear highlight when moving
 -- vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 --     group = "UserAutoCmds",
@@ -103,6 +81,43 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 --         -- vim.opt.hlsearch = false
 --     end,
 -- })
+
+
+-- Fix term and nvim bg missmatch
+local aug = vim.api.nvim_create_augroup("TermbgSync", { clear = true })
+
+local has_tty = false
+for _, ui in ipairs(vim.api.nvim_list_uis()) do
+    if ui.stdout_tty then
+        has_tty = true; break
+    end
+end
+
+-- crude skip very dumb terminals
+local term = vim.env.TERM or ""
+local dumbterm = term == "dumb" or term == ""
+
+if has_tty and not dumbterm then
+    local function sync()
+        local ok, normal = pcall(vim.api.nvim_get_hl, 0, { name = "Normal" })
+        if not ok or not normal.bg then return end
+        io.stdout:write(string.format("\027]11;#%06x\007", normal.bg))
+    end
+
+    vim.api.nvim_create_autocmd({ "UIEnter", "ColorScheme", "VimResume" }, {
+        group = aug,
+        callback = sync,
+    })
+
+    vim.api.nvim_create_autocmd({"VimLeavePre", "VimSuspend" }, {
+        group = aug,
+        callback = function()
+            io.stdout:write("\027]111\027\\") -- safe reset, ignored if unsupported
+        end,
+    })
+end
+
+
 
 
 -- ## [Windows]
@@ -187,6 +202,9 @@ vim.o.foldcolumn = "1"
 --"0" Hides fold numbers
 --"1" Show dedicated fold column and numbers in the gutter
 
+vim.o.foldnestmax    = 10
+vim.o.foldlevelstart = 99 -- opens all folds on buf enter
+
 vim.o.foldmethod = 'expr' -- manual, expr
 vim.o.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
 -- Prefer LSP folding if client supports it
@@ -206,21 +224,18 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
-
-vim.o.foldnestmax    = 10
-vim.o.foldlevelstart = 99 -- opens all folds on buf enter
-
 vim.o.foldtext = "v:lua.FoldedText()"
 function FoldedText()
     local line = vim.fn.getline(vim.v.foldstart)
-    return line --.." ⋯" -- add ellipsis
+    return line -- .." ⋯" -- add ellipsis
 end
 
 -- fold color
 vim.api.nvim_set_hl(0, "Folded", { link = "Normal" })
 
 -- Those action opens fold
-vim.o.foldopen = "block,hor,mark,percent,quickfix,search,tag,undo" -- hor -- open fold with arrows
+vim.o.foldopen = "block,mark,percent,quickfix,search,tag,undo" -- hor -- open fold with arrows
+
 
 -- No gutter for terms
 vim.api.nvim_create_autocmd('BufWinEnter', {
@@ -245,7 +260,7 @@ vim.opt.fillchars:append({
     foldopen  = "⌄", --   ⌄ ▾
     foldclose = ">", -- > ▸
     foldsep   = " ", -- │  --separate folds (for open folds)
-    -- foldinner = '', -- TODO soon vim 0.12
+    foldinner = " ",
     -- Where the fold column is too narrow to display all nested folds, digits are
     -- shown to indicate the nesting level.  To override this behavior you can use
 
@@ -339,7 +354,6 @@ vim.diagnostic.config({
 
     virtual_text = {
         enabled = true,
-        current_line = false,
         severity = { min = vim.diagnostic.severity.INFO },
         prefix   = "●",
         suffix   = "",
@@ -496,7 +510,7 @@ vim.o.messagesopt = "hit-enter,history:500"  -- wait:3000,
 -- vim.o.messagesopt = "wait:3000,history:500"  -- wait:3000,
 
 require('vim._core.ui2').enable({
-    enable = true,
+    enable = false,
     msg = {
         targets = {
             -- There are four special windows/buffers

@@ -195,13 +195,15 @@ local function dashlayout()
     local function menu()
         return {
             button("n", " New file", function() set_wipe_dashboard() vim.cmd("enew | FzfLua filetypes") end),
-            button("f", "☆ Fav files", "<Cmd>FzfLua favorites<CR>"),
+            button("f", "★ Fav files", "<Cmd>FzfLua favorites<CR>"),
             button("r", "󰈢 Recent files", function() set_wipe_dashboard() vim.cmd("enew | FzfLua oldfiles") end),
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
+            button("o", "󰅌 Org",     "<Cmd>PlanOverviewOpen<CR>"),
             -- button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
             button("s", " Load session", function() set_wipe_dashboard() vim.cmd("SessionLoad") end),
         }
     end
+
 
     ---@return table
     local function fortune()
@@ -283,7 +285,7 @@ return
     "goolord/alpha-nvim",
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     enabled = true,
-    event = "VimEnter",
+    -- event = "VimEnter",
 
     config = function()
         local alpha = require('alpha')
@@ -301,6 +303,7 @@ return
             pattern = "alpha",
             callback = function()
                 vim.cmd("norm! gg")
+
                 vim.opt_local.buflisted      = true
                 -- vim.opt_local.bufhidden      = ''
                 vim.opt_local.statuscolumn   = ""

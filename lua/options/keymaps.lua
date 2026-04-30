@@ -410,7 +410,7 @@ map({"i","n","v","t"}, ldwin.."<Down>",  function() resize_win("",    "+2")  end
 map({"i","n","v","t"}, ldwin.."<Right>", function() resize_win("vert", "+4") end, {noremap=true})
 map({"i","n","v","t"}, ldwin.."<Left>",  function() resize_win("vert", "-4") end, {noremap=true})
 
--- Extract win
+-- Extract win to float
 map(modes, ldwin.."e", function()
     local bufid = vim.api.nvim_get_current_buf()
     --local winid = vim.api.nvim_get_current_win()
@@ -450,7 +450,7 @@ map(modes, "<C-t>", function()
     vim.cmd("Alpha")
 end)
 
--- Tabs nav
+-- Nav
 -- next
 map(modes, "<C-Tab>", "<cmd>bnext<CR>")
 map(modes, "<C-Tab>",  "<cmd>BufferNext<CR>")
@@ -458,7 +458,7 @@ map(modes, "<C-Tab>",  "<cmd>BufferNext<CR>")
 -- map(modes, "<C-S-Tab>", "<cmd>bp<CR>")
 map(modes, "<C-S-Tab>", "<cmd>BufferPrevious<CR>")
 
--- Send to tab
+-- Send win to tab
 map({"i","n","v","t"}, "<M-w>t", "<cmd>:wincmd T<CR>")
 
 

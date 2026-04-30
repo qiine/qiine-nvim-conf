@@ -6,18 +6,14 @@ local jrn = require("org.journal")
 
 
 -- Open journal entry list
-vim.keymap.set({"i","n","v","t"}, "<S-Space>j",  jrn.explore)
-vim.keymap.set({"i","n","v","t"}, "<S-Space>oj", jrn.explore)
 vim.keymap.set({"i","n","v","t"}, "<S-M-o>j",    jrn.explore)
 
 -- Create new entry
 vim.keymap.set({"i","n","v","t"}, "<F30>",       jrn.add_entry) -- C-F6
-vim.keymap.set({"i","n","v","t"}, "<S-Space>ja", jrn.add_entry)
-vim.keymap.set({"i","n","v","t"}, "<S-Space>jn", jrn.add_entry)
 vim.keymap.set({"i","n","v","t"}, "<S-M-O>ja",   jrn.add_entry)
 
 -- Open last journal entry
-vim.keymap.set({"i","n","v","t"}, "<S-Space>jl", function()
+vim.keymap.set({"i","n","v","t"}, "<S-M-O>jl", function()
     local journal_dir = vim.fn.expand("~/Personal/Org/Journal/")
     local files = vim.fn.readdir(journal_dir)
 

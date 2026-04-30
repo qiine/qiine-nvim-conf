@@ -6,6 +6,8 @@
 
 --## [System]
 ----------------------------------------------------------------------
+-- vim.opt.shell = "bash" -- dash
+
 vim.opt.encoding = "UTF-8"
 
 vim.opt.clipboard = ''  -- "", "unnamed", "unnamedplus"
@@ -72,7 +74,7 @@ vim.opt.path = { ".", "**" }
 
 
 
--- Wins
+-- ## [Wins]
 ----------------------------------------------------------------------
 vim.o.tabclose = "uselast"
 

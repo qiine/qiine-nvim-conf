@@ -271,7 +271,7 @@ return
         -- grep curr project for selected
         vim.keymap.set("v", "<C-S-g>", function()
             require("fzf-lua").grep_visual({
-                winopts = { title = "Grep project selected", },
+                winopts = { title = "Grep project for selected", },
                 cwd = require("fzf-lua.path").git_root({})
             })
         end, {noremap=true, silent=true, desc="Live grep selected in project"})

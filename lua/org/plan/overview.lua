@@ -5,6 +5,7 @@
 local plan = require("org.plan.api")
 
 
+---@class overview
 local M = {}
 
 
@@ -15,12 +16,14 @@ local M = {}
 ---@type PlanUIState[]
 M.uistate = {}
 
+---@type table<string, table>
 M.boards = {
     ["default"] = {},
     ["health"] = {},
     ["tech"] = {},
 }
 
+---@type string
 M.curr_board = "default"
 
 
@@ -340,10 +343,10 @@ function M.open()
     vim.keymap.set("n", "<CR>", M.task_ed_at_cursor, {buffer=true})
 
     -- board
-    vim.keymap.set({"i","n","v"}, "<M-S-Tab>", function()
+    vim.keymap.set({"i","n","v"}, "<C-S-PageDown>", function()
         M.board_cycle()
     end, {buffer=true})
-    vim.keymap.set({"i","n","v"}, "<M-C-S-Tab>", function()
+    vim.keymap.set({"i","n","v"}, "<C-S-PageUp>", function()
         M.board_cycle(true)
     end, {buffer=true})
 

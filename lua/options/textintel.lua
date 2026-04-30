@@ -69,7 +69,8 @@ vim.opt.spell = false
 -- })
 
 
--- vim.o.spelloptions = ""
+vim.o.spelloptions = "camel,noplainbuffer"
+
 vim.o.spellsuggest = "best,6"
 
 vim.o.spellcapcheck = ""
@@ -85,19 +86,21 @@ vim.o.spellcapcheck = ""
 
 
 -- ### [Language]
-local preferedlangs = {
-    "en",
-    "fr"
-}
-
 vim.o.spelllang = "en,fr" --
 
--- TODO p3 make it use our own custom dico
+
+-- TODO make it use our own custom dico
 vim.opt.spellfile = {
     vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
     vim.fn.stdpath("config") .. "/spell/fr.utf-8.add",
 }
 
+local preferedlangs = {
+    "en",
+    "fr"
+}
+
+-- ### cmds
 vim.api.nvim_create_user_command("PickCurrDocLang", function()
     local dictpath = vim.fn.stdpath("config").."/spell/"
 
@@ -123,12 +126,14 @@ vim.api.nvim_create_user_command("PickDocsLang", function()
 end, {})
 
 
+
 -- make
 vim.opt.makeprg = "make"
 
 
--- ## [Tree-sitter]
 
+-- ## [Tree-sitter]
+----------------------------------------------------------------------
 
 
 
@@ -145,6 +150,7 @@ vim.lsp.enable({
     "html",
     "eslint",
     "ts_ls",
+
     "jsonls",
     "yamlls",
 

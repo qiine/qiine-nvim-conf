@@ -236,7 +236,7 @@ function M.file_create(name, dir, focus)
 
     fpath = fpath..cntstr
 
-    vim.fn.writefile({}, fpath)
+    vim.fn.writefile({}, fpath) -- now create
 
     print("File created: "..fpath)
 
@@ -335,7 +335,7 @@ end
 ---@param dest string
 ---@param force boolean? @Default false
 ---@param verbose boolean? @Default true
-function M.move(src, dest, force, verbose)
+function M.mv(src, dest, force, verbose)
     if force == nil then force = false end
     if verbose == nil then verbose = true end
 
@@ -357,7 +357,7 @@ function M.append_selection_to_file()
     end)
 end
 
-function M.move_selection_to_file()
+function M.mv_select_to_file()
     vim.ui.input({prompt="Move selected to: ", default=vim.fn.getcwd(), completion="file"},
     function(input)
         if input == nil then vim.notify("Move canceled. ", vim.log.levels.INFO) return end
@@ -366,6 +366,20 @@ function M.move_selection_to_file()
         local lines = vim.fn.getline("'<","'>")
         vim.cmd("norm! gvd")
         vim.fn.writefile(lines, input, "a")
+    end)
+end
+
+function M.mk_dir_intr()
+    vim.ui.input({prompt="dirname: ", default=""}, function(input)
+        vim.cmd("redraw")
+        if not input or input == "" then vim.notify("Canceled.", vim.log.levels.INFO); return end
+
+        local path = vim.fn.expand(input)
+
+        local mkdir_out = vim.system({"mkdir", "-p", path}, {text=true}):wait()
+        if mkdir_out.code ~= 0 then vim.notify("mkdir failed: "..mkdir_out.stderr, vim.log.levels.ERROR); return end
+
+        vim.notify("Created: '"..path.."'", vim.log.levels.INFO)
     end)
 end
 

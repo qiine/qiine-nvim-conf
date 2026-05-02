@@ -208,9 +208,9 @@ local function dashlayout()
     ---@return table
     local function fortune()
         local rng = math.random(10)
-        if rng > 3 then return require("alpha.fortune")()
-        else            return {}
-        end
+        if rng < 3 then return {""} end
+
+        return require("alpha.fortune")()
     end
 
     return {
@@ -259,7 +259,7 @@ local function dashlayout()
 
         {type = "padding", val = 2 }, --
         {   --Exit
-            val  = {button("q", " Exit", "<Cmd>qa!<CR>")}, --󰅚  ⎋
+            val  = {button("q", " Exit", "<Cmd>qa!<CR>")}, -- 󰅚    ⎋
             type = "group",
             opts = { spacing = 0 }
         },

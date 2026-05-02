@@ -34,7 +34,7 @@ vim.api.nvim_create_autocmd('BufEnter', {
 
 vim.api.nvim_create_autocmd("FileType", {
     group = "UserAutoCmds",
-    pattern = "json",
+    pattern = {"json","jsonc"},
     callback = function()
         vim.opt.conceallevel=0
     end,
@@ -44,7 +44,7 @@ vim.api.nvim_create_autocmd("FileType", {
     group = "UserAutoCmds",
     pattern = {"lua"},
     callback = function()
-        vim.cmd[[ syntax match concealfunction /::/ conceal cchar=• ]]
+        -- vim.cmd[[ syntax match concealfunction /::/ conceal cchar=• ]]
         --vim.cmd[[ syntax match pyNiceOperator "<=" conceal cchar=≤ ]]
         --vim.cmd[[ syntax match pyNiceOperator ">=" conceal cchar=≥ ]]
     end,
@@ -164,7 +164,7 @@ local function apply_abbreviations(bufnr)
                         end_col = finish,
                         conceal = "",
                         virt_text = { {abbrev, "Keyword"} },
-                        virt_text_pos = "inline", -- overlay
+                        virt_text_pos = "overlay", -- inline
                     })
                 end
 

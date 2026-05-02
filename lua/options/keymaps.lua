@@ -190,9 +190,9 @@ map({"i","n","v"}, "<C-S-PageUp>", function() fs.file_open_next(false) end)
 map({"i","n","v"}, "<C-S-PageDown>", function() fs.file_open_next(true) end)
 
 -- File action
-map({"i","n","v"}, "<C-g>fn", fs.file_create)
 map({"i","n","v"}, "<M-n>", "<Nop>")
-map({"i","n","v"}, "<M-n>f", fs.file_create)
+map({"i","n","v"}, "<C-g>fn", fs.file_create)
+map({"i","n","v"}, "<M-n>f",  fs.file_create)
 map({"i","n","v"}, "<C-g>fd", fs.file_dup)
 map({"i","n","v"}, "<C-g>fM", bufrs.file_mv_interac)
 map({"i","n","v"}, "<C-g>fm", "<Cmd>FileMoveProj<CR>")
@@ -210,7 +210,7 @@ map({"i","n","v"}, "<C-ß>", "<Cmd>wall<CR>")
 map({"i","n","v","c"}, "<C-M-s>", "<Cmd>FileSaveAsInteractive<CR>")
 
 map("v", "<C-g>fa", function() fs.append_selection_to_file() end)
-map("v", "<C-g>fc", function() fs.move_selection_to_file() end)
+map("v", "<C-g>fc", function() fs.mv_select_to_file() end)
 
 -- Ressource curr file
 map({"i","n","v","c"}, "<S-Ç>", function()  --"<S-altgr-r>"
@@ -226,7 +226,7 @@ map({"i","n","v","t"}, "<C-e>", function() fs.explorer_open_inplace() end)
 
 map({"i","n","v","t"}, "<C-S-e>", function()
     local vs = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
-    vs = vim.fs.normalize(vim.fn.expand(vim.trim(vs)))
+    vs = vim.fs.normalize(vim.trim(vs))
 
     local stt = vim.uv.fs_stat(vs)
     local path = nil

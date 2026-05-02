@@ -9,18 +9,7 @@
 ----------------------------------------------------
 
 
--- vim.opt.termguicolors controls whether 24-bit RGB color (true color) is used in the terminal.
--- If curr term support termguicolors, COLORTERM environment variable will return truecolor regardless.
--- Warning some themes auto set termguicolors to true !
--- To check termguicolors status:
--- lua print(vim.opt.termguicolors:get())
--- for COLORTERM
--- lua print(vim.fn.getenv("COLORTERM"))
-if vim.fn.getenv("COLORTERM") == "truecolor" then   -- smart set termguicolors
-    vim.opt.termguicolors = true
-else
-    vim.opt.termguicolors = false --for tty
-end
+vim.opt.termguicolors = true
 
 
 -- Leader key
@@ -60,8 +49,6 @@ end
 -- ## Extensions
 safe_require("modules.enveloppe")
 safe_require("modules.historybuf")
-safe_require("modules.arbores")
-safe_require("modules.lsvi")
 
 local org = safe_require("org"); safe_setup("org", org)
 local git = safe_require("git"); safe_setup("git", git)
@@ -75,8 +62,10 @@ safe_require("autocmds")
 -- ## Plugins
 safe_require("options.lazy")
 
-vim.cmd('packadd nvim.undotree')
-vim.cmd('packadd nvim.difftool')
+-- ### Built-in plugins
+vim.cmd.packadd("nvim.undotree")
+vim.cmd.packadd("nvim.difftool")
+vim.cmd.packadd("cfilter")
 
 
 -- ## options
@@ -84,6 +73,7 @@ safe_require("options.keymaps")
 safe_require("options.abbreviations")
 safe_require("options.mousemaps")
 
+safe_require("options.rendering")
 safe_require("options.internal")
 safe_require("options.editing")
 safe_require("options.textintel")

@@ -14,13 +14,23 @@
 local col = "dayfox"
 
 -- Smart theme picking
-if vim.fn.getenv("COLORTERM") == "truecolor" then
-    vim.cmd("colorscheme "..col)
-else
-    vim.cmd("colorscheme ron")
-end
+vim.cmd("colorscheme "..col)
+
+vim.api.nvim_create_autocmd("UIEnter", {
+    callback = function()
+        vim.schedule(function()
+            local ui = vim.api.nvim_list_uis()[1]
+
+            if not ui.rgb then
+                -- vim.opt.termguicolors = false
+                vim.cmd("colorscheme ron")
+            end
+        end)
+    end
+})
 
 
+-- ## Wins
 -- Make float win same bg reg win
 vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
 
@@ -50,20 +60,18 @@ vim.api.nvim_set_hl(0, "MyUrl", { fg = "#6aafc1", bold = true })
 
 
 
-
 --ghost
 vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { fg = "#999999", bg = "NONE"})
 
 
+-- vim.api.nvim_create_autocmd("TermOpen", {
+--     callback = function()
+--         local win = vim.api.nvim_get_current_win()
+    --
+--         vim.api.nvim_set_hl(0, "TermBlack", { bg = "#333333" })
+--
+--         vim.api.nvim_set_option_value("winhighlight", "Normal:TermBlack", {win=win})
+--     end,
+-- })
 
---[Term]--------------------------------------------------
-----Set term buf background col
---vim.api.nvim_set_hl(0, "BufTermBackground", {fg = "#e0e0e0", bg = fg})
---vim.api.nvim_create_autocmd("TermOpen",
---{
---    group = vim.api.nvim_create_augroup("_terminal", { clear = true }),
---    callback = function()
---        vim.opt_local.winhighlight = "Normal:BufTermBackground"
---    end
---})
 

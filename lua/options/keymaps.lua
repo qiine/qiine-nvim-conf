@@ -368,8 +368,10 @@ map("t",               ldwin, "<Esc> <C-\\><C-n><C-w>", {noremap=true})
 -- split hor/ver
 map(modes, ldwin.."v", function() win.open_split_ephem("vert") end)
 map(modes, ldwin.."V", function() win.open_split_ephem("vert") vim.cmd("enew") end)
+
 map(modes, ldwin.."w", function() win.open_split_ephem("hor") end)
-map(modes, ldwin.."W", function() win.open_split_ephem("vert") vim.cmd("enew") end)
+map(modes, ldwin.."h", function() win.open_split_ephem("hor") end)
+map(modes, ldwin.."H", function() win.open_split_ephem("hor") vim.cmd("enew") end)
 
 -- Open float win
 map(modes, ldwin.."n",  win.fwin_open)
@@ -1054,7 +1056,7 @@ map("n", "<C-v>", function()
         vim.cmd("norm! `[v`]=")
     end
 
-    vim.cmd("norm! `]") -- Proper curso placement
+    -- vim.cmd("norm! `]") -- Proper curso placement
 end)
 
 -- Paste swap selected

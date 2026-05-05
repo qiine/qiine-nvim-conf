@@ -177,13 +177,14 @@ vim.opt.fillchars:append({
 ----------------------------------------------------------------------
 vim.o.list = true
 vim.opt.listchars:append({
-    space=" ",
-    tab="» ",
-    eol=" ",
-    nbsp="␣",
-    precedes="⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯
-    extends="⟾",  -- ⇒ ⇛ ↦ ⤍ ┅
-    conceal="."
+    space =    " ",
+    tab =      "» ",
+    eol =      " ",
+    nbsp =     "␣",
+    precedes = "⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯
+    extends =  "⟾",  -- ⇒ ⇛ ↦ ⤍ ┅
+    conceal =  ".",
+    trail =    " ",
 })
 
 vim.g.show_eol = false  --will show: "¶"
@@ -201,7 +202,7 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     callback = function()
         local mode = vim.fn.mode()
         if mode == "v" or mode == "V" then
-            vim.opt.listchars:append({space=".", tab= "» ", trail="⬝"})
+            vim.opt.listchars:append({space=".", tab= "» ", trail="."})
         else
             vim.opt.listchars:remove({"space", "tab", "trail"})
             vim.opt.listchars:append({tab="  "}) --buggy without this

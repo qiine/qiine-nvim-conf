@@ -175,7 +175,7 @@ map(modes, "<C-w>", function()
     else
         if buftype == "terminal" then vim.cmd("silent! bwipeout! "..bufid) return end
 
-        if vim.bo.filetype == "oil" then vim.cmd("silent! bd "..bufid) return end
+        if vim.bo.filetype == "oil" then vim.cmd("silent bwipeout "..bufid) return end
 
         vim.cmd("bwipeout! "..bufid)
     end
@@ -940,8 +940,8 @@ map({"i","n"}, "<C-S-n>i",  function() lsnip.insert_snippet("if") end)
 
 
 -- Insert loop
-map({"i","n"}, "<C-S-n>ln",  function() lsnip.insert_snippet("for loop") end)
 map({"i","n"}, "<C-S-n>l", function() lsnip.insert_snippet("for each") end)
+map({"i","n"}, "<C-S-n>ln",  function() lsnip.insert_snippet("for loop") end)
 
 map({"i","n"}, "<C-S-n>r",  function() lsnip.insert_snippet("return") end)
 
@@ -1411,7 +1411,7 @@ map("v", "<S-CR>", function()
     vim.cmd("norm! Ogv")
 end)
 
--- Line break below
+-- Linebreak below
 map("i",       "<M-CR>", "<C-o>o")
 map("n", "<M-CR>", function()
     local vcnt = vim.v.count1
@@ -1744,8 +1744,6 @@ local ldvc = "<S-Space>g"
 -- Staging
 map({"i","n"}, ldvc.."s", git.add)
 
--- Stage hunk under cursor
-map("v", ldvc.."s", "<Cmd>Gitsigns stage_hunk<CR><cmd>echo 'Hunk staged.'<CR>")
 
 -- Stage edit patch file
 map({"i","n","v"}, ldvc.."se", function()
@@ -1788,26 +1786,11 @@ map({"i","n","v"}, ldvc.."<S-p>", function()
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git push\n")
 end)
 
--- diff with head curr file
-map({"i","n","v"}, ldvc.."d", "<Cmd>GitDiffFileRevision<CR>")
 
 
 -- Commit graph
 -- map({"i","n","v"}, ldvc.."h", git.log_pretty)
 
-map({"i","n","v"}, ldvc.."h", "<Cmd>CodeDiff history --inline<CR>")
-
--- git log curr file
-map("n", ldvc.."hf", function()
-     require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
-end, {desc = "Neogit Log curr file"})
-
--- Open LazyGit
-map(modes, ldvc.."z", "<Cmd>LazyGit<cr>")
-
--- neogit
-map({"i","n","v"}, ldvc,  "<Cmd>Neogit<CR>")
-map({"i","n","v"}, ldvc.."g", "<Cmd>Neogit<CR>")
 
 
 
@@ -1980,6 +1963,7 @@ map(modes, ldwin.."vt", function() win.open_split_ephem("vert") vim.cmd("term") 
 -- Term toggle vert
 map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 map({"i","n","v","t"}, "<M-t>v", term.toggle_vert)
+map({"i","n","v","t"}, "<F16>",  term.toggle_vert) -- S-F4
 
 -- Term toggle hor
 -- map({"i","n","v","t"}, "<F4>", function() drawer.toggle(nil, {buftype="term"}) end)
@@ -1994,7 +1978,8 @@ end)
 
 -- Term float
 map({"i","n","v","t"}, "<M-t>f", term.open_fwin)
-map({"i","n","v","t"}, "<F16>",  term.open_fwin)
+map({"i","n","v","t"}, "<F28>",  term.open_fwin) -- C-F4
+
 
 -- Exit term mode
 map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})

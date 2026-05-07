@@ -395,22 +395,12 @@ map(modes, ldwin.."M", "<cmd>res<CR>")
 -- Maximize split toggle
 map(modes, ldwin.."f", win.split_maximize_toggle)
 
--- TODO move to win.lua
-local function resize_win(dir, amount)
-    local curwin = vim.api.nvim_get_current_win()
-
-    vim.cmd('wincmd t') -- always resize from top left
-    vim.cmd(dir.." resize "..amount)
-
-    vim.api.nvim_set_current_win(curwin)
-end
-
 -- Resize hor split
-map({"i","n","v","t"}, ldwin.."<Up>",    function() resize_win("hor", "-2")  end, {noremap=true})
-map({"i","n","v","t"}, ldwin.."<Down>",  function() resize_win("",    "+2")  end, {noremap=true})
+map({"i","n","v","t"}, ldwin.."<Up>",    function() win.resize_win("hor", -vim.v.count-2)  end, {noremap=true})
+map({"i","n","v","t"}, ldwin.."<Down>",  function() win.resize_win("hor", vim.v.count+2)   end, {noremap=true})
 -- Resize vert split
-map({"i","n","v","t"}, ldwin.."<Right>", function() resize_win("vert", "+4") end, {noremap=true})
-map({"i","n","v","t"}, ldwin.."<Left>",  function() resize_win("vert", "-4") end, {noremap=true})
+map({"i","n","v","t"}, ldwin.."<Right>", function() win.resize_win("vert", vim.v.count+4)  end, {noremap=true})
+map({"i","n","v","t"}, ldwin.."<Left>",  function() win.resize_win("vert", -vim.v.count-4) end, {noremap=true})
 
 -- Extract win to float
 map(modes, ldwin.."e", function()

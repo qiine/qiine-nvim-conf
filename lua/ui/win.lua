@@ -7,6 +7,8 @@ local M = {}
 
 ---@param direction string
 function M.open_split_ephem(direction)
+    local cbufid = vim.api.nvim_get_current_buf()
+
     local cmd = {
         hor  = "split",
         vert = "vsplit",
@@ -15,14 +17,14 @@ function M.open_split_ephem(direction)
 
     local winid = vim.api.nvim_get_current_win()
 
-    -- mark any buffer opened in this wind unlisted, wipe
+    -- mark any buf opened in this win "unlisted", "wipe"
     vim.api.nvim_create_autocmd("BufWinEnter", {
         group    = "UserAutoCmds",
         callback = function(args)
-            if vim.api.nvim_get_current_win() == winid then
-                vim.bo[args.buf].buflisted = false
-                vim.bo[args.buf].bufhidden = "wipe"
-            end
+            if cbufid == args.buf then return end
+
+            vim.bo[args.buf].buflisted = false
+            vim.bo[args.buf].bufhidden = "wipe"
         end,
     })
 end
@@ -45,12 +47,27 @@ function M.split_maximize_toggle()
     end
 end
 
+function M.resize_win(dir, amount)
+    local curwin = vim.api.nvim_get_current_win()
+
+    vim.cmd('wincmd t') -- always resize from top left
+
+    local sign = (amount > 0 and "+" or "")
+
+    vim.cmd(dir.." resize "..sign..amount)
+
+    vim.api.nvim_set_current_win(curwin)
+end
+
 
 -- float win
+---@class opts
+---@field title? string
+---@field title_pos? string
 
 ---@param buf number?
----@param enter boolean?
----@param opts table?
+---@param enter boolean? default true
+---@param opts opts?
 ---@return number
 function M.fwin_open(buf, enter, opts)
     buf   = buf and buf or 0

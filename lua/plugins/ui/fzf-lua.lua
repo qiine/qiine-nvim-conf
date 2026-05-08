@@ -309,10 +309,29 @@ return
         -- grep in notes for selected
         vim.keymap.set("v", "<F13>", function()   --<S-F1>
             require("fzf-lua").grep_visual({
-                winopts = { title = "Grep notes selected", },
+                winopts = { title = "Grep notes for selected", },
                 cwd = "~/Personal/Org/Notes/"
             })
         end)
+
+
+        -- fuzy grep
+        fzfl.grep_fuzzy = function()
+            local cwd = vim.fn.getcwd()
+            local data = vim.system({"rg", "--no-heading", "--no-line-number", "."}, {text=true}):wait()
+
+            data = vim.split(data.stdout, "\n")
+            require("fzf-lua").fzf_exec(data, {
+                winopts = { title = "grep fuzzy", },
+                prompt = "> ",
+                previewer = "builtin",
+                actions = {
+                    ["default"] = function(entry)
+                        vim.cmd("e "..entry[1])
+                    end
+                },
+            })
+        end
 
         -- Search buffers
         vim.keymap.set({"i","n","v","c","t"}, "<M-f>b", function()

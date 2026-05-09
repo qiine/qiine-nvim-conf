@@ -22,7 +22,7 @@ end
 ---@return string|nil notepath, string msg
 function M.create(name, dir)
     if not name or name == "" then name = "Newnote" end
-    dir = dir and dir or M.notespath
+    dir = dir or M.notespath
 
     local fpath = vim.fs.normalize(dir.."/"..name..".md")
     if vim.uv.fs_stat(fpath) then return nil, "Note with same name already exist!" end
@@ -35,15 +35,20 @@ function M.create(name, dir)
         body[i] = line:gsub("%${1:.-}", name)
     end
 
-    local ok = vim.fn.writefile(body, fpath) -- create and write note
-    if not ok then return nil, "Note creation failed" end
+    local write_ok = vim.fn.writefile(body, fpath) -- create and write note file
+    if write_ok ~= 0 then return nil, "Note creation failed" end
+
+    local add = vim.system({"git", "add", fpath}, {cwd=dir, text=true}):wait()
+    if add.code ~= 0 then return nil, "git add failed\n"..add.stderr end
+
+    local gitcmd = vim.system({"git", "commit", "-o", fpath, "-m", "[ADD] "..name}, {cwd=dir, text=true}):wait()
+    if gitcmd.code ~= 0 then return nil, "git commit failed\n"..gitcmd.stderr end
 
     return fpath, "Note created: "..fpath
 end
 
 function M.create_intr()
-    vim.ui.input({prompt="Note name: ", default="", completion="file"},
-    function(input)
+    vim.ui.input({prompt="Note name: ", default="", completion="file"}, function(input)
         vim.api.nvim_command("redraw") -- Hide prompt
         if input == nil then vim.notify("Note creation canceled. ", vim.log.levels.INFO) return end
 
@@ -61,6 +66,7 @@ end
 
 
 function M.explore()
+    vim.cmd.cd(M.notespath)
     vim.cmd("Oil "..M.notespath)
 end
 

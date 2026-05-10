@@ -1,4 +1,3 @@
-
 --███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
 --████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
 --██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
@@ -46,20 +45,22 @@ local function safe_setup(name, mod, opts)
     return true
 end
 
--- ## Extensions
+
+-- ## [Extensions]
 safe_require("modules.enveloppe")
 safe_require("modules.historybuf")
 
-local org = safe_require("org"); safe_setup("org", org)
 local git = safe_require("git"); safe_setup("git", git)
-safe_require("ai")
+local org = safe_require("org"); safe_setup("org", org)
+local ai  = safe_require("ai" ); safe_setup("ai",  ai )
 
--- ## Commands
+
+-- ## [Commands]
 safe_require("commands")
 safe_require("commands_aliases")
 safe_require("autocmds")
 
--- ## Plugins
+-- ## [Plugins]
 safe_require("options.lazy")
 
 -- ### Built-in plugins
@@ -68,7 +69,7 @@ vim.cmd.packadd("nvim.difftool")
 vim.cmd.packadd("cfilter")
 
 
--- ## options
+-- ## [options]
 safe_require("options.keymaps")
 safe_require("options.abbreviations")
 safe_require("options.mousemaps")
@@ -79,14 +80,14 @@ safe_require("options.editing")
 safe_require("options.textintel")
 local session = safe_require("session"); safe_setup("session", session)
 
-safe_require("options.ui.theme")
-safe_require("options.ui.conceal")
+safe_require("options.ui.colors") safe_require("options.ui.conceal")
+safe_require("options.ui.colors") safe_require("options.ui.conceal")
 safe_require("options.ui.view")
 safe_require("options.ui.menus")
 safe_require("options.ui.statusline")
 safe_require("options.ui.tabs")
 
--- ## ui
+-- ## [ui]
 safe_require("ui.winbar")
 safe_require("ui.quickfix")
 

@@ -38,23 +38,32 @@
         "body": [ "${1:cond} and ${2:\"a\"} or ${3:\"b\"}" ]
     },
 
+    "for loop": {
+      "prefix": "for loop",
+      "body": [
+      "for ${0:i} = ${1:1}, ${2:10} do",
+          "\t${3:}",
+      "end"
+      ]
+    },
+
     "for each": {
-        "prefix": "for each",
-        "body": [
-            "for key, value in pairs(${1:table}) do",
-            "\t${2:}",
-            "end"
-        ]
+      "prefix": "for each",
+      "body": [
+        "for key, value in ipairs(${1:table}) do",
+          "\t${2:}",
+        "end"
+      ]
     },
 
     "return": {
-        "prefix": "return",
-        "body": [ "return ${1:}" ]
+      "prefix": "return",
+      "body": [ "return ${1:}" ]
     },
 
     "lua print": {
-        "prefix": "print",
-        "body": [ "print(${1:\"Hello\"})" ]
+      "prefix": "print",
+      "body": [ "print(${1:\"Hello\"})" ]
     },
 
     "lua module": {

@@ -1,6 +1,7 @@
 
 -- org plan api
 
+
 local M = {}
 
 
@@ -17,7 +18,7 @@ end
 
 ---@return string
 
-function M.task_get_fpath(uuid)
+function M.get_task_fpath(uuid)
     local path = vim.fs.find(function(name, path)
         return not path:match("/%.git/") and name == uuid..".yml"
     end, { path = M.plandir, type = "file", limit = math.huge })
@@ -26,7 +27,7 @@ function M.task_get_fpath(uuid)
 end
 
 ---@return boolean status, string msg
-function M.task_add(tittle)
+function M.mk_task(tittle)
     if not tittle then return false, "err, no task tittle" end
 
     local cmd = {"dstask", "start", tittle}
@@ -36,13 +37,13 @@ function M.task_add(tittle)
     return true, ""
 end
 
-function M.task_add_intr()
+function M.mk_task_intr()
     vim.ui.input({prompt="Task: ", default=""},
     function(input)
         vim.api.nvim_command("redraw") --Hide prompt
         if input == nil then vim.notify("Task creation canceled.", vim.log.levels.INFO) return end
 
-        local ok, err = M.task_add(input)
+        local ok, err = M.mk_task(input)
         if not ok then vim.notify(err, vim.log.levels.ERROR); return end
 
         vim.notify("Task created: ".."'"..input.."'", vim.log.levels.INFO)
@@ -51,7 +52,7 @@ end
 
 ---@param id number
 ---@return boolean ok, string msg
-function M.task_rm(id)
+function M.rm_task(id)
     if not id then return false, "err, invalid id" end
 
     local cmd = {"dstask", "remove", tostring(id)}
@@ -86,7 +87,7 @@ end
 function M.task_get_prio(uuid)
     if not uuid then return end
 
-    local tpath = M.task_get_fpath(uuid)
+    local tpath = M.get_task_fpath(uuid)
     local lines = vim.fn.readfile(tpath)
 
     local p
@@ -105,7 +106,7 @@ function M.task_set_prio(uuid, p)
     if not uuid then return end
     p = p or 1
 
-    local tpath = M.task_get_fpath(uuid)
+    local tpath = M.get_task_fpath(uuid)
     local lines = vim.fn.readfile(tpath)
 
     local found = false
@@ -138,15 +139,24 @@ function M.task_bump_prio(uuid, amnt, decrem)
     M.task_set_prio(uuid, newprio)
 end
 
----@return table|nil data, string|nil raw
-function M.gather_tasks_db()
-    local cmd = {"dstask", "show-open"}
-    local dstsk = vim.system(cmd, {text=true}):wait()
+---@return table|nil data
+function M.get_tasks_db()
+    local dstask_open = vim.system({"dstask", "show-open"}, {text=true}):wait()
+    local dstask_done = vim.system({"dstask", "show-resolved"}, {text=true}):wait()
 
-    local data = vim.json.decode(dstsk.stdout)
-    local raw = dstsk.stdout
+    -- Can"t get all tasks in one go sadly
+    local data_open = vim.json.decode(dstask_open.stdout)
+    local data_done = vim.json.decode(dstask_done.stdout)
 
-    return data, raw
+    local result = {}
+    for _, v in pairs(data_open) do
+        table.insert(result, v)
+    end
+    for _, v in pairs(data_done) do
+        table.insert(result, v)
+    end
+
+    return result
 end
 
 function M.debug_tasks_db()
@@ -159,17 +169,18 @@ function M.debug_tasks_db()
     vim.bo[planbuf].buftype = "nofile"
 
     -- data
-    local dat, raw = M.gather_tasks_db()
-    if not raw then print("db err") return end
+    local dat, raw = M.get_tasks_db()
+    -- if not raw then print("db err") return end
 
     -- Render
-    local out = vim.split(raw, "\n")
+    -- local out = vim.split(raw, "\n")
+    local out = vim.split(vim.inspect(dat), "\n")
 
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, out)
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, out or {})
     vim.bo[planbuf].modifiable = false
 end
 
-function M.task_picker()
+function M.fzf_task()
     local tfiles = M.get_tasksfiles()
 
     require("fzf-lua").fzf_exec(tfiles, {
@@ -184,7 +195,7 @@ function M.task_picker()
     })
 end
 
-function M.task_grep()
+function M.grep_task()
     require("fzf-lua").live_grep({
         winopts = { title = "Grep Tasks" },
         -- rg_opts = "--hidden --glob '!.git/*'",

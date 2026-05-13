@@ -92,7 +92,7 @@ function M.build()
     M.uistate = {}  -- reset ui
 
     -- Tasks dat
-    local tasksdb = plan.gather_tasks_db()
+    local tasksdb = plan.get_tasks_db()
     tasksdb = tasksdb and tasksdb or {}
 
     M.group_by_board(tasksdb)
@@ -112,13 +112,12 @@ function M.build()
     -- sort
     local active = {}
     local backlog = {}
+    local done = {}
 
     for _, td in pairs(curboard) do
-        if td.status == "active" then
-            table.insert(active, td)
-        elseif td.status == "paused" then
-            table.insert(backlog, td)
-        end
+        if td.status == "active" then table.insert(active, td)  end
+        if td.status == "paused" then table.insert(backlog, td) end
+        if td.status == "resolved" then table.insert(done, td) end
     end
 
     local function sort_prio(tasks)
@@ -139,6 +138,12 @@ function M.build()
 
     M.push_uistate("■■ Backlog".." ".."["..tostring(#backlog).."]")
     for _, td in ipairs(backlog) do
+        M.push_uistate(M.taskcard(td), td)
+    end
+    M.push_uistate("", {}) -- padding
+
+    M.push_uistate("■■ Done".." ".."["..tostring(#done).."]")
+    for _, td in ipairs(done) do
         M.push_uistate(M.taskcard(td), td)
     end
     M.push_uistate("", {}) -- padding
@@ -266,6 +271,74 @@ function M.create_buf()
     vim.bo[planbuf].buftype = "nofile"
     -- vim.bo[planbuf].filetype = "markdown"
     vim.bo[planbuf].modifiable = true
+
+    -- ## Keymaps
+    -- t add
+    vim.keymap.set({"i","n","v"}, "<C-S-n>", function()
+      plan.mk_task_intr()
+      M.render()
+    end, {buffer=true})
+
+    vim.keymap.set({"i","n","v"}, "<F27>", function() -- C-F3
+      plan.mk_task_intr()
+      M.render()
+    end, {buffer=true})
+
+    -- t rm
+    vim.keymap.set({"i","n","v"}, "<S-Del>", function()
+      local ok, out = plan.rm_task(M.task_get_data_at_cursor().id)
+      vim.notify(out, vim.log.levels.INFO)
+      M.render()
+    end, {buffer=true})
+
+    -- t toggle
+    vim.keymap.set({"i","n","v"}, "<C-Space>", function()
+      M.task_toggle_status_at_cursor()
+      M.render()
+    end, {buffer=true})
+
+    -- t done
+    vim.keymap.set({"i","n","v"}, "<C-S-D>", function()
+      M.task_set_status_at_cursor("done")
+      M.render()
+    end, {buffer=true})
+
+    -- prio
+    vim.keymap.set({"i","n","v"}, "<C-S-Up>", function()
+      M.task_bump_prio_at_cursor()
+      M.render()
+    end, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-Down>", function()
+      M.task_bump_prio_at_cursor(true)
+      M.render()
+    end, {buffer=true})
+
+    -- t ed
+    vim.keymap.set({"i","n"}, "<C-CR>", M.task_ed_at_cursor, {buffer=true})
+    vim.keymap.set("n", "<CR>", M.task_ed_at_cursor, {buffer=true})
+
+    -- board
+    vim.keymap.set({"i","n","v"}, "<C-S-PageDown>", function()
+      M.board_cycle()
+    end, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-PageUp>", function()
+      M.board_cycle(true)
+    end, {buffer=true})
+
+    vim.keymap.set({"i","n","v"}, "<C-Home>", function()
+      M.set_board("default")
+    end, {buffer=true})
+
+    -- Search
+    vim.keymap.set({"i","n","v"}, "<C-S-F>", plan.fzf_task, {buffer=true})
+    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.grep_task,   {buffer=true})
+
+    -- refrersh
+    vim.keymap.set({"i","n","v"}, "<F5>", M.render, {buffer=true})
+
+    -- debug
+    vim.keymap.set({"i","n","v"}, "<C-S-H>", M.task_inspect_at_cursor, {buffer=true})
+
 end
 
 function M.open()
@@ -295,74 +368,6 @@ function M.open()
 
     -- Display
     M.render()
-
-
-    -- ## Keymaps
-    -- t add
-    vim.keymap.set({"i","n","v"}, "<C-S-n>", function()
-        plan.task_add_intr()
-        M.render()
-    end, {buffer=true})
-
-    vim.keymap.set({"i","n","v"}, "<F27>", function() -- C-F3
-        plan.task_add_intr()
-        M.render()
-    end, {buffer=true})
-
-    -- t rm
-    vim.keymap.set({"i","n","v"}, "<S-Del>", function()
-        local ok, out = plan.task_rm(M.task_get_data_at_cursor().id)
-        vim.notify(out, vim.log.levels.INFO)
-        M.render()
-    end, {buffer=true})
-
-    -- t toggle
-    vim.keymap.set({"i","n","v"}, "<C-Space>", function()
-        M.task_toggle_status_at_cursor()
-        M.render()
-    end, {buffer=true})
-
-    -- t done
-    vim.keymap.set({"i","n","v"}, "<C-S-D>", function()
-        M.task_set_status_at_cursor("done")
-        M.render()
-    end, {buffer=true})
-
-    -- prio
-    vim.keymap.set({"i","n","v"}, "<C-S-Up>", function()
-        M.task_bump_prio_at_cursor()
-        M.render()
-    end, {buffer=true})
-    vim.keymap.set({"i","n","v"}, "<C-S-Down>", function()
-        M.task_bump_prio_at_cursor(true)
-        M.render()
-    end, {buffer=true})
-
-    -- t ed
-    vim.keymap.set({"i","n"}, "<C-CR>", M.task_ed_at_cursor, {buffer=true})
-    vim.keymap.set("n", "<CR>", M.task_ed_at_cursor, {buffer=true})
-
-    -- board
-    vim.keymap.set({"i","n","v"}, "<C-S-PageDown>", function()
-        M.board_cycle()
-    end, {buffer=true})
-    vim.keymap.set({"i","n","v"}, "<C-S-PageUp>", function()
-        M.board_cycle(true)
-    end, {buffer=true})
-
-    vim.keymap.set({"i","n","v"}, "<C-Home>", function()
-        M.set_board("default")
-    end, {buffer=true})
-
-    -- Search
-    vim.keymap.set({"i","n","v"}, "<C-S-F>", plan.task_picker, {buffer=true})
-    vim.keymap.set({"i","n","v"}, "<C-S-G>", plan.task_grep,   {buffer=true})
-
-    -- refrersh
-    vim.keymap.set({"i","n","v"}, "<F5>", M.render, {buffer=true})
-
-    -- debug
-    vim.keymap.set({"i","n","v"}, "<C-S-H>", M.task_inspect_at_cursor, {buffer=true})
 end
 
 

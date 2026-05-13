@@ -16,7 +16,6 @@
 local M = {}
 
 M = require("org.plan.api")
-
 M.overview = require("org.plan.overview")
 
 

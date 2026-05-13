@@ -7,7 +7,7 @@ local overview = require("org.plan.overview")
 
 
 -- ## General
-vim.api.nvim_create_user_command("PlanTaskAdd", plan.task_add_intr, {})
+vim.api.nvim_create_user_command("PlanTaskAdd", plan.mk_task_intr, {})
 
 vim.api.nvim_create_user_command("PlanExplorer", function()
     vim.cmd("tabnew | Oil "..plan.plandir)

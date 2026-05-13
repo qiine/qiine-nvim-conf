@@ -10,15 +10,15 @@ local overview = require("org.plan.overview")
 vim.keymap.set({"i","n","v"}, "<S-M-o>p", plan.overview.open)
 vim.keymap.set({"i","n","v"}, "<F3>",     plan.overview.open)
 
-vim.keymap.set({"i","n","v"}, "<S-M-o>pa", plan.task_add_intr)
-vim.keymap.set({"i","n","v"}, "<F27>", plan.task_add_intr) -- C-F3
+vim.keymap.set({"i","n","v"}, "<S-M-o>pa", plan.mk_task_intr)
+vim.keymap.set({"i","n","v"}, "<F27>",     plan.mk_task_intr) -- C-F3
 
 vim.keymap.set({"i","n","v"}, "<S-M-o>pe", function()
     vim.cmd("tabnew | Oil "..plan.plandir)
 end)
 
-vim.keymap.set({"i","n","v"}, "<S-M-o>pf", plan.task_picker)
-vim.keymap.set({"i","n","v"}, "<S-M-o>pg", plan.task_grep)
+vim.keymap.set({"i","n","v"}, "<S-M-o>pf", plan.fzf_task)
+vim.keymap.set({"i","n","v"}, "<S-M-o>pg", plan.grep_task)
 
 
 -- Project task <M-F3>

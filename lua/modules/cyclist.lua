@@ -155,11 +155,12 @@ end
 ---@return boolean
 function M.cycle_omni_text(text, reverse)
     local out
-    local str_lower = string.lower(text)
 
+    local str_lower = string.lower(text)
     local is_upper = utils.is_upper(text)
     local is_lower = utils.is_lower(text)
-    local start_upper = string.sub(text, 1)
+    local starts_upper = utils.starts_upper(text)
+
 
     if M.is_quote(str_lower) then
         out = reverse and M.get_prev_quote(str_lower) or M.get_next_quote(str_lower)
@@ -179,17 +180,17 @@ function M.cycle_omni_text(text, reverse)
 
     if not out then return false end
 
-    -- Set back case
+    -- reset case
     if is_upper then
         out = string.upper(out)
     elseif is_lower then
         out = string.lower(out)
-    -- elseif start_upper then
-        --
+    elseif starts_upper then
+        out = utils.capitalize_firstchar(out)
     end
 
     -- print(text) -- [ ]
-    vim.cmd('norm! "_c'..out); return true
+    vim.cmd('norm! "_c'..out) return true
 end
 
 ---@param reverse boolean

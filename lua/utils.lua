@@ -72,8 +72,24 @@ function M.trim_whitespaces(s)
     return string.gsub(s, "%s+", "")
 end
 
+-- Casing
 function M.is_upper(s) return s == string.upper(s) end
 function M.is_lower(s) return s == string.lower(s) end
+
+function M.starts_upper(s)
+    if not s or s == "" then return false end
+
+    return s:match("^%u[^%u]*$") ~= nil
+end
+
+function M.capitalize_firstchar(s)
+    if not s or s == "" then return s end
+
+    local first = vim.fn.strcharpart(s, 0, 1)
+    local rest  = vim.fn.strcharpart(s, 1)
+
+    return first:upper().. rest
+end
 
 
 --TODO fancy make spreadshit from string func

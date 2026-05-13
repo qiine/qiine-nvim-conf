@@ -22,11 +22,20 @@
         ]
     },
 
-    "new loop": {
-        "prefix": "loop",
+    "new for each": {
+      "prefix": "for each",
         "body": [
           "for item in list; do",
-            "${1:}",
+            "\t${1:}",
+          "done"
+        ]
+    },
+
+    "new for loop": {
+        "prefix": "for loop",
+        "body": [
+          "for i in {1..10}; do",
+            "\t${1:}",
           "done"
         ]
     },

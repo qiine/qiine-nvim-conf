@@ -53,7 +53,6 @@ return {
 
         cmd = cmd or {"echo 'Could not determine how to run project!'"}
 
-        print(cmd.." "..vim.inspect(args))
         return {
             cmd  = cmd,
             args = args,

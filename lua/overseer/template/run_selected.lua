@@ -4,14 +4,14 @@ return {
         local buft = vim.bo.filetype
 
         local runcmd = {
+            ["sh"]   = "bash",
             ["lua"]    = "lua",
-            ["bash"]   = "bash",
             ["python"] = "python",
         }
 
         local tmpfext = {
             ["lua"]    = ".lua",
-            ["bash"]   = ".sh",
+            ["sh"]   = ".sh",
             ["python"] = ".py",
         }
 

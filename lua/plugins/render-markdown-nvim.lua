@@ -44,13 +44,33 @@ return
             },
 
             heading = {
-                --icons = { '󰲡 ', '󰲣 ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
+                render_modes = false, -- Additional modes to render headings.
+                -- atx = true, -- Turn on / off atx heading rendering.
+                -- setext = false, -- Turn on / off setext heading rendering.
+
+                -- icons = { '󰲡 ', '󰲣 ', '󰲥 ', '󰲧 ', '󰲩 ', '󰲫 ' },
                 -- icons = { '|', '|## ', '|### ', '|#### ', '|##### ', '|###### ' },
                 -- icons = { '|', '|▰▰ ', '|▰▰▰ ', '|#### ', '|##### ', '|###### ' },
-                icons = { '|', '|■■ ', '|■■■ ', '|■■■■ ', '|■■■■■ ', '|■■■■■■ ' },
+                icons = { '|', '■■ ', '■■■ ', '■■■■ ', '■■■■■ ', '■■■■■■ ' },
+                -- icons = { '|', '■■', '■■■', '■■■■', '■■■■■', '■■■■■■' },
+                -- Determines how icons fill the available space.
+                -- | eol     | '#'s are concealed and icon is placed at right most column   |
+                -- | right   | '#'s are concealed and icon is appended to right side        |
+                -- | inline  | '#'s are concealed and icon is inlined on left side          |
+                -- | overlay | icon is left padded with spaces and overlayed hiding all '#' |
+                position = 'overlay',
                 sign = false,
-                width = "block",
+                border = false,
+                width = "block", -- block, full
+                -- Amount of padding to add to the left of headings.
+                -- Output is evaluated using the same logic as 'left_margin'.
+                left_pad = 0,
                 right_pad = 5,
+                -- Amount of margin to add to the left of headings.
+                -- Margin available space is computed after accounting for padding.
+                -- If a float < 1 is provided it is treated as a percentage of available window space.
+                -- Can also be a list of numbers evaluated by `clamp(value, context.level)`.
+                left_margin = 0,
             },
 
             bullet = {

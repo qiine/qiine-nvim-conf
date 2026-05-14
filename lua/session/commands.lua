@@ -2,23 +2,23 @@
 -- # Commands
 
 
-local ses = require("session")
+local sess = require("session")
 
 vim.api.nvim_create_user_command("SessionSave", function()
-    ses.save()
+    sess.save()
     print("Global session saved.")
 end, {})
 
 vim.api.nvim_create_user_command("SessionLoad", function()
-    ses.load()
+    sess.load()
 end, {})
 
 vim.api.nvim_create_user_command("SessionEdit", function()
-    vim.cmd("e "..ses.globalses_path)
+    vim.cmd("e "..sess.globalsess_path)
 end, {})
 
 vim.api.nvim_create_user_command("SessionClear", function()
-    vim.fn.delete(ses.globalses_path)
+    vim.fn.delete(sess.globalsess_path)
     print("Global session file cleared")
 end, {})
 

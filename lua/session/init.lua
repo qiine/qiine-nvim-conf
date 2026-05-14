@@ -5,19 +5,29 @@
 local M = {}
 
 -- Global Session loc: "~/.local/share/nvim/session_global.vim"
-M.globalses_path = vim.fn.stdpath("data").."/session_global.vim"
-M.localses_path = vim.fn.getcwd().."/session_local.vim"
+M.globalsess_path = vim.fn.stdpath("data").."/session_global.vim"
+M.localsess_path = vim.fn.getcwd().."/session_local.vim"
 
 
 function M.save(scope)
-    vim.cmd("argdelete")
-    vim.cmd("mksession! "..M.globalses_path) -- "!" use force
+    vim.cmd("%argdelete") -- clear arglist, no other way to filter for now
+    vim.cmd("mksession! "..M.globalsess_path) -- "!" use force
 end
 
 function M.load(scope)
-    -- print("Loading last global session")
-    -- vim.cmd("silent! source "..api.session_path_global)
-    vim.cmd("source "..M.globalses_path)
+    local saved_modelines = vim.o.modelines
+
+    vim.o.modelines = 0
+
+    local ok, err = pcall(function()
+        vim.cmd("source " .. M.globalsess_path)
+    end)
+
+    vim.o.modelines = saved_modelines
+
+    if not ok then
+        vim.notify("Failed to source session: "..tostring(err))
+    end
 end
 
 -- clean session

@@ -137,7 +137,7 @@ Currently only supports **one global session**
   ```    
 * Clone the repo:  
   ```sh
-  git -C ~/.config/nvim/ clone git@github.com:qiine/qiine-nvim-conf.git
+  git -C ~/.config/nvim/ clone git@github.com:qiine/qiine-nvim-conf.git .
   ```
 * Open Neovim  
   ```sh

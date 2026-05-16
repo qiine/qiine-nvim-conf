@@ -1,4 +1,6 @@
 
+-- fexplorer
+
 function ls()
     local ls = {}
     for name, type in vim.fs.dir(searchdir) do
@@ -8,8 +10,8 @@ function ls()
     return
 end
 
-vim.api.nvim_create_user_command("Lsv", function()
+vim.api.nvim_create_user_command("Lsvi", function()
     vim.cmd("enew")
-    vim.api.nvim_buf_set_lines(0, 0, 0, false, text)
+    -- vim.api.nvim_buf_set_lines(0, 0, 0, false, text)
     vim.cmd("r !ls -hAG")
 end, {})

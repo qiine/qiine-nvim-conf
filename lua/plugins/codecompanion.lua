@@ -4,7 +4,8 @@ local opt = {
         chat = {
             adapter = {
                 name = "llama.cpp",
-                model = "Qwen3.5-35B-A3B-UD-IQ4_NL",
+                -- model = "Qwen3.5-35B-A3B-UD-IQ4_NL",
+                model = "Qwen3.5-27B-Q4_K_S",
             },
             opts = {
                 completion_provider = "blink", -- blink|cmp|coc|default
@@ -44,7 +45,7 @@ local opt = {
                     callback = "keymaps.close",
                 },
                 change_adapter = {
-                    modes = { i = "<S-Space>a", n = "<S-Space>aa" },
+                    modes = { i="<S-Space>a", n="<S-Space>a" },
                     -- callback = "keymaps.change_adapter",
                     description = "[Adapter] Change adapter and model",
                     opts = { noremap = true, silent = true },
@@ -88,7 +89,8 @@ local opt = {
 
         agent = {
             name = "opencode",
-            model = "Qwen3.5-35B-A3B-UD-IQ4_NL",
+            -- model = "Qwen3.5-35B-A3B-UD-IQ4_NL",
+            model = "Qwen3.5-27B-Q4_K_S",
         },
 
         background = {
@@ -134,12 +136,19 @@ local opt = {
             height = 10,
         },
         chat = {
-            show_settings = false, -- Show the model settings in the chat buffer?
-            show_token_count = true, -- Show the token count for the current chat in the buffer?
-            start_in_insert_mode = true,
+            type = "buffer", -- float|buffer
+
+            start_in_insert_mode = false,
+
+            show_context = true,
+            show_reasoning = true,
+            fold_reasoning = false,
+            show_tools_processing = true,
+            show_token_count = true,
+
             show_header_separator = true,
 
-            type = "buffer", -- float|buffer
+            show_settings = false, -- Show the model settings in the chat buffer?
 
             window = {
                 buflisted = false, -- List the chat buffer in the buffer list?
@@ -149,7 +158,7 @@ local opt = {
                 full_height = false, -- for vertical layout
                 position = "right", -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
 
-                width = 0.5, ---@return number|fun(): number
+                width = 0.6, ---@return number|fun(): number
                 height = 0.8, ---@return number|fun(): number
                 border = "single",
                 relative = "editor",
@@ -165,13 +174,19 @@ local opt = {
                     wrap = true,
                 },
             },
+
+            -- intro_message =  "hello"
         },
     },
+
+    -- opts = {
+    --     log_level = "ERROR", -- TRACE|DEBUG|ERROR|INFO
+    -- },
 }
 
 return {
     "olimorris/codecompanion.nvim",
-    enabled = true,
+    enabled = false,
     -- event = "VimEnter",
 
     dependencies = {
@@ -182,6 +197,32 @@ return {
 
     config = function()
         require("codecompanion").setup(opt)
+
+
+        local ns = vim.api.nvim_create_namespace("cc_header")
+
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "codecompanion",
+            callback = function()
+                vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+
+                local cfg = require("codecompanion.config")
+                local adapter = cfg.interactions.chat.adapter or "?"
+                local model = cfg.interactions.chat.model or "default"
+
+                vim.api.nvim_buf_set_extmark(0, ns, 2, 0, {
+                    virt_text = { {"hello", "Comment"} },
+                    -- virt_text = {
+                    --     { "AI ", "Comment" },
+                    --     { adapter, "Identifier" },
+                    --     { " | ", "Comment" },
+                    --     { model, "Type" },
+                    -- },
+                    -- virt_text_pos = "right_align",
+                    virt_text_pos = "overlay", -- inline
+                })
+            end
+        })
     end,
 }
 

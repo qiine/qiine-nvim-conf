@@ -30,7 +30,7 @@ end
 ---@return boolean status
 local function safe_setup(name, mod, opts)
     if not mod then
-        vim.notify(name.." invalid module", vim.log.levels.WARN); return false
+        vim.notify(name.." invalid module", vim.log.levels.ERROR); return false
     end
 
     if type(mod.setup) ~= "function" then
@@ -52,7 +52,7 @@ safe_require("modules.historybuf")
 
 local git = safe_require("git"); safe_setup("git", git)
 local org = safe_require("org"); safe_setup("org", org)
-local ai  = safe_require("ai" ); safe_setup("ai",  ai )
+local ai  = safe_require("ai" ); safe_setup("ai" , ai )
 
 
 -- ## [Commands]
@@ -80,7 +80,6 @@ safe_require("options.editing")
 safe_require("options.textintel")
 local session = safe_require("session"); safe_setup("session", session)
 
-safe_require("options.ui.colors") safe_require("options.ui.conceal")
 safe_require("options.ui.colors") safe_require("options.ui.conceal")
 safe_require("options.ui.view")
 safe_require("options.ui.menus")

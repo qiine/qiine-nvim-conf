@@ -1,4 +1,8 @@
 
+-- # Colors
+
+
+-- ## [Colorscheme]
 
 --newpaper
 --kanagawa
@@ -14,11 +18,13 @@
 local col = "dayfox"
 
 -- Smart theme picking
-vim.cmd("colorscheme "..col)
 
 vim.api.nvim_create_autocmd("UIEnter", {
     callback = function()
+
         vim.schedule(function()
+            vim.cmd("colorscheme "..col)
+
             local ui = vim.api.nvim_list_uis()[1]
 
             if not ui.rgb then

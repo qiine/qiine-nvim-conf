@@ -22,3 +22,5 @@ Quick correct shortcut that pick first match and preserve cursor pos
 ---
 Custom fzf-lua picker for word search with definition preview and insert 
 selected
+
+

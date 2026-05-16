@@ -1,5 +1,4 @@
-
-# ignore files
+# Ignore files
 todo.txt
 todo.md
 TODO.txt
@@ -9,11 +8,12 @@ session.vim
 lazy-lock.json
 project.toml
 .env
+project.toml
 
-# ignore ALL files ending with
+# Ignore all files with ext
 *.log
 
-# ignore ALL files directories
+# Ignore all files in directories
 temp/
 /spell/
 

@@ -5,122 +5,139 @@ Probably **overcomplicated**
 Certainly   **not finished**    
 Definitively  **heretical** 
 
-This config revolve around nvim as both an omni editor and a tool orchestrator. 
-It is also very much a learning platform and test bed for my endless ideas!  
-
-Why nvim?
-My text editor journey went as follow:  
+My config revolves around Neovim as both an omni-editor and a tool orchestrator. 
+It also serves as a learning platform and testbed for endless ideas.             
+                                                                                
+Why Neovim?
+My text editor journey went as follows:  
 `Code::Blocks → Notepad++ → Visual Studio → VSCode → Neovim`
 I was aware of vim/nvim but it always felt intimidating. 
 Then I switched to Linux and figured It was finally time to try it out!  
 I hesitated a bit between Neovim and Emacs, but lua and the motions intrigued me...  
 
-
-## ✨ Features
+---
+## Features
 ---
 ### ✏️Editing
----
+  ---
 - Hundreds of custom keymaps (I am unable to stop myself ;p)  
 - Extensive mouse support! (°)°) with mouse binds! 
 - Native Word "speed dial" in normal mode with `+` / `-`  
-- with Easy toggling of booleans: `true/false`, `yes/no`, `on/off`  
-- and Capitalization flipping  
+- Easy toggling of booleans: `true/false`, `Yes/No`, `on/off`, etc..
+- Capitalization flipping  
 - Auto-pairing via **nvim-autopairs**  
-- Built-in white spaces trimming on save (+custom command)  
-- Completion via **blink.cmp**, with extensive config including cmdline 
-  completion
+- Custom Text surround module, smartly detect words or surround selection (no motions though)
+- Completion via **blink.cmp**, with extensive config including cmdline completion
 - Built-in auto save with a timer every 7min
 
-### Advance nav
 ---
-fast move using modifier + arrows
-go to middle of screen go to first/last line
-nav dir using keymaps without file browser
+## Advanced nav
+---
+* Fast move using modifier + arrows
+* Go to middle of screen and first/last line, using key-chords (heresy!)
+* Nav dir using keymaps without file browser
 
+---
 ### 🧠 Text intel
 ---
 **Supported languages**:
-- lua  
-- markdown  
-- yaml  
-- toml
-- bash
+`lua`, `markdown`, `yaml`, `bash`, `json`, `js`, `ts`, `nix`
 
-**Tools**:
-- Treesitter highlighting  
-- LSP  
-- **nvim-lint**, 
-- **conform.nvim**  
-* sniprun  
+* Treesitter highlighting  
+* LSP (**nvim-lspconfig**) with per-language tweaks (lua_ls, marksman, bashls)       
+* **nvim-lint**, 
+* **conform.nvim** for formatting                    
+* **live-rename**
+* Snippets via luasnip and a lot of custom snippets 
 
-- Custom snippets  
-
-### 📂 Version control
 ---
-neogit
-custom git thin wrapper
-
-
-### 📂 File Management
+### 📂 Filesystem
 ---
 - **neo-tree**  
 - **oil**  
-- custom file system actions, cmds, keymaps:
-  - delete current file with a shortcut, 
-  - set readonly,
-  - move dir
-  - etc...
+- custom file system actions, commands, keymaps:
+  - Delete current file with a shortcut, 
+  - Set readonly
+  - Move dir
+  - And more
 
+  ---
+### 🛠 Task Runner                                                               
+---
+- **overseer.nvim** for build/run task management                                
+- Custom templates: run buffer, run Neovim Lua, run project, run selection       
 
+---                                                                              
+### 🔀 Version Control                                                           
+---                                                                              
+- Custom Git thin wrapper with commands and keymaps                              
+- **neogit** for Git operations                                                  
+- **gitsigns** 
+
+---
+### 🗂 My org mode
+---
+A personal org system built into the editor:                                     
+                                                                                
+- **Notes**     — Create, explore, and manage markdown notes with templates and simple git integration                                                                        
+- **Journal**   — Daily journal entries 
+- **Plan**      — Task planning and simple overview UI                                          
+- **Favorites** — Bookmarked files and watchlist                                 
+
+---
+### 🤖 AI Integration                                                            
+---
+Still very early and experimental                                                                       
+
+- **CodeCompanion** for AI-assisted coding                                       
+- AI invocation helpers
+
+---
 ### 🖼 UI
 ---
-- **lualine** with **many** custom components  
-- **barbar.nvim** for tabs  
-- custom winbar, displaying current file path
-* customized statuscolumn thanks to gitsign, statuscol-nvim and some 
-  tweaking  
-- **trouble.nvim**  
-- **indent-blankline.nvim**
+* Neat dashboard with alpha-nvim, with randomized ASCII art splash, system info, and quick actions keys
+* **lualine** with **many** custom components  
+* **barbar.nvim** for tabs  
+* Custom winbar, displaying current file path
+* Customized statuscolumn with statuscol-nvim and some tweaking  
+* **trouble.nvim**  
+* **indent-blankline.nvim** for indentation guides
+* **render-markdown.nvim** for live Markdown preview
+* Custom quickfix setup, with keybinds and helper functions
 
-
+---
 ### 💾 Session Management
 ---
-Tiny helpers:
-- Auto save on `VimLeavePre`  
-- Command to save/edit session  
+- Auto save global Session on `VimLeavePre`  
+- Command to save/edit session.vim file  
 - Reload session with a custom command
 
 Currently only supports **one global session**
 
-
+---
 ### 🎨 Theme
 ---
-- Based on **Lightfox**  
+- Based on **Nightfox**  
 - Custom highlight groups  
 - Tweaked for a **black & white eInk monitor** -- no proper colors for now
 
-
+---
 ### 📦 Plugin Management
 ---
-- Managed via **lazy.nvim**
+* Managed via **lazy.nvim**
 
-
+---
 ## 🚀 Installation
 ---
 ### 🐧Linux 
-* Install neovim (at least 0.11) with your package manager of choice.  
-
+---
 * Backup existing config files if applicable.  
-    ```sh
-    mv ~/.config/nvim ~/.config/nvim_bak
-    ```    
-* cd to config files location
   ```sh
-  cd ~/.config/nvim/
-  ```
+  mv ~/.config/nvim ~/.config/nvim_bak
+  ```    
 * Clone the repo:  
   ```sh
-  git clone git@github.com:qiine/qiine-nvim-conf.git
+  git -C ~/.config/nvim/ clone git@github.com:qiine/qiine-nvim-conf.git
   ```
 * Open Neovim  
   ```sh
@@ -128,31 +145,32 @@ Currently only supports **one global session**
   ```
 * Plugins will install automatically thanks to lazy.nvim  
 
-
+---
 ### 🧪 Requirements
+---
+* neovim 0.11 (0.12 would be nicer) 
+
 * Terminal  
-  I choose wezterm, 
+  I chose wezterm, 
   config: [github.com/qiine/wezterm-conf](https://github.com/qiine/wezterm-conf)
 
-  As neovim is a terminal centered application and I use a very complex sets of keybinds. 
+  As neovim is a terminal centered application and I use a very complex set of keybinds. 
   A terminal supporting kitty keyboard reporting protocol or similar is a must.
 
   I have not spent any time making my nvim config usable 
   with other terminals and don't plan to. (I know Konsole struggles)
 
-* git
-* ripgrep
-* fd
-* fzf
+* git, ripgrep, fd, fzf
 
-optional
-- stylua
-- marksman
-- lua_ls
-- luacheck
-- eslint_d
+---
+#### Optional
+---
+- **Lua**: `stylua`, `lua_ls`, `luacheck`                                        
+- **Markdown**: `marksman`                                                       
+- **Shell**: `bashls`                                                            
+- **JavaScript/TypeScript**: `eslint_d`                                          
 
-
+---
 ## 📜 License
 ---
 This project is licensed under the MIT License.

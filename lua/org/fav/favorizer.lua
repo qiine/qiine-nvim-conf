@@ -9,9 +9,7 @@ local M = {}
 
 -- ## [var]
 ----------------------------------------------------------------------
-local home = os.getenv("HOME")
-
-M.db_path = home .. "/Personal/Org/fav.json"
+M.db_path = vim.fn.expand("~/Personal/Org/fav.json")
 
 -- M.fav = { ["name"] = "path" } --id --group --type
 
@@ -28,8 +26,6 @@ M.quickfiles =
     [9] = "",
 }
 
--- TODO FEAT refactor quick objects, files, dir
--- /home/qm/.local/share/nvim/
 
 M.quickactions =
 {

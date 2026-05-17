@@ -48,20 +48,6 @@ vim.api.nvim_create_augroup('UserAutoCmds', { clear = true })
 
 -- ## [Buffers]
 ----------------------------------------------------------------------
-vim.api.nvim_create_autocmd('TermOpen', {
-    group   = 'UserAutoCmds',
-    command = "startinsert",
-})
-
-vim.api.nvim_create_autocmd('BufEnter', {
-    group   = 'UserAutoCmds',
-    pattern = "/tmp/bash%-fc.*",
-    callback = function()
-        vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
-        vim.keymap.set({"i","n","v","c"}, "<M-Left>", "<Left>", {buffer=true})
-    end
-})
-
 
 
 

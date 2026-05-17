@@ -38,8 +38,17 @@ function M.toggle_vert()
 
     vim.cmd("vsp | term")
 
-    vim.api.nvim_set_option_value("buflisted", false,  {buf=0})
-    vim.api.nvim_set_option_value("bufhidden", "wipe", {buf=0})
+    vim.api.nvim_set_option_value("buflisted", false,  {scope="local", buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {scope="local", buf=0})
+end
+
+function M.toggle_hor()
+    if vim.bo.buftype == "terminal" then return vim.cmd("bd!") end
+
+    vim.cmd("sp | term")
+
+    vim.api.nvim_set_option_value("buflisted", false,  {scope="local", buf=0})
+    vim.api.nvim_set_option_value("bufhidden", "wipe", {scope="local", buf=0})
 end
 
 ---@param enter boolean?
@@ -48,7 +57,13 @@ end
 ---@return number
 function M.open_fwin(enter, wopts, shell)
     enter = enter and enter or true
-    wopts = wopts or {title="Terminal"}
+    -- wopts = wopts or {title="Terminal"}
+    local defwopts = {
+        title="Terminal",
+        wratio = 0.81,
+        hratio = 0.82,
+    }
+    wopts = vim.tbl_deep_extend("force", wopts or {}, defwopts)
     shell = shell and shell or "bash"
 
     local buf = vim.api.nvim_create_buf(false, false)

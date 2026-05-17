@@ -22,7 +22,9 @@ vim.keymap.set({"i","n","v","c","t"}, "<F1>", function()
             ["default"] = function(selected, opts)
                 if not selected or #selected == 0 then return end
 
-                vim.cmd("tabnew")
+                if vim.bo.buftype == "terminal" then
+                    vim.cmd("tabnew")
+                end
                 require("fzf-lua.actions").file_edit(selected, opts)
             end
         },

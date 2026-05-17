@@ -1,22 +1,23 @@
 
 -- # Org
 
+
 -- Goal:
 -- As little extension to neovim as possible to wrangle most organisational activities
-
-----------------------------------------------------------------------
-local notes = require("org.notes")
-local jrn   = require("org.journal")
-local plan  = require("org.plan")
-----------------------------------------------------------------------
 
 
 local M = {}
 
+M.constant = require("org.constant")
+
+M.notes    = require("org.notes")
+M.jrn      = require("org.journal")
+M.plan     = require("org.plan")
+
 
 
 -- Setup
-function M.setup()
+function M.setup(opts)
     require("org.time").setup()
     require("org.notes").setup()
     require("org.journal").setup()
@@ -27,8 +28,5 @@ end
 
 
 
-
-M.jrn  = jrn
-M.plan = plan
 -------------
 return M

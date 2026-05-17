@@ -271,12 +271,13 @@ map({"i","n","v","t"}, "<C-b>", function()
 end)
 
 -- Open file picker
-map(modes, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
+map({"i","n","v"}, "<C-o>", "<cmd>OpenDesktopFilePicker<CR>")
 
-map({"i","n","v"}, "<C-S-O>", "<cmd>Open %<CR>")
+map({"i","n","v"}, "<C-S-o>", "<cmd>Open %<CR>")
 
 -- ls
 map({"i","n","v"}, "<C-g>fl", "<Cmd>!pwd; ls -lFAh<CR>")
+
 
 -- ### Outliner
 map({"i","n","v"}, "<C-S-B>", "<cmd>AerialToggle<CR>")
@@ -1135,7 +1136,7 @@ map({"i","n"}, "<S-M-BS>", '<cmd>norm! "_db<CR>')
 --     if curso_prvrow > vim.api.nvim_win_get_cursor(0)[1] then vim.cmd("norm! j0") end
 -- end)
 map("c", "<S-M-BS>", '<C-w>')
--- map("t", "<S-M-BS>", '<C-h>') unrealiable in nested nvim
+-- map("t", "<C-BS>", '<C-h>') --unrealiable in nested nvim
 
 -- Remove to start of line
 map({"i","n","v"}, "<M-BS>", function()
@@ -1788,7 +1789,7 @@ end)
 ----------------------------------------------------------------------
 -- Print sel
 vim.keymap.set("v", "<M-S-p>", function()
-    local sel = ed.get_selection_text()
+    local sel = ed.get_selection()
     local code = table.concat(sel, "\n")
     vim.cmd("lua print("..code..")")
 end)
@@ -1917,7 +1918,7 @@ vim.cmd('set cedit=') -- avoids interferences
 
 map("n", "q:", 'q:')
 map({"i","n","v"}, "<M-²>", '<Esc>q:')
-map("c", "<M-²>", '<C-c>q:')
+map("c", "<M-²>", '<C-d>q:')
 map("t", "<M-²>", '<C-c><C-\\><C-n>q:')
 
 -- Easy exit command line window
@@ -1950,6 +1951,7 @@ map({"i","n","v","t"}, "<M-t>", "<cmd>term<CR>", {noremap=true})
 
 
 map(modes, ldwin.."vt", function() win.open_split_ephem("vert") vim.cmd("term") end)
+
 -- Term toggle vert
 map({"i","n","v","t"}, "<M-t>s", term.toggle_vert)
 map({"i","n","v","t"}, "<M-t>v", term.toggle_vert)

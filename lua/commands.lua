@@ -208,7 +208,7 @@ vim.api.nvim_create_user_command("RunInsert", function(opts)
     if not cmd then vim.notify("Can't run: "..ft) return end
 
     if not vim.fn.mode():match("[Vv\22]") then vim.cmd("norm! gv") end
-    local code = table.concat(ed.get_selection_text(), "\n")
+    local code = table.concat(ed.get_selection(), "\n")
 
     -- local f = load("return " .. code)
     -- if not f then
@@ -433,7 +433,7 @@ vim.api.nvim_create_user_command("CdFileDir", function()
 end, {})
 
 vim.api.nvim_create_user_command("OpenDesktopFilePicker", function()
-    local curfdir = vim.fn.expand("%:p")
+    local curfdir = vim.fn.expand("%:p:h")
 
     local cmd = string.format('kdialog --getopenfilename "%s"', curfdir)
     local handle = io.popen(cmd)
@@ -475,18 +475,14 @@ vim.api.nvim_create_user_command("FileSaveInteractive", function()
 end, {})
 
 vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
-    local cwd = vim.fn.getcwd()
-
-    local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t")
+    local cwd   = vim.fn.getcwd()
+    local name  = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":t")
     if name == "" then name = "newfile" end
-
     local fpath = cwd.."/"..name
 
     local function prompt_user()
-        vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"},
-        function(input)
+        vim.ui.input({prompt="Save as: ", default=fpath, completion="dir"}, function(input)
             vim.api.nvim_command("redraw") --Hide prompt
-
             if input == nil then vim.notify("Save cancelled.", vim.log.levels.INFO) return end
 
             local dir = vim.fs.dirname(input) -- check target dir
@@ -602,7 +598,7 @@ vim.api.nvim_create_user_command("BufFileMoveToCWD", function()
         end
     end
 
-    fs.move(fpath, dest, true, true)
+    fs.mv(fpath, dest, true, true)
     vim.cmd("keepalt file "..dest) -- update bufname
 end, {})
 
@@ -817,6 +813,8 @@ end, {})
 
 
 -- ### Dirs
+vim.api.nvim_create_user_command("Mkdir", fs.mk_dir_intr, {})
+
 vim.api.nvim_create_user_command("PrintProjRootDirCWD", function()
     print(fs.utils.find_proj_rootdir_for_path(vim.fn.getcwd()) )
 end, {})
@@ -1024,7 +1022,11 @@ vim.api.nvim_create_user_command("BigfileMode", function()
     vim.opt_local.undolevels = -1
     vim.opt_local.undofile   = false
 
-    vim.cmd("LspStop")
+    vim.cmd("lsp-stop")
+    -- for _, lsp in ipairs(vim.lsp.get_clients({bufnr=0})) do
+    --     vim.lsp.enable(lsp, false)
+    -- end
+
     vim.cmd("silent! DiagnosticVirtualTextToggle")
 
     vim.b.is_bigfile = true
@@ -1074,27 +1076,6 @@ vim.api.nvim_create_user_command("PrintWordCount", function()
 end, {})
 
 
--- ### calc
-vim.api.nvim_create_user_command("CSVAppendColumnEnd", function(opts)
-    local val = opts.args ~= "" and opts.args or "New"
-
-    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-    local input = table.concat(lines, "\n")
-
-    local res = vim.system(
-        {"awk", "-F|", "BEGIN{OFS=\"|\"} {$(NF+1)=\""..val.."\"}1"},
-        {stdin=input, text=true}
-    ):wait()
-
-    if res.code == 0 then
-        local output_lines = vim.split(res.stdout, "\n", {plain=true})
-        vim.api.nvim_buf_set_lines(0, 0, -1, false, output_lines)
-    else
-        vim.notify("awk failed: " .. res.stderr, vim.log.levels.ERROR)
-    end
-end, {nargs="?"})
-
-
 
 -- ## [Version control]
 ----------------------------------------------------------------------
@@ -1120,26 +1101,6 @@ vim.api.nvim_create_user_command("GitAmend", function(opts)
 
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit --amend".."\n")
 end, {})
-
-vim.api.nvim_create_user_command("GitRestoreFile", function(opts)
-    local rev = opts.args ~= "" and opts.args or "HEAD"
-
-    local fpath = vim.api.nvim_buf_get_name(0)
-
-    -- Check if file exists in rev
-    local ls_res = vim.system({"git", "ls-tree", "-r", "--name-only", rev, fpath}, {text=true}):wait()
-    if ls_res.code ~= 0 or ls_res.stdout == "" then
-        return vim.notify("File does not exist at revision " .. rev, vim.log.levels.ERROR)
-    end
-
-    local res = vim.system({"git", "restore", "-s", rev, "--", fpath}, {text=true}):wait()
-    if res.code == 0 then
-        vim.cmd("edit!")
-        vim.notify("File restored to "..rev, vim.log.levels.INFO)
-    else
-        vim.notify("git restore failed: "..res.stderr, vim.log.levels.ERROR)
-    end
-end, {nargs="?"})
 
 
 
@@ -1300,15 +1261,6 @@ vim.api.nvim_create_user_command("GitDiffFileRevision", function(opts)
     vim.cmd("wincmd w") --back to diff
 end, {nargs = "?"})
 
-vim.api.nvim_create_user_command("GitHunkToggleHighlight", function()
-    local hunk_ns = vim.api.nvim_get_namespaces()["githunks"]
-
-    if hunk_ns then
-        return vim.api.nvim_buf_clear_namespace(0, hunk_ns, 0, -1)
-    end
-
-    vim.cmd("GitHunksHighlight")
-end, {})
 
 vim.api.nvim_create_user_command("RemoteRepoBrowse", function(opts)
     local path = opts.args

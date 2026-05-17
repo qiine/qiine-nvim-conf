@@ -6,7 +6,7 @@ vim.keymap.set({"i","n","v"}, "<S-M-a>", function()
     vim.cmd("vs | term")
     vim.cmd("vert res +10")
 
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "piread\n")
+    vim.api.nvim_chan_send(vim.b.terminal_job_id, "picustom\n")
 
     vim.cmd("startinsert")
 end)

@@ -11,16 +11,11 @@ local v = vim
 
 -- ## [General]
 ----------------------------------------------------------------------
--- Backspace behaviour
-vim.opt.backspace = { "indent", "eol", "start" }
---"indent" -- Allows Backspace to delete auto-indent.
---"eol   " -- Allows Backspace to delete past line breaks.
---"start"  -- Allows Backspace at the start of insert mode.
-
 vim.o.nrformats = "bin,hex,alpha"
 -- This defines what bases Vim will consider for numbers when using the
 -- CTRL-A and CTRL-X commands for adding to and subtracting from a number
 
+-- Supress warn when viewing readonly files
 vim.api.nvim_create_autocmd("BufEnter", {
     group   = 'UserAutoCmds',
     command = "set noreadonly",
@@ -36,6 +31,25 @@ vim.api.nvim_create_autocmd('BufEnter', {
         vim.cmd('stopinsert')
     end,
 })
+
+vim.api.nvim_create_autocmd('TermOpen', {
+    group   = 'UserAutoCmds',
+    command = "startinsert",
+})
+
+-- For nested nvim in term, mainly with VISUAL edit
+vim.api.nvim_create_autocmd('BufEnter', {
+    group   = 'UserAutoCmds',
+    pattern = "/tmp/bash%-fc.*",
+    callback = function()
+        vim.cmd('startinsert')
+        vim.keymap.set({"i","n","v","c"}, "<C-S-CR>", "ZZ", {buffer=true})
+        vim.keymap.set({"i","n","v","c"}, "<M-Left>", "<Left>", {buffer=true})
+    end
+})
+
+
+
 
 -- Prevent cursor left offsetting when alterning insert/normal/insert.. (only with i)
 vim.api.nvim_create_autocmd("InsertLeave", {
@@ -58,6 +72,11 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     desc = "go to last loc when opening a Buffer",
 })
 
+-- Backspace behaviour
+vim.opt.backspace = { "indent", "eol", "start" }
+--"indent" -- Allows Backspace to delete auto-indent.
+--"eol   " -- Allows Backspace to delete past line breaks.
+--"start"  -- Allows Backspace at the start of insert mode.
 
 
 -- ## [File]

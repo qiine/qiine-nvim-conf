@@ -6,7 +6,8 @@ local jrn = require("org.journal")
 
 
 -- Open journal entry list
-vim.keymap.set({"i","n","v","t"}, "<S-M-o>j",    jrn.explore)
+vim.keymap.set({"i","n","v","t"}, "<S-M-o>j", jrn.explore)
+vim.keymap.set({"i","n","v","t"}, "<F6>",     jrn.explore)
 
 -- Create new entry
 vim.keymap.set({"i","n","v","t"}, "<F30>",       jrn.add_entry) -- C-F6

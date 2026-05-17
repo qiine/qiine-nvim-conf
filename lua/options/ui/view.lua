@@ -178,14 +178,35 @@ vim.opt.fillchars:append({
 vim.o.list = true
 vim.opt.listchars:append({
     space =    " ",
-    tab =      "» ",
+    tab =      "  ", -- »
+    trail =    " ",
     eol =      " ",
     nbsp =     "␣",
     precedes = "⟽", -- ┅--⇛ ↤ ⸱ « ≪ ⋯
     extends =  "⟾",  -- ⇒ ⇛ ↦ ⤍ ┅
     conceal =  ".",
-    trail =    " ",
 })
+
+-- Show/hide whitespace symbols when selecting
+local listchars_base = vim.opt.listchars:get()
+local listchars_select = vim.tbl_extend("force", listchars_base, {
+    space = ".",
+    tab = "» ",
+    trail = ".",
+})
+
+vim.api.nvim_create_autocmd("ModeChanged", {
+    group = "UserAutoCmds",
+    callback = function(args)
+        if vim.fn.mode():match("[vV\22]") then
+            vim.opt.listchars = listchars_select
+        else
+            vim.opt.listchars = listchars_base
+        end
+        vim.cmd("redraw") -- TODO still does not redraw proper
+    end,
+})
+
 
 vim.g.show_eol = false  --will show: "¶"
 
@@ -194,21 +215,6 @@ if vim.g.show_eol == true then
 else
     vim.opt.listchars:remove({"eol"})
 end
-
---Show/hide whitespace symbols when selecting
-vim.api.nvim_create_autocmd("ModeChanged", {
-    group = "UserAutoCmds",
-    pattern = "*:*",
-    callback = function()
-        local mode = vim.fn.mode()
-        if mode == "v" or mode == "V" then
-            vim.opt.listchars:append({space=".", tab= "» ", trail="."})
-        else
-            vim.opt.listchars:remove({"space", "tab", "trail"})
-            vim.opt.listchars:append({tab="  "}) --buggy without this
-        end
-    end,
-})
 
 --TODO Show eol char when cursor on it
 --vim.api.nvim_create_autocmd({"CursorMoved","ModeChanged"}, {
@@ -232,18 +238,6 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 --          hl_mode = "combine"
 --      })
 
-
-
---Show/hide whitespace symbols when selecting
---vim.api.nvim_create_autocmd("CursorMoved", {
---    group = "UserAutoCmds",
---    pattern = "*",
---    callback = function()
---        --local cchar = vim.fn.screenchar(vim.fn.line('.'), vim.fn.col('.'))
---        local cchar = vim.fn.screenstring(vim.fn.line('.'), vim.fn.col('.'))
---        vim.cmd("echo'"..cchar.."'")
---    end,
---})
 
 
 -- ## [Text intel]

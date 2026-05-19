@@ -390,8 +390,8 @@ map({"i","n","v","t"}, ldwin.."<S-f>", "<cmd>only<CR>")
 
 -- ### Size
 -- minimize/maximize cur split
-map(modes, ldwin.."m", "<cmd>res 0<CR>")
-map(modes, ldwin.."M", "<cmd>res<CR>")
+map(modes, ldwin.."m", "<cmd>vert res 0<CR>")
+map(modes, ldwin.."M", "<cmd>wincmd |<CR><cmd>wincmd _<CR>")
 
 -- Maximize split toggle
 map(modes, ldwin.."f", win.split_maximize_toggle)

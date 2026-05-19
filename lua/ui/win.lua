@@ -62,9 +62,10 @@ function M.resize_win(dir, amount)
 
     vim.api.nvim_set_current_win(curwin)
 
-    -- Get back to term mode proper
-    if was_terminal and mode == "t" then
+    -- Get back to term mode proper if was_terminal and mode == "t" then
+    if mode == "t" and was_terminal then
         vim.schedule(function()
+
             vim.cmd("startinsert!")
         end)
     end

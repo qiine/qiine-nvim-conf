@@ -80,8 +80,8 @@ function M.commit_curr(msg)
         wratio = 0.85, hratio = 0.75,
     }, "bash --norc")
 
+    vim.cmd("!git add "..fp)
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "cd "..fdir.."\n")
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add "..fp.."\n")
     vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -ov "..fp.."\n")
 end
 

@@ -23,8 +23,10 @@ function M.open_split_ephem(direction)
         callback = function(args)
             if cbufid == args.buf then return end
 
-            vim.bo[args.buf].buflisted = false
-            vim.bo[args.buf].bufhidden = "wipe"
+            -- vim.bo[args.buf].buflisted = false
+            -- vim.bo[args.buf].bufhidden = "wipe"
+            vim.api.nvim_set_option_value("buflisted", false,  {scope="local", buf=args.buf})
+            -- vim.api.nvim_set_option_value("bufhidden", "wipe", {scope="local", buf=args.buf})
         end,
     })
 end
@@ -49,14 +51,23 @@ end
 
 function M.resize_win(dir, amount)
     local curwin = vim.api.nvim_get_current_win()
+    local mode = vim.fn.mode()
+    local was_terminal = vim.bo.buftype == "terminal"
 
-    vim.cmd('wincmd t') -- always resize from top left
+    vim.cmd('wincmd t') -- first always go to top left win
 
     local sign = (amount > 0 and "+" or "")
 
     vim.cmd(dir.." resize "..sign..amount)
 
     vim.api.nvim_set_current_win(curwin)
+
+    -- Get back to term mode proper
+    if was_terminal and mode == "t" then
+        vim.schedule(function()
+            vim.cmd("startinsert!")
+        end)
+    end
 end
 
 

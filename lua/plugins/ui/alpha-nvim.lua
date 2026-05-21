@@ -1,6 +1,5 @@
 ---@return table
 local function dashlayout()
-
     ---@return table
     local function button(sc, txt, keybind, keybind_opts, opts)
         local def_opts = {
@@ -200,7 +199,7 @@ local function dashlayout()
             button("p", " Projects",     "<Cmd>FzfLua projects<CR>"),
             button("o", "󰅌 Org",     "<Cmd>PlanOverviewOpen<CR>"),
             -- button("b", " File browser", function() set_wipe_dashboard() vim.cmd("Oil") end),
-            button("s", " Load session", function() set_wipe_dashboard() vim.cmd("SessionLoad") end),
+            button("s", " Last session", function() set_wipe_dashboard() vim.cmd("SessionLoad") end),
         }
     end
 

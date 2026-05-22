@@ -264,13 +264,31 @@ function M.create_buf()
     vim.opt_local.number = false
     local planbuf = vim.api.nvim_get_current_buf()
 
-    -- vim.wo.foldlevel=0
-    -- vim.opt_local.foldmethod="expr"
-    -- vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
-
     vim.bo[planbuf].buftype = "nofile"
     -- vim.bo[planbuf].filetype = "markdown"
     vim.bo[planbuf].modifiable = true
+
+    function _G.foldexpr_planv()
+        local line = vim.fn.getline(vim.v.lnum)
+
+        -- if line:match("^##") then return ">1" end
+        if line:match("^■■ Active") then return ">0" end
+        if line:match("^■■") then return ">1" end
+
+        -- if line:match("^%s*$") then return "0" end
+        if line:match("^---") then return "0" end
+        if line:match("^──") then return "0" end
+        if line:match("^━━") then return "0" end
+
+        if line == "" then return "0" end
+
+        return "="
+    end
+
+    vim.wo.foldlevel=0
+    vim.opt_local.foldmethod="expr"
+    vim.opt_local.foldexpr='v:lua.foldexpr_planv()'
+
 
     -- ## Keymaps
     -- t add

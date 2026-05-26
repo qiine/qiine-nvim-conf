@@ -23,18 +23,25 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 -- Avoid insert when relevant
 vim.api.nvim_create_autocmd('BufEnter', {
-    group = 'UserAutoCmds',
-    callback = function()
-        local ignored_ft = { 'codecompanion', 'terminal', 'gitcommit' }
-        if vim.tbl_contains(ignored_ft, vim.bo.filetype) then return end
+    group    = 'UserAutoCmds',
+    callback = function(args)
+        local ignored_ft = { 'codecompanion', 'gitcommit' }
+        local ignored_bt = { 'terminal' }
+        if vim.tbl_contains(ignored_ft, vim.bo[args.buf].filetype) then return end
+        if vim.tbl_contains(ignored_bt, vim.bo[args.buf].buftype)  then return end
 
         vim.cmd('stopinsert')
     end,
 })
 
-vim.api.nvim_create_autocmd('TermOpen', {
+vim.api.nvim_create_autocmd({'TermOpen', "TermEnter"}, {
     group   = 'UserAutoCmds',
-    command = "startinsert",
+    -- command = "startinsert",
+    callback = function(args)
+        vim.defer_fn(function()
+            vim.cmd("startinsert")
+        end, 20)
+    end
 })
 
 -- For nested nvim in term, mainly with VISUAL edit
@@ -47,7 +54,6 @@ vim.api.nvim_create_autocmd('BufEnter', {
         vim.keymap.set({"i","n","v","c"}, "<M-Left>", "<Left>", {buffer=true})
     end
 })
-
 
 
 

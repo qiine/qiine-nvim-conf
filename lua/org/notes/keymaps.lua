@@ -10,7 +10,7 @@ vim.keymap.set({"i","n","v","t"}, "<F25>",     notes.create_intr) -- C-F1
 
 vim.keymap.set({"i","n","v"}, "<S-M-o>n", notes.explore)
 
--- Find files in notes
+-- Find note
 vim.keymap.set({"i","n","v","c","t"}, "<F1>", function()
     if vim.fn.mode() == "c" then vim.api.nvim_feedkeys("", "c", false) end
 
@@ -35,11 +35,17 @@ end)
 -- Idea capture  S-F6
 vim.keymap.set({"i","n","v","t"}, "<F18>", function()
     vim.cmd("tabnew ~/Personal/Org/Notes/idea.md")
-    vim.cmd("norm! G0i")
+    vim.cmd("norm! gg6ji")
 end)
 vim.keymap.set({"i","n","v","t"}, "<S-M-o>i", function()
     vim.cmd("tabnew ~/Personal/Org/Notes/idea.md")
-    vim.cmd("norm! G0i")
+    vim.cmd("norm! gg6ji")
+end)
+
+-- Open vrac  -- S-M-F1
+vim.keymap.set({"i","n","v","t"}, "<F61>", function()
+    vim.cmd("tabnew ~/Personal/Org/Notes/vrac.md")
+    vim.cmd("norm! gg3ji")
 end)
 
 

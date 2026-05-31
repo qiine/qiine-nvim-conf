@@ -2,10 +2,10 @@ return
 {
     "EdenEast/nightfox.nvim",
     enabled = true,
+    lazy = false,
     dependencies = {},
 
     config = function()
-
         local guttercol = "#e8e8e8"
 
         require('nightfox').setup({
@@ -67,8 +67,10 @@ return
                     --Folded = { fg = "#dfdfdf", bg = "#dfdfdf" },
                     FoldColumn = { bg = guttercol },
 
-                   --WinBar = {fg = "#dfdfdf", bg = trans and "NONE" or spec.bg1, style = "NONE" }, -- Window bar of current window.
+                    --WinBar = {fg = "#dfdfdf", bg = trans and "NONE" or spec.bg1, style = "NONE" }, -- Window bar of current window.
                     --DropBarText = { bg = "#ffffff", fg = "#dddddd" },
+                    -- WinSeparator = { link = "WinSeparator"},
+                    WinSeparator = { fg = "#999999"},
 
                     --tabs
                     BufferTabpageFill = { bg = "#f0f0f0" },
@@ -84,6 +86,29 @@ return
                     BufferInactive = { bg = "#d9d9d9", fg = "#888888" },
                     BufferInactiveMod = { bg = "#d9d9d9", fg = "#ffaa00" },
                     BufferInactiveSign = { bg = "#d9d9d9", fg = "#ffaa00" },
+
+                    NormalFloat = { link = "Normal" },
+
+                    Folded = { link = "Folded" },
+
+                    -- Workaround for aerial
+                    AerialFunction  = { link = "Function" },
+                    AerialMethod    = { link = "Function" },
+                    AerialClass     = { link = "Function" },
+                    AerialStruct    = { link = "Function" },
+                    AerialType      = { link = "Function" },
+                    AerialInterface = { link = "Function" },
+                    AerialEnum      = { link = "Function" },
+                    AerialVariable  = { link = "Normal" },
+                    AerialProperty  = { link = "Normal" },
+                    AerialParameter = { link = "Normal" },
+                    AerialFile      = { link = "Normal" },
+                    AerialModule    = { link = "Normal" },
+                    AerialNamespace = { link = "Normal" },
+                    AerialGuide     = { link = "Comment" },
+                    AerialPrefix    = { link = "Comment" },
+
+
 
                 },
             },

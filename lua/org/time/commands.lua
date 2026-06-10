@@ -1,11 +1,11 @@
 
 -- # time cmd
 
+local time = require("org.time")
 
--- Insert Now
+-- Insert current date and time
 vim.api.nvim_create_user_command("Now", function()
-    local date = tostring(os.date("%Y/%m/%d %H:%M"))
-    vim.api.nvim_put({ date }, "c", false, false)
+    vim.api.nvim_put({ time.now() }, "c", false, false)
 end, {})
 
 

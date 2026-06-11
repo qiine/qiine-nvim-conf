@@ -403,6 +403,7 @@ map({"i","n","v","t"}, ldwin.."<Down>",  function() win.resize_win("hor", vim.v.
 map({"i","n","v","t"}, ldwin.."<Right>", function() win.resize_win("vert", vim.v.count+4)  end, {noremap=true})
 map({"i","n","v","t"}, ldwin.."<Left>",  function() win.resize_win("vert", -vim.v.count-4) end, {noremap=true})
 
+
 -- Extract win to float
 map(modes, ldwin.."e", function()
     local bufid = vim.api.nvim_get_current_buf()
@@ -429,6 +430,8 @@ map(modes, ldwin.."<C-Right>", "<Cmd>wincmd l<CR>")
 map(modes, ldwin.."<C-Up>",    "<Cmd>wincmd k<CR>")
 map(modes, ldwin.."<C-Down>",  "<Cmd>wincmd j<CR>")
 
+
+map({"i","n","v","t"}, "<M-C-W>",  "<Cmd>close<CR>")
 
 -- Drawer open
 map({"i","n","v","t"}, "<F7>", drawer.toggle)
@@ -499,10 +502,10 @@ end, {expr=true})
 
 
 -- ### [Scrolling]
-map({"i","n","v"}, "<C-M-Left>",  "<Cmd>silent! norm! 10zh<CR>")
-map({"i","n","v"}, "<C-M-Right>", "<Cmd>silent! norm! 10zl<CR>")
-map({"i","n","v"}, "<C-M-Up>",    "<Cmd>silent! norm! 6<CR>")
-map({"i","n","v"}, "<C-M-Down>",  "<Cmd>silent! norm! 6<CR>")
+map({"i","n","v","t"}, "<C-M-Left>",  "<Cmd>silent! norm! 10zh<CR>")
+map({"i","n","v","t"}, "<C-M-Right>", "<Cmd>silent! norm! 10zl<CR>")
+map({"i","n","v","t"}, "<C-M-Up>",    "<Cmd>silent! norm! 6<CR>")
+map({"i","n","v","t"}, "<C-M-Down>",  "<Cmd>silent! norm! 6<CR>")
 
 
 -- ### [Fast and furious cursor move]
@@ -797,7 +800,7 @@ map({"i","n"}, "<S-Down>", "<Esc>vgj",  {noremap=true})
 map("v",       "<S-Down>", "gj",        {noremap=true}) --avoid fast scrolling bc of fast nav keymaps
 
 -- Select word under cursor
-map({"i","n","v"}, "<C-S-w>", "<esc>viw")
+-- map({"i","n","v"}, "<C-S-w>", "<esc>viw")
 
 -- Select last pasted text
 map({"i","n","v"}, "<C-g>vp", "<Esc><Cmd>norm! `[v`]<CR>")
@@ -872,6 +875,27 @@ map({"i","n","x"}, "<S-M-Right>", function() arrow_blockselect("l") end)
 map({"i","n","x"}, "<S-M-Up>",    function() arrow_blockselect("k") end)
 map({"i","n","x"}, "<S-M-Down>",  function() arrow_blockselect("j") end)
 
+-- Smart select inside
+map({"i","n"}, "<C-S-w>", function()
+    local char = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("."))[1]
+
+    if char:match("[(){}%[%]'\"`<>]") then
+        vim.cmd('norm! vi'..char)
+    else
+        vim.cmd('norm! viw')
+    end
+end)
+
+-- Smart select around
+map({"i","n"}, "<M-C-S-w>", function()
+    local char = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("."))[1]
+
+    if char:match("[(){}%[%]'\"`<>]") then
+        vim.cmd('norm! va'..char)
+    else
+        vim.cmd('norm! vaw')
+    end
+end)
 
 
 -- ## [Editing]
@@ -1021,6 +1045,18 @@ map("i", "<C-v>", '<Esc>"+Pa')
 map("v", "<C-v>", '"_d"+P')
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
+-- map("t", "<C-v>", function()
+    -- local is_nvim_nested = vim.env.NVIM ~= nil
+--     local is_nvim_nested = os.getenv("NVIM") ~= nil
+--     local is_nvim_nested = vim.v.servername ~= nil
+--
+--     -- if is_nvim_nested then
+--     --    return "<C-v>"
+--     -- vim.v.servername
+--         return '<Esc> <C-\\><C-n>"+Pi' -- "+P Work because normal mode in a term buf is actually term-normal
+--     -- end
+-- end, {expr=true, replace_keycodes=true})
+
 
 -- Paste Smart
 map("n", "<C-v>", function()
@@ -1155,9 +1191,8 @@ map({"n","v"}, "<BS>", 'r ')
 map({"i","n","v"}, "<S-BS>", function()
     vim.cmd('norm! '..(vim.fn.mode() == "V" and 'r ' or 'Vr ') )
 end)
+-- map("t", "<S-BS>", "<C-u>") -- collide in nested nvim
 
-
--- #### Delete
 -- Del char
 map("n", "<Del>", 'v"_d')
 map("v", "<Del>", '"_di')
@@ -1175,6 +1210,7 @@ map({"i","n","v"}, "<M-Del>", function()
     vim.fn.winrestview(view) -- restore view
 end)
 map("c", "<M-Del>", "<C-Right><C-w><C-Right><C-w><C-Right><C-w>") -- TODO very ugly
+-- map("t", "<M-Del>", "<C-k>") -- collide nested nvim
 
 -- Delete line
 map({"i","n","v"}, "<S-Del>", function()
@@ -1974,6 +2010,7 @@ map({"i","n","v","t"}, "<F28>",  term.open_fwin) -- C-F4
 
 
 -- Exit term mode
+-- TODO think about nested nvim instance
 map("t", "<M-Esc>", [[<C-\><C-n>]], {noremap=true})
 
 

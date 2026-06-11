@@ -4,8 +4,6 @@
 
 local utils = require("utils")
 
-
-
 -- ### colorcolumn
 -- vim.o.colorcolumn="80"
 
@@ -48,11 +46,17 @@ local cursor_styles = {
 vim.opt.guicursor = table.concat(cursor_styles, ",")
 
 vim.o.cursorcolumn = false
+
 -- Cursorline only for active win
-vim.api.nvim_create_autocmd({"WinEnter", "BufEnter"}, {
+vim.api.nvim_create_autocmd({"WinEnter", "BufWinEnter"}, {
     group   = "UserAutoCmds",
     command = "lua vim.opt_local.cursorline = true",
 })
+vim.api.nvim_create_autocmd("WinLeave", {
+    group   = "UserAutoCmds",
+    command = "lua vim.opt_local.cursorline = false",
+})
+
 vim.o.cursorlineopt = "both" --highlight numbers as well
 
 --stopsel: Stop selection when leaving visual mode.
@@ -102,17 +106,40 @@ vim.o.foldcolumn = "1"
 --"0" Hides fold numbers
 --"1" Show dedicated fold column and numbers in the gutter
 
-vim.o.foldnestmax    = 10
-vim.o.foldlevelstart = 99 -- opens all folds on buf enter
+vim.o.foldnestmax = 9
+vim.o.foldlevel = 8  -- Sets fold level. Folds with higher lvl -> closed.
+-- vim.o.foldlevelstart = 99
+-- 0  all folds closed
+-- 1  some folds closed
+-- 99 no folds closed
+-- -1 ignore
+
+
+function _G.customfoldexpr()
+  local lnum = vim.v.lnum
+  local line = vim.fn.getline(lnum)
+
+    if line:match('^require%(') then
+        return '>9'
+    end
+
+    if line:match("^---@param") or line:match("^---@return") then
+        return ">9"
+    end
+
+    -- fallback to LSP
+    return vim.lsp.foldexpr(lnum)
+end
 
 vim.o.foldmethod = 'expr' -- manual, expr
+-- vim.o.foldexpr = 'v:lua.customfoldexpr()'
 vim.o.foldexpr   = 'v:lua.vim.treesitter.foldexpr()'
 -- Prefer LSP folding if client supports it
 vim.api.nvim_create_autocmd('LspAttach', {
     group = 'UserAutoCmds',
     callback = function(args)
         if vim.bo.filetype == "markdown" then return end
-
+        if vim.bo.filetype == "markdown" then return end
         local client = vim.lsp.get_client_by_id(args.data.client_id)
         if client and client:supports_method('textDocument/foldingRange') then
             vim.defer_fn(function()
@@ -123,6 +150,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
         end
     end,
 })
+
+
 
 vim.o.foldtext = "v:lua.FoldedText()"
 function FoldedText()
@@ -167,10 +196,15 @@ vim.opt.fillchars:append({
     diff      = "╱",
 
     vert      = " ", -- ┃
-    horiz     = "━", -- ━ ▔▁
+    horiz     = "━",  --  -━ ▔▁
     eob       = "~",
 })
 
+vim.api.nvim_set_hl(0, "WinSeparator", {
+    fg = "#999999",
+    bg = "NONE",
+    bold = true,
+})
 
 
 -- ## [Whitespace symbols]

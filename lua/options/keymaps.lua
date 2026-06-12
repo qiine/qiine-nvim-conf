@@ -225,20 +225,23 @@ end)
 map({"i","n","v","t"}, "<C-e>", function() fs.explorer_open_inplace() end)
 
 map({"i","n","v","t"}, "<C-S-e>", function()
+    local path = nil
+
+    -- try get selected path
     local vs = vim.fn.getregion(vim.fn.getpos("."), vim.fn.getpos("v"))[1]
     vs = vim.fs.normalize(vim.trim(vs))
 
     local stt = vim.uv.fs_stat(vs)
-    local path = nil
 
-    if stt and stt.type == "directory" then
-        path = vs
-    elseif stt and stt.type == "file" then
-        path = vim.fn.fnamemodify(vs, ":h")
-    else
-        if vim.fn.mode():match("[vV\22]") then
-            vim.notify("Invalid path!", vim.log.levels.WARN) return
+    if vim.fn.mode():match("[vV\22]") and stt then
+        if stt.type == "directory" then
+            path = vs
+        elseif stt.type == "file" then
+            path = vim.fn.fnamemodify(vs, ":h")
+        else -- Abort opening oil
+            vim.notify("Invalid path!", vim.log.levels.WARN); return
         end
+    else
         path = vim.fn.getcwd()
     end
 

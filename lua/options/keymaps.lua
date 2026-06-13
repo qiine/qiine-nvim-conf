@@ -1771,26 +1771,6 @@ map({"i","n","v"}, "<S-Space>ds", "<cmd>DiffSplits<CR>")
 ----------------------------------------------------------------------
 local ldvc = "<S-Space>g"
 
--- Staging
-map({"i","n"}, ldvc.."s", git.add)
-
-
--- Stage edit patch file
-map({"i","n","v"}, ldvc.."se", function()
-    local fp = vim.fn.expand("%:p")
-
-    term.open_fwin(nil, {
-        title = "Stage patches",
-        wratio = 0.85, hratio = 0.75,
-    }, "dash")
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git add -e "..fp.."\n")
-end)
-
-map({"i","n","v"}, ldvc.."sa", git.add_all)
-
-map({"i","n","v"}, ldvc.."u", git.unstage_file)
-map({"i","n","v"}, ldvc.."uu", git.unstage_all)
 
 -- git commit
 map({"i","n","v"}, ldvc.."c", function()

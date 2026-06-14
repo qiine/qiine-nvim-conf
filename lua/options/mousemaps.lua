@@ -21,13 +21,13 @@ v.opt.mouse = "a"
 
 --v.opt.mousescroll = "ver:0,hor:0"
 
---mouse selectmode
+--v.opt.mousemodel = "popup_setpos" -- does a bunch of stuf h: mousemodel
+
 vim.opt.mousemoveevent = true
 --Neovim does not track mouse movement unless you click or scroll.
 --This means that just moving the cursor around inside the terminal window will not trigger any events.
 --Some UI plugins (like floating windows, statuslines, and overlays) use this to provide hover tooltips, previews, or dynamic highlighting.
 
---v.opt.mousemodel = "normal" --used for selection extension in normal mode it will simply recreate a seelction
 
 
 
@@ -51,9 +51,7 @@ map('n', '<ScrollWheelRight>', '<cmd>echo Scrolling right<CR>', {noremap=true})
 -- map("n", "<C-ScrollWheelDown>", "<Nop>", {noremap=true, silent=true})
 
 -- Middle click
--- map("i", "<MiddleMouse>", "<MiddleMouse>")
--- map("n", "<MiddleMouse>", "<MiddleMouse>")
--- map("v", "<MiddleMouse>", "<MiddleMouse>")
+map({"i","n","v"}, "<MiddleMouse>", "<Nop>")
 
 -- map('n', '<LeftMouse>', '', {noremap=true, silent=true})
 -- map('n', '<RightMouse>', '', { noremap=true, silent=true})

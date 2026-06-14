@@ -1014,8 +1014,8 @@ map("v", "<S-M-c>", function()
 end)
 
 
--- #### [Cut]
-map("v", "<C-x>", '"+d<esc>', {noremap=true})
+-- ### [Cut]
+map("v", "<C-x>", '"+d<esc>')
 
 -- Cut line
 map({"i","n"}, "<C-S-x>", '<Cmd>norm! mz0"+dd`z<CR>')
@@ -1043,9 +1043,9 @@ map({"i","n"}, "<C-x>", function()
 end, {noremap=true})
 
 
--- #### [Paste]
+-- ### [Paste]
 map("i", "<C-v>", '<Esc>"+Pa')
-map("v", "<C-v>", '"_d"+P')
+map("v", "<C-v>", '"+P')
 map("c", "<C-v>", '<C-R>+')
 map("t", "<C-v>", '<Esc> <C-\\><C-n>"+Pi') --TODO kinda weird
 -- map("t", "<C-v>", function()
@@ -1825,20 +1825,36 @@ end)
 map("v", "<F20>", "<cmd>RunInsert<CR>")
 
 
--- run current buf (<M-F8>)
-map({"i","n","v"}, "<F56>", function()
+-- run current buf (<C-F8>)
+map({"i","n","v"}, "<F32>", function()
     require("overseer").run_task({name = "run buf"}, function(task)
         if task then
-            for _, prevtask in ipairs(require('overseer').list_tasks()) do
-                if prevtask.status == "RUNNING" then
-                    require('overseer').run_action(prevtask, "stop")
+            local overseerwin = nil
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local buf = vim.api.nvim_win_get_buf(win)
+                if vim.bo[buf].filetype == "OverseerOutput" then
+                    overseerwin = win; break
                 end
             end
 
-            require('overseer').open({ enter = false })
-            -- require('overseer').run_action(task, 'open hsplit')
-            -- vim.cmd("startinsert")
-            -- vim.api.nvim_win_set_height(0, 11)
+            if overseerwin then -- Reuse existing window
+                vim.api.nvim_set_current_win(overseerwin)
+                local task_buf = task:get_bufnr()
+                if task_buf then
+                    vim.api.nvim_win_set_buf(overseerwin, task_buf)
+                    vim.cmd("startinsert")
+                end
+            else
+                local current_win = vim.api.nvim_get_current_win()
+
+                task:open_output("horizontal")
+                vim.opt_local.signcolumn = "no"
+                vim.opt_local.foldcolumn = "0"
+                vim.cmd("res 11")
+
+                vim.api.nvim_set_current_win(current_win)  -- Restore focus to inin win
+            end
+
         end
     end)
 end)
@@ -1851,21 +1867,20 @@ map({"i","n","v","t"}, "<F8>", function()
 
     require("overseer").run_task({name = "run project"}, function(task)
         if task then
-            -- Check exisitng overseer win
-            local existing_win = nil
+            -- Check for exisitng overseer win
+            local overseerwin = nil
             for _, win in ipairs(vim.api.nvim_list_wins()) do
                 local buf = vim.api.nvim_win_get_buf(win)
                 if vim.bo[buf].filetype == "OverseerOutput" then
-                    existing_win = win
-                    break
+                    overseerwin = win; break
                 end
             end
 
-            if existing_win then -- Reuse existing window
-                vim.api.nvim_set_current_win(existing_win)
+            if overseerwin then -- Reuse existing window
+                vim.api.nvim_set_current_win(overseerwin)
                 local task_buf = task:get_bufnr()
                 if task_buf then
-                    vim.api.nvim_win_set_buf(existing_win, task_buf)
+                    vim.api.nvim_win_set_buf(overseerwin, task_buf)
                     vim.cmd("startinsert")
                 end
             else
@@ -1877,7 +1892,7 @@ map({"i","n","v","t"}, "<F8>", function()
                 vim.opt_local.foldcolumn = "0"
                 vim.cmd("res 11")
 
-                vim.api.nvim_set_current_win(current_win)  -- Restore focus
+                vim.api.nvim_set_current_win(current_win)  -- Restore focus to inin win
             end
 
         end

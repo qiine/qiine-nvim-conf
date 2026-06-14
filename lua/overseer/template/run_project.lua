@@ -35,7 +35,7 @@ return {
         if not valid_buildtool then
             -- TODO FEAT first search init/main etc then fallback to currfile
 
-            local taskcmd = {
+            local runcmd = {
                 ["sh"]   = "bash",
                 ["lua"]  = "lua",
                 ["rust"] = "rustc",
@@ -47,7 +47,7 @@ return {
                 ["rust"] = { vim.fn.expand("%:p"), "./main"},
             }
 
-            cmd  = taskcmd[ft]
+            cmd  = runcmd[ft]
             args = taskcmd_args[ft]
         end
 

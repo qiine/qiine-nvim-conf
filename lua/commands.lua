@@ -692,26 +692,31 @@ vim.api.nvim_create_user_command("SymlinkFileToCwd", function()
 end, {})
 
 vim.api.nvim_create_user_command("PasteSymlink", function()
-    local fpath  = vim.trim(vim.fn.getreg('+'))
-    local fname  = vim.fn.fnamemodify(fpath, ":t")
-    local target = vim.fn.getcwd().."/"..fname
+    local src = vim.trim(vim.fn.getreg('+'))
+    if src == "" then vim.notify("Clipboard empty", vim.log.levels.ERROR); return end
 
-    if not vim.uv.fs_stat(fpath) then
-        vim.notify("Source does not exist: "..fpath, vim.log.levels.ERROR) return
+    local stat = vim.uv.fs_stat(src)
+    if not stat then
+        vim.notify("Source does not exist: "..src, vim.log.levels.ERROR); return
     end
 
-    local res = vim.system({"ln", "-sfn", fpath, target}, {text=true}):wait()
+    local name = vim.fs.basename(src)
+    local dest = vim.fs.joinpath(vim.fn.getcwd(), name)
+
+    if vim.uv.fs_stat(dest) then
+        vim.uv.fs_unlink(dest) -- works for file or symlink; for dirs use fs_rmdir if needed
+    end
+
+    local res = vim.system({"ln", "-s", src, dest}, {text=true}):wait()
     if res.code == 0 then
-        vim.notify(
-            "Link created \n"..
-            "src: "..fpath.."\n"..
-            "dest: "..target,
+        vim.notify("Link created\n"..
+                   "Src:  "..src.."\n"..
+                   "Dest: "..dest,
         vim.log.levels.INFO)
-        return
     else
-        vim.notify("Linking failed! "..res.stderr, vim.log.levels.ERROR) return
+        vim.notify("Linking failed: "..(res.stderr or ""), vim.log.levels.ERROR)
     end
-end, {desc="Create symlink from clipboard into cwd"})
+end, { desc = "Create symlink from clipboard into cwd" })
 
 
 -- #### File perms
@@ -944,6 +949,29 @@ vim.api.nvim_create_user_command("TrimEmptyLines", function(opts)
     vim.cmd(range .. "g/^$/d")
 end, {range = true})
 
+vim.api.nvim_create_user_command("JqPreview", function()
+  vim.cmd(":%!jq .")
+
+    -- local buf = vim.api.nvim_get_current_buf()
+    -- local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    -- local input = table.concat(lines, "\n")
+    --
+    -- local result = vim.fn.systemlist("jq .", input)
+    --
+    -- if vim.v.shell_error ~= 0 then print("jq failed"); return end
+    --
+    -- local ns_jqp = vim.api.nvim_create_namespace("jq_preview")
+    -- vim.api.nvim_buf_clear_namespace(buf, ns_jqp, 0, -1)
+    --
+    -- for lnum, line in ipairs(result) do
+    --     vim.api.nvim_buf_set_extmark(buf, ns_jqp, lnum - 1, 0, {
+    --       virt_text = { {line, "Normal"} },
+    --       virt_text_pos = "eol",
+    --       -- hl_mode = "combine"
+    --     })
+    -- end
+end, {})
+
 -- Marks
 vim.api.nvim_create_user_command("ClearAllMarks", function()
     vim.cmd([[delmarks a-zA-Z0-9"<>'[].]])
@@ -1068,11 +1096,6 @@ vim.api.nvim_create_user_command("BigfileModeToggle", function()
     end
 
     vim.notify("Bigfile mode: " .. tostring(vim.b.is_bigfile))
-end, {})
-
-vim.api.nvim_create_user_command("PrintWordCount", function()
-    local wc = vim.fn.wordcount().words
-    print("Word count: ", wc)
 end, {})
 
 
@@ -1463,7 +1486,15 @@ end, {})
 
 -- ## [Text intel]
 ----------------------------------------------------------------------
+-- ## LSP
 vim.api.nvim_create_user_command("LspInfo", "checkhealth vim.lsp", { desc="Show LSP Info" })
+
+
+vim.api.nvim_create_user_command("PrintWordCount", function()
+    local wc = vim.fn.wordcount().words
+    print("Word count: ", wc)
+end, {})
+
 
 
 

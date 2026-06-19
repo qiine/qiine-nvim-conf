@@ -36,15 +36,17 @@ return {
             -- TODO FEAT first search init/main etc then fallback to currfile
 
             local runcmd = {
-                ["sh"]   = "bash",
-                ["lua"]  = "lua",
-                ["rust"] = "rustc",
+                ["sh"]     = "bash",
+                ["python"] = "python",
+                ["lua"]    = "lua",
+                ["rust"]   = "rustc",
             }
 
             local taskcmd_args = {
-                ["sh"]   = { vim.fn.expand("%:p") },
-                ["lua"]  = { vim.fn.expand("%:p") },
-                ["rust"] = { vim.fn.expand("%:p"), "./main"},
+                ["sh"]      = { vim.fn.expand("%:p") },
+                ["python"]  = { vim.fn.expand("%:p") },
+                ["lua"]     = { vim.fn.expand("%:p") },
+                ["rust"]    = { vim.fn.expand("%:p"), "./main"},
             }
 
             cmd  = runcmd[ft]
@@ -57,13 +59,6 @@ return {
             cmd  = cmd,
             args = args,
             cwd  = cwd,
-            -- strategy   = {
-            --     "jobstart",
-            --     wrap_opts = {
-            --         width = 158,
-            --         height = 35,
-            --     },
-            -- },
             components = {
                 -- {"open_output", direction="dock"},
                 {"open_output", direction = "float", focus = false},

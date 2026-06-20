@@ -3,6 +3,7 @@
 -------------------------
 local v = vim
 
+local consts = require("constants")
 local utils  = require("utils")
 local fs     = require("fs")
 local ed     = require("ed")
@@ -226,6 +227,29 @@ vim.api.nvim_create_user_command("RunInsert", function(opts)
 
     vim.api.nvim_buf_set_lines(0, cursopos[2], cursopos[2], false, lines)
 end, {range=true})
+
+vim.api.nvim_create_user_command("CreateNewProject", function()
+    vim.ui.input({prompt="Name: ", default=""},
+    function(input)
+        vim.api.nvim_command("redraw") --Hide prompt
+        if input == nil or input == "" then vim.notify("Creation canceled.", vim.log.levels.INFO); return end
+
+        local projects_dir = vim.fs.normalize(consts.projects_dir.."/"..input)
+
+        vim.loop.fs_mkdir(projects_dir, tonumber("775", 8))
+
+        vim.fn.writefile({ "# "..input }, projects_dir.."/".."README.md")
+        vim.cmd("e "..projects_dir.."/".."README.md")
+
+        vim.system({"git", "init"}, {cwd=projects_dir, text=true}):wait()
+        vim.system({"git", "commit", "--allow-empty", "--allow-empty-message", "-m", "init"}, {cwd=projects_dir, text=true}):wait()
+
+        vim.notify("Created: ".."'"..projects_dir.."'", vim.log.levels.INFO)
+    end)
+end, {})
+
+-- vim.system("git" "commit" "--allow-empty" "--allow-empty-message" "-m", "In the beginning there was an idea", {})
+
 
 
 -- ## [Registers]
@@ -489,7 +513,7 @@ vim.api.nvim_create_user_command("FileSaveAsInteractive", function()
             if not vim.uv.fs_stat(dir) then
                 local choice = vim.fn.confirm("Directory does not exist. Create it?", "&Yes\n&No", 1)
                 if choice == 1 then
-                    local ret, err = vim.uv.fs_mkdir(dir, tonumber("755", 8)) -- drwxr-xr-x
+                    local ret, err = vim.uv.fs_mkdir(dir, tonumber("775", 8)) -- drwxr-xr-x
                     if not ret then
                         vim.notify("Directory creation failed: " .. err, vim.log.levels.ERROR) return
                     end
@@ -660,7 +684,6 @@ vim.api.nvim_create_user_command("FileDelete", function()
     end
 end, {})
 
-
 vim.api.nvim_create_user_command("SymlinkFile", function()
     local fpath = vim.api.nvim_buf_get_name(0)
     local cwd   = vim.fn.getcwd()
@@ -677,18 +700,6 @@ vim.api.nvim_create_user_command("SymlinkFile", function()
 
         vim.notify("Symlink created at: " .. input, vim.log.levels.INFO)
     end)
-end, {})
-
-vim.api.nvim_create_user_command("SymlinkFileToCwd", function()
-    local fpath = vim.api.nvim_buf_get_name(0)
-    local cwd   = vim.fn.getcwd()
-
-    local res = vim.system({"ln", "-s", fpath, cwd}, {text=true}):wait()
-    if res.code ~= 0 then
-        return vim.notify("Linking failed!" .. (res.stderr or "Unknown error"), vim.log.levels.ERROR)
-    end
-
-    vim.notify("Symlink created in: "..cwd, vim.log.levels.INFO)
 end, {})
 
 vim.api.nvim_create_user_command("PasteSymlink", function()
@@ -1102,31 +1113,6 @@ end, {})
 
 -- ## [Version control]
 ----------------------------------------------------------------------
-vim.api.nvim_create_user_command("GitCommitAll", function()
-    local ga_res = vim.system({"git", "add", "-A"}, {cwd=vim.fn.getcwd(), text=true}):wait()
-    if ga_res.code ~= 0 then
-        vim.notify(ga_res.stderr , vim.log.levels.ERROR); return
-    end
-
-    term.open_fwin(nil, {
-        title = "Commit all",
-        wratio = 0.85, hratio = 0.75,
-    }, "bash --norc")
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit".."\n")
-end, {})
-
-vim.api.nvim_create_user_command("GitAmend", function(opts)
-    term.open_fwin(nil, {
-        title = "Commit amend",
-        wratio = 0.85, hratio = 0.75,
-    }, "bash --norc")
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit --amend".."\n")
-end, {})
-
-
-
 -- ### [Repo admin]
 vim.api.nvim_create_user_command("GitLogFile", function()
     require("neogit").action("log", "log_current", { "--", vim.fn.expand("%:p") })()
@@ -1346,36 +1332,6 @@ end, {
     end,
 })
 
-vim.api.nvim_create_user_command("LazyGit", function(opts)
-    local bufid = vim.api.nvim_create_buf(false, true)
-
-    local edw_w = vim.o.columns
-    local edw_h = vim.o.lines
-
-    local wsize = {
-        w = math.floor(edw_w * 1),
-        h = math.floor(edw_h * 0.85),
-    }
-
-    local wopts = {
-        title     = "LazyGit",
-        title_pos = "center",
-        relative  = "editor",
-        width     = wsize.w,
-        height    = wsize.h,
-        col       = math.floor((edw_w - wsize.w) / 2),
-        row       = math.floor((edw_h - wsize.h) / 2) - 1,
-        border    = "single",
-    }
-
-    vim.api.nvim_open_win(bufid, true, wopts)
-
-    vim.cmd.terminal("lazygit")
-
-    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = 0 })
-    vim.api.nvim_set_option_value("buflisted", false, { buf = 0 })
-end, {})
-
 
 
 -- ## [View]
@@ -1496,10 +1452,6 @@ vim.api.nvim_create_user_command("PrintWordCount", function()
 end, {})
 
 
-
-
--- ## [Org]
-----------------------------------------------------------------------
 
 vim.api.nvim_create_user_command("TestCmd", function(opts)
 end, {nargs="*"})

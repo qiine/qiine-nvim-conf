@@ -3,10 +3,18 @@
 
 
 vim.keymap.set({"i","n","v"}, "<S-M-a>", function()
-    vim.cmd("vs | term")
-    vim.cmd("vert res +10")
+    vim.cmd("vs")
+    vim.cmd("vert res +11")
 
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "picustom\n")
+    vim.cmd("silent term piwrap")
+
+    vim.cmd("startinsert")
+end)
+
+vim.keymap.set({"i","n","v","t"}, "<M-C-S-A>", function()
+    vim.cmd("tabnew")
+
+    vim.cmd("silent term piwrap")
 
     vim.cmd("startinsert")
 end)

@@ -1767,41 +1767,6 @@ map("v",       "<S-Space>dg", ":diffget<cr>")
 map({"i","n","v"}, "<S-Space>ds", "<cmd>DiffSplits<CR>")
 
 
--- ## [Version control]
-----------------------------------------------------------------------
-local ldvc = "<S-Space>g"
-
-
--- git commit
-map({"i","n","v"}, ldvc.."c", function()
-    term.open_fwin(nil, {
-        title = "Commit",
-        wratio = 0.85, hratio = 0.75,
-    }, "bash --norc")
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git commit -v\n")
-end)
-
--- Commit curr file
-map({"i","n","v"}, ldvc.."cc", git.commit_curr)
-map({"i","n","v"}, "<M-C-S-S>", git.commit_curr) -- TODO chain save and on succes, commit
-
--- git push
-map({"i","n","v"}, ldvc.."<S-p>", function()
-    term.open_fwin(nil, {
-        title = "Push",
-        wratio = 0.75, hratio = 0.65,
-    }, "bash --norc")
-
-    vim.api.nvim_chan_send(vim.b.terminal_job_id, "git push\n")
-end)
-
-
-
--- Commit graph
--- map({"i","n","v"}, ldvc.."h", git.log_pretty)
-
-
 
 
 -- ## [Jobs]

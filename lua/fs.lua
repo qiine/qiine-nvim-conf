@@ -39,7 +39,7 @@ function U.is_abspath_inhome(path)
 end
 
 function U.is_abs(path)
-    return path:sub(1, 1) == "/"
+    return vim.startswith(path, "/")
 end
 
 ---Shorten path by cuting each subpath based on their length.
@@ -375,11 +375,12 @@ function M.mk_dir_intr()
         if not input or input == "" then vim.notify("Canceled.", vim.log.levels.INFO); return end
 
         local path = vim.fn.expand(input)
+        local path_abs = vim.fn.fnamemodify(path, ":p")
 
-        local mkdir_out = vim.system({"mkdir", "-p", path}, {text=true}):wait()
+        local mkdir_out = vim.system({"mkdir", "-p", path_abs}, {text=true}):wait()
         if mkdir_out.code ~= 0 then vim.notify("mkdir failed: "..mkdir_out.stderr, vim.log.levels.ERROR); return end
 
-        vim.notify("Created: '"..path.."'", vim.log.levels.INFO)
+        vim.notify("Created: '"..path_abs.."'", vim.log.levels.INFO)
     end)
 end
 

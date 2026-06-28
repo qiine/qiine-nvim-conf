@@ -4,16 +4,25 @@
 
 local M = {}
 
----@param searchdir string
----@return string
-function M.find_gitroot(searchdir)
-    local res = vim.system({"git", "rev-parse", "--show-toplevel"}, {cwd=searchdir, text=true}):wait()
-    return vim.trim(res.stdout)
+---@param dir string
+---return string|nil
+function M.find_gitroot_fordir(dir)
+    local res = vim.system({"git", "rev-parse", "--show-toplevel"}, {cwd=dir, text=true}):wait()
+    if res.code == 0 then
+        return vim.trim(res.stdout)
+    else
+        return nil
+    end
 end
 
+---return string|nil
 function M.find_gitroot_cwd()
     local res = vim.system({"git", "rev-parse", "--show-toplevel"}, {cwd=vim.fn.getcwd(), text=true}):wait()
-    return vim.trim(res.stdout)
+    if res.code == 0 then
+        return vim.trim(res.stdout)
+    else
+        return nil
+    end
 end
 
 ---@param path string

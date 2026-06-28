@@ -62,12 +62,13 @@ function M.unstage_file()
 end
 
 function M.unstage_all()
-    local groot = U.find_gitroot_cwd()
+    local repo_root = U.find_gitroot_cwd()
+    if not repo_root then vim.notify("not in git repo!", vim.log.levels.ERROR); return end
 
-    local res_unst = vim.system({"git", "reset"}, {cwd=groot, text=true}):wait()
+    local res_unst = vim.system({"git", "reset"}, {cwd=repo_root, text=true}):wait()
     if res_unst.code ~= 0 then vim.notify(res_unst.stderr, vim.log.levels.ERROR) return end
 
-    vim.notify("git unstaged all, in: "..'"'..groot..'"', vim.log.levels.INFO)
+    vim.notify("git unstaged all, in: "..'"'..repo_root..'"', vim.log.levels.INFO)
 end
 
 ---@param msg string?
@@ -142,7 +143,8 @@ function M.setup()
 end
 
 
-M.utl = U
+
+M.util = U
 --------
 return M
 

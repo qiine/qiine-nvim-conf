@@ -16,7 +16,8 @@ end
 
 
 
---[Characters]--------------------------------------------------
+-- ## [Strings]
+----------------------------------------------------------------------
 ---@return string
 ---@param pos number[]
 function M.get_char_at_pos(pos)
@@ -61,9 +62,6 @@ M.math = {
 }
 
 
-
--- ## [Strings]
-----------------------------------------------------------------------
 function M.isword(string)
     return string:match("%S") ~= nil
 end

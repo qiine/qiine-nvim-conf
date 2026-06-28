@@ -74,12 +74,15 @@ return
                     },
                     {   -- file git status
                         function()
-                            local crr_fpath = vim.fn.expand("%:p")
-                            local crr_fdir = vim.fn.expand("%:p:h")
+                            local cur_fpath = vim.fn.expand("%:p")
+                            local cur_fdir = vim.fn.expand("%:p:h")
+                            local repo_root = git.util.find_gitroot_fordir(cur_fdir)
 
-                            local file_gitst, err = git.utl.get_porcelainstatus(crr_fpath, crr_fdir)
+                            if not repo_root then return "" end
+
+                            local file_gitst, err = git.util.get_porcelainstatus(cur_fpath, cur_fdir)
                             local out = file_gitst
-                            if not file_gitst then out = "" end
+                            if not file_gitst or file_gitst == "" then out = "󰊢" end
 
                             return out
                         end,
@@ -320,8 +323,8 @@ return
                             end
 
                             table.insert(infos, "")
-
                             table.insert(infos, "Active LSP:")
+
                             for _, client in ipairs(clients) do
                                 table.insert(infos, "- "..client.name)
                             end

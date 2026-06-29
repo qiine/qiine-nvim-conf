@@ -8,15 +8,6 @@ local utils = require("utils")
 -- vim.o.colorcolumn="80"
 
 
--- Highlight yanked text
-vim.api.nvim_create_autocmd("TextYankPost", {
-    group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
-    callback = function()
-        vim.highlight.on_yank({higroup='Visual', timeout = 180})
-    end,
-})
-
-
 
 -- ## [Windows]
 ----------------------------------------------------------------------
@@ -26,6 +17,17 @@ vim.o.splitright = true -- Open new ver split windows to the right of the curren
 
 -- Floating windows borders style
 vim.o.winborder = "none" -- single rounded
+
+
+-- [Buffers]
+----------------------------------------------------------------------
+-- Highlight yanked text
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+    callback = function()
+        vim.highlight.on_yank({higroup='Visual', timeout = 180})
+    end,
+})
 
 
 
@@ -501,5 +503,10 @@ require('vim._core.ui2').enable({
 })
 
 
+
+-- ## [File explorer]
+vim.g.netrw_banner = 0
+vim.g.netrw_keepdir = 0  -- sync cwd with browsing dir
+-- vim.g.netrw_liststyle = 3
 
 
